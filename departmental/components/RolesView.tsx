@@ -76,7 +76,7 @@ export const RolesView: React.FC = () => {
              backTemplate: response.template.backCardTemplate || response.template.backTemplate,
              backDescription: response.template.backDescription,
              backDisclaimer: response.template.backDisclaimer,
-             signature: response.template.signature
+             signature: response.template.hodSignature || response.template.signature
            });
         }
       } catch (error) {
@@ -933,7 +933,7 @@ export const RolesView: React.FC = () => {
                         alt="Back Template"
                       />
                       <div className="absolute inset-0 flex flex-col items-center pt-10 text-center px-6">
-                        <p className="text-[9px] font-bold text-slate-900 mb-3 leading-tigher max-w-[95%]">
+                        <p className="text-[9px] font-bold text-slate-900 mb-2 leading-tigher max-w-[95%]">
                             {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
                         </p>
                         <p className="text-[8px] font-bold text-slate-900 leading-tight max-w-[90%]">
