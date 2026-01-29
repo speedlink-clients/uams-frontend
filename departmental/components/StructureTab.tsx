@@ -24,12 +24,22 @@ const StructureTab: React.FC = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [types, sessionsData] = await Promise.all([
+        const [typesData, sessionsData] = await Promise.all([
              programsCoursesApi.getProgramTypes(),
              academicsApi.getAcademicSessions()
         ]);
+        
+        console.log("Program Types:", typesData);
+        console.log("Sessions Data:", sessionsData);
+
+        // Handle Program Types (check if array or object wrapper)
+        const types = Array.isArray(typesData) ? typesData : (typesData as any)?.data || [];
         setProgramTypes(types);
-        setSessions(sessionsData);
+
+        // Handle Sessions (check if array or object wrapper)
+        const sessionsList = Array.isArray(sessionsData) ? sessionsData : (sessionsData as any)?.data || (sessionsData as any)?.sessions || [];
+        setSessions(sessionsList);
+
       } catch (err) {
         console.error("Failed to fetch data", err);
         toast.error("Failed to load initial data");
@@ -157,10 +167,10 @@ const StructureTab: React.FC = () => {
                 <FormFieldHorizontal 
                 label="Type" 
                 type="select" 
-                options={programTypes.map((t) => ({
+                options={Array.isArray(programTypes) ? programTypes.map((t) => ({
                     label: t.name,
                     value: t.id,
-                }))}
+                })) : []}
                 value={formData.type}
                 onChange={(val) => handleFormChange("type", val)}
                 />
@@ -266,7 +276,7 @@ const StructureTab: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 text-sm">
-              {sessions.map((session) => (
+              {Array.isArray(sessions) && sessions.map((session) => (
                 <tr key={session.id} className="hover:bg-slate-50/50 transition-colors text-slate-600">
                   <td className="px-6 py-4 text-center">
                     <input 
