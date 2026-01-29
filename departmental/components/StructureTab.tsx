@@ -2,62 +2,42 @@ import React, { useState } from "react";
 import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2 } from "lucide-react";
 import FormFieldHorizontal from "./FormFieldHorizontal";
 import { programsCoursesApi } from "../api/programscourseapi";
+import { academicsApi } from "../api/accademicapi";
 import { ProgramTypeResponse } from "../api/types";
+import { toast } from "react-hot-toast";
 
-// Dummy data for sessions
-const INITIAL_SESSIONS = [
-  {
-    id: "1",
-    name: "2024/2025 Academic Session",
-    type: "Undergraduate",
-    duration: "12 Months",
-    startDate: "12-10-2024",
-    status: "Ongoing",
-  },
-  {
-    id: "2",
-    name: "2024/2025 Academic Session",
-    type: "Masters",
-    duration: "12 Months",
-    startDate: "12-10-2024",
-    status: "Ongoing",
-  },
-  {
-    id: "3",
-    name: "2024/2025 Academic Session",
-    type: "Sandwich",
-    duration: "6 Months",
-    startDate: "12-10-2024",
-    status: "Ongoing",
-  },
-  {
-    id: "4",
-    name: "2023/2024 Academic Session",
-    type: "Undergraduate",
-    duration: "12 Months",
-    startDate: "12-10-2024",
-    status: "Completed",
-  },
-];
+
 
 const StructureTab: React.FC = () => {
-  const [sessions, setSessions] = useState(INITIAL_SESSIONS);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
 
+  const [isCreating, setIsCreating] = useState(false);
+
   // Fetch Program Types on Mount
+  // Fetch Program Types and Sessions on Mount
   React.useEffect(() => {
-    const fetchTypes = async () => {
+    const fetchData = async () => {
       try {
-        const types = await programsCoursesApi.getProgramTypes();
+        setIsLoading(true);
+        const [types, sessionsData] = await Promise.all([
+             programsCoursesApi.getProgramTypes(),
+             academicsApi.getAcademicSessions()
+        ]);
         setProgramTypes(types);
+        setSessions(sessionsData);
       } catch (err) {
-        console.error("Failed to fetch program types", err);
+        console.error("Failed to fetch data", err);
+        toast.error("Failed to load initial data");
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchTypes();
+    fetchData();
   }, []);
   
   // Form State
@@ -110,76 +90,143 @@ const StructureTab: React.FC = () => {
       ? "bg-green-100 text-green-600" 
       : "bg-red-100 text-red-600";
   };
+  
+  const handleSave = async () => {
+      // Validate inputs?
+      
+      try {
+        const payload = {
+            ...formData,
+            semesterCount: Number(formData.semesters),
+            isActive: true // Default to active?
+        };
+        
+        // Remove helper fields not in payload if any (formData has semesterCount? no it has semesters string)
+        // payload needs: name, type, semesterCount, duration, startDate, description, isActive
+        
+        if (editingSession) {
+             await academicsApi.updateSession(editingSession.id, {
+                name: payload.name, 
+                type: programTypes.find(t => t.id === payload.type)?.name || payload.type, 
+                semesterCount: Number(payload.semesters),
+                duration: payload.duration,
+                startDate: payload.startDate,
+                description: payload.description,
+                isActive: true
+            });
+        } else {
+            await academicsApi.createSession({
+                name: payload.name, 
+                type: programTypes.find(t => t.id === payload.type)?.name || payload.type, 
+                semesterCount: Number(payload.semesters),
+                duration: payload.duration,
+                startDate: payload.startDate,
+                description: payload.description,
+                isActive: true
+            });
+        }
+
+        toast.success(editingSession ? "Session updated" : "Session created");
+        setIsCreating(false);
+        setEditingSession(null);
+        
+        // Refresh list
+        const updatedSessions = await academicsApi.getAcademicSessions();
+        setSessions(updatedSessions);
+        
+      } catch (error: any) {
+          console.error("Failed to save session", error);
+          toast.error(error.response?.data?.message || "Failed to save session");
+      }
+  };
+
+  if (isCreating || editingSession) {
+      return (
+        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-slate-800 mb-8">
+                {editingSession ? "Edit Session" : "Create Session"}
+            </h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
+            <div className="space-y-6">
+                <FormFieldHorizontal 
+                label="Session Name" 
+                value={formData.name}
+                onChange={(val) => handleFormChange("name", val)}
+                />
+                <FormFieldHorizontal 
+                label="Type" 
+                type="select" 
+                options={programTypes.map((t) => ({
+                    label: t.name,
+                    value: t.id,
+                }))}
+                value={formData.type}
+                onChange={(val) => handleFormChange("type", val)}
+                />
+                <FormFieldHorizontal 
+                label="Semesters" 
+                type="select" 
+                options={["1", "2", "3"]}
+                value={formData.semesters}
+                onChange={(val) => handleFormChange("semesters", val)}
+                />
+            </div>
+            
+            <div className="space-y-6">
+                <FormFieldHorizontal 
+                label="Duration" 
+                type="select" 
+                options={["6 Months", "12 Months", "18 Months"]}
+                value={formData.duration}
+                onChange={(val) => handleFormChange("duration", val)}
+                />
+                <FormFieldHorizontal 
+                label="Start Date" 
+                type="date"
+                value={formData.startDate}
+                onChange={(val) => handleFormChange("startDate", val)}
+                />
+                <FormFieldHorizontal 
+                label="Description" 
+                type="textarea" 
+                value={formData.description}
+                onChange={(val) => handleFormChange("description", val)}
+                />
+            </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+            <button 
+                onClick={() => {
+                    setIsCreating(false);
+                    setEditingSession(null);
+                }}
+                className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+                Cancel
+            </button>
+            <button 
+                onClick={handleSave}
+                className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm"
+            >
+                {editingSession ? "Update Session" : "Create Session"}
+            </button>
+            </div>
+        </div>
+      );
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Create/Edit Session Form */}
-      <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-800 mb-8">
-            {editingSession ? "Edit Session" : "Create Session"}
-        </h3>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
-          <div className="space-y-6">
-            <FormFieldHorizontal 
-              label="Session Name" 
-              value={formData.name}
-              onChange={(val) => handleFormChange("name", val)}
-            />
-            <FormFieldHorizontal 
-              label="Type" 
-              type="select" 
-              options={programTypes.map((t) => ({
-                label: t.name,
-                value: t.id,
-              }))}
-              value={formData.type}
-              onChange={(val) => handleFormChange("type", val)}
-            />
-            <FormFieldHorizontal 
-              label="Semesters" 
-              type="select" 
-              options={["1", "2", "3"]}
-              value={formData.semesters}
-              onChange={(val) => handleFormChange("semesters", val)}
-            />
-          </div>
-          
-          <div className="space-y-6">
-            <FormFieldHorizontal 
-              label="Duration" 
-              type="select" 
-              options={["6 Months", "12 Months", "18 Months"]}
-              value={formData.duration}
-              onChange={(val) => handleFormChange("duration", val)}
-            />
-            <FormFieldHorizontal 
-              label="Start Date" 
-              type="date"
-              value={formData.startDate}
-              onChange={(val) => handleFormChange("startDate", val)}
-            />
-            <FormFieldHorizontal 
-              label="Description" 
-              type="textarea" 
-              value={formData.description}
-              onChange={(val) => handleFormChange("description", val)}
-            />
-          </div>
+    <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="flex justify-end">
+            <button 
+                onClick={() => setIsCreating(true)}
+                className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
+            >
+                Create Session
+            </button>
         </div>
-
-        <div className="flex justify-end gap-3 mt-8">
-          <button 
-            onClick={() => setEditingSession(null)}
-            className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm">
-            {editingSession ? "Update Session" : "Create Session"}
-          </button>
-        </div>
-      </div>
 
       {/* Created Sessions Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

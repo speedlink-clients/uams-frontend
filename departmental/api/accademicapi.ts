@@ -30,4 +30,19 @@ export const academicsApi = {
     const res = await api.get("/accademics/sessions");
     return res.data;
   },
+
+  async createSession(payload: any): Promise<any> {
+    const res = await api.post("/university-admin/academic-sessions", payload);
+    return res.data;
+  },
+
+  async updateSession(id: string, payload: any): Promise<any> {
+    const res = await api.put(`/university-admin/academic-sessions/${id}`, payload);
+    return res.data;
+  },
+
+  async getAcademicSessions(): Promise<any[]> {
+    const res = await api.get("/university-admin/academic-sessions");
+    return res.data;
+  },
 };
