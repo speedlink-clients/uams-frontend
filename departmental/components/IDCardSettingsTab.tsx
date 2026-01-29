@@ -36,9 +36,9 @@ export const IDCardSettingsTab: React.FC = () => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
 
-            // Limit file size to 500KB (500 * 1024 bytes)
-            if (file.size > 500 * 1024) {
-                toast.error("File is too large. Max size is 500KB.");
+            // Limit file size to 100KB (100 * 1024 bytes)
+            if (file.size > 100 * 1024) {
+                toast.error("File is too large. Max size is 100KB.");
                 return;
             }
 
