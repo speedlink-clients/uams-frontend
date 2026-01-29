@@ -56,7 +56,7 @@ export const StaffView: React.FC = () => {
 
   const handleDownloadTemplate = () => {
     const link = document.createElement('a');
-    link.href = '/documents/Staff_Sample_File.csv';
+    link.href = '/departmental-admin/documents/Staff_Sample_File.csv';
     link.setAttribute('download', 'Staff_Sample_File.csv');
     document.body.appendChild(link);
     link.click();

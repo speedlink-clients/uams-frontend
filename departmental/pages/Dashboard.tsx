@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { TrendingUp, CreditCard, Users, UserCheck } from "lucide-react";
 import {
   LineChart,
@@ -9,50 +10,103 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Announcement, ChartDataItem, AuthData } from "../components/types";
+import { Announcement, ChartDataItem } from "../components/types";
 import { AnnouncementList } from "../components/AnnouncementList";
-import { StatCard } from "../components/StatCard";
 import StatsContainer from "../components/StatsContainer";
 import { useAuth } from "../context/AuthProvider";
+import api from "../api/axios";
 
+// Placeholder announcements (could be moved to API later)
 const INITIAL_ANNOUNCEMENTS: Announcement[] = [
   {
     id: "1",
     title: "Session Setup Complete",
-    description:
-      "Academic session 2024/2025 has been successfully initialized for the department.",
+    description: "Academic session 2024/2025 has been successfully initialized.",
     date: "2025-01-02",
   },
   {
     id: "2",
     title: "New Course Prerequisites",
-    description:
-      "Updated prerequisites for CSC 301. Please review the course catalog.",
+    description: "Updated prerequisites for CSC 301. Please review the course catalog.",
     date: "2025-01-05",
   },
-];
-
-const REVENUE_DATA: ChartDataItem[] = [
-  { year: "2024", value: 50 },
-  { year: "2025", value: 25 },
-  { year: "2026", value: 75 },
-  { year: "2027", value: 85 },
-  { year: "2028", value: 30 },
-  { year: "2029", value: 70 },
-];
-
-const GROWTH_DATA: ChartDataItem[] = [
-  { year: "2024", value: 500 },
-  { year: "2025", value: 250 },
-  { year: "2026", value: 750 },
-  { year: "2027", value: 850 },
-  { year: "2028", value: 300 },
-  { year: "2029", value: 700 },
 ];
 
 const Dashboard: React.FC = () => {
   const { authData } = useAuth();
   const [announcements] = useState<Announcement[]>(INITIAL_ANNOUNCEMENTS);
+  
+  const [revenueData, setRevenueData] = useState<ChartDataItem[]>([]);
+  const [growthData, setGrowthData] = useState<ChartDataItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchChartData();
+  }, []);
+
+  const fetchChartData = async () => {
+    try {
+        setLoading(true);
+        const [usersRes, transactionsRes] = await Promise.all([
+            api.get("/university-admin/users"),
+            api.get("/annual-access-fee/transactions-all")
+        ]);
+
+        // Process Transactions for Revenue Trend
+        const transactions = transactionsRes.data.success ? transactionsRes.data.data : [];
+        const revenueByYear: Record<string, number> = {};
+        
+        transactions.forEach((t: any) => {
+            if (t.status === 'success') {
+                const year = new Date(t.createdAt).getFullYear().toString();
+                revenueByYear[year] = (revenueByYear[year] || 0) + t.amount;
+            }
+        });
+
+        // Fill in missing recent years if empty to avoid broken chart
+        const currentYear = new Date().getFullYear();
+        for (let i = currentYear - 2; i <= currentYear + 1; i++) {
+             const y = i.toString();
+             if (!revenueByYear[y]) revenueByYear[y] = 0;
+        }
+
+        const formattedRevenueData = Object.keys(revenueByYear)
+            .sort()
+            .map(year => ({ year, value: revenueByYear[year] }));
+        
+        setRevenueData(formattedRevenueData);
+
+
+        // Process Users for Enrollment Growth
+        const users = usersRes.data.users || [];
+        const growthByYear: Record<string, number> = {};
+
+        users.forEach((u: any) => {
+            if (u.role === 'STUDENT') {
+                const year = new Date(u.createdAt).getFullYear().toString();
+                 growthByYear[year] = (growthByYear[year] || 0) + 1;
+            }
+        });
+
+         // Fill in missing recent years
+         for (let i = currentYear - 2; i <= currentYear + 1; i++) {
+            const y = i.toString();
+            if (!growthByYear[y]) growthByYear[y] = 0;
+       }
+
+        const formattedGrowthData = Object.keys(growthByYear)
+            .sort()
+            .map(year => ({ year, value: growthByYear[year] }));
+
+        setGrowthData(formattedGrowthData);
+
+    } catch (error) {
+        console.error("Failed to fetch dashboard chart data", error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
 
   if (!authData) return null;
 
@@ -89,13 +143,13 @@ const Dashboard: React.FC = () => {
                 Department Performance
               </h3>
               <p className="text-xs text-slate-400 mt-1">
-                Fee collection vs Projections
+                Fee collection (Annual)
               </p>
             </div>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={REVENUE_DATA}>
+              <LineChart data={revenueData.length > 0 ? revenueData : [{year: '2024', value: 0}]}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
@@ -112,8 +166,10 @@ const Dashboard: React.FC = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tickFormatter={(val) => `₦${val/1000}k`}
                 />
                 <Tooltip
+                  formatter={(value: number) => [`₦${value.toLocaleString()}`, "Revenue"]}
                   contentStyle={{
                     borderRadius: "12px",
                     border: "none",
@@ -154,7 +210,7 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={GROWTH_DATA}>
+            <LineChart data={growthData.length > 0 ? growthData : [{year: '2024', value: 0}]}>
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
@@ -171,6 +227,7 @@ const Dashboard: React.FC = () => {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 11, fill: "#94a3b8" }}
+                allowDecimals={false}
               />
               <Tooltip
                 contentStyle={{
@@ -189,6 +246,7 @@ const Dashboard: React.FC = () => {
                   fill: "#3b82f6",
                   strokeWidth: 2,
                   stroke: "#fff",
+                  name: "Students"
                 }}
               />
             </LineChart>

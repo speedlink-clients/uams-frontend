@@ -46,6 +46,8 @@ export const StudentsView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("all");
+  const [selectedProgramType, setSelectedProgramType] = useState("all");
+  const [selectedSession, setSelectedSession] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -90,7 +92,9 @@ export const StudentsView: React.FC = () => {
             year: "numeric",
             month: "short",
             day: "numeric",
-          }),
+          }), // Storing visually formatted date, but filter logic handles it (or we should store raw too? using formatted for display)
+          // Actually formatted "Oct 12, 2024" works for display, filter might need parsing or just simple string match if year is in it.
+          // Let's assume consistent format.
           isActive: student.isActive,
           // Note: Backend response doesn't explicitly show classRepRole in the example yet, 
           // keeping optional access safely if it exists or default to undefined
@@ -132,8 +136,23 @@ export const StudentsView: React.FC = () => {
       );
     }
 
+    // Filter by Program Type
+    if (selectedProgramType !== "all") {
+        filtered = filtered.filter((student) => student.role === selectedProgramType);
+    }
+
+    // Filter by Session (using Year from formatted createdAt as proxy)
+    // Format: "Oct 25, 2024" -> Session "2024"
+    if (selectedSession !== "all") {
+        filtered = filtered.filter((student) => {
+            const year = student.createdAt.split(",")[1]?.trim();
+            // selectedSession is formatted as "2024 Session"
+            return `${year} Session` === selectedSession;
+        });
+    }
+
     return filtered;
-  }, [students, searchTerm, selectedLevel]);
+  }, [students, searchTerm, selectedLevel, selectedProgramType, selectedSession]);
 
   // Paginate filtered students
   const paginatedStudents = useMemo(() => {
@@ -155,10 +174,22 @@ export const StudentsView: React.FC = () => {
     return ["all", ...uniqueLevels].sort();
   }, [students]);
 
+  // Get unique Program Types
+  const programTypes = useMemo(() => {
+      const types = Array.from(new Set(students.map((s) => s.role))).filter(Boolean);
+      return ["all", ...types].sort();
+  }, [students]);
+
+  // Get unique Sessions (Years)
+  const sessions = useMemo(() => {
+    const years = Array.from(new Set(students.map((s) => s.createdAt.split(",")[1]?.trim()))).filter(Boolean);
+    return ["all", ...years].sort().reverse(); // Newest first
+  }, [students]);
+
   // Reset pagination when filters change
   useEffect(() => {
     setCurrentPage(1); // Reset page on filter change
-  }, [students, searchTerm, selectedLevel]);
+  }, [students, searchTerm, selectedLevel, selectedProgramType, selectedSession]);
 
   // Helper functions
   const getDepartmentFromProgramId = (programId?: string): string => {
@@ -191,6 +222,8 @@ export const StudentsView: React.FC = () => {
   const clearFilters = useCallback(() => {
     setSearchTerm("");
     setSelectedLevel("all");
+    setSelectedProgramType("all");
+    setSelectedSession("all");
     setCurrentPage(1);
   }, []);
 
@@ -272,7 +305,7 @@ export const StudentsView: React.FC = () => {
 
   const handleDownloadTemplate = () => {
     const link = document.createElement('a');
-    link.href = '/documents/Students_Sample_File.csv';
+    link.href = '/departmental-admin/documents/Students_Sample_File.csv';
     link.setAttribute('download', 'Students_Sample_File.csv');
     document.body.appendChild(link);
     link.click();
@@ -309,6 +342,30 @@ export const StudentsView: React.FC = () => {
       </div>
     );
   }
+
+  const filters = [
+    {
+      key: "level",
+      value: selectedLevel,
+      onChange: setSelectedLevel,
+      options: levels,
+      defaultLabel: "All Levels"
+    },
+    {
+      key: "programType",
+      value: selectedProgramType,
+      onChange: setSelectedProgramType,
+      options: programTypes,
+      defaultLabel: "All Programs"
+    },
+    {
+      key: "session",
+      value: selectedSession,
+      onChange: setSelectedSession,
+      options: sessions.map(s => s === "all" ? "all" : `${s} Session`), // e.g. "2024 Session"
+      defaultLabel: "All Sessions"
+    }
+  ];
 
   return (
     <div className="relative animate-in fade-in duration-500">
@@ -366,10 +423,7 @@ export const StudentsView: React.FC = () => {
         <SearchFilterBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          selectedFilter={selectedLevel}
-          setSelectedFilter={setSelectedLevel}
-          filterOptions={levels}
-          defaultFilterLabel="All Levels"
+          filters={filters}
           onClearFilters={clearFilters}
         />
 

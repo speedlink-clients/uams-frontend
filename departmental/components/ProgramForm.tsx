@@ -8,17 +8,18 @@ import { programsCoursesApi } from "../api/programscourseapi";
 import { ProgramTypeResponse } from "../api/types";
 
 interface ProgramFormProps {
+  initialData?: any; // Add initialData prop
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
 }
 
-const ProgramForm: React.FC<ProgramFormProps> = ({ onSubmit, onCancel }) => {
+const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    code: "",
-    type: "", // Will be set to ID
-    duration: "",
-    description: "",
+    name: initialData?.name || "",
+    code: initialData?.code || "",
+    type: initialData?.type || "", 
+    duration: initialData?.duration || "",
+    description: initialData?.description || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,10 +31,9 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ onSubmit, onCancel }) => {
       try {
         const types = await programsCoursesApi.getProgramTypes();
         setProgramTypes(types);
-        // Set default if available
-        // if (types.length > 0) {
-        //     handleChange("type", types[0].id);
-        // }
+        
+        // If we are editing and have an initial type ID, ensure it's selected.
+        // If not editing, logic remains same (or rely on placeholder).
       } catch (err) {
         console.error("Failed to fetch program types", err);
       }
@@ -83,7 +83,9 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ onSubmit, onCancel }) => {
 
   return (
     <div className="bg-white rounded-2xl p-10 border border-gray-100 shadow-sm animate-in zoom-in-95 duration-200">
-      <h3 className="text-xl font-bold text-slate-800 mb-10">Create Program</h3>
+      <h3 className="text-xl font-bold text-slate-800 mb-10">
+        {initialData ? "Edit Program" : "Create Program"}
+      </h3>
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
           {error}
@@ -157,10 +159,10 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ onSubmit, onCancel }) => {
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="animate-spin h-4 w-4" /> Creating...
+                <Loader2 className="animate-spin h-4 w-4" /> {initialData ? "Updating..." : "Creating..."}
               </>
             ) : (
-              "Create Program"
+                initialData ? "Update Program" : "Create Program"
             )}
           </button>
         </div>

@@ -86,4 +86,25 @@ export const programsCoursesApi = {
   deleteCourse: async (courseId: string): Promise<void> => {
     await api.delete(`/courses/${courseId}`);
   },
+
+  /** UPDATE COURSE */
+  updateCourse: async (courseId: string, courseData: any): Promise<Course> => {
+      const response = await api.patch<Course>(`/courses/${courseId}`, courseData);
+      return response.data;
+  },
+
+  /** UPDATE PROGRAM */
+  updateProgram: async (programId: string, programData: any): Promise<Program> => {
+      const payload = {
+          name: programData.name,
+          code: programData.code,
+          description: programData.description,
+          duration: Number(programData.duration),
+          // type might not be editable or needs careful handling. 
+          // Assuming backend handles partial updates or we send what's needed.
+      };
+      
+      const response = await api.patch<Program>(`/program/${programId}`, payload);
+      return response.data;
+  },
 };

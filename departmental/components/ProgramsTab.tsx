@@ -13,6 +13,8 @@ const ProgramsTab: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
+  const [editingProgram, setEditingProgram] = useState<any | null>(null);
+
   // Toggle selection for a single program
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
@@ -83,19 +85,25 @@ const ProgramsTab: React.FC = () => {
   };
 
   // Fixed: Properly handle errors from createProgram and re-throw for ProgramForm to display
-  const handleCreateProgram = async (programData: any) => {
+  const handleCreateOrUpdateProgram = async (programData: any) => {
     try {
-      await programsCoursesApi.createProgram(programData);
+      if (editingProgram) {
+        await programsCoursesApi.updateProgram(editingProgram.id, programData); 
+      } else {
+        await programsCoursesApi.createProgram(programData);
+      }
+      
       setIsCreating(false);
+      setEditingProgram(null);
       await fetchPrograms(); // Refresh the list after successful creation
     } catch (err: any) {
-      console.error("Error creating program:", err);
+      console.error("Error saving program:", err);
       // Re-throw the error so ProgramForm can catch and display it
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
         err.message ||
-        "Failed to create program";
+        "Failed to save program";
       throw new Error(errorMessage);
     }
   };
@@ -116,11 +124,15 @@ const ProgramsTab: React.FC = () => {
     return typeMap[type] || type;
   };
 
-  if (isCreating) {
+  if (isCreating || editingProgram) {
     return (
       <ProgramForm
-        onSubmit={handleCreateProgram}
-        onCancel={() => setIsCreating(false)}
+        initialData={editingProgram}
+        onSubmit={handleCreateOrUpdateProgram}
+        onCancel={() => {
+            setIsCreating(false);
+            setEditingProgram(null);
+        }}
       />
     );
   }
@@ -278,7 +290,7 @@ const ProgramsTab: React.FC = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log("Edit clicked", program.id);
+                                  setEditingProgram(program);
                                   setActiveDropdownId(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"

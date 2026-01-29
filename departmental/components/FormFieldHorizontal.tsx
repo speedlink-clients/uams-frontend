@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 interface FormFieldHorizontalProps {
   label: string;
   placeholder?: string;
-  type?: "text" | "select" | "textarea";
+  type?: "text" | "select" | "textarea" | "date";
   options?: Array<{ label: string; value: string }> | string[]; // ✅ Allow both formats
   value?: string;
   onChange?: (value: string) => void;
@@ -57,9 +57,9 @@ const FormFieldHorizontal: React.FC<FormFieldHorizontalProps> = ({
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="flex-1 max-w-sm">
-        {type === "text" && (
+        {(type === "text" || type === "date") && (
           <input
-            type="text"
+            type={type}
             placeholder={placeholder}
             value={value}
             onChange={handleChange}

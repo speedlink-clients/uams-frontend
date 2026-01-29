@@ -8,13 +8,19 @@ import { BookOpen, Layers, Calendar } from "lucide-react";
 const ProgramCoursesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     "programs" | "courses" | "structure"
-  >("programs");
+  >("structure");
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Program & Courses</h2>
         <div className="flex bg-slate-100 p-1 rounded-xl">
+          <TabButton
+            active={activeTab === "structure"}
+            onClick={() => setActiveTab("structure")}
+            icon={<Calendar size={16} />}
+            label="Setup & Sessions"
+          />
           <TabButton
             active={activeTab === "programs"}
             onClick={() => setActiveTab("programs")}
@@ -27,18 +33,12 @@ const ProgramCoursesPage: React.FC = () => {
             icon={<BookOpen size={16} />}
             label="Course Catalog"
           />
-          <TabButton
-            active={activeTab === "structure"}
-            onClick={() => setActiveTab("structure")}
-            icon={<Calendar size={16} />}
-            label="Setup & Sessions"
-          />
         </div>
       </div>
 
+      {activeTab === "structure" && <StructureTab />}
       {activeTab === "programs" && <ProgramsTab />}
       {activeTab === "courses" && <CoursesTab />}
-      {activeTab === "structure" && <StructureTab />}
     </div>
   );
 };

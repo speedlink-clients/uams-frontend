@@ -1,112 +1,81 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Search, Filter, Download, Calendar, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-// Mock Data Type
-interface Transaction {
-  id: string;
-  studentName: string;
-  matricNo: string;
-  amount: number;
-  type: string;
-  reference: string;
-  date: string;
-  status: "success" | "pending" | "failed";
-  avatar: string;
+// API Types
+interface StudentInfo {
+  studentId: string;
+  registrationNo: string | null;
+  fullName: string;
+  email: string;
 }
 
-// Mock Data
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: "1",
-    studentName: "Justice Amadi",
-    matricNo: "U2020/2502201",
-    amount: 12000,
-    type: "Department Dues",
-    reference: "REF-1234567890",
-    date: "2024-01-28",
-    status: "success",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Justice"
-  },
-  {
-    id: "2",
-    studentName: "Sarah Johnson",
-    matricNo: "U2021/3602111",
-    amount: 5000,
-    type: "Access Fee",
-    reference: "REF-0987654321",
-    date: "2024-01-28",
-    status: "success",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah"
-  },
-  {
-    id: "3",
-    studentName: "Michael Brown",
-    matricNo: "U2022/1502444",
-    amount: 3500,
-    type: "ID Card Fee",
-    reference: "REF-5544332211",
-    date: "2024-01-27",
-    status: "pending",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael"
-  },
-  {
-    id: "4",
-    studentName: "Emily Davis",
-    matricNo: "U2020/2502123",
-    amount: 10000,
-    type: "Transcript Fee",
-    reference: "REF-9988776655",
-    date: "2024-01-26",
-    status: "failed",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily"
-  },
-  {
-    id: "5",
-    studentName: "David Wilson",
-    matricNo: "U2023/4502888",
-    amount: 12000,
-    type: "Department Dues",
-    reference: "REF-1122334455",
-    date: "2024-01-25",
-    status: "success",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David"
-  },
-  {
-    id: "6",
-    studentName: "Lisa Anderson",
-    matricNo: "U2021/3602999",
-    amount: 5000,
-    type: "Access Fee",
-    reference: "REF-6677889900",
-    date: "2024-01-25",
-    status: "success",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa"
-  },
-    {
-    id: "7",
-    studentName: "James Martin",
-    matricNo: "U2022/1502777",
-    amount: 3500,
-    type: "ID Card Fee",
-    reference: "REF-4455667788",
-    date: "2024-01-24",
-    status: "success",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=James"
-  }
-];
+interface TransactionData {
+  id: string;
+  reference: string;
+  amount: number;
+  status: "success" | "pending" | "failed";
+  paymentType: string;
+  paymentMethod: string | null;
+  currency: string;
+  createdAt: string;
+  paidAt: string | null;
+  studentInfo: StudentInfo | null;
+}
+
+interface Statistics {
+  totalTransactions: number;
+  totalAmount: number;
+}
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  
+  const [transactions, setTransactions] = useState<TransactionData[]>([]);
+  const [stats, setStats] = useState<Statistics>({ totalTransactions: 0, totalAmount: 0 });
+  const [loading, setLoading] = useState(true);
 
-  const filteredTransactions = MOCK_TRANSACTIONS.filter((t) => {
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        // GET /annual-access-fee/transactions-all
+        const response = await axios.get(`${BASE_URL}/annual-access-fee/transactions-all`, {
+           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+
+        if (response.data.success) {
+            setTransactions(response.data.data);
+            setStats(response.data.statistics);
+        } else {
+            toast.error("Failed to load transactions");
+        }
+      } catch (error) {
+        console.error("Fetch transactions error:", error);
+        toast.error("Failed to fetch transactions");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  const filteredTransactions = transactions.filter((t) => {
+    const studentName = t.studentInfo?.fullName || "Unknown";
+    const matricNo = t.studentInfo?.studentId || "N/A";
+    const email = t.studentInfo?.email || "";
+
     const matchesSearch = 
-      t.studentName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      t.matricNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.reference.toLowerCase().includes(searchQuery.toLowerCase());
+      studentName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      matricNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      email.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || t.status === statusFilter;
 
@@ -129,7 +98,7 @@ export default function PaymentsPage() {
 
   const handleBulkDownload = () => {
       toast.success(`Downloading ${selectedIds.length} receipts...`);
-      // Mock download logic
+      // Future: Implement actual bulk download API
       setSelectedIds([]);
   };
 
@@ -140,6 +109,15 @@ export default function PaymentsPage() {
       case "failed": return "bg-red-100 text-red-700 border-red-200";
       default: return "bg-slate-100 text-slate-700 border-slate-200";
     }
+  };
+
+  const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
+  };
+
+  // Helper to generate avatar from name
+  const getAvatarUrl = (name: string) => {
+      return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
   };
 
   return (
@@ -154,8 +132,6 @@ export default function PaymentsPage() {
               View and monitor all payment transactions in your department.
             </p>
           </div>
-          
-        {/* KPI Cards */}
         </header>
 
         {/* KPI Cards */}
@@ -166,7 +142,9 @@ export default function PaymentsPage() {
                 </div>
                 <div>
                     <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Transactions</p>
-                    <h3 className="text-2xl font-bold text-slate-900">{MOCK_TRANSACTIONS.length}</h3>
+                    <h3 className="text-2xl font-bold text-slate-900">
+                        {loading ? "..." : stats.totalTransactions}
+                    </h3>
                 </div>
             </div>
 
@@ -177,7 +155,7 @@ export default function PaymentsPage() {
                 <div>
                     <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Amount</p>
                     <h3 className="text-2xl font-bold text-slate-900">
-                        ₦{MOCK_TRANSACTIONS.reduce((sum, t) => sum + t.amount, 0).toLocaleString()}
+                        {loading ? "..." : formatCurrency(stats.totalAmount)}
                     </h3>
                 </div>
             </div>
@@ -188,7 +166,8 @@ export default function PaymentsPage() {
                 </div>
                 <div>
                     <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">This Month</p>
-                    <h3 className="text-2xl font-bold text-slate-900">₦450,000</h3>
+                    {/* Placeholder for monthly stat if API doesn't provide it yet, or derive from stats if available */}
+                    <h3 className="text-2xl font-bold text-slate-900">--</h3> 
                 </div>
             </div>
         </div>
@@ -241,6 +220,7 @@ export default function PaymentsPage() {
                             </th>
                             <th className="px-6 py-4">Transaction Ref</th>
                             <th className="px-6 py-4">Student</th>
+                            <th className="px-6 py-4">Email</th>
                             <th className="px-6 py-4">Payment For</th>
                             <th className="px-6 py-4">Amount</th>
                             <th className="px-6 py-4">Date</th>
@@ -249,9 +229,15 @@ export default function PaymentsPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 text-sm">
-                        {filteredTransactions.length === 0 ? (
+                        {loading ? (
+                             <tr>
+                                <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
+                                    Loading transactions...
+                                </td>
+                            </tr>
+                        ) : filteredTransactions.length === 0 ? (
                             <tr>
-                                <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
+                                <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
                                     No transactions found matching your filters.
                                 </td>
                             </tr>
@@ -277,21 +263,28 @@ export default function PaymentsPage() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <img src={t.avatar} alt={t.studentName} className="w-8 h-8 rounded-full bg-slate-100" />
+                                            <img 
+                                                src={getAvatarUrl(t.studentInfo?.fullName || "Unkown")} 
+                                                alt={t.studentInfo?.fullName || "Student"} 
+                                                className="w-8 h-8 rounded-full bg-slate-100" 
+                                            />
                                             <div>
-                                                <p className="font-bold text-slate-700">{t.studentName}</p>
-                                                <p className="text-xs text-slate-500">{t.matricNo}</p>
+                                                <p className="font-bold text-slate-700">{t.studentInfo?.fullName || "Unknown Student"}</p>
+                                                <p className="text-xs text-slate-500">{t.studentInfo?.studentId || "N/A"}</p>
                                             </div>
                                         </div>
                                     </td>
+                                    <td className="px-6 py-4 text-slate-600">
+                                        {t.studentInfo?.email || "N/A"}
+                                    </td>
                                     <td className="px-6 py-4 text-slate-600 font-medium">
-                                        {t.type}
+                                        {t.paymentType.replace(/_/g, " ").toUpperCase()}
                                     </td>
                                     <td className="px-6 py-4 font-bold text-slate-900">
-                                        ₦{t.amount.toLocaleString()}
+                                        {formatCurrency(t.amount)}
                                     </td>
                                     <td className="px-6 py-4 text-slate-500">
-                                        {t.date}
+                                        {new Date(t.createdAt).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(t.status)}`}>
@@ -312,7 +305,7 @@ export default function PaymentsPage() {
             
             {/* Pagination Footer (Mock) */}
             <div className="px-6 py-4 border-t border-slate-50 flex justify-between items-center text-sm text-slate-500">
-                <span>Showing {filteredTransactions.length} of {MOCK_TRANSACTIONS.length} results</span>
+                <span>Showing {filteredTransactions.length} results</span>
                 <div className="flex gap-2">
                     <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Previous</button>
                     <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Next</button>

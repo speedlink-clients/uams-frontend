@@ -12,6 +12,7 @@ const CoursesTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+  const [editingCourse, setEditingCourse] = useState<any | null>(null);
 
   // Toggle selection for a single course
   const toggleSelection = (id: string) => {
@@ -83,22 +84,32 @@ const CoursesTab: React.FC = () => {
     }
   };
 
-  const handleCreateCourse = async (courseData: any) => {
+  const handleCreateOrUpdateCourse = async (courseData: any) => {
     try {
-      await programsCoursesApi.createCourse(courseData);
+      if (editingCourse) {
+        await programsCoursesApi.updateCourse(editingCourse.id, courseData);
+      } else {
+        await programsCoursesApi.createCourse(courseData);
+      }
+      
       setIsCreating(false);
+      setEditingCourse(null);
       fetchCourses();
     } catch (err: any) {
-      console.error("Error creating course:", err);
+      console.error("Error saving course:", err);
       throw err;
     }
   };
 
-  if (isCreating) {
+  if (isCreating || editingCourse) {
     return (
       <CourseForm
-        onSubmit={handleCreateCourse}
-        onCancel={() => setIsCreating(false)}
+        initialData={editingCourse}
+        onSubmit={handleCreateOrUpdateCourse}
+        onCancel={() => {
+            setIsCreating(false);
+            setEditingCourse(null);
+        }}
       />
     );
   }
@@ -257,7 +268,7 @@ const CoursesTab: React.FC = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log("Edit clicked", course.id);
+                                  setEditingCourse(course);
                                   setActiveDropdownId(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"

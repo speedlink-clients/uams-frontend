@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Users, CreditCard, UserCheck } from "lucide-react";
 import { StatCard } from "./StatCard";
@@ -11,17 +12,23 @@ interface User {
   role: string;
   isActive: boolean;
   createdAt: string;
-  Student: any;
-  Lecturer: any;
-  DepartmentAdmin: any;
-  FacultyAdmin: any;
-  UniversityAdmin: any;
 }
 
 interface UsersResponse {
   message: string;
   count: number;
   users: User[];
+}
+
+interface TransactionsResponse {
+    success: boolean;
+    data: any[];
+    statistics: {
+        totalTransactions: number;
+        totalAmount: number;
+        paymentTypeBreakdown: any;
+        statusBreakdown: any;
+    };
 }
 
 const StatsContainer: React.FC = () => {
@@ -34,15 +41,18 @@ const StatsContainer: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchUsers();
+    fetchData();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchData = async () => {
     try {
-      const response = await api.get<UsersResponse>(
-        "/university-admin/users"
-      );
-      const users = response.data.users;
+      const [usersRes, transactionsRes] = await Promise.all([
+        api.get<UsersResponse>("/university-admin/users"),
+        api.get<TransactionsResponse>("/annual-access-fee/transactions-all")
+      ]);
+
+      const users = usersRes.data.users;
+      const transactions = transactionsRes.data;
 
       // Calculate statistics
       const studentCount = users.filter(
@@ -58,9 +68,10 @@ const StatsContainer: React.FC = () => {
           user.role === "UNIVERSITYADMIN"
       ).length;
 
-      // For now, using mock revenue - you can replace this with actual API call
-      const revenuePerStudent = 76000; // Example: ₦76,000 per student
-      const totalRevenue = studentCount * revenuePerStudent;
+      // Use real total revenue from API
+      const totalRevenue = transactions.success 
+        ? transactions.statistics.totalAmount 
+        : 0;
 
       setStats({
         totalStudents: studentCount,
@@ -70,7 +81,8 @@ const StatsContainer: React.FC = () => {
         error: null,
       });
     } catch (err: any) {
-      console.error("Error fetching users:", err);
+      console.error("Error fetching dashboard stats:", err);
+      // Fallback: don't break the whole dashboard if one key fails, but for now show error
       setStats((prev) => ({
         ...prev,
         isLoading: false,
@@ -116,7 +128,7 @@ const StatsContainer: React.FC = () => {
       <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
         <p className="text-red-600 font-medium">{stats.error}</p>
         <button
-          onClick={fetchUsers}
+          onClick={fetchData}
           className="mt-3 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
         >
           Retry
@@ -139,7 +151,7 @@ const StatsContainer: React.FC = () => {
         value={formatCurrency(stats.totalRevenue)}
         icon={<CreditCard size={24} />}
         bgColor="bg-emerald-50"
-        description="Estimated annual revenue"
+        description="Total annual revenue"
       />
       <StatCard
         label="Academic Staff"

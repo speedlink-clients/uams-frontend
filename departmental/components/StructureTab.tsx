@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Filter, MoreHorizontal, Search, ChevronDown } from "lucide-react";
+import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2 } from "lucide-react";
 import FormFieldHorizontal from "./FormFieldHorizontal";
 import { programsCoursesApi } from "../api/programscourseapi";
 import { ProgramTypeResponse } from "../api/types";
@@ -45,6 +45,7 @@ const StructureTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
+  const [activeActionId, setActiveActionId] = useState<string | null>(null);
 
   // Fetch Program Types on Mount
   React.useEffect(() => {
@@ -60,14 +61,39 @@ const StructureTab: React.FC = () => {
   }, []);
   
   // Form State
+  const [editingSession, setEditingSession] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     name: "2023/2024 Academic Session",
     duration: "12 Months",
     type: "Undergraduate",
-    startDate: "12-10-2024",
+    startDate: "2024-10-12", // Fixed date format for date input
     semesters: "2",
     description: "",
   });
+
+  // Populate form when editingSession changes
+  React.useEffect(() => {
+    if (editingSession) {
+        setFormData({
+            name: editingSession.name,
+            duration: editingSession.duration,
+            type: editingSession.type,
+            startDate: editingSession.startDate, // Ensure format YYYY-MM-DD
+            semesters: "2", // Mock data doesn't have semesters, default or mock it
+            description: "", // Mock data doesn't have description
+        });
+    } else {
+        // Reset to default
+        setFormData({
+            name: "2023/2024 Academic Session",
+            duration: "12 Months",
+            type: "Undergraduate",
+            startDate: "2024-10-12",
+            semesters: "2",
+            description: "",
+        });
+    }
+  }, [editingSession]);
 
   const handleFormChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -87,9 +113,11 @@ const StructureTab: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Create Session Form */}
+      {/* Create/Edit Session Form */}
       <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-800 mb-8">Create Session</h3>
+        <h3 className="text-xl font-bold text-slate-800 mb-8">
+            {editingSession ? "Edit Session" : "Create Session"}
+        </h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
           <div className="space-y-6">
@@ -127,7 +155,7 @@ const StructureTab: React.FC = () => {
             />
             <FormFieldHorizontal 
               label="Start Date" 
-              placeholder="DD-MM-YYYY"
+              type="date"
               value={formData.startDate}
               onChange={(val) => handleFormChange("startDate", val)}
             />
@@ -141,11 +169,14 @@ const StructureTab: React.FC = () => {
         </div>
 
         <div className="flex justify-end gap-3 mt-8">
-          <button className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors">
+          <button 
+            onClick={() => setEditingSession(null)}
+            className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
+          >
             Cancel
           </button>
           <button className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm">
-            Create Session
+            {editingSession ? "Update Session" : "Create Session"}
           </button>
         </div>
       </div>
@@ -208,9 +239,47 @@ const StructureTab: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
-                      <MoreHorizontal size={18} />
-                    </button>
+                    <div className="relative">
+                      <button 
+                        onClick={() => setActiveActionId(activeActionId === session.id ? null : session.id)}
+                        className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                      >
+                        <MoreHorizontal size={18} />
+                      </button>
+                      
+                      {activeActionId === session.id && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-10" 
+                            onClick={() => setActiveActionId(null)}
+                          />
+                          <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1 animate-in fade-in zoom-in-95 duration-200">
+                            <button 
+                              onClick={() => {
+                                console.log("Edit", session.id);
+                                setEditingSession(session); // Populate form
+                                setActiveActionId(null);
+                                window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to form
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors text-left"
+                            >
+                              <Edit size={14} />
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => {
+                                console.log("Delete", session.id);
+                                setActiveActionId(null);
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

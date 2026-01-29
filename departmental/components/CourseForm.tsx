@@ -5,23 +5,24 @@ import { programsCoursesApi } from "../api/programscourseapi";
 import { ProgramTypeResponse } from "../api/types";
 
 interface CourseFormProps {
+  initialData?: any; // Add initialData prop
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
 }
 
-const CourseForm: React.FC<CourseFormProps> = ({ onSubmit, onCancel }) => {
+const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const [levels, setLevels] = useState<Level[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
 
   // ✅ State keys now match the logic in handleSubmit
   const [formData, setFormData] = useState({
-    code: "",
-    title: "",
-    levelId: "",
-    semesterId: "",
-    programTypeId: "",
-    creditUnits: 3,
+    code: initialData?.code || "",
+    title: initialData?.title || "",
+    levelId: initialData?.levelId || "",
+    semesterId: initialData?.semesterId || "",
+    programTypeId: initialData?.programTypeId || "",
+    creditUnits: initialData?.creditUnits || 3,
   });
 
   // Calculate if selected type is Bachelors
@@ -116,7 +117,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ onSubmit, onCancel }) => {
 
   return (
     <div className="bg-white rounded-lg shadow p-8">
-      <h2 className="text-xl font-semibold mb-6">Create Course</h2>
+      <h2 className="text-xl font-semibold mb-6">
+        {initialData ? "Edit Course" : "Create Course"}
+      </h2>
 
       {/* ERROR MESSAGE DISPLAY */}
       {error && (
@@ -195,7 +198,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onSubmit, onCancel }) => {
                     {level.name}
                   </option>
                 ))}
-            </select>
+              </select>
             </div>
           )}
 
@@ -260,7 +263,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onSubmit, onCancel }) => {
             className="flex items-center gap-2 px-6 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 disabled:bg-green-400 transition-colors"
           >
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isSubmitting ? "Creating..." : "Create Course"}
+            {isSubmitting ? (initialData ? "Updating..." : "Creating...") : (initialData ? "Update Course" : "Create Course")}
           </button>
         </div>
       </form>
