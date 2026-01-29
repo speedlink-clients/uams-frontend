@@ -156,6 +156,9 @@ export default function PaymentsPage() {
           </div>
           
         {/* KPI Cards */}
+        </header>
+
+        {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                 <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -189,7 +192,6 @@ export default function PaymentsPage() {
                 </div>
             </div>
         </div>
-        </header>
 
         {/* Filters & Actions */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
