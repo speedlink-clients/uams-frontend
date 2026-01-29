@@ -22,17 +22,25 @@ export const IDCardSettingsTab: React.FC = () => {
 
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [signatureFile, setSignatureFile] = useState<File | null>(null);
+    const [frontTemplateFile, setFrontTemplateFile] = useState<File | null>(null);
+    const [backTemplateFile, setBackTemplateFile] = useState<File | null>(null);
     
     const logoInputRef = React.useRef<HTMLInputElement>(null);
     const signatureInputRef = React.useRef<HTMLInputElement>(null);
+    const frontTemplateInputRef = React.useRef<HTMLInputElement>(null);
+    const backTemplateInputRef = React.useRef<HTMLInputElement>(null);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'signature') => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'signature' | 'frontTemplate' | 'backTemplate') => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             if (type === 'logo') {
                 setLogoFile(file);
-            } else {
+            } else if (type === 'signature') {
                 setSignatureFile(file);
+            } else if (type === 'frontTemplate') {
+                setFrontTemplateFile(file);
+            } else if (type === 'backTemplate') {
+                setBackTemplateFile(file);
             }
         }
     };
@@ -96,6 +104,14 @@ export const IDCardSettingsTab: React.FC = () => {
 
             if (signatureFile) {
                 payload.hodSignature = await convertFileToBase64(signatureFile);
+            }
+
+            if (frontTemplateFile) {
+                payload.frontTemplate = await convertFileToBase64(frontTemplateFile);
+            }
+
+            if (backTemplateFile) {
+                payload.backTemplate = await convertFileToBase64(backTemplateFile);
             }
 
             if (!formData.templateId) {
@@ -266,6 +282,7 @@ export const IDCardSettingsTab: React.FC = () => {
                     )}
                 </div>
 
+
                  {/* Upload HOD Signature */}
                  <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-400">Upload HOD Signature</label>
@@ -283,7 +300,52 @@ export const IDCardSettingsTab: React.FC = () => {
                             className={`flex items-center gap-2 px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-500 text-sm font-bold transition-colors ${isEditing ? 'hover:bg-slate-100 cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
                         >
                             <Upload size={16} />
-                            {signatureFile ? signatureFile.name : "Upload Document"}
+                            {signatureFile ? signatureFile.name : "Upload Signature"}
+                        </button>
+                    </div>
+                </div>
+
+                 {/* Upload Front Template */}
+                 <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-400">Upload Front Template</label>
+                    <div>
+                        <input 
+                            type="file" 
+                            ref={frontTemplateInputRef}
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => handleFileChange(e, 'frontTemplate')}
+                        />
+                        <button 
+                            onClick={() => isEditing && frontTemplateInputRef.current?.click()}
+                            disabled={!isEditing}
+                            className={`flex items-center gap-2 px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-500 text-sm font-bold transition-colors ${isEditing ? 'hover:bg-slate-100 cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
+                        >
+                            <Upload size={16} />
+                            {frontTemplateFile ? frontTemplateFile.name : "Upload Front Template"}
+                        </button>
+                    </div>
+                </div>
+
+
+                 {/* Upload Back Template */}
+                 <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-400">Upload Back Template</label>
+                    <div>
+                        <input 
+                            type="file" 
+                            ref={backTemplateInputRef}
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => handleFileChange(e, 'backTemplate')}
+                        />
+                        <button 
+                            onClick={() => isEditing && backTemplateInputRef.current?.click()}
+                            disabled={!isEditing}
+                            className={`flex items-center gap-2 px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-500 text-sm font-bold transition-colors ${isEditing ? 'hover:bg-slate-100 cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
+                        >
+                            <Upload size={16} />
+                            {backTemplateFile ? backTemplateFile.name : "Upload Back Template"}
                         </button>
                     </div>
                 </div>
