@@ -351,7 +351,6 @@ export const RolesView: React.FC = () => {
             // Add disclaimer text on back (if needed)
             doc.setFontSize(2.5);
             doc.setFont("helvetica", "normal");
-            // // doc.text(
             // //   "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt",
             // //   5,
             // //   25,
@@ -497,7 +496,6 @@ export const RolesView: React.FC = () => {
             doc.setFont("helvetica", "normal");
 
             const backTextY = backY + 25 * scale;
-            // doc.text(
             //   "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt",
             //   backX + 5 * scale,
             //   backTextY,
@@ -936,7 +934,7 @@ export const RolesView: React.FC = () => {
                         <p className="text-[9px] font-bold text-slate-900 mb-2 leading-tigher max-w-[95%]">
                             {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
                         </p>
-                        <p className="text-[8px] font-bold text-slate-900 leading-tight max-w-[90%]">
+                        <p className="text-[8px] font-bold text-slate-900 leading-tight max-w-[95%]">
                             {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
                         </p>
                         
@@ -946,7 +944,7 @@ export const RolesView: React.FC = () => {
                                 <img 
                                     src={idCardSettings.signature} 
                                     alt="Signature" 
-                                    className="h-10 w-auto mb-1 object-contain"
+                                    className="w-24 h-8 mb-1 object-contain"
                                 />
                             )}
                             {/* Line and Title */}
