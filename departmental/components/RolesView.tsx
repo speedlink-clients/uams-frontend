@@ -816,7 +816,7 @@ export const RolesView: React.FC = () => {
                   ) : (
                     <img
                       src={capturedPhoto}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-fill"
                       alt="Captured student photo"
                     />
                   )}
