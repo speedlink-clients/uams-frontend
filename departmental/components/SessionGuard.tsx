@@ -19,7 +19,7 @@ const SessionGuard: React.FC = () => {
 
   if (!authData) {
     // Redirect to login while saving the attempted url
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/departmental-admin/login" state={{ from: location }} replace />;
   }
 
   return <Outlet />;

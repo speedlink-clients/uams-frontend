@@ -42,7 +42,7 @@ import {
   ChartDataItem,
   ViewType,
   AuthData,
-} from "./components/types";
+} from "./types";
 import StatsContainer from "./components/StatsContainer";
 import { Toaster } from "react-hot-toast";
 
@@ -287,7 +287,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       Dashboard: "/dashboard",
       "Program & Courses": "/program-courses",
       Students: "/students",
-      Staff: "/staff",
+      Lecturers: "/staff",
       Payments: "/payments",
       "ID Card Management": "/roles-permissions",
       Announcements: "/announcements",
@@ -303,7 +303,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       "/dashboard": "Dashboard",
       "/program-courses": "Program & Courses",
       "/students": "Students",
-      "/staff": "Staff",
+      "/staff": "Lecturers",
       "/payments": "Payments",
       "/roles-permissions": "ID Card Management",
       "/announcements": "Announcements",
@@ -496,7 +496,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         return <ProgramCoursesPage />;
       case "Students":
         return <StudentsView />;
-      case "Staff":
+      case "Lecturers":
         return <StaffView />;
       case "Payments":
         return <PaymentsPage />;
@@ -542,7 +542,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               element={renderContent("Program & Courses")}
             />
             <Route path="/students" element={renderContent("Students")} />
-            <Route path="/staff" element={renderContent("Staff")} />
+            <Route path="/staff" element={renderContent("Lecturers")} />
             <Route path="/payments" element={renderContent("Payments")} />
             <Route
               path="/roles-permissions"
