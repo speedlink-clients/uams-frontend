@@ -1,311 +1,340 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+
+import { useState } from "react";
+import { Search, Filter, Download, Calendar, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
-import PaymentSettings from "@/components/payments/SpltKeysConfig";
-import { PaymentSplitKeysSection } from "@/components/payments/PaymentSplitKeysSection";
-import { PageActions } from "@/components/payments/PageActions";
-import { programsCoursesApi } from "@/api/programscourseapi";
-import { ProgramTypeResponse } from "@/api/types";
-import TabButton from "@/components/TabButton";
-import { Layers } from "lucide-react";
 
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL;
-
-interface Session {
+// Mock Data Type
+interface Transaction {
   id: string;
-  name: string;
-  isActive: boolean;
+  studentName: string;
+  matricNo: string;
+  amount: number;
+  type: string;
+  reference: string;
+  date: string;
+  status: "success" | "pending" | "failed";
+  avatar: string;
 }
 
+// Mock Data
+const MOCK_TRANSACTIONS: Transaction[] = [
+  {
+    id: "1",
+    studentName: "Justice Amadi",
+    matricNo: "U2020/2502201",
+    amount: 12000,
+    type: "Department Dues",
+    reference: "REF-1234567890",
+    date: "2024-01-28",
+    status: "success",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Justice"
+  },
+  {
+    id: "2",
+    studentName: "Sarah Johnson",
+    matricNo: "U2021/3602111",
+    amount: 5000,
+    type: "Access Fee",
+    reference: "REF-0987654321",
+    date: "2024-01-28",
+    status: "success",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah"
+  },
+  {
+    id: "3",
+    studentName: "Michael Brown",
+    matricNo: "U2022/1502444",
+    amount: 3500,
+    type: "ID Card Fee",
+    reference: "REF-5544332211",
+    date: "2024-01-27",
+    status: "pending",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael"
+  },
+  {
+    id: "4",
+    studentName: "Emily Davis",
+    matricNo: "U2020/2502123",
+    amount: 10000,
+    type: "Transcript Fee",
+    reference: "REF-9988776655",
+    date: "2024-01-26",
+    status: "failed",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily"
+  },
+  {
+    id: "5",
+    studentName: "David Wilson",
+    matricNo: "U2023/4502888",
+    amount: 12000,
+    type: "Department Dues",
+    reference: "REF-1122334455",
+    date: "2024-01-25",
+    status: "success",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David"
+  },
+  {
+    id: "6",
+    studentName: "Lisa Anderson",
+    matricNo: "U2021/3602999",
+    amount: 5000,
+    type: "Access Fee",
+    reference: "REF-6677889900",
+    date: "2024-01-25",
+    status: "success",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa"
+  },
+    {
+    id: "7",
+    studentName: "James Martin",
+    matricNo: "U2022/1502777",
+    amount: 3500,
+    type: "ID Card Fee",
+    reference: "REF-4455667788",
+    date: "2024-01-24",
+    status: "success",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=James"
+  }
+];
+
 export default function PaymentsPage() {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeSessionId, setActiveSessionId] = useState<string>("");
-  const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
-  const [selectedProgramTypeId, setSelectedProgramTypeId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // ✅ Filter fee fetch based on selected program type
-  useEffect(() => {
-    if (!selectedProgramTypeId || !activeSessionId) return;
+  const filteredTransactions = MOCK_TRANSACTIONS.filter((t) => {
+    const matchesSearch = 
+      t.studentName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      t.matricNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.reference.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || t.status === statusFilter;
 
-    const fetchFees = async () => {
-      try {
-        setLoading(true);
-        // GET /department-annual-due/program-type/{programTypeId}
-        const response = await axios.get(
-          `${BASE_URL}/department-annual-due/program-type/${selectedProgramTypeId}`,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          }
-        );
-
-        if (response.data.success && Array.isArray(response.data.data)) {
-          // Filter for the specific session
-          const match = response.data.data.find((item: any) => item.sessionId === activeSessionId);
-          
-          if (match) {
-              // The fees are directly on the object, not in a nested 'fees' property
-              setFees({
-                departmentDues: match.departmentDues || "",
-                accessFee: match.accessFee || "",
-                idCardFee: match.idCardFee || "",
-                transcriptFee: match.transcriptFee || "",
-              });
-              setOriginalFees({
-                departmentDues: match.departmentDues || "",
-                accessFee: match.accessFee || "",
-                idCardFee: match.idCardFee || "",
-                transcriptFee: match.transcriptFee || "",
-              });
-          } else {
-             // Reset if no matching session data found
-             const emptyFees = {
-                departmentDues: "",
-                accessFee: "",
-                idCardFee: "",
-                transcriptFee: "",
-              };
-             setFees(emptyFees);
-             setOriginalFees(emptyFees);
-          }
-        } else {
-             // Reset if response format is unexpected or empty
-             const emptyFees = {
-                departmentDues: "",
-                accessFee: "",
-                idCardFee: "",
-                transcriptFee: "",
-              };
-             setFees(emptyFees);
-             setOriginalFees(emptyFees); 
-        }
-      } catch (error) {
-        console.error("Failed to fetch fees:", error);
-         // Reset on error (or show toast)
-         setFees({
-            departmentDues: "",
-            accessFee: "",
-            idCardFee: "",
-            transcriptFee: "",
-          });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFees();
-  }, [selectedProgramTypeId, activeSessionId]);
-
-  const [fees, setFees] = useState({
-    departmentDues: "",
-    accessFee: "",
-    idCardFee: "",
-    transcriptFee: "",
+    return matchesSearch && matchesStatus;
   });
 
-  const [isSaving, setIsSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [originalFees, setOriginalFees] = useState(fees); // Backup for reset
-
-  /* ============================
-     FETCH & FILTER ACTIVE SESSION
-     ============================ */
-  useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        const response = await axios.get(
-          `${BASE_URL}/department-admins/department-sessions`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-
-        const raw = response.data.session;
-        const sessionArray: Session[] = Array.isArray(raw)
-          ? raw
-          : raw
-          ? [raw]
-          : [];
-
-        // More forgiving filter
-        const activeSessions = sessionArray.filter((s) => s.isActive);
-
-        setSessions(activeSessions);
-
-        if (activeSessions.length > 0) {
-          setActiveSessionId(activeSessions[0].id);
-        }
-      } catch (error) {
-        console.error("Failed to fetch session:", error);
-        toast.error("Failed to fetch active session");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSessions();
-  }, []);
-
-  // Fetch Program Types
-  useEffect(() => {
-    const fetchTypes = async () => {
-      try {
-        const types = await programsCoursesApi.getProgramTypes();
-        setProgramTypes(types);
-        if (types.length > 0) {
-            setSelectedProgramTypeId(types[0].id);
-        }
-      } catch (err) {
-        console.error("Failed to fetch program types:", err);
-      }
-    };
-    fetchTypes();
-  }, []);
-  const handleChange = (field: string, value: string) => {
-    setFees((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleReset = () => {
-    setFees(originalFees);
-    setIsEditing(false); // Optionally exit edit mode
-    toast("Changes discarded", { icon: "↩️" });
-  };
-  
-  const handleToggleEdit = () => {
-    if (isEditing) {
-        // If canceling edit mode, existing reset logic applies
-        handleReset();
-    } else {
-        setIsEditing(true);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!activeSessionId) {
-      toast.error("No active session selected.");
-      return;
-    }
-
-    if (!selectedProgramTypeId) {
-        toast.error("No program type selected.");
-        return;
-      }
-  
-
-    const hasValue = Object.values(fees).some(
-      (val) => val && val.trim() !== ""
+  const toggleSelection = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+  };
 
-    if (!hasValue) {
-      toast.error("Please enter at least one fee.");
-      return;
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredTransactions.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredTransactions.map((t) => t.id));
     }
+  };
 
-    setIsSaving(true);
+  const handleBulkDownload = () => {
+      toast.success(`Downloading ${selectedIds.length} receipts...`);
+      // Mock download logic
+      setSelectedIds([]);
+  };
 
-    try {
-      // POST /department-annual-due
-      const response = await axios.post(
-        `${BASE_URL}/department-annual-due`,
-        {
-          programTypeId: selectedProgramTypeId,
-          sessionId: activeSessionId,
-          departmentDues: Number(fees.departmentDues),
-          accessFee: Number(fees.accessFee),
-          idCardFee: Number(fees.idCardFee),
-          transcriptFee: Number(fees.transcriptFee),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      // Check for logical error in 200 OK response
-      if (response.data && response.data.success === false) {
-          throw new Error(response.data.message || "Operation failed");
-      }
-
-      toast.success("Payment settings saved successfully.");
-      setIsEditing(false); // Exit edit mode on success
-      setOriginalFees(fees); // Update backup to current
-      
-    } catch (error: any) {
-      console.error("Save Error Details:", error);
-      // Safe error extraction
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to save payment settings";
-      toast.error(errorMessage);
-    } finally {
-      setIsSaving(false);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "success": return "bg-green-100 text-green-700 border-green-200";
+      case "pending": return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "failed": return "bg-red-100 text-red-700 border-red-200";
+      default: return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-6xl mx-auto py-10 px-8">
-        <header className="mb-10">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Payment Configuration
-          </h1>
-          <p className="text-gray-500 mt-2">
-            Manage fees and split keys for your department.
-          </p>
+      <div className="max-w-[1400px] mx-auto py-10 px-8 relative">
+        <header className="mb-10 flex flex-col md:flex-row justify-between md:items-end gap-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Transactions History
+            </h1>
+            <p className="text-gray-500 mt-2">
+              View and monitor all payment transactions in your department.
+            </p>
+          </div>
+          
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                    <ArrowUpRight size={24} />
+                </div>
+                <div>
+                    <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Transactions</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{MOCK_TRANSACTIONS.length}</h3>
+                </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div className="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                    <Download size={24} />
+                </div>
+                <div>
+                    <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Amount</p>
+                    <h3 className="text-2xl font-bold text-slate-900">
+                        ₦{MOCK_TRANSACTIONS.reduce((sum, t) => sum + t.amount, 0).toLocaleString()}
+                    </h3>
+                </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div className="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                    <Calendar size={24} />
+                </div>
+                <div>
+                    <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">This Month</p>
+                    <h3 className="text-2xl font-bold text-slate-900">₦450,000</h3>
+                </div>
+            </div>
+        </div>
         </header>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-10">
-          {/* SESSION SELECTOR */}
-          <section className="mb-10 pb-8 border-b border-gray-200">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Active Academic Session
-            </label>
-
-            <div className="relative max-w-md">
-              <select
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
-                value={activeSessionId}
-                onChange={(e) => setActiveSessionId(e.target.value)}
-                disabled={loading}
-              >
-                {loading && <option>Loading sessions...</option>}
-
-                {!loading && sessions.length === 0 && (
-                  <option>No active session found</option>
-                )}
-
-                {!loading &&
-                  sessions.map((session) => (
-                    <option key={session.id} value={session.id}>
-                      {session.name}
-                    </option>
-                  ))}
-              </select>
+        {/* Filters & Actions */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="relative w-full md:w-80">
+                    <input 
+                        type="text" 
+                        placeholder="Search by student, matric or ref..." 
+                        className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/10 shadow-sm"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                </div>
+                
+                <select 
+                    className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/10 shadow-sm text-sm font-medium text-slate-700 cursor-pointer"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                    <option value="all">All Status</option>
+                    <option value="success">Success</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                </select>
             </div>
-          </section>
 
-
-          <PaymentSettings />
-          
-
-          <PaymentSplitKeysSection 
-            values={fees} 
-            onChange={handleChange}
-            programTypes={programTypes}
-            selectedProgramTypeId={selectedProgramTypeId}
-            onSelectProgramType={setSelectedProgramTypeId}
-            loading={loading}
-            onSave={handleSave}
-            isSaving={isSaving}
-            onReset={handleReset}
-            isEditing={isEditing}
-            onToggleEdit={handleToggleEdit}
-          />
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm">
+                <Download size={18} />
+                Export CSV
+            </button>
         </div>
+
+        {/* Transactions Table */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-20">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+                        <tr>
+                            <th className="px-6 py-4 w-12 text-center">
+                                <input
+                                type="checkbox"
+                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                                checked={selectedIds.length === filteredTransactions.length && filteredTransactions.length > 0}
+                                onChange={toggleSelectAll}
+                                />
+                            </th>
+                            <th className="px-6 py-4">Transaction Ref</th>
+                            <th className="px-6 py-4">Student</th>
+                            <th className="px-6 py-4">Payment For</th>
+                            <th className="px-6 py-4">Amount</th>
+                            <th className="px-6 py-4">Date</th>
+                            <th className="px-6 py-4 text-center">Status</th>
+                            <th className="px-6 py-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 text-sm">
+                        {filteredTransactions.length === 0 ? (
+                            <tr>
+                                <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
+                                    No transactions found matching your filters.
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredTransactions.map((t) => (
+                                <tr 
+                                    key={t.id} 
+                                    className={`hover:bg-slate-50/50 transition-colors group cursor-pointer ${
+                                        selectedIds.includes(t.id) ? "bg-blue-50/30" : ""
+                                    }`}
+                                    onClick={() => toggleSelection(t.id)}
+                                >
+                                    <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                                        <input
+                                        type="checkbox"
+                                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                                        checked={selectedIds.includes(t.id)}
+                                        onChange={() => toggleSelection(t.id)}
+                                        />
+                                    </td>
+                                    <td className="px-6 py-4 font-mono text-xs text-slate-500">
+                                        {t.reference}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <img src={t.avatar} alt={t.studentName} className="w-8 h-8 rounded-full bg-slate-100" />
+                                            <div>
+                                                <p className="font-bold text-slate-700">{t.studentName}</p>
+                                                <p className="text-xs text-slate-500">{t.matricNo}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-slate-600 font-medium">
+                                        {t.type}
+                                    </td>
+                                    <td className="px-6 py-4 font-bold text-slate-900">
+                                        ₦{t.amount.toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-slate-500">
+                                        {t.date}
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(t.status)}`}>
+                                            {t.status.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <button className="text-[#1D7AD9] text-xs font-bold hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
+                                            View Receipt
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            
+            {/* Pagination Footer (Mock) */}
+            <div className="px-6 py-4 border-t border-slate-50 flex justify-between items-center text-sm text-slate-500">
+                <span>Showing {filteredTransactions.length} of {MOCK_TRANSACTIONS.length} results</span>
+                <div className="flex gap-2">
+                    <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Previous</button>
+                    <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+        
+        {/* Floating Action Bar */}
+        {selectedIds.length > 0 && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-xl shadow-2xl border border-gray-100 flex items-center gap-6 z-50 animate-in slide-in-from-bottom duration-300">
+            <span className="text-sm font-bold text-slate-700">
+              {selectedIds.length} items selected
+            </span>
+            <div className="h-6 w-px bg-slate-200"></div>
+            <button 
+                onClick={handleBulkDownload}
+                className="flex items-center gap-2 bg-[#1D7AD9] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+            >
+              <Download size={16} />
+              Bulk Download Receipts
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-

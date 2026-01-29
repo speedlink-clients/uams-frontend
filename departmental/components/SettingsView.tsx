@@ -12,6 +12,7 @@ import {
   Edit
 } from 'lucide-react';
 import { IDCardSettingsTab } from './IDCardSettingsTab';
+import { PaymentSettingsTab } from './PaymentSettingsTab';
 
 type SettingsTab = 'SMS' | 'Email' | 'General' | 'ID Card' | 'Payment' | 'Website' | 'Academic' | 'Documents';
 
@@ -36,6 +37,8 @@ export const SettingsView: React.FC = () => {
       {/* Content Area */}
       {activeTab === 'ID Card' ? (
         <IDCardSettingsTab />
+      ) : activeTab === 'Payment' ? (
+        <PaymentSettingsTab />
       ) : activeTab === 'SMS' || activeTab === 'Email' ? (
          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 min-h-[600px]">
         <div className="flex items-center justify-between mb-8">
