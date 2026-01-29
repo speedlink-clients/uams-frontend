@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { MoreHorizontal, UserCog, Pencil, Trash, Download } from "lucide-react";
+import { MoreHorizontal, UserCog, Pencil, Trash, Download, Loader2 } from "lucide-react";
 
 // Assuming types based on StaffView usage. 
 // Ideally these should be in types.ts but for now defining locally or importing if they exist.
@@ -23,6 +23,7 @@ interface StaffTableProps {
   onAssignCourse?: (staff: StaffListItem) => void;
   onBulkDownload?: (ids: string[]) => void;
   onBulkDelete?: (ids: string[]) => void;
+  isLoading?: boolean;
 }
 
 export const StaffTable: React.FC<StaffTableProps> = ({
@@ -31,7 +32,8 @@ export const StaffTable: React.FC<StaffTableProps> = ({
   onEdit,
   onAssignCourse,
   onBulkDownload,
-  onBulkDelete
+  onBulkDelete,
+  isLoading = false
 }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
@@ -98,7 +100,29 @@ export const StaffTable: React.FC<StaffTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {staff.map((item) => (
+            {isLoading ? (
+               <tr>
+                 <td colSpan={9} className="px-6 py-12 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                       <Loader2 size={24} className="animate-spin text-blue-500" />
+                       <span className="text-sm font-medium">Loading lecturers...</span>
+                    </div>
+                 </td>
+               </tr>
+            ) : staff.length === 0 ? (
+               <tr>
+                 <td colSpan={9} className="px-6 py-12 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                       <div className="h-12 w-12 bg-slate-100 rounded-full flex items-center justify-center">
+                          <UserCog size={24} className="text-slate-400" />
+                       </div>
+                       <p className="text-sm font-medium text-slate-600">No lecturers found</p>
+                       <p className="text-xs text-slate-400">Add a new lecturer to get started</p>
+                    </div>
+                 </td>
+               </tr>
+            ) : (
+                staff.map((item) => (
               <tr key={item.id} className={`hover:bg-slate-50/50 transition-colors group ${selectedIds.includes(item.id) ? "bg-blue-50/30" : ""}`}>
                 <td className="px-6 py-5 text-center">
                   <input 
@@ -182,7 +206,8 @@ export const StaffTable: React.FC<StaffTableProps> = ({
                   </div>
                 </td>
               </tr>
-            ))}
+            ))
+            )}
           </tbody>
         </table>
       </div>

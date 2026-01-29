@@ -61,12 +61,37 @@ export const staffApi = {
   },
 
   getDepartmentLecturers: async () => {
-     // This is an assumption based on other endpoints, usually fetching by department
-     // If this fails, we might need a general GET /university-admin/lecturers
-     const departmentId = localStorage.getItem("departmentId"); // Simple get, or use auth utils if available
-     // Actually let's just use the generic endpoint if available or try department specific
-     // Using the same pattern as students:
-     const response = await api.get("/university-admin/lecturers");
+     // Retrieve departmentId from local storage or auth utilities
+     // Assuming it's stored as 'departmentId' based on previous context, 
+     // but better to check storage or helper.
+     // Previous files used getCurrentDepartmentId() from utils/auth. 
+     // I should import that if available, but for now I'll try to rely on the pattern used elsewhere 
+     // or just get it from localStorage if strictly following the request which specifies the path param.
+     
+     // Let's use the helper if possible, checking imports
+     let departmentId = localStorage.getItem("departmentId");
+     // If the helper is available, that's better, but I don't want to break if I can't find it easily without checking.
+     // `programscourseapi.ts` used `getCurrentDepartmentId`. Let's assume I can use localStorage for now to be safe 
+     // or just update it to accept the ID if the caller handles it.
+     // But `StaffView` calls it without args. Use localStorage as fallback.
+     
+     if (!departmentId) {
+         try {
+             const userStr = localStorage.getItem("user");
+             if (userStr) {
+                 const user = JSON.parse(userStr);
+                 departmentId = user.departmentId;
+             }
+         } catch (e) {
+             console.error("Error parsing user from local storage", e);
+         }
+     }
+
+     if (!departmentId) {
+         throw new Error("Department ID not found");
+     }
+
+     const response = await api.get(`/university-admin/lecturers/${departmentId}`);
      return response.data;
   }
 };

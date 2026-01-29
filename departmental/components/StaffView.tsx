@@ -31,6 +31,7 @@ export const StaffView: React.FC = () => {
   
   const [staff, setStaff] = useState<any[]>([]); // Replace any with proper type
   const [staffToEdit, setStaffToEdit] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchStaff();
@@ -38,11 +39,28 @@ export const StaffView: React.FC = () => {
 
   const fetchStaff = async () => {
       try {
+          setIsLoading(true);
           const data = await staffApi.getDepartmentLecturers();
-          // Map data if necessary to StaffListItem
-          setStaff(data);
+          if (data && data.success && Array.isArray(data.lecturers)) {
+              const mappedStaff = data.lecturers.map((lecturer: any) => ({
+                  id: lecturer.id,
+                  staffId: lecturer.staffNumber || "N/A",
+                  name: lecturer.user?.fullName || "N/A",
+                  email: lecturer.user?.email || "N/A",
+                  phone: lecturer.phone || lecturer.user?.phone || "N/A",
+                  department: lecturer.department?.name || "N/A",
+                  level: lecturer.academicRank || "N/A",
+                  program: lecturer.specialization || "N/A" // Mapping specialization to program/field for now
+              }));
+              setStaff(mappedStaff);
+          } else {
+              setStaff([]);
+          }
       } catch (error) {
           console.error("Failed to fetch staff", error);
+          toast.error("Failed to load lecturers");
+      } finally {
+          setIsLoading(false);
       }
   };
 
@@ -169,20 +187,19 @@ export const StaffView: React.FC = () => {
       </div>
 
       <StaffTable 
-         staff={staff.length > 0 ? staff : STAFF_MOCK_DATA} // Use mock if empty for now, or just staff
+         staff={staff} 
          allMatchingStaff={staff}
          onAssignCourse={(item) => {
              setSelectedStaffId(item.id);
              setIsAssignCourseModalOpen(true);
          }}
          onEdit={(item) => {
-             // Map item to initialData structure if needed, or if API response matches
-             // Assuming StaffListItem matches needed structure or close enough
              setStaffToEdit(item);
              setIsAddStaffModalOpen(true);
          }}
          onBulkDownload={handleBulkDownload}
          onBulkDelete={handleBulkDelete}
+         isLoading={isLoading}
       />
 
       <AssignCourseModal
