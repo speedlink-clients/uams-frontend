@@ -89,7 +89,7 @@ export const programsCoursesApi = {
 
   /** UPDATE COURSE */
   updateCourse: async (courseId: string, courseData: any): Promise<Course> => {
-      const response = await api.patch<Course>(`/courses/${courseId}`, courseData);
+      const response = await api.put<Course>(`/courses/${courseId}`, courseData);
       return response.data;
   },
 
