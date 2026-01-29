@@ -20,6 +20,8 @@ export const IDCardSettingsTab: React.FC = () => {
         schoolAddress: ""
     });
 
+    const [initialFormData, setInitialFormData] = useState<any>({});
+
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [signatureFile, setSignatureFile] = useState<File | null>(null);
     const [frontTemplateFile, setFrontTemplateFile] = useState<File | null>(null);
@@ -33,6 +35,13 @@ export const IDCardSettingsTab: React.FC = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'signature' | 'frontTemplate' | 'backTemplate') => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+
+            // Limit file size to 500KB (500 * 1024 bytes)
+            if (file.size > 500 * 1024) {
+                toast.error("File is too large. Max size is 500KB.");
+                return;
+            }
+
             if (type === 'logo') {
                 setLogoFile(file);
             } else if (type === 'signature') {
@@ -55,7 +64,7 @@ export const IDCardSettingsTab: React.FC = () => {
             const data = await idCardApi.getDefaultIDCard();
             if (data && data.success && data.template) {
                 const template = data.template;
-                setFormData({
+                const newFormData = {
                     templateId: template.id || "",
                     schoolName: template.institutionName || "",
                     department: template.departments?.[0]?.name || "",
@@ -63,7 +72,9 @@ export const IDCardSettingsTab: React.FC = () => {
                     faculty: template.faculties?.[0]?.name || "",
                     backDisclaimer: template.backDisclaimer || "",
                     schoolAddress: template.institutionAddress || ""
-                });
+                };
+                setFormData(newFormData);
+                setInitialFormData(newFormData);
             }
         } catch (error) {
             console.error("Failed to fetch ID card settings:", error);
@@ -87,15 +98,15 @@ export const IDCardSettingsTab: React.FC = () => {
         const toastId = toast.loading("Updating ID Card settings...");
 
         try {
-            // Construct JSON payload
-            const payload: any = {
-                institutionName: formData.schoolName,
-                institutionAddress: formData.schoolAddress,
-                department: formData.department,
-                faculty: formData.faculty,
-                backDescription: formData.backDescription,
-                backDisclaimer: formData.backDisclaimer,
-            };
+            // Construct JSON payload with ONLY changed fields
+            const payload: any = {};
+            
+            if (formData.schoolName !== initialFormData.schoolName) payload.institutionName = formData.schoolName;
+            if (formData.schoolAddress !== initialFormData.schoolAddress) payload.institutionAddress = formData.schoolAddress;
+            if (formData.department !== initialFormData.department) payload.department = formData.department;
+            if (formData.faculty !== initialFormData.faculty) payload.faculty = formData.faculty;
+            if (formData.backDescription !== initialFormData.backDescription) payload.backDescription = formData.backDescription;
+            if (formData.backDisclaimer !== initialFormData.backDisclaimer) payload.backDisclaimer = formData.backDisclaimer;
 
             // Convert files to Base64 if selected
             if (logoFile) {
@@ -119,6 +130,8 @@ export const IDCardSettingsTab: React.FC = () => {
                 setIsSaving(false);
                 return;
             }
+
+            console.log("🚀 Payload being sent:", payload);
 
             await idCardApi.updateIDCard(formData.templateId, payload);
             toast.success("ID Card settings updated", { id: toastId });
