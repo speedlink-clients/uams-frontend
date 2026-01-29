@@ -107,22 +107,31 @@ const StructureTab: React.FC = () => {
       
       try {
         setIsSaving(true);
+        const durationInt = parseInt(formData.duration) || 0;
+        
+        // Calculate End Date
+        const startDateObj = new Date(formData.startDate);
+        const endDateObj = new Date(startDateObj);
+        endDateObj.setMonth(startDateObj.getMonth() + durationInt);
+        const endDate = endDateObj.toISOString().split('T')[0];
+
         const payload = {
             ...formData,
+            duration: durationInt,
+            startDate: formData.startDate,
+            endDate: endDate,
             semesterCount: Number(formData.semesters),
-            isActive: true // Default to active?
+            isActive: true 
         };
-        
-        // Remove helper fields not in payload if any (formData has semesterCount? no it has semesters string)
-        // payload needs: name, type, semesterCount, duration, startDate, description, isActive
         
         if (editingSession) {
              await academicsApi.updateSession(editingSession.id, {
                 name: payload.name, 
                 type: programTypes.find(t => t.id === payload.type)?.name || payload.type, 
-                semesterCount: Number(payload.semesters),
+                semesterCount: payload.semesterCount,
                 duration: payload.duration,
                 startDate: payload.startDate,
+                endDate: payload.endDate,
                 description: payload.description,
                 isActive: true
             });
@@ -130,9 +139,10 @@ const StructureTab: React.FC = () => {
             await academicsApi.createSession({
                 name: payload.name, 
                 type: programTypes.find(t => t.id === payload.type)?.name || payload.type, 
-                semesterCount: Number(payload.semesters),
+                semesterCount: payload.semesterCount,
                 duration: payload.duration,
                 startDate: payload.startDate,
+                endDate: payload.endDate,
                 description: payload.description,
                 isActive: true
             });
