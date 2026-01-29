@@ -213,12 +213,18 @@ export const IDCardSettingsTab: React.FC = () => {
                 <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-400">Back Description</label>
                     {isEditing ? (
-                         <textarea 
-                            value={formData.backDescription}
-                            onChange={(e) => setFormData({...formData, backDescription: e.target.value})}
-                            rows={3}
-                            className="w-full px-4 py-2 text-slate-800 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
-                         />
+                         <div className="relative">
+                             <textarea 
+                                value={formData.backDescription}
+                                onChange={(e) => setFormData({...formData, backDescription: e.target.value.slice(0, 120)})}
+                                rows={3}
+                                maxLength={120}
+                                className="w-full px-4 py-2 text-slate-800 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
+                             />
+                             <div className="absolute right-2 bottom-2 text-xs text-slate-400">
+                                 {formData.backDescription.length}/120
+                             </div>
+                         </div>
                     ) : (
                         <p className="text-slate-600 font-medium">{formData.backDescription}</p>
                     )}
@@ -228,12 +234,18 @@ export const IDCardSettingsTab: React.FC = () => {
                 <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-400">Back Disclaimer</label>
                     {isEditing ? (
-                         <textarea 
-                            value={formData.backDisclaimer}
-                            onChange={(e) => setFormData({...formData, backDisclaimer: e.target.value})}
-                            rows={3}
-                            className="w-full px-4 py-2 text-slate-800 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
-                         />
+                         <div className="relative">
+                             <textarea 
+                                value={formData.backDisclaimer}
+                                onChange={(e) => setFormData({...formData, backDisclaimer: e.target.value.slice(0, 95)})}
+                                rows={3}
+                                maxLength={95}
+                                className="w-full px-4 py-2 text-slate-800 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
+                             />
+                             <div className="absolute right-2 bottom-2 text-xs text-slate-400">
+                                 {formData.backDisclaimer.length}/95
+                             </div>
+                         </div>
                     ) : (
                         <p className="text-slate-600 font-medium">{formData.backDisclaimer}</p>
                     )}
