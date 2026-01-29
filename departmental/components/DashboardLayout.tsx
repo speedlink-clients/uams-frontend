@@ -4,6 +4,7 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { ViewType } from "../types";
 import { useAuth } from "../context/AuthProvider";
+import { Toaster } from "react-hot-toast";
 
 const DashboardLayout: React.FC = () => {
   const { authData, logout } = useAuth();
@@ -63,6 +64,7 @@ const DashboardLayout: React.FC = () => {
         onLogout={logout}
       />
       <main className="flex-1 ml-64 bg-[#F8FAFC]">
+        <Toaster position="top-right" />
         <Header
           onViewChange={handleViewChange}
           currentUser={currentUser}
