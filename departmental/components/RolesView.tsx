@@ -944,7 +944,7 @@ export const RolesView: React.FC = () => {
                                 <img 
                                     src={idCardSettings.signature} 
                                     alt="Signature" 
-                                    className="w-24 h-8 mb-1 object-contain"
+                                    className="w-24 h-5 mb-0 object-contain"
                                 />
                             )}
                             {/* Line and Title */}
