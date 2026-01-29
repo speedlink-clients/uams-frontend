@@ -932,26 +932,26 @@ export const RolesView: React.FC = () => {
                         className="w-full h-full"
                         alt="Back Template"
                       />
-                      <div className="absolute inset-0 flex flex-col items-center pt-8 text-center px-4">
-                        <p className="text-[8px] font-bold text-slate-800 mb-2 leading-tight max-w-[90%]">
+                      <div className="absolute inset-0 flex flex-col items-center pt-10 text-center px-6">
+                        <p className="text-[9px] font-bold text-slate-900 mb-6 leading-tigher max-w-[95%]">
                             {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
                         </p>
-                        <p className="text-[6px] font-medium text-slate-600 mb-4 leading-tight max-w-[85%]">
+                        <p className="text-[8px] font-bold text-slate-900 leading-tight max-w-[90%]">
                             {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
                         </p>
                         
-                        <div className="mt-auto mb-4 flex flex-col items-center">
+                        <div className="mt-auto mb-6 flex flex-col items-center">
                             {/* Signature Image */}
                             {idCardSettings?.signature && (
                                 <img 
                                     src={idCardSettings.signature} 
                                     alt="Signature" 
-                                    className="h-8 w-auto mb-1 object-contain"
+                                    className="h-10 w-auto mb-1 object-contain"
                                 />
                             )}
                             {/* Line and Title */}
-                            <div className="w-32 h-px bg-slate-800 mb-1"></div>
-                            <p className="text-[6px] font-bold text-slate-900 uppercase">
+                            <div className="w-40 h-[1.5px] bg-slate-900 mb-1"></div>
+                            <p className="text-[7px] font-bold text-slate-900">
                                 Department Admin's Signature
                             </p>
                         </div>
