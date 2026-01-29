@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download } from "lucide-react";
+import { toast } from "react-hot-toast";
 import ProgramForm from "./ProgramForm";
 import { programsCoursesApi } from "../api/programscourseapi";
 
@@ -89,8 +90,10 @@ const ProgramsTab: React.FC = () => {
     try {
       if (editingProgram) {
         await programsCoursesApi.updateProgram(editingProgram.id, programData); 
+        toast.success("Program updated successfully");
       } else {
         await programsCoursesApi.createProgram(programData);
+        toast.success("Program created successfully");
       }
       
       setIsCreating(false);
@@ -105,6 +108,20 @@ const ProgramsTab: React.FC = () => {
         err.message ||
         "Failed to save program";
       throw new Error(errorMessage);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete the program "${name}"?`)) {
+      try {
+        await programsCoursesApi.deleteProgram(id);
+        toast.success("Program deleted successfully");
+        await fetchPrograms();
+      } catch (err: any) {
+        console.error("Error deleting program:", err);
+        const errorMessage = err.response?.data?.message || err.response?.data?.error || "Failed to delete program";
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -301,7 +318,7 @@ const ProgramsTab: React.FC = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log("Delete clicked", program.id);
+                                  handleDelete(program.id, program.name);
                                   setActiveDropdownId(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"

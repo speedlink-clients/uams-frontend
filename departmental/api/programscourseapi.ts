@@ -100,11 +100,13 @@ export const programsCoursesApi = {
           code: programData.code,
           description: programData.description,
           duration: Number(programData.duration),
-          // type might not be editable or needs careful handling. 
-          // Assuming backend handles partial updates or we send what's needed.
+          programTypeId: programData.type,
       };
       
       const response = await api.patch<Program>(`/program/${programId}`, payload);
       return response.data;
+  },
+  deleteProgram: async (programId: string): Promise<void> => {
+    await api.delete(`/program/${programId}`);
   },
 };

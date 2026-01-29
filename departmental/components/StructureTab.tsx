@@ -17,6 +17,7 @@ const StructureTab: React.FC = () => {
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
 
   const [isCreating, setIsCreating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Fetch Program Types on Mount
   // Fetch Program Types and Sessions on Mount
@@ -95,8 +96,8 @@ const StructureTab: React.FC = () => {
     );
   };
 
-  const getStatusBadge = (status: string) => {
-    return status === "Ongoing" 
+  const getStatusBadge = (isActive: boolean) => {
+    return isActive 
       ? "bg-green-100 text-green-600" 
       : "bg-red-100 text-red-600";
   };
@@ -105,6 +106,7 @@ const StructureTab: React.FC = () => {
       // Validate inputs?
       
       try {
+        setIsSaving(true);
         const payload = {
             ...formData,
             semesterCount: Number(formData.semesters),
@@ -147,7 +149,26 @@ const StructureTab: React.FC = () => {
       } catch (error: any) {
           console.error("Failed to save session", error);
           toast.error(error.response?.data?.message || "Failed to save session");
+      } finally {
+        setIsSaving(false);
       }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this session?")) {
+        try {
+            await academicsApi.deleteSession(id);
+            toast.success("Session deleted");
+            
+            // Refresh list
+            const updatedSessions = await academicsApi.getAcademicSessions();
+            const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
+            setSessions(sessionsList);
+        } catch (error: any) {
+            console.error("Failed to delete session", error);
+            toast.error(error.response?.data?.message || "Failed to delete session");
+        }
+    }
   };
 
   if (isCreating || editingSession) {
@@ -212,15 +233,24 @@ const StructureTab: React.FC = () => {
                     setIsCreating(false);
                     setEditingSession(null);
                 }}
-                className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
+                disabled={isSaving}
+                className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
                 Cancel
             </button>
             <button 
                 onClick={handleSave}
-                className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm"
+                disabled={isSaving}
+                className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {editingSession ? "Update Session" : "Create Session"}
+                {isSaving ? (
+                     <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Saving...
+                     </>
+                ) : (
+                    editingSession ? "Update Session" : "Create Session"
+                )}
             </button>
             </div>
         </div>
@@ -291,8 +321,8 @@ const StructureTab: React.FC = () => {
                   <td className="px-6 py-4">{session.duration}</td>
                   <td className="px-6 py-4">{session.startDate}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-4 py-1 rounded-full text-[11px] font-bold ${getStatusBadge(session.status)}`}>
-                      {session.status}
+                    <span className={`px-4 py-1 rounded-full text-[11px] font-bold ${getStatusBadge(session.isActive)}`}>
+                      {session.isActive ? "Ongoing" : "Completed"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -325,7 +355,7 @@ const StructureTab: React.FC = () => {
                             </button>
                             <button 
                               onClick={() => {
-                                console.log("Delete", session.id);
+                                handleDelete(session.id);
                                 setActiveActionId(null);
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors text-left"

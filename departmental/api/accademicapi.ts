@@ -41,6 +41,11 @@ export const academicsApi = {
     return res.data;
   },
 
+  async deleteSession(id: string): Promise<any> {
+    const res = await api.delete(`/university-admin/academic-sessions/${id}`);
+    return res.data;
+  },
+
   async getAcademicSessions(): Promise<any[]> {
     const res = await api.get("/university-admin/academic-sessions");
     return res.data;
