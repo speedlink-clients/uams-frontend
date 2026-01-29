@@ -71,7 +71,7 @@ export const AddStaffForm: React.FC<AddStaffFormProps> = ({
         <div className="p-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-[#1D7AD9]">
-              {initialData ? "Edit Staff" : "Add Staff"}
+              {initialData ? "Edit Lecturer" : "Add Lecturer"}
             </h2>
             <button
               onClick={onClose}
@@ -91,7 +91,9 @@ export const AddStaffForm: React.FC<AddStaffFormProps> = ({
                 <input
                   type="text"
                   value={formData.staffId}
-                  disabled
+                  onChange={(e) =>
+                    setFormData({ ...formData, staffId: e.target.value })
+                  }
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 focus:outline-none"
                 />
               </div>
@@ -207,7 +209,7 @@ export const AddStaffForm: React.FC<AddStaffFormProps> = ({
               </div>
 
               {/* Type */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">
                   Type
                 </label>
@@ -228,7 +230,7 @@ export const AddStaffForm: React.FC<AddStaffFormProps> = ({
                     </svg>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Role */}
                <div className="space-y-2">

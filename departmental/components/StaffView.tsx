@@ -132,7 +132,7 @@ export const StaffView: React.FC = () => {
             className="flex items-center gap-2 px-6 py-2.5 bg-[#1D7AD9] text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
           >
             <Plus size={18} />
-            Add Staff
+            Add Lecturer
           </button>
         </div>
       </div>
