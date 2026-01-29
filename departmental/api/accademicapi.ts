@@ -25,4 +25,9 @@ export const academicsApi = {
     const res = await api.get("/accademics/semesters");
     return res.data;
   },
+
+  async getSessions(): Promise<{ id: string; name: string }[]> {
+    const res = await api.get("/accademics/sessions");
+    return res.data;
+  },
 };

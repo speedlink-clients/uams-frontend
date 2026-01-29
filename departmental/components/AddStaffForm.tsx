@@ -22,7 +22,7 @@ export const AddStaffForm: React.FC<AddStaffFormProps> = ({
     highestDegree: "",
     phoneNumber: "",
     email: "",
-    type: "Academic",
+    password: "",
     role: "",
     category: "",
   });
@@ -34,32 +34,50 @@ export const AddStaffForm: React.FC<AddStaffFormProps> = ({
       setFormData({
         staffId: initialData.staffId || "",
         title: initialData.title || "",
-        firstName: initialData.name?.split(" ")[0] || "",
-        otherName: initialData.name?.split(" ").slice(1).join(" ") || "",
+        firstName: initialData.firstname || initialData.firstName || initialData.name?.split(" ")[0] || "",
+        otherName: initialData.othername || initialData.otherName || initialData.name?.split(" ").slice(1).join(" ") || "",
         sex: initialData.sex || "",
-        highestDegree: initialData.level || "", // Mapping level to highest degree as placeholder
-        phoneNumber: initialData.phone || "",
+        highestDegree: initialData.highestDegree || initialData.level || "",
+        phoneNumber: initialData.phoneNumber || initialData.phone || "",
         email: initialData.email || "",
-        type: initialData.program || "Academic",
-        role: initialData.department || "",
-        category: "", // specific field
+        password: initialData.password || "", // Password usually not sent back, keep empty or handle separately
+        role: initialData.role || "",
+        category: initialData.category || "", 
       });
     } else {
-        // Generate mock Staff ID for new entry
-        setFormData(prev => ({
-            ...prev,
-            staffId: `2024${Math.floor(Math.random() * 10000000000)}BA`
-        }));
+        // Leave empty for new entry
     }
   }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
+    // Map to API payload structure
+    const payload = {
+      staffId: formData.staffId,
+      title: formData.title,
+      firstname: formData.firstName,
+      othername: formData.otherName,
+      sex: formData.sex.toUpperCase(),
+      highestDegree: formData.highestDegree,
+      phoneNumber: formData.phoneNumber,
+      email: formData.email,
+      role: formData.role,
+      category: formData.category,
+      // Only send password if it's set (for edit) or if it's new (default)
+      // Actually backend might require it for create. For update it might be optional. 
+      // We'll send it if available.
+      ...(formData.password ? { password: formData.password } : ( !initialData ? { password: formData.phoneNumber } : {} )), 
+    };
+
     try {
-      await onSubmit(formData);
-    } catch (error) {
+      await onSubmit(payload);
+    } catch (error: any) {
       console.error(error);
+      // If parent doesn't handle toast, we could here, but parent likely handles logic errors.
+      // We can add a generic fallback or just rely on parent throwing only if it wants us to stay in loading/error state?
+      // Actually usually parent handles success toast. We can handle error toast here if parent throws.
     } finally {
       setIsLoading(false);
     }
@@ -208,29 +226,21 @@ export const AddStaffForm: React.FC<AddStaffFormProps> = ({
                 />
               </div>
 
-              {/* Type */}
-              {/* <div className="space-y-2">
+              {/* Password */}
+              <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">
-                  Type
+                  Password
                 </label>
-                <div className="relative">
-                  <select
-                    value={formData.type}
+                  <input
+                    type="password"
+                    placeholder="Use Phone Number as Default Password"
+                    value={formData.password}
                     onChange={(e) =>
-                      setFormData({ ...formData, type: e.target.value })
+                      setFormData({ ...formData, password: e.target.value })
                     }
                     className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none appearance-none transition-all cursor-pointer text-slate-700"
-                  >
-                    <option value="Academic">Academic</option>
-                    <option value="Non-Academic">Non-Academic</option>
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1.41 0.589996L6 5.17L10.59 0.589996L12 2L6 8L0 2L1.41 0.589996Z" fill="currentColor"/>
-                    </svg>
-                  </div>
-                </div>
-              </div> */}
+                  />
+              </div>
 
               {/* Role */}
                <div className="space-y-2">

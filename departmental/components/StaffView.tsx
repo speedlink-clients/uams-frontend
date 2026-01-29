@@ -28,6 +28,23 @@ export const StaffView: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  const [staff, setStaff] = useState<any[]>([]); // Replace any with proper type
+  const [staffToEdit, setStaffToEdit] = useState<any | null>(null);
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
+
+  const fetchStaff = async () => {
+      try {
+          const data = await staffApi.getDepartmentLecturers();
+          // Map data if necessary to StaffListItem
+          setStaff(data);
+      } catch (error) {
+          console.error("Failed to fetch staff", error);
+      }
+  };
 
   /* Updated to match backend payload requirement */
   const handleAssignCourse = async (data: { courseId: string; role: string }) => {
@@ -152,13 +169,18 @@ export const StaffView: React.FC = () => {
       </div>
 
       <StaffTable 
-         staff={STAFF_MOCK_DATA}
-         allMatchingStaff={STAFF_MOCK_DATA}
+         staff={staff.length > 0 ? staff : STAFF_MOCK_DATA} // Use mock if empty for now, or just staff
+         allMatchingStaff={staff}
          onAssignCourse={(item) => {
              setSelectedStaffId(item.id);
              setIsAssignCourseModalOpen(true);
          }}
-         onEdit={(item) => console.log("Edit", item)}
+         onEdit={(item) => {
+             // Map item to initialData structure if needed, or if API response matches
+             // Assuming StaffListItem matches needed structure or close enough
+             setStaffToEdit(item);
+             setIsAddStaffModalOpen(true);
+         }}
          onBulkDownload={handleBulkDownload}
          onBulkDelete={handleBulkDelete}
       />
@@ -167,18 +189,33 @@ export const StaffView: React.FC = () => {
         isOpen={isAssignCourseModalOpen}
         onClose={() => setIsAssignCourseModalOpen(false)}
         onAssign={handleAssignCourse}
-        staffName={STAFF_MOCK_DATA.find((s) => s.id === selectedStaffId)?.name}
+        staffName={staff.find((s) => s.id === selectedStaffId)?.name}
       />
 
-      {isAddStaffModalOpen && (
+      {(isAddStaffModalOpen || staffToEdit) && (
         <AddStaffForm
-          onClose={() => setIsAddStaffModalOpen(false)}
-          onSubmit={async (data) => {
-            console.log("Adding staff:", data);
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            toast.success("Staff added successfully");
+          initialData={staffToEdit}
+          onClose={() => {
             setIsAddStaffModalOpen(false);
+            setStaffToEdit(null);
+          }}
+          onSubmit={async (data) => {
+            try {
+              if (staffToEdit) {
+                 await staffApi.updateLecturer(staffToEdit.id, data);
+                 toast.success("Lecturer updated successfully");
+              } else {
+                 await staffApi.addLecturer(data);
+                 toast.success("Lecturer added successfully");
+              }
+              
+              setIsAddStaffModalOpen(false);
+              setStaffToEdit(null);
+              fetchStaff(); // Refresh
+            } catch (error: any) {
+              console.error("Failed to save lecturer:", error);
+              toast.error(error.response?.data?.message || "Failed to save lecturer");
+            }
           }}
         />
       )}
@@ -188,8 +225,8 @@ export const StaffView: React.FC = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Delete Staff Members"
-        description={`Are you sure you want to delete ${idsToDelete.length} selected staff member(s)? This action cannot be undone.`}
+        title="Delete Lecturers"
+        description={`Are you sure you want to delete ${idsToDelete.length} selected lecturer(s)? This action cannot be undone.`}
         itemCount={idsToDelete.length}
       />
     </div>

@@ -10,6 +10,8 @@ import { StudentDetailsSidebar } from "../components/StudentDetailsSidedbar";
 import { AddStudentForm } from "../components/AddStudentForm";
 import { DeleteConfirmationModal } from "../components/DeleteConfirmationModal";
 import { studentsApi } from "../api/studentsapi";
+import { programsCoursesApi } from "../api/programscourseapi";
+import { academicsApi } from "../api/accademicapi"; // Note: filename typo in repo 'accademicapi'
 import { toast } from "react-hot-toast";
 
 const ITEMS_PER_PAGE = 10;
@@ -52,12 +54,30 @@ export const StudentsView: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
+  const [programTypeOptions, setProgramTypeOptions] = useState<string[]>([]);
+  const [sessionOptions, setSessionOptions] = useState<string[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Fetch students
+  // Fetch students, program types, and sessions
   useEffect(() => {
     fetchStudents();
+    fetchFilterOptions();
   }, []);
+
+  const fetchFilterOptions = async () => {
+    try {
+      const [programsRes, sessionsRes] = await Promise.all([
+        programsCoursesApi.getProgramTypes(),
+        academicsApi.getSessions()
+      ]);
+
+      setProgramTypeOptions(["all", ...programsRes.map(p => p.name)]);
+      setSessionOptions(["all", ...sessionsRes.map(s => s.name)]);
+    } catch (err) {
+      console.error("Failed to load filter options", err);
+      // Fallback or silent fail
+    }
+  };
 
   const fetchStudents = async () => {
     try {
@@ -98,6 +118,8 @@ export const StudentsView: React.FC = () => {
           isActive: student.isActive,
           // Note: Backend response doesn't explicitly show classRepRole in the example yet, 
           // keeping optional access safely if it exists or default to undefined
+          // Try to map session if available, otherwise fallback to date
+          session: (student as any).session?.name || new Date(student.createdAt).getFullYear().toString() + " Session", 
           classRepRole: (student as any).classRepRole, 
         }));
 
@@ -141,13 +163,20 @@ export const StudentsView: React.FC = () => {
         filtered = filtered.filter((student) => student.role === selectedProgramType);
     }
 
-    // Filter by Session (using Year from formatted createdAt as proxy)
-    // Format: "Oct 25, 2024" -> Session "2024"
+    // Filter by Session
     if (selectedSession !== "all") {
         filtered = filtered.filter((student) => {
+            // Check mapped session property first
+            if ((student as any).session === selectedSession) return true;
+             
+            // Fallback to year parsing (legacy support)
             const year = student.createdAt.split(",")[1]?.trim();
-            // selectedSession is formatted as "2024 Session"
-            return `${year} Session` === selectedSession;
+            const sessionName = `${year} Session`;
+            
+            // If selectedSession matches the "Name" from API directly, comparison is direct
+            // If API returns "2024/2025", we match that.
+            // If API returns just year, we match that.
+            return (student as any).session === selectedSession || sessionName === selectedSession;
         });
     }
 
@@ -174,17 +203,7 @@ export const StudentsView: React.FC = () => {
     return ["all", ...uniqueLevels].sort();
   }, [students]);
 
-  // Get unique Program Types
-  const programTypes = useMemo(() => {
-      const types = Array.from(new Set(students.map((s) => s.role))).filter(Boolean);
-      return ["all", ...types].sort();
-  }, [students]);
 
-  // Get unique Sessions (Years)
-  const sessions = useMemo(() => {
-    const years = Array.from(new Set(students.map((s) => s.createdAt.split(",")[1]?.trim()))).filter(Boolean);
-    return ["all", ...years].sort().reverse(); // Newest first
-  }, [students]);
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -355,14 +374,14 @@ export const StudentsView: React.FC = () => {
       key: "programType",
       value: selectedProgramType,
       onChange: setSelectedProgramType,
-      options: programTypes,
+      options: programTypeOptions.length > 0 ? programTypeOptions : ["all"],
       defaultLabel: "All Programs"
     },
     {
       key: "session",
       value: selectedSession,
       onChange: setSelectedSession,
-      options: sessions.map(s => s === "all" ? "all" : `${s} Session`), // e.g. "2024 Session"
+      options: sessionOptions.length > 0 ? sessionOptions : ["all"], 
       defaultLabel: "All Sessions"
     }
   ];
