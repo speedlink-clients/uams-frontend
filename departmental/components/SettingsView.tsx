@@ -39,37 +39,16 @@ export const SettingsView: React.FC = () => {
         <IDCardSettingsTab />
       ) : activeTab === 'Payment' ? (
         <PaymentSettingsTab />
-      ) : activeTab === 'SMS' || activeTab === 'Email' ? (
-         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 min-h-[600px]">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl font-bold text-slate-900">Notification</h2>
-          <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors">
-            <Edit size={16} />
-            Edit
-          </button>
-        </div>
-
-        {/* This content seems to be shared or specific to the Notification/Communication tabs */}
-        <div className="max-w-3xl">
-          <h3 className="font-bold text-slate-800 text-sm mb-6">
-            Actionable Email Notifications <span className="text-slate-500 font-normal italic">Email me immediately when someone:</span>
-          </h3>
-
-          <div className="space-y-4">
-             <CheckboxRow label="Changes their password" />
-             <CheckboxRow label="Makes a payment" />
-             <CheckboxRow label="Sends me a direct message" />
-             <CheckboxRow label="Edits their profile" />
-             <CheckboxRow label="Uploads a data" />
-             <CheckboxRow label="Creates a new profile" />
-             <CheckboxRow label="Onboards a new member" />
-          </div>
-        </div>
-      </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center min-h-[600px] flex flex-col items-center justify-center">
-             <SettingsIcon className="h-16 w-16 text-slate-200 mb-4" />
-             <h3 className="text-lg font-bold text-slate-400">Settings for {activeTab} coming soon</h3>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center min-h-[600px] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300">
+             <div className="bg-slate-50 p-6 rounded-full mb-6">
+                <SettingsIcon className="h-12 w-12 text-slate-300" strokeWidth={1.5} />
+             </div>
+             <h3 className="text-xl font-bold text-slate-800 mb-2">Settings for {activeTab} Coming Soon</h3>
+             <p className="text-slate-500 max-w-sm mx-auto">
+                We are currently working on the {activeTab} settings module. 
+                Please check back later for updates.
+             </p>
         </div>
       )}
     </div>
@@ -90,12 +69,4 @@ const TabButton: React.FC<{ active?: boolean; icon: React.ReactNode; label: stri
   </button>
 );
 
-const CheckboxRow: React.FC<{ label: string }> = ({ label }) => (
-  <label className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-slate-50 rounded-lg transition-colors">
-    <input 
-      type="checkbox" 
-      className="w-4 h-4 rounded border-slate-300 text-[#1D7AD9] focus:ring-[#1D7AD9]/20 cursor-pointer"
-    />
-    <span className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">{label}</span>
-  </label>
-);
+

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Search, Bell, History, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { ViewType, AuthData } from './types';
+import { ViewType, AuthData } from '../types';
 
 interface HeaderProps {
   onViewChange: (view: ViewType) => void;

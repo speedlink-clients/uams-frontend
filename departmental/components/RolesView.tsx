@@ -538,10 +538,10 @@ export const RolesView: React.FC = () => {
         // 2. Trigger download with templateId
         const blob = await idCardApi.bulkDownloadIDCards(selectedIds, templateId);
         
-        const url = window.URL.createObjectURL(new Blob([blob]));
+        const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'ID_Cards.zip'); 
+        link.setAttribute('download', 'ID_Cards.pdf'); 
         document.body.appendChild(link);
         link.click();
         link.parentNode?.removeChild(link);
@@ -560,10 +560,10 @@ export const RolesView: React.FC = () => {
         const toastId = toast.loading("Downloading Banner...");
         const blob = await idCardApi.bulkDownloadBanner(selectedIds);
         
-        const url = window.URL.createObjectURL(new Blob([blob]));
+        const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'Banners.zip'); // Adjust extension if needed (e.g. .pdf)
+        link.setAttribute('download', 'Banners.pdf'); 
         document.body.appendChild(link);
         link.click();
         link.parentNode?.removeChild(link);

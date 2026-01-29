@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useLocation, Outlet } from "react-router";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
-import { ViewType } from "./types";
+import { ViewType } from "../types";
 import { useAuth } from "../context/AuthProvider";
 
 const DashboardLayout: React.FC = () => {
@@ -22,7 +22,7 @@ const DashboardLayout: React.FC = () => {
       "/dashboard": "Dashboard",
       "/program-courses": "Program & Courses",
       "/students": "Students",
-      "/staff": "Staff",
+      "/staff": "Lecturers",
       "/payments": "Payments",
       "/roles-permissions": "ID Card Management",
       "/announcements": "Announcements",
@@ -44,12 +44,13 @@ const DashboardLayout: React.FC = () => {
       Dashboard: "/dashboard",
       "Program & Courses": "/program-courses",
       Students: "/students",
-      Staff: "/staff",
+      Lecturers: "/staff",
       Payments: "/payments",
       "ID Card Management": "/roles-permissions",
       Announcements: "/announcements",
       Settings: "/settings",
       Notifications: "/notifications",
+      Profile: "/profile",
     };
     navigate(routeMap[view] || "/dashboard");
   };
@@ -60,7 +61,6 @@ const DashboardLayout: React.FC = () => {
         activeView={activeView}
         onViewChange={handleViewChange}
         onLogout={logout}
-        authData={authData}
       />
       <main className="flex-1 ml-64 bg-[#F8FAFC]">
         <Header

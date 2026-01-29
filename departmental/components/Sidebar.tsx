@@ -22,7 +22,7 @@ interface SidebarProps {
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard' as ViewType },
   { icon: BookOpen, label: 'Program & Courses' as ViewType },
-  { icon: Users, label: 'Staff' as ViewType },
+  { icon: Users, label: 'Lecturers' as ViewType },
   { icon: UserSquare2, label: 'Students' as ViewType },
   { icon: CreditCard, label: 'Payments' as ViewType },
   { icon: ShieldCheck, label: 'ID Card Management' as ViewType },

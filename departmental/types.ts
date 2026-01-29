@@ -75,7 +75,7 @@ export interface Session {
   status: 'Current' | 'Past' | 'Upcoming';
 }
 
-export type ViewType = 'Dashboard' | 'Program & Courses' | 'Students' | 'Staff' | 'Payments' | 'ID Card Management' | 'Announcements' | 'Settings' | 'Notifications' | 'Profile';
+export type ViewType = 'Dashboard' | 'Program & Courses' | 'Students' | 'Lecturers' | 'Payments' | 'ID Card Management' | 'Announcements' | 'Settings' | 'Notifications' | 'Profile';
 
 export interface Permission {
   id: string;
@@ -171,4 +171,25 @@ export interface StudentProfile {
     startDate: string;
     endDate: string;
   }>;
+}
+
+// Authentication related interfaces
+export interface AuthData {
+  token: string;
+  role: string;
+  tenantId: string;
+  universityId: string;
+  facultyId: string | null;
+  departmentId: string | null;
+  email?: string;
+  username?: string;
+}
+
+export interface UserSession {
+  authData: AuthData | null;
+  isLoggedIn: boolean;
+}
+
+export interface LoginProps {
+  onLogin: (authData: AuthData) => void;
 }

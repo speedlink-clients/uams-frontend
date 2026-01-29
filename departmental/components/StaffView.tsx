@@ -109,7 +109,12 @@ export const StaffView: React.FC = () => {
   return (
     <div className="max-w-[1400px] mx-auto animate-in fade-in duration-500">
       <div className="flex justify-between items-center mb-10">
-        <h2 className="text-3xl font-bold text-slate-900">Staff</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Lecturers</h2>
+          <p className="text-slate-500 text-sm mt-1">
+            Manage department lecturers and their roles
+          </p>
+        </div>
         <div className="flex items-center gap-3">
           <button 
             onClick={handleDownloadTemplate}
