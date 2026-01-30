@@ -85,42 +85,43 @@ export const StudentsView: React.FC = () => {
       setError(null);
 
       const apiUsers = await studentsApi.getDepartmentStudents();
+      console.log(apiUsers);
 
       // Filter only STUDENT roles and map to Student interface
       const studentData: Student[] = (apiUsers as any[])
         .map((student, index) => ({
-          id: student.id, // ID for sidebar fetch as requested
-          regNo: `2024${Math.floor(Math.random() * 1000000)}BA`, // Placeholder
-          matNo: student.studentId || `U2024/${index + 1000}`,
-          surname: student.user.fullName.split(" ")[0] || "",
-          otherNames: student.user.fullName.split(" ").slice(1).join(" ") || "",
-          name: student.user.fullName,
+          id: student.id || "N/A", // ID for sidebar fetch as requested
+          regNo: student.registrationNo || `2024${Math.floor(Math.random() * 1000000)}BA` || "N/A", // Placeholder
+          matNo: student.studentId || "N/A",
+          surname: student.user.fullName.split(" ")[0] || "N/A",
+          otherNames: student.user.fullName.split(" ").slice(1).join(" ") || "N/A",
+          name: student.user.fullName || "N/A",
           email: student.user.email || "N/A",
           phoneNo: student.user.phone || "N/A",
-          department: getDepartmentFromProgramId(student.programId),
-          level: getLevelFromLevelId(student.levelId),
+          department: student?.department || getDepartmentFromProgramId(student.programId) || "N/A",
+          level: getLevelFromLevelId(student.levelId) || "N/A",
           programId: student.programId || "",
-          role: getProgramType(student.programId),
-          sex: "nil", // Placeholder
-          admissionMode: "nil", // Placeholder
-          entryQualification: "nil", // Placeholder
-          faculty: "nil", // Placeholder
-          degreeCourse: "nil", // Placeholder
-          programDuration: "nil", // Placeholder
-          degreeAwardCode: "nil", // Placeholder
+          role: getProgramType(student.programId) || "N/A" as StudentRole,
+          sex: student.gender || "N/A", // Placeholder
+          admissionMode: student.admissionMode || "N/A", // Placeholder
+          entryQualification: student.entryQualification || "N/A", // Placeholder
+          faculty: student.faculty || "N/A", // Placeholder
+          degreeCourse: student.degreeCourse || "N/A", // Placeholder
+          programDuration: student.courseDuration || "N/A", // Placeholder
+          degreeAwardCode: student.degreeAwarded || "N/A", // Placeholder
           createdAt: new Date(student.createdAt).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
             day: "numeric",
-          }), // Storing visually formatted date, but filter logic handles it (or we should store raw too? using formatted for display)
+          }) || "N/A", // Storing visually formatted date, but filter logic handles it (or we should store raw too? using formatted for display)
           // Actually formatted "Oct 12, 2024" works for display, filter might need parsing or just simple string match if year is in it.
           // Let's assume consistent format.
-          isActive: student.isActive,
+          isActive: student.isActive || "N/A",
           // Note: Backend response doesn't explicitly show classRepRole in the example yet, 
           // keeping optional access safely if it exists or default to undefined
           // Try to map session if available, otherwise fallback to date
-          session: (student as any).session?.name || new Date(student.createdAt).getFullYear().toString() + " Session", 
-          classRepRole: (student as any).classRepRole, 
+          session: (student as any).session?.name || new Date(student.createdAt).getFullYear().toString() + " Session" || "N/A", 
+          classRepRole: (student as any).classRepRole || "N/A", 
         }));
 
       setStudents(studentData);
