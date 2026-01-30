@@ -26,10 +26,10 @@ const StructureTab: React.FC = () => {
       try {
         setIsLoading(true);
         const [typesData, sessionsData] = await Promise.all([
-             programsCoursesApi.getProgramTypes(),
-             academicsApi.getAcademicSessions()
+          programsCoursesApi.getProgramTypes(),
+          academicsApi.getAcademicSessions()
         ]);
-        
+
         console.log("Program Types:", typesData);
         console.log("Sessions Data:", sessionsData);
 
@@ -50,7 +50,7 @@ const StructureTab: React.FC = () => {
     };
     fetchData();
   }, []);
-  
+
   // Form State
   const [editingSession, setEditingSession] = useState<any | null>(null);
   const [formData, setFormData] = useState({
@@ -65,24 +65,24 @@ const StructureTab: React.FC = () => {
   // Populate form when editingSession changes
   React.useEffect(() => {
     if (editingSession) {
-        setFormData({
-            name: editingSession.name,
-            duration: editingSession.duration,
-            type: editingSession.type,
-            startDate: editingSession.startDate, // Ensure format YYYY-MM-DD
-            semesters: "2", // Mock data doesn't have semesters, default or mock it
-            description: "", // Mock data doesn't have description
-        });
+      setFormData({
+        name: editingSession.name,
+        duration: editingSession.duration,
+        type: editingSession.type,
+        startDate: editingSession.startDate, // Ensure format YYYY-MM-DD
+        semesters: "2", // Mock data doesn't have semesters, default or mock it
+        description: "", // Mock data doesn't have description
+      });
     } else {
-        // Reset to default
-        setFormData({
-            name: "2023/2024 Academic Session",
-            duration: "12 Months",
-            type: "Undergraduate",
-            startDate: "2024-10-12",
-            semesters: "2",
-            description: "",
-        });
+      // Reset to default
+      setFormData({
+        name: "2023/2024 Academic Session",
+        duration: "12 Months",
+        type: "Undergraduate",
+        startDate: "2024-10-12",
+        semesters: "2",
+        description: "",
+      });
     }
   }, [editingSession]);
 
@@ -91,192 +91,192 @@ const StructureTab: React.FC = () => {
   };
 
   const toggleSelection = (id: string) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
 
   const getStatusBadge = (isActive: boolean) => {
-    return isActive 
-      ? "bg-green-100 text-green-600" 
+    return isActive
+      ? "bg-green-100 text-green-600"
       : "bg-red-100 text-red-600";
   };
-  
+
   const handleSave = async () => {
-      // Validate inputs?
-      
-      try {
-        setIsSaving(true);
-        const durationInt = parseInt(formData.duration) || 0;
-        
-        // Calculate End Date
-        const startDateObj = new Date(formData.startDate);
-        const endDateObj = new Date(startDateObj);
-        endDateObj.setMonth(startDateObj.getMonth() + durationInt);
-        const endDate = endDateObj.toISOString().split('T')[0];
+    // Validate inputs?
 
-        const payload = {
-            ...formData,
-            duration: durationInt,
-            startDate: formData.startDate,
-            endDate: endDate,
-            semesterCount: Number(formData.semesters),
-            isActive: true 
-        };
-        
-        if (editingSession) {
-             await academicsApi.updateSession(editingSession.id, {
-                name: payload.name, 
-                type: programTypes.find(t => t.id === payload.type)?.name || payload.type, 
-                semesterCount: payload.semesterCount,
-                duration: payload.duration,
-                startDate: payload.startDate,
-                endDate: payload.endDate,
-                description: payload.description,
-                isActive: true
-            });
-        } else {
-            await academicsApi.createSession({
-                name: payload.name, 
-                type: programTypes.find(t => t.id === payload.type)?.name || payload.type, 
-                semesterCount: payload.semesterCount,
-                duration: payload.duration,
-                startDate: payload.startDate,
-                endDate: payload.endDate,
-                description: payload.description,
-                isActive: true
-            });
-        }
+    try {
+      setIsSaving(true);
+      const durationInt = parseInt(formData.duration) || 0;
 
-        toast.success(editingSession ? "Session updated" : "Session created");
-        setIsCreating(false);
-        setEditingSession(null);
-        
-        // Refresh list
-        const updatedSessions = await academicsApi.getAcademicSessions();
-        setSessions(updatedSessions);
-        
-      } catch (error: any) {
-          console.error("Failed to save session", error);
-          toast.error(error.response?.data?.message || "Failed to save session");
-      } finally {
-        setIsSaving(false);
+      // Calculate End Date
+      const startDateObj = new Date(formData.startDate);
+      const endDateObj = new Date(startDateObj);
+      endDateObj.setMonth(startDateObj.getMonth() + durationInt);
+      const endDate = endDateObj.toISOString().split('T')[0];
+
+      const payload = {
+        ...formData,
+        duration: durationInt,
+        startDate: formData.startDate,
+        endDate: endDate,
+        semesterCount: Number(formData.semesters),
+        isActive: true
+      };
+
+      if (editingSession) {
+        await academicsApi.updateSession(editingSession.id, {
+          name: payload.name,
+          type: programTypes.find(t => t.id === payload.type)?.name || payload.type,
+          semesterCount: payload.semesterCount,
+          duration: payload.duration,
+          startDate: payload.startDate,
+          endDate: payload.endDate,
+          description: payload.description,
+          isActive: true
+        });
+      } else {
+        await academicsApi.createSession({
+          name: payload.name,
+          type: programTypes.find(t => t.id === payload.type)?.name || payload.type,
+          semesterCount: payload.semesterCount,
+          duration: payload.duration,
+          startDate: payload.startDate,
+          endDate: payload.endDate,
+          description: payload.description,
+          isActive: true
+        });
       }
+
+      toast.success(editingSession ? "Session updated" : "Session created");
+      setIsCreating(false);
+      setEditingSession(null);
+
+      // Refresh list
+      const updatedSessions = await academicsApi.getAcademicSessions();
+      setSessions(updatedSessions);
+
+    } catch (error: any) {
+      console.error("Failed to save session", error);
+      toast.error(error.response?.data?.message || "Failed to save session");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this session?")) {
-        try {
-            await academicsApi.deleteSession(id);
-            toast.success("Session deleted");
-            
-            // Refresh list
-            const updatedSessions = await academicsApi.getAcademicSessions();
-            const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
-            setSessions(sessionsList);
-        } catch (error: any) {
-            console.error("Failed to delete session", error);
-            toast.error(error.response?.data?.message || "Failed to delete session");
-        }
+      try {
+        await academicsApi.deleteSession(id);
+        toast.success("Session deleted");
+
+        // Refresh list
+        const updatedSessions = await academicsApi.getAcademicSessions();
+        const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
+        setSessions(sessionsList);
+      } catch (error: any) {
+        console.error("Failed to delete session", error);
+        toast.error(error.response?.data?.message || "Failed to delete session");
+      }
     }
   };
 
   if (isCreating || editingSession) {
-      return (
-        <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-slate-800 mb-8">
-                {editingSession ? "Edit Session" : "Create Session"}
-            </h3>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
-            <div className="space-y-6">
-                <FormFieldHorizontal 
-                label="Session Name" 
-                value={formData.name}
-                onChange={(val) => handleFormChange("name", val)}
-                />
-                <FormFieldHorizontal 
-                label="Type" 
-                type="select" 
-                options={Array.isArray(programTypes) ? programTypes.map((t) => ({
-                    label: t.name,
-                    value: t.id,
-                })) : []}
-                value={formData.type}
-                onChange={(val) => handleFormChange("type", val)}
-                />
-                <FormFieldHorizontal 
-                label="Semesters" 
-                type="select" 
-                options={["1", "2", "3"]}
-                value={formData.semesters}
-                onChange={(val) => handleFormChange("semesters", val)}
-                />
-            </div>
-            
-            <div className="space-y-6">
-                <FormFieldHorizontal 
-                label="Duration" 
-                type="select" 
-                options={["6 Months", "12 Months", "18 Months"]}
-                value={formData.duration}
-                onChange={(val) => handleFormChange("duration", val)}
-                />
-                <FormFieldHorizontal 
-                label="Start Date" 
-                type="date"
-                value={formData.startDate}
-                onChange={(val) => handleFormChange("startDate", val)}
-                />
-                <FormFieldHorizontal 
-                label="Description" 
-                type="textarea" 
-                value={formData.description}
-                onChange={(val) => handleFormChange("description", val)}
-                />
-            </div>
-            </div>
+    return (
+      <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+        <h3 className="text-xl font-bold text-slate-800 mb-8">
+          {editingSession ? "Edit Session" : "Create Session"}
+        </h3>
 
-            <div className="flex justify-end gap-3 mt-8">
-            <button 
-                onClick={() => {
-                    setIsCreating(false);
-                    setEditingSession(null);
-                }}
-                disabled={isSaving}
-                className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
-            >
-                Cancel
-            </button>
-            <button 
-                onClick={handleSave}
-                disabled={isSaving}
-                className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {isSaving ? (
-                     <>
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Saving...
-                     </>
-                ) : (
-                    editingSession ? "Update Session" : "Create Session"
-                )}
-            </button>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
+          <div className="space-y-6">
+            <FormFieldHorizontal
+              label="Session Name"
+              value={formData.name}
+              onChange={(val) => handleFormChange("name", val)}
+            />
+            <FormFieldHorizontal
+              label="Type"
+              type="select"
+              options={Array.isArray(programTypes) ? programTypes.map((t) => ({
+                label: t.name,
+                value: t.id,
+              })) : []}
+              value={formData.type}
+              onChange={(val) => handleFormChange("type", val)}
+            />
+            <FormFieldHorizontal
+              label="Semesters"
+              type="select"
+              options={["1", "2", "3"]}
+              value={formData.semesters}
+              onChange={(val) => handleFormChange("semesters", val)}
+            />
+          </div>
+
+          <div className="space-y-6">
+            <FormFieldHorizontal
+              label="Duration"
+              type="select"
+              options={["6 Months", "12 Months", "18 Months"]}
+              value={formData.duration}
+              onChange={(val) => handleFormChange("duration", val)}
+            />
+            <FormFieldHorizontal
+              label="Start Date"
+              type="date"
+              value={formData.startDate}
+              onChange={(val) => handleFormChange("startDate", val)}
+            />
+            <FormFieldHorizontal
+              label="Description"
+              type="textarea"
+              value={formData.description}
+              onChange={(val) => handleFormChange("description", val)}
+            />
+          </div>
         </div>
-      );
+
+        <div className="flex justify-end gap-3 mt-8">
+          <button
+            onClick={() => {
+              setIsCreating(false);
+              setEditingSession(null);
+            }}
+            disabled={isSaving}
+            className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSaving ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Saving...
+              </>
+            ) : (
+              editingSession ? "Update Session" : "Create Session"
+            )}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-        <div className="flex justify-end">
-            <button 
-                onClick={() => setIsCreating(true)}
-                className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
-            >
-                Create Session
-            </button>
-        </div>
+      <div className="flex justify-end">
+        <button
+          onClick={() => setIsCreating(true)}
+          className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
+        >
+          Create Session
+        </button>
+      </div>
 
       {/* Created Sessions Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -284,9 +284,9 @@ const StructureTab: React.FC = () => {
           <h3 className="text-lg font-bold text-slate-800">Created Sessions</h3>
           <div className="flex gap-3">
             <div className="relative group">
-              <input 
-                type="text" 
-                placeholder="Search by name, semester, or code" 
+              <input
+                type="text"
+                placeholder="Search by name, semester, or code"
                 className="bg-white border border-slate-200 text-xs py-2.5 pl-4 pr-10 rounded-xl outline-none w-64 focus:ring-2 focus:ring-blue-500/10 transition-all placeholder:text-slate-400"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -319,8 +319,8 @@ const StructureTab: React.FC = () => {
               {Array.isArray(sessions) && sessions.map((session) => (
                 <tr key={session.id} className="hover:bg-slate-50/50 transition-colors text-slate-600">
                   <td className="px-6 py-4 text-center">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
                       checked={selectedIds.includes(session.id)}
                       onChange={() => toggleSelection(session.id)}
@@ -337,21 +337,21 @@ const StructureTab: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-center">
                     <div className="relative">
-                      <button 
+                      <button
                         onClick={() => setActiveActionId(activeActionId === session.id ? null : session.id)}
                         className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
                       >
                         <MoreHorizontal size={18} />
                       </button>
-                      
+
                       {activeActionId === session.id && (
                         <>
-                          <div 
-                            className="fixed inset-0 z-10" 
+                          <div
+                            className="fixed inset-0 z-10"
                             onClick={() => setActiveActionId(null)}
                           />
                           <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1 animate-in fade-in zoom-in-95 duration-200">
-                            <button 
+                            <button
                               onClick={() => {
                                 console.log("Edit", session.id);
                                 setEditingSession(session); // Populate form
@@ -363,7 +363,7 @@ const StructureTab: React.FC = () => {
                               <Edit size={14} />
                               Edit
                             </button>
-                            <button 
+                            <button
                               onClick={() => {
                                 handleDelete(session.id);
                                 setActiveActionId(null);

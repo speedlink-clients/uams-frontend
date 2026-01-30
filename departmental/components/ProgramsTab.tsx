@@ -187,7 +187,13 @@ const ProgramsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-6">
+        <button
+          onClick={() => setIsCreating(true)}
+          className="bg-white text-blue-600 px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-100 transition-all active:scale-95"
+        >
+          <Download size={18} /> Export table
+        </button>
         <button
           onClick={() => setIsCreating(true)}
           className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95"
@@ -346,10 +352,6 @@ const ProgramsTab: React.FC = () => {
             {selectedIds.length} items selected
           </span>
           <div className="h-6 w-px bg-slate-200"></div>
-          <button className="flex items-center gap-2 bg-[#1D7AD9] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
-            <Download size={16} />
-            Bulk Download
-          </button>
           <button className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">
             <Trash size={16} />
             Bulk Delete
