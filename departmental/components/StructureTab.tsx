@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2 } from "lucide-react";
+import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2, Download, Trash } from "lucide-react";
+import { toast } from "react-hot-toast";
 import FormFieldHorizontal from "./FormFieldHorizontal";
 import { programsCoursesApi } from "../api/programscourseapi";
 import { academicsApi } from "../api/accademicapi";
 import { ProgramTypeResponse } from "../api/types";
-import { toast } from "react-hot-toast";
+import { exportToExcel } from "../utils/excelExport";
 
 
 
@@ -96,6 +97,14 @@ const StructureTab: React.FC = () => {
     );
   };
 
+  const toggleSelectAll = () => {
+    if (selectedIds.length === sessions.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(sessions.map(s => s.id));
+    }
+  };
+
   const getStatusBadge = (isActive: boolean) => {
     return isActive
       ? "bg-green-100 text-green-600"
@@ -179,6 +188,38 @@ const StructureTab: React.FC = () => {
         toast.error(error.response?.data?.message || "Failed to delete session");
       }
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected sessions?`)) {
+      try {
+        await Promise.all(selectedIds.map(id => academicsApi.deleteSession(id)));
+        toast.success(`${selectedIds.length} sessions deleted successfully`);
+        setSelectedIds([]);
+        // Refresh list
+        const updatedSessions = await academicsApi.getAcademicSessions();
+        const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
+        setSessions(sessionsList);
+      } catch (err: any) {
+        console.error("Error bulk deleting sessions:", err);
+        toast.error("Failed to delete some sessions");
+      }
+    }
+  };
+
+  const handleExport = () => {
+    const dataToExport = sessions.map(s => ({
+      "Session Name": s.name,
+      "Type": s.type,
+      "Duration": s.duration,
+      "Start Date": s.startDate,
+      "Status": s.isActive ? "Ongoing" : "Completed"
+    }));
+
+    exportToExcel(dataToExport, "sessions_list", "Sessions");
+    toast.success("Exporting table to Excel...");
   };
 
   if (isCreating || editingSession) {
@@ -269,7 +310,13 @@ const StructureTab: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-6">
+        <button
+          onClick={handleExport}
+          className="bg-white text-blue-600 px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-100 transition-all active:scale-95"
+        >
+          <Download size={18} /> Export table
+        </button>
         <button
           onClick={() => setIsCreating(true)}
           className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
@@ -305,7 +352,12 @@ const StructureTab: React.FC = () => {
             <thead>
               <tr className="bg-slate-50/60 border-y border-gray-100 text-slate-500 font-bold uppercase text-[11px] tracking-wider">
                 <th className="px-6 py-4 w-12 text-center">
-                  <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                    checked={sessions.length > 0 && selectedIds.length === sessions.length}
+                    onChange={toggleSelectAll}
+                  />
                 </th>
                 <th className="px-6 py-4">Session Name</th>
                 <th className="px-6 py-4">Type</th>

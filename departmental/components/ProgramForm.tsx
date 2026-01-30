@@ -1,6 +1,7 @@
 // ProgramForm.tsx - UPDATED VERSION
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import FormFieldHorizontal from "./FormFieldHorizontal";
 import { DURATION_OPTIONS } from "../utils/constants";
 import { getCurrentDepartmentId, getCurrentUniversityId } from "../utils/auth";
@@ -17,7 +18,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSubmit, onCanc
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     code: initialData?.code || "",
-    type: initialData?.type || "", 
+    type: initialData?.type || "",
     duration: initialData?.duration || "",
     description: initialData?.description || "",
   });
@@ -31,7 +32,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSubmit, onCanc
       try {
         const types = await programsCoursesApi.getProgramTypes();
         setProgramTypes(types);
-        
+
         // If we are editing and have an initial type ID, ensure it's selected.
         // If not editing, logic remains same (or rely on placeholder).
       } catch (err) {
@@ -75,7 +76,9 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSubmit, onCanc
 
       await onSubmit(dataToSend);
     } catch (err: any) {
-      setError(err.message || "Failed to create program");
+      const errorMessage = err.message || "Failed to create program";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -162,7 +165,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSubmit, onCanc
                 <Loader2 className="animate-spin h-4 w-4" /> {initialData ? "Updating..." : "Creating..."}
               </>
             ) : (
-                initialData ? "Update Program" : "Create Program"
+              initialData ? "Update Program" : "Create Program"
             )}
           </button>
         </div>

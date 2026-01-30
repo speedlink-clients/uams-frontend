@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download } from "lucide-react";
+import { toast } from "react-hot-toast";
 import CourseForm from "./CourseForm";
 import { programsCoursesApi } from "../api/programscourseapi";
+import { exportToExcel } from "../utils/excelExport";
 
 const CoursesTab: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
@@ -88,17 +90,63 @@ const CoursesTab: React.FC = () => {
     try {
       if (editingCourse) {
         await programsCoursesApi.updateCourse(editingCourse.id, courseData);
+        toast.success("Course updated successfully");
       } else {
         await programsCoursesApi.createCourse(courseData);
+        toast.success("Course created successfully");
       }
-      
+
       setIsCreating(false);
       setEditingCourse(null);
       fetchCourses();
     } catch (err: any) {
       console.error("Error saving course:", err);
+      toast.error(err.response?.data?.message || "Failed to save course");
       throw err;
     }
+  };
+
+  const handleDelete = async (id: string, code: string) => {
+    if (window.confirm(`Are you sure you want to delete the course "${code}"?`)) {
+      try {
+        await programsCoursesApi.deleteCourse(id);
+        toast.success("Course deleted successfully");
+        await fetchCourses();
+      } catch (err: any) {
+        console.error("Error deleting course:", err);
+        toast.error("Failed to delete course");
+      }
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected courses?`)) {
+      try {
+        await Promise.all(selectedIds.map(id => programsCoursesApi.deleteCourse(id)));
+        toast.success(`${selectedIds.length} courses deleted successfully`);
+        setSelectedIds([]);
+        await fetchCourses();
+      } catch (err: any) {
+        console.error("Error bulk deleting courses:", err);
+        toast.error("Failed to delete some courses");
+      }
+    }
+  };
+
+  const handleExport = () => {
+    const dataToExport = filteredCourses.map(c => ({
+      "Code": c.code,
+      "Course Title": c.title,
+      "Level": c.level?.name || "N/A",
+      "Semester": c.semester?.name || "N/A",
+      "Credit Units": c.creditUnits,
+      "Status": c.semester?.isActive ? "Active" : "Inactive"
+    }));
+
+    exportToExcel(dataToExport, "courses_list", "Courses");
+    toast.success("Exporting table to Excel...");
   };
 
   if (isCreating || editingCourse) {
@@ -107,8 +155,8 @@ const CoursesTab: React.FC = () => {
         initialData={editingCourse}
         onSubmit={handleCreateOrUpdateCourse}
         onCancel={() => {
-            setIsCreating(false);
-            setEditingCourse(null);
+          setIsCreating(false);
+          setEditingCourse(null);
         }}
       />
     );
@@ -147,7 +195,13 @@ const CoursesTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-6">
+        <button
+          onClick={handleExport}
+          className="bg-white text-blue-600 px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-100 transition-all active:scale-95"
+        >
+          <Download size={18} /> Export table
+        </button>
         <button
           onClick={() => setIsCreating(true)}
           className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all"
@@ -233,9 +287,8 @@ const CoursesTab: React.FC = () => {
                 filteredCourses.map((course) => (
                   <tr
                     key={course.id}
-                    className={`hover:bg-slate-50/50 transition-colors text-sm text-slate-600 group ${
-                      selectedIds.includes(course.id) ? "bg-blue-50/30" : ""
-                    }`}
+                    className={`hover:bg-slate-50/50 transition-colors text-sm text-slate-600 group ${selectedIds.includes(course.id) ? "bg-blue-50/30" : ""
+                      }`}
                   >
                     <td className="px-6 py-4 text-center">
                       <input
@@ -279,7 +332,7 @@ const CoursesTab: React.FC = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log("Delete clicked", course.id);
+                                  handleDelete(course.id, course.code);
                                   setActiveDropdownId(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -311,7 +364,10 @@ const CoursesTab: React.FC = () => {
             <Download size={16} />
             Bulk Download
           </button>
-          <button className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors"
+          >
             <Trash size={16} />
             Bulk Delete
           </button>

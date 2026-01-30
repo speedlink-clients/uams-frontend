@@ -3,6 +3,7 @@ import { Plus, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download } fro
 import { toast } from "react-hot-toast";
 import ProgramForm from "./ProgramForm";
 import { programsCoursesApi } from "../api/programscourseapi";
+import { exportToExcel } from "../utils/excelExport";
 
 const ProgramsTab: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
@@ -70,8 +71,8 @@ const ProgramsTab: React.FC = () => {
       setError(null);
 
       const data = await programsCoursesApi.getProgramsByDepartment();
-      
-      
+
+
       // Data is now directly the array from the API service
       setPrograms(data);
       setFilteredPrograms(data);
@@ -89,13 +90,13 @@ const ProgramsTab: React.FC = () => {
   const handleCreateOrUpdateProgram = async (programData: any) => {
     try {
       if (editingProgram) {
-        await programsCoursesApi.updateProgram(editingProgram.id, programData); 
+        await programsCoursesApi.updateProgram(editingProgram.id, programData);
         toast.success("Program updated successfully");
       } else {
         await programsCoursesApi.createProgram(programData);
         toast.success("Program created successfully");
       }
-      
+
       setIsCreating(false);
       setEditingProgram(null);
       await fetchPrograms(); // Refresh the list after successful creation
@@ -125,6 +126,50 @@ const ProgramsTab: React.FC = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected programs?`)) {
+      try {
+        await Promise.all(selectedIds.map(id => programsCoursesApi.deleteProgram(id)));
+        toast.success(`${selectedIds.length} programs deleted successfully`);
+        setSelectedIds([]);
+        await fetchPrograms();
+      } catch (err: any) {
+        console.error("Error bulk deleting programs:", err);
+        toast.error("Failed to delete some programs");
+      }
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (programs.length === 0) return;
+
+    if (window.confirm("Are you sure you want to delete ALL programs in this table? This action cannot be undone.")) {
+      try {
+        await Promise.all(programs.map(p => programsCoursesApi.deleteProgram(p.id)));
+        toast.success("All programs deleted successfully");
+        setSelectedIds([]);
+        await fetchPrograms();
+      } catch (err: any) {
+        console.error("Error deleting all programs:", err);
+        toast.error("Failed to delete all programs");
+      }
+    }
+  };
+
+  const handleExport = () => {
+    const dataToExport = filteredPrograms.map(p => ({
+      "Program Name": p.name,
+      "Type": p.programType?.name || "N/A",
+      "Duration": `${p.duration} Year${p.duration !== 1 ? "s" : ""}`,
+      "Status": p.isActive !== false ? "Active" : "Inactive"
+    }));
+
+    exportToExcel(dataToExport, "programs_list", "Programs");
+    toast.success("Exporting table to Excel...");
+  };
+
   const getStatusBadge = (isActive: boolean) => {
     return isActive
       ? "bg-emerald-100 text-emerald-600"
@@ -147,8 +192,8 @@ const ProgramsTab: React.FC = () => {
         initialData={editingProgram}
         onSubmit={handleCreateOrUpdateProgram}
         onCancel={() => {
-            setIsCreating(false);
-            setEditingProgram(null);
+          setIsCreating(false);
+          setEditingProgram(null);
         }}
       />
     );
@@ -189,7 +234,7 @@ const ProgramsTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-end gap-6">
         <button
-          onClick={() => setIsCreating(true)}
+          onClick={handleExport}
           className="bg-white text-blue-600 px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-100 transition-all active:scale-95"
         >
           <Download size={18} /> Export table
@@ -270,9 +315,8 @@ const ProgramsTab: React.FC = () => {
                 filteredPrograms.map((program) => (
                   <tr
                     key={program.id}
-                    className={`hover:bg-slate-50/50 transition-colors text-sm text-slate-600 group ${
-                      selectedIds.includes(program.id) ? "bg-blue-50/30" : ""
-                    }`}
+                    className={`hover:bg-slate-50/50 transition-colors text-sm text-slate-600 group ${selectedIds.includes(program.id) ? "bg-blue-50/30" : ""
+                      }`}
                   >
                     <td className="px-6 py-4 text-center">
                       <input
@@ -352,10 +396,22 @@ const ProgramsTab: React.FC = () => {
             {selectedIds.length} items selected
           </span>
           <div className="h-6 w-px bg-slate-200"></div>
-          <button className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors"
+          >
             <Trash size={16} />
             Bulk Delete
           </button>
+          {selectedIds.length === filteredPrograms.length && (
+            <button
+              onClick={handleDeleteAll}
+              className="flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-800 transition-colors"
+            >
+              <Trash size={16} />
+              Delete All
+            </button>
+          )}
         </div>
       )}
     </div>

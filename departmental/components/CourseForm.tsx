@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { academicsApi, Level, Semester } from "../api/accademicapi";
 import { programsCoursesApi } from "../api/programscourseapi";
 import { ProgramTypeResponse } from "../api/types";
@@ -52,7 +53,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       try {
         const types = await programsCoursesApi.getProgramTypes();
         setProgramTypes(types);
-        
+
         // Auto-select first if available (optional, matched ProgramForm behavior)
         // if (types.length > 0) {
         //   handleChange("programTypeId", types[0].id);
@@ -87,7 +88,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
 
       // Only checking detailed existence if we are in Bachelors mode
       if (isBachelors && (!level || !semester)) {
-         throw new Error("Invalid level or semester selection");
+        throw new Error("Invalid level or semester selection");
       }
 
       const payload = {
@@ -109,7 +110,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       console.log("Sending course payload:", payload);
       await onSubmit(payload);
     } catch (err: any) {
-      setError(err.message || "Failed to create course");
+      const errorMessage = err.message || "Failed to create course";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -131,22 +134,22 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Program Type Selection */}
         <div>
-           <label className="block text-sm font-medium text-gray-700 mb-1">
-             Program Type <span className="text-red-500">*</span>
-           </label>
-           <select
-             value={formData.programTypeId}
-             onChange={(e) => handleChange("programTypeId", e.target.value)}
-             className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-             required
-           >
-             <option value="">Select Program Type</option>
-             {programTypes.map((type) => (
-               <option key={type.id} value={type.id}>
-                 {type.name}
-               </option>
-             ))}
-           </select>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Program Type <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={formData.programTypeId}
+            onChange={(e) => handleChange("programTypeId", e.target.value)}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="">Select Program Type</option>
+            {programTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
