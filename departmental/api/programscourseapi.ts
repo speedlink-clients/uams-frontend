@@ -92,6 +92,10 @@ export const programsCoursesApi = {
       const response = await api.put<Course>(`/courses/${courseId}`, courseData);
       return response.data;
   },
+  updateCourseStatus: async (courseId: string, courseData: any): Promise<Course> => {
+      const response = await api.put<Course>(`/courses/${courseId}`, { isActive: courseData.isActive });
+      return response.data;
+  },
 
   /** UPDATE PROGRAM */
   updateProgram: async (programId: string, programData: any): Promise<Program> => {
@@ -100,7 +104,15 @@ export const programsCoursesApi = {
           code: programData.code,
           description: programData.description,
           duration: Number(programData.duration),
-          programTypeId: programData.type,
+          programTypeId: programData.type
+      };
+      
+      const response = await api.patch<Program>(`/program/${programId}`, payload);
+      return response.data;
+  },
+  updateProgramStatus: async (programId: string, programData: any): Promise<Program> => {
+      const payload = {
+          isActive: programData.isActive
       };
       
       const response = await api.patch<Program>(`/program/${programId}`, payload);

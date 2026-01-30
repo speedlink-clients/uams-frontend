@@ -16,6 +16,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
 
+  console.log(levels);
+  
+
   // ✅ State keys now match the logic in handleSubmit
   const [formData, setFormData] = useState({
     code: initialData?.code || "",
@@ -39,7 +42,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
 
   /** FETCH LEVELS */
   useEffect(() => {
-    academicsApi.getLevels().then(setLevels).catch(console.error);
+    academicsApi.getLevels().then((levels) => setLevels(levels)).catch(console.error);
   }, []);
 
   /** FETCH SEMESTERS */

@@ -361,7 +361,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                                   onClick={async (e) => {
                                     e.stopPropagation();
                                     try {
-                                      await programsCoursesApi.updateCourse(course.id, { ...course, isActive: !course.semester?.isActive });
+                                      await programsCoursesApi.updateCourseStatus(course.id, { isActive: !course.semester?.isActive });
                                       toast.success(`Course ${!course.semester?.isActive ? "activated" : "deactivated"}`);
                                       fetchCourses();
                                     } catch (err) {

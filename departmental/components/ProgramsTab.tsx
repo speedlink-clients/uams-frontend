@@ -24,6 +24,8 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
 
   const [editingProgram, setEditingProgram] = useState<any | null>(null);
 
+  console.log("programs",programs);
+
   // Sync editingProgram with route ID
   useEffect(() => {
     if (isEditingRoute && id && programs.length > 0) {
@@ -396,7 +398,7 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
                                   onClick={async (e) => {
                                     e.stopPropagation();
                                     try {
-                                      await programsCoursesApi.updateProgram(program.id, { ...program, type: program.programType?.id, isActive: !program.isActive });
+                                      await programsCoursesApi.updateProgramStatus(program.id, { isActive: !program.isActive });
                                       toast.success(`Program ${!program.isActive ? "activated" : "deactivated"}`);
                                       fetchPrograms();
                                     } catch (err) {
