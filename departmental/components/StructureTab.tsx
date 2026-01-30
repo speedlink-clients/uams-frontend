@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2, Download, Trash } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
+import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2, Download, Trash, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import FormFieldHorizontal from "./FormFieldHorizontal";
 import { programsCoursesApi } from "../api/programscourseapi";
@@ -9,7 +10,14 @@ import { exportToExcel } from "../utils/excelExport";
 
 
 
-const StructureTab: React.FC = () => {
+interface StructureTabProps {
+  isCreatingRoute?: boolean;
+  isEditingRoute?: boolean;
+}
+
+const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingRoute }) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [sessions, setSessions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,8 +25,37 @@ const StructureTab: React.FC = () => {
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
 
-  const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const [editingSession, setEditingSession] = useState<any | null>(null);
+
+  // Sync editingSession with route ID
+  useEffect(() => {
+    if (isEditingRoute && id && sessions.length > 0) {
+      const session = sessions.find(sub => sub.id === id);
+      if (session) {
+        setEditingSession(session);
+        setFormData({
+          name: session.name,
+          type: session.programType?.id || "",
+          semesters: session.semesters || "2",
+          duration: session.duration || "12 Months",
+          startDate: session.startDate || "",
+          description: session.description || "",
+        });
+      }
+    } else if (!isEditingRoute) {
+      setEditingSession(null);
+      setFormData({
+        name: "",
+        type: "",
+        semesters: "2",
+        duration: "12 Months",
+        startDate: "",
+        description: "",
+      });
+    }
+  }, [isEditingRoute, id, sessions]);
 
   // Fetch Program Types on Mount
   // Fetch Program Types and Sessions on Mount
@@ -53,7 +90,6 @@ const StructureTab: React.FC = () => {
   }, []);
 
   // Form State
-  const [editingSession, setEditingSession] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     name: "2023/2024 Academic Session",
     duration: "12 Months",
@@ -144,22 +180,14 @@ const StructureTab: React.FC = () => {
           description: payload.description,
           isActive: true
         });
+        toast.success("Session updated");
+        navigate("/program-courses");
       } else {
-        await academicsApi.createSession({
-          name: payload.name,
-          type: programTypes.find(t => t.id === payload.type)?.name || payload.type,
-          semesterCount: payload.semesterCount,
-          duration: payload.duration,
-          startDate: payload.startDate,
-          endDate: payload.endDate,
-          description: payload.description,
-          isActive: true
-        });
+        const res = await academicsApi.createSession(payload);
+        setSessions((prev) => [res, ...prev]);
+        toast.success("Session created successfully");
+        navigate("/program-courses");
       }
-
-      toast.success(editingSession ? "Session updated" : "Session created");
-      setIsCreating(false);
-      setEditingSession(null);
 
       // Refresh list
       const updatedSessions = await academicsApi.getAcademicSessions();
@@ -210,23 +238,15 @@ const StructureTab: React.FC = () => {
   };
 
   const handleExport = () => {
-    const dataToExport = sessions.map(s => ({
-      "Session Name": s.name,
-      "Type": s.type,
-      "Duration": s.duration,
-      "Start Date": s.startDate,
-      "Status": s.isActive ? "Active" : "Inactive"
-    }));
-
-    exportToExcel(dataToExport, "sessions_list", "Sessions");
+    exportToExcel(sessions, "Academic_Sessions");
     toast.success("Exporting table to Excel...");
   };
 
-  if (isCreating || editingSession) {
+  if (isCreatingRoute || (isEditingRoute && editingSession)) {
     return (
       <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm animate-in fade-in zoom-in-95 duration-200">
         <h3 className="text-xl font-bold text-slate-800 mb-8">
-          {editingSession ? "Edit Session" : "Create Session"}
+          {(isEditingRoute && editingSession) ? "Edit Session" : "Create Session"}
         </h3>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
@@ -281,8 +301,7 @@ const StructureTab: React.FC = () => {
         <div className="flex justify-end gap-3 mt-8">
           <button
             onClick={() => {
-              setIsCreating(false);
-              setEditingSession(null);
+              navigate("/program-courses");
             }}
             disabled={isSaving}
             className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
@@ -300,7 +319,7 @@ const StructureTab: React.FC = () => {
                 Saving...
               </>
             ) : (
-              editingSession ? "Update Session" : "Create Session"
+              (isEditingRoute && editingSession) ? "Update Session" : "Create Session"
             )}
           </button>
         </div>
@@ -318,7 +337,7 @@ const StructureTab: React.FC = () => {
           <Download size={18} /> Export table
         </button>
         <button
-          onClick={() => setIsCreating(true)}
+          onClick={() => navigate("/program-courses/sessions/new")}
           className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
         >
           Create Session
@@ -406,9 +425,8 @@ const StructureTab: React.FC = () => {
                             <button
                               onClick={() => {
                                 console.log("Edit", session.id);
-                                setEditingSession(session); // Populate form
+                                navigate(`/program-courses/sessions/edit/${session.id}`);
                                 setActiveActionId(null);
-                                window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to form
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors text-left"
                             >
@@ -425,6 +443,30 @@ const StructureTab: React.FC = () => {
                               <Trash2 size={14} />
                               Delete
                             </button>
+                            <div className="border-t border-gray-100 my-1 pt-1">
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    await academicsApi.updateSession(session.id, { ...session, isActive: !session.isActive });
+                                    toast.success(`Session ${!session.isActive ? "activated" : "deactivated"}`);
+                                    const updatedSessions = await academicsApi.getAcademicSessions();
+                                    setSessions(updatedSessions);
+                                  } catch (err) {
+                                    toast.error("Failed to update status");
+                                  }
+                                  setActiveActionId(null);
+                                }}
+                                className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                              >
+                                <span className="flex items-center gap-2">
+                                  <div className={`w-8 h-4 rounded-full relative transition-colors ${session.isActive ? 'bg-green-500' : 'bg-slate-300'}`}>
+                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${session.isActive ? 'right-0.5' : 'left-0.5'}`} />
+                                  </div>
+                                  Active
+                                </span>
+                              </button>
+                            </div>
                           </div>
                         </>
                       )}
@@ -449,6 +491,14 @@ const StructureTab: React.FC = () => {
           >
             <Trash size={16} />
             Delete
+          </button>
+          <div className="h-6 w-px bg-slate-200"></div>
+          <button
+            onClick={() => setSelectedIds([])}
+            className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+            title="Unselect all"
+          >
+            <X size={20} />
           </button>
         </div>
       )}

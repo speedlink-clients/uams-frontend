@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
 import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download } from "lucide-react";
 import { toast } from "react-hot-toast";
 import CourseForm from "./CourseForm";
 import { programsCoursesApi } from "../api/programscourseapi";
 import { exportToExcel } from "../utils/excelExport";
 
-const CoursesTab: React.FC = () => {
-  const [isCreating, setIsCreating] = useState(false);
+interface CoursesTabProps {
+  isCreatingRoute?: boolean;
+  isEditingRoute?: boolean;
+}
+
+const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute }) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [courses, setCourses] = useState<any[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,6 +22,16 @@ const CoursesTab: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
+
+  // Sync editingCourse with route ID
+  useEffect(() => {
+    if (isEditingRoute && id && courses.length > 0) {
+      const course = courses.find(c => c.id === id);
+      if (course) setEditingCourse(course);
+    } else if (!isEditingRoute) {
+      setEditingCourse(null);
+    }
+  }, [isEditingRoute, id, courses]);
 
   // Toggle selection for a single course
   const toggleSelection = (id: string) => {
@@ -96,9 +113,9 @@ const CoursesTab: React.FC = () => {
         toast.success("Course created successfully");
       }
 
-      setIsCreating(false);
       setEditingCourse(null);
       fetchCourses();
+      navigate("/program-courses/courses"); // Navigate back to list after create/update
     } catch (err: any) {
       console.error("Error saving course:", err);
       toast.error(err.response?.data?.message || "Failed to save course");
@@ -149,14 +166,13 @@ const CoursesTab: React.FC = () => {
     toast.success("Exporting table to Excel...");
   };
 
-  if (isCreating || editingCourse) {
+  if (isCreatingRoute || (isEditingRoute && editingCourse)) {
     return (
       <CourseForm
         initialData={editingCourse}
         onSubmit={handleCreateOrUpdateCourse}
         onCancel={() => {
-          setIsCreating(false);
-          setEditingCourse(null);
+          navigate("/program-courses/courses");
         }}
       />
     );
@@ -203,7 +219,7 @@ const CoursesTab: React.FC = () => {
           <Download size={18} /> Export table
         </button>
         <button
-          onClick={() => setIsCreating(true)}
+          onClick={() => navigate("/program-courses/courses/new")}
           className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all"
         >
           <Plus size={18} /> Create Course
@@ -321,7 +337,7 @@ const CoursesTab: React.FC = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setEditingCourse(course);
+                                  navigate(`/program-courses/courses/edit/${course.id}`);
                                   setActiveDropdownId(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
@@ -340,6 +356,29 @@ const CoursesTab: React.FC = () => {
                                 <Trash size={14} />
                                 Delete
                               </button>
+                              <div className="border-t border-gray-100 my-1 pt-1">
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                      await programsCoursesApi.updateCourse(course.id, { ...course, isActive: !course.semester?.isActive });
+                                      toast.success(`Course ${!course.semester?.isActive ? "activated" : "deactivated"}`);
+                                      fetchCourses();
+                                    } catch (err) {
+                                      toast.error("Failed to update status");
+                                    }
+                                    setActiveDropdownId(null);
+                                  }}
+                                  className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                                >
+                                  <span className="flex items-center gap-2">
+                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${course.semester?.isActive ? 'bg-green-500' : 'bg-slate-300'}`}>
+                                      <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${course.semester?.isActive ? 'right-0.5' : 'left-0.5'}`} />
+                                    </div>
+                                    Active
+                                  </span>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -366,6 +405,14 @@ const CoursesTab: React.FC = () => {
           >
             <Trash size={16} />
             Delete
+          </button>
+          <div className="h-6 w-px bg-slate-200"></div>
+          <button
+            onClick={() => setSelectedIds([])}
+            className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+            title="Unselect all"
+          >
+            <X size={20} />
           </button>
         </div>
       )}

@@ -14,8 +14,8 @@ const DashboardLayout: React.FC = () => {
   if (!authData) return null;
 
   // Get user display name
-  const currentUser = authData.email 
-    ? authData.email.split("@")[0] 
+  const currentUser = authData.email
+    ? authData.email.split("@")[0]
     : authData.role === "UNIVERSITYADMIN" ? "Admin" : "User";
 
   const getActiveViewFromPath = (pathname: string): ViewType => {
@@ -30,10 +30,13 @@ const DashboardLayout: React.FC = () => {
       "/settings": "Settings",
       "/notifications": "Notifications",
     };
-    
-    // Check if path starts with one of the keys (for nested sub-routes if any)
-    const exactMatch = routeMap[pathname];
-    if (exactMatch) return exactMatch;
+
+    // Check if path starts with one of the keys for nested sub-routes
+    for (const [route, view] of Object.entries(routeMap)) {
+      if (pathname === route || pathname.startsWith(route + "/")) {
+        return view;
+      }
+    }
 
     return "Dashboard";
   };

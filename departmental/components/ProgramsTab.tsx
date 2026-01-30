@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
 import { Plus, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download } from "lucide-react";
 import { toast } from "react-hot-toast";
 import ProgramForm from "./ProgramForm";
 import { programsCoursesApi } from "../api/programscourseapi";
 import { exportToExcel } from "../utils/excelExport";
 
-const ProgramsTab: React.FC = () => {
-  const [isCreating, setIsCreating] = useState(false);
+interface ProgramsTabProps {
+  isCreatingRoute?: boolean;
+  isEditingRoute?: boolean;
+}
+
+const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRoute }) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [programs, setPrograms] = useState<any[]>([]);
   const [filteredPrograms, setFilteredPrograms] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,6 +23,16 @@ const ProgramsTab: React.FC = () => {
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   const [editingProgram, setEditingProgram] = useState<any | null>(null);
+
+  // Sync editingProgram with route ID
+  useEffect(() => {
+    if (isEditingRoute && id && programs.length > 0) {
+      const prog = programs.find(p => p.id === id);
+      if (prog) setEditingProgram(prog);
+    } else if (!isEditingRoute) {
+      setEditingProgram(null);
+    }
+  }, [isEditingRoute, id, programs]);
 
   // Toggle selection for a single program
   const toggleSelection = (id: string) => {
@@ -97,7 +114,6 @@ const ProgramsTab: React.FC = () => {
         toast.success("Program created successfully");
       }
 
-      setIsCreating(false);
       setEditingProgram(null);
       await fetchPrograms(); // Refresh the list after successful creation
     } catch (err: any) {
@@ -186,14 +202,13 @@ const ProgramsTab: React.FC = () => {
     return typeMap[type] || type;
   };
 
-  if (isCreating || editingProgram) {
+  if (isCreatingRoute || (isEditingRoute && editingProgram)) {
     return (
       <ProgramForm
         initialData={editingProgram}
         onSubmit={handleCreateOrUpdateProgram}
         onCancel={() => {
-          setIsCreating(false);
-          setEditingProgram(null);
+          navigate("/program-courses/programs");
         }}
       />
     );
@@ -240,7 +255,7 @@ const ProgramsTab: React.FC = () => {
           <Download size={18} /> Export table
         </button>
         <button
-          onClick={() => setIsCreating(true)}
+          onClick={() => navigate("/program-courses/programs/new")}
           className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95"
         >
           <Plus size={18} /> Create Program
@@ -357,7 +372,7 @@ const ProgramsTab: React.FC = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setEditingProgram(program);
+                                  navigate(`/program-courses/programs/edit/${program.id}`);
                                   setActiveDropdownId(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
@@ -376,6 +391,29 @@ const ProgramsTab: React.FC = () => {
                                 <Trash size={14} />
                                 Delete
                               </button>
+                              <div className="border-t border-gray-100 my-1 pt-1">
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                      await programsCoursesApi.updateProgram(program.id, { ...program, type: program.programType?.id, isActive: !program.isActive });
+                                      toast.success(`Program ${!program.isActive ? "activated" : "deactivated"}`);
+                                      fetchPrograms();
+                                    } catch (err) {
+                                      toast.error("Failed to update status");
+                                    }
+                                    setActiveDropdownId(null);
+                                  }}
+                                  className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                                >
+                                  <span className="flex items-center gap-2">
+                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${program.isActive ? 'bg-green-500' : 'bg-slate-300'}`}>
+                                      <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${program.isActive ? 'right-0.5' : 'left-0.5'}`} />
+                                    </div>
+                                    Active
+                                  </span>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -402,6 +440,14 @@ const ProgramsTab: React.FC = () => {
           >
             <Trash size={16} />
             Delete
+          </button>
+          <div className="h-6 w-px bg-slate-200"></div>
+          <button
+            onClick={() => setSelectedIds([])}
+            className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+            title="Unselect all"
+          >
+            <X size={20} />
           </button>
         </div>
       )}

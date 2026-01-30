@@ -244,8 +244,8 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter basename="/departmental-admin">
-      <Toaster 
-        position="top-right" 
+      <Toaster
+        position="top-right"
         containerStyle={{ zIndex: 99999 }} // Force high z-index
       />
       {!authData ? (
@@ -538,7 +538,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <Routes>
             <Route path="/dashboard" element={renderContent("Dashboard")} />
             <Route
-              path="/program-courses"
+              path="/program-courses/*"
               element={renderContent("Program & Courses")}
             />
             <Route path="/students" element={renderContent("Students")} />

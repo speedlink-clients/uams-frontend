@@ -7,7 +7,7 @@ import ProgramCoursesPage from "./pages/ProgramCoursesPage";
 import { StudentsView } from "./pages/StudentsView";
 import { StaffView } from "./components/StaffView";
 import { AnnouncementsView } from "./components/AnnouncementsView";
-import  PaymentsPage  from "./pages/PaymentsPage";
+import PaymentsPage from "./pages/PaymentsPage";
 import { SettingsView } from "./components/SettingsView";
 import { NotificationsView } from "./components/NotificationsView";
 import { RolesView } from "./components/RolesView";
@@ -18,7 +18,7 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
-  
+
   // Protected Routes
   {
     path: "/",
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
             element: <Dashboard />,
           },
           {
-            path: "program-courses",
+            path: "program-courses/*",
             element: <ProgramCoursesPage />,
           },
           {
@@ -71,7 +71,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-  
+
   // Catch all
   {
     path: "*",
