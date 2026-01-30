@@ -30,7 +30,7 @@ interface ApiUser {
   };
   programId: string;
   createdAt: string;
-  classRepRole?: 'CLASS_REP' | 'ASSISTANT_CLASS_REP'; // Assuming this might come from backend later, or we map it differently
+  classRepRole?: "CLASS_REP" | "ASSISTANT_CLASS_REP"; // Assuming this might come from backend later, or we map it differently
 }
 
 interface UsersResponse {
@@ -68,16 +68,84 @@ export const StudentsView: React.FC = () => {
     try {
       const [programsRes, sessionsRes] = await Promise.all([
         programsCoursesApi.getProgramTypes(),
-        academicsApi.getSessions()
+        academicsApi.getSessions(),
       ]);
 
-      setProgramTypeOptions(["all", ...programsRes.map(p => p.name)]);
-      setSessionOptions(["all", ...sessionsRes.map(s => s.name)]);
+      setProgramTypeOptions(["all", ...programsRes.map((p) => p.name)]);
+      setSessionOptions(["all", ...sessionsRes.map((s) => s.name)]);
     } catch (err) {
       console.error("Failed to load filter options", err);
       // Fallback or silent fail
     }
   };
+
+  // const fetchStudents = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     setError(null);
+
+  //     const apiUsers = await studentsApi.getDepartmentStudents();
+  //     console.log(apiUsers);
+
+  //     // Filter only STUDENT roles and map to Student interface
+  //     const studentData: Student[] = (apiUsers as any[]).map(
+  //       (student, index) => ({
+  //         // Log each student's department for debugging
+  //       console.log(`Student ${index} Department:`, student.Department);
+  //       console.log(`Student ${index} Department name:`, student.Department?.name);
+
+  //         id: student.id || "N/A", // ID for sidebar fetch as requested
+  //         regNo:
+  //           student.registrationNo ||
+  //           `2024${Math.floor(Math.random() * 1000000)}BA` ||
+  //           "N/A", // Placeholder
+  //         matNo: student.studentId || "N/A",
+  //         surname: student.user.fullName.split(" ")[0] || "N/A",
+  //         otherNames:
+  //           student.user.fullName.split(" ").slice(1).join(" ") || "N/A",
+  //         name: student.user.fullName || "N/A",
+  //         email: student.user.email || "N/A",
+  //         phoneNo: student.user.phone || "N/A",
+  //         department: student.Department?.name || "N/A",
+  //         level: getLevelFromLevelId(student.levelId) || "N/A",
+  //         programId: student.programId || "",
+  //         role: getProgramType(student.programId) || ("N/A" as StudentRole),
+  //         sex: student.gender || "N/A", // Placeholder
+  //         admissionMode: student.admissionMode || "N/A", // Placeholder
+  //         entryQualification: student.entryQualification || "N/A", // Placeholder
+  //         faculty: student.Department?.Faculty?.name || "N/A",
+  //         // faculty: student.Department?.Faculty?.name || "N/A", // Placeholder
+  //         degreeCourse: student.degreeCourse || "N/A", // Placeholder
+  //         programDuration: student.courseDuration || "N/A", // Placeholder
+  //         degreeAwardCode: student.degreeAwarded || "N/A", // Placeholder
+  //         createdAt:
+  //           new Date(student.createdAt).toLocaleDateString("en-US", {
+  //             year: "numeric",
+  //             month: "short",
+  //             day: "numeric",
+  //           }) || "N/A", // Storing visually formatted date, but filter logic handles it (or we should store raw too? using formatted for display)
+  //         // Actually formatted "Oct 12, 2024" works for display, filter might need parsing or just simple string match if year is in it.
+  //         // Let's assume consistent format.
+  //         isActive: student.isActive || "N/A",
+  //         // Note: Backend response doesn't explicitly show classRepRole in the example yet,
+  //         // keeping optional access safely if it exists or default to undefined
+  //         // Try to map session if available, otherwise fallback to date
+  //         session:
+  //           (student as any).session?.name ||
+  //           new Date(student.createdAt).getFullYear().toString() + " Session" ||
+  //           "N/A",
+  //         classRepRole: (student as any).classRepRole || "N/A",
+  //       }),
+  //     );
+
+  //     setStudents(studentData);
+  //   } catch (err: any) {
+  //     console.error("Error fetching students:", err);
+  //     setError(err.response?.data?.message || "Failed to load students");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const fetchStudents = async () => {
     try {
@@ -85,45 +153,78 @@ export const StudentsView: React.FC = () => {
       setError(null);
 
       const apiUsers = await studentsApi.getDepartmentStudents();
-      console.log(apiUsers);
+      console.log("API Response:", apiUsers);
+      console.log("Type of apiUsers:", typeof apiUsers);
+      console.log("Is Array?", Array.isArray(apiUsers));
+
+      if (Array.isArray(apiUsers) && apiUsers.length > 0) {
+        console.log("First student Department:", apiUsers[0].Department);
+        console.log(
+          "First student Department name:",
+          apiUsers[0].Department?.name,
+        );
+        console.log(
+          "First student Department?.Faculty:",
+          apiUsers[0].Department?.Faculty,
+        );
+        console.log(
+          "First student Department?.Faculty?.name:",
+          apiUsers[0].Department?.Faculty?.name,
+        );
+      }
 
       // Filter only STUDENT roles and map to Student interface
-      const studentData: Student[] = (apiUsers as any[])
-        .map((student, index) => ({
-          id: student.id || "N/A", // ID for sidebar fetch as requested
-          regNo: student.registrationNo || `2024${Math.floor(Math.random() * 1000000)}BA` || "N/A", // Placeholder
-          matNo: student.studentId || "N/A",
-          surname: student.user.fullName.split(" ")[0] || "N/A",
-          otherNames: student.user.fullName.split(" ").slice(1).join(" ") || "N/A",
-          name: student.user.fullName || "N/A",
-          email: student.user.email || "N/A",
-          phoneNo: student.user.phone || "N/A",
-          department: student?.department || getDepartmentFromProgramId(student.programId) || "N/A",
-          level: getLevelFromLevelId(student.levelId) || "N/A",
-          programId: student.programId || "",
-          role: getProgramType(student.programId) || "N/A" as StudentRole,
-          sex: student.gender || "N/A", // Placeholder
-          admissionMode: student.admissionMode || "N/A", // Placeholder
-          entryQualification: student.entryQualification || "N/A", // Placeholder
-          faculty: student.faculty || "N/A", // Placeholder
-          degreeCourse: student.degreeCourse || "N/A", // Placeholder
-          programDuration: student.courseDuration || "N/A", // Placeholder
-          degreeAwardCode: student.degreeAwarded || "N/A", // Placeholder
-          createdAt: new Date(student.createdAt).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          }) || "N/A", // Storing visually formatted date, but filter logic handles it (or we should store raw too? using formatted for display)
-          // Actually formatted "Oct 12, 2024" works for display, filter might need parsing or just simple string match if year is in it.
-          // Let's assume consistent format.
-          isActive: student.isActive || "N/A",
-          // Note: Backend response doesn't explicitly show classRepRole in the example yet, 
-          // keeping optional access safely if it exists or default to undefined
-          // Try to map session if available, otherwise fallback to date
-          session: (student as any).session?.name || new Date(student.createdAt).getFullYear().toString() + " Session" || "N/A", 
-          classRepRole: (student as any).classRepRole || "N/A", 
-        }));
+      const studentData: Student[] = (apiUsers as any[]).map(
+        (student, index) => {
+          // Log each student's department for debugging
+          console.log(`Student ${index} Department:`, student.Department);
+          console.log(
+            `Student ${index} Department name:`,
+            student.Department?.name,
+          );
 
+          return {
+            id: student.id || "N/A",
+            regNo:
+              student.registrationNo ||
+              `2024${Math.floor(Math.random() * 1000000)}BA` ||
+              "N/A",
+            matNo: student.studentId || "N/A",
+            surname: student.user.fullName.split(" ")[0] || "N/A",
+            otherNames:
+              student.user.fullName.split(" ").slice(1).join(" ") || "N/A",
+            name: student.user.fullName || "N/A",
+            email: student.user.email || "N/A",
+            phoneNo: student.user.phone || "N/A",
+            department: student.Department?.name || "N/A",
+            level: getLevelFromLevelId(student.levelId) || "N/A",
+            programId: student.programId || "",
+            role: getProgramType(student.programId) || ("N/A" as StudentRole),
+            sex: student.gender || "N/A",
+            admissionMode: student.admissionMode || "N/A",
+            entryQualification: student.entryQualification || "N/A",
+            faculty: student.Department?.Faculty?.name || "N/A",
+            degreeCourse: student.degreeCourse || "N/A",
+            programDuration: student.courseDuration || "N/A",
+            degreeAwardCode: student.degreeAwarded || "N/A",
+            createdAt:
+              new Date(student.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              }) || "N/A",
+            isActive: student.isActive || "N/A",
+            session:
+              (student as any).session?.name ||
+              new Date(student.createdAt).getFullYear().toString() +
+                " Session" ||
+              "N/A",
+            classRepRole: (student as any).classRepRole || "N/A",
+          };
+        },
+      );
+
+      console.log("Mapped studentData:", studentData);
       setStudents(studentData);
     } catch (err: any) {
       console.error("Error fetching students:", err);
@@ -148,41 +249,50 @@ export const StudentsView: React.FC = () => {
           student.email.toLowerCase().includes(term) ||
           student.regNo.toLowerCase().includes(term) ||
           student.matNo.toLowerCase().includes(term) ||
-          student.phoneNo.toLowerCase().includes(term)
+          student.phoneNo.toLowerCase().includes(term),
       );
     }
 
     // Filter by level
     if (selectedLevel !== "all") {
-      filtered = filtered.filter(
-        (student) => student.level === selectedLevel
-      );
+      filtered = filtered.filter((student) => student.level === selectedLevel);
     }
 
     // Filter by Program Type
     if (selectedProgramType !== "all") {
-        filtered = filtered.filter((student) => student.role === selectedProgramType);
+      filtered = filtered.filter(
+        (student) => student.role === selectedProgramType,
+      );
     }
 
     // Filter by Session
     if (selectedSession !== "all") {
-        filtered = filtered.filter((student) => {
-            // Check mapped session property first
-            if ((student as any).session === selectedSession) return true;
-             
-            // Fallback to year parsing (legacy support)
-            const year = student.createdAt.split(",")[1]?.trim();
-            const sessionName = `${year} Session`;
-            
-            // If selectedSession matches the "Name" from API directly, comparison is direct
-            // If API returns "2024/2025", we match that.
-            // If API returns just year, we match that.
-            return (student as any).session === selectedSession || sessionName === selectedSession;
-        });
+      filtered = filtered.filter((student) => {
+        // Check mapped session property first
+        if ((student as any).session === selectedSession) return true;
+
+        // Fallback to year parsing (legacy support)
+        const year = student.createdAt.split(",")[1]?.trim();
+        const sessionName = `${year} Session`;
+
+        // If selectedSession matches the "Name" from API directly, comparison is direct
+        // If API returns "2024/2025", we match that.
+        // If API returns just year, we match that.
+        return (
+          (student as any).session === selectedSession ||
+          sessionName === selectedSession
+        );
+      });
     }
 
     return filtered;
-  }, [students, searchTerm, selectedLevel, selectedProgramType, selectedSession]);
+  }, [
+    students,
+    searchTerm,
+    selectedLevel,
+    selectedProgramType,
+    selectedSession,
+  ]);
 
   // Paginate filtered students
   const paginatedStudents = useMemo(() => {
@@ -199,17 +309,21 @@ export const StudentsView: React.FC = () => {
   // Get unique levels for filter
   const levels = useMemo(() => {
     const uniqueLevels = Array.from(
-      new Set(students.map((s) => s.level))
+      new Set(students.map((s) => s.level)),
     ).filter(Boolean); // Filter out any undefined/null values
     return ["all", ...uniqueLevels].sort();
   }, [students]);
 
-
-
   // Reset pagination when filters change
   useEffect(() => {
     setCurrentPage(1); // Reset page on filter change
-  }, [students, searchTerm, selectedLevel, selectedProgramType, selectedSession]);
+  }, [
+    students,
+    searchTerm,
+    selectedLevel,
+    selectedProgramType,
+    selectedSession,
+  ]);
 
   // Helper functions
   const getDepartmentFromProgramId = (programId?: string): string => {
@@ -252,7 +366,9 @@ export const StudentsView: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -262,12 +378,12 @@ export const StudentsView: React.FC = () => {
     try {
       setIsUploading(true);
       const loadingToast = toast.loading("Uploading students...");
-      
+
       await studentsApi.bulkUploadStudents(file);
-      
+
       toast.dismiss(loadingToast);
       toast.success("Students uploaded successfully");
-      
+
       // Refresh list
       fetchStudents();
     } catch (error: any) {
@@ -281,26 +397,26 @@ export const StudentsView: React.FC = () => {
 
   const handleBulkDownload = async (ids: string[]) => {
     try {
-        const loadingToast = toast.loading("Downloading students data...");
-        const blob = await studentsApi.bulkDownloadStudents(ids);
-        
-        // Create download link
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'students_data.csv');
-        document.body.appendChild(link);
-        link.click();
-        
-        // Cleanup
-        link.parentNode?.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        
-        toast.dismiss(loadingToast);
-        toast.success("Download started successfully");
+      const loadingToast = toast.loading("Downloading students data...");
+      const blob = await studentsApi.bulkDownloadStudents(ids);
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "students_data.csv");
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.dismiss(loadingToast);
+      toast.success("Download started successfully");
     } catch (error) {
-        console.error("Download failed:", error);
-        toast.error("Failed to download file");
+      console.error("Download failed:", error);
+      toast.error("Failed to download file");
     }
   };
 
@@ -311,22 +427,22 @@ export const StudentsView: React.FC = () => {
 
   const confirmBulkDelete = async (reason: string) => {
     try {
-        await studentsApi.bulkDeleteStudents(idsToDelete, reason);
-        toast.success("Students deleted successfully");
-        setIsDeleteModalOpen(false);
-        setIdsToDelete([]);
-        fetchStudents(); // Refresh list
+      await studentsApi.bulkDeleteStudents(idsToDelete, reason);
+      toast.success("Students deleted successfully");
+      setIsDeleteModalOpen(false);
+      setIdsToDelete([]);
+      fetchStudents(); // Refresh list
     } catch (error: any) {
-        console.error("Delete failed:", error);
-        toast.error(error.response?.data?.message || "Failed to delete students");
-        // Keep modal open on error or close it? usually keep open to show error, but here using toast
+      console.error("Delete failed:", error);
+      toast.error(error.response?.data?.message || "Failed to delete students");
+      // Keep modal open on error or close it? usually keep open to show error, but here using toast
     }
   };
 
   const handleDownloadTemplate = () => {
-    const link = document.createElement('a');
-    link.href = '/departmental-admin/documents/Students_Sample_File.csv';
-    link.setAttribute('download', 'Students_Sample_File.csv');
+    const link = document.createElement("a");
+    link.href = "/departmental-admin/documents/Students_Sample_File.csv";
+    link.setAttribute("download", "Students_Sample_File.csv");
     document.body.appendChild(link);
     link.click();
     link.parentNode?.removeChild(link);
@@ -369,22 +485,22 @@ export const StudentsView: React.FC = () => {
       value: selectedLevel,
       onChange: setSelectedLevel,
       options: levels,
-      defaultLabel: "All Levels"
+      defaultLabel: "All Levels",
     },
     {
       key: "programType",
       value: selectedProgramType,
       onChange: setSelectedProgramType,
       options: programTypeOptions.length > 0 ? programTypeOptions : ["all"],
-      defaultLabel: "All Programs"
+      defaultLabel: "All Programs",
     },
     {
       key: "session",
       value: selectedSession,
       onChange: setSelectedSession,
-      options: sessionOptions.length > 0 ? sessionOptions : ["all"], 
-      defaultLabel: "All Sessions"
-    }
+      options: sessionOptions.length > 0 ? sessionOptions : ["all"],
+      defaultLabel: "All Sessions",
+    },
   ];
 
   return (
@@ -403,14 +519,14 @@ export const StudentsView: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button 
-                onClick={handleDownloadTemplate}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#1D7AD9] text-[#1D7AD9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors"
+            <button
+              onClick={handleDownloadTemplate}
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#1D7AD9] text-[#1D7AD9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors"
             >
               <FileDown size={18} />
               Download Sample File
             </button>
-            
+
             <input
               type="file"
               ref={fileInputRef}
@@ -418,8 +534,8 @@ export const StudentsView: React.FC = () => {
               className="hidden"
               accept=".csv"
             />
-            
-            <button 
+
+            <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#1D7AD9] text-[#1D7AD9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -431,7 +547,7 @@ export const StudentsView: React.FC = () => {
               )}
               {isUploading ? "Uploading..." : "Upload CSV"}
             </button>
-            <button 
+            <button
               onClick={() => setIsAddStudentModalOpen(true)}
               className="bg-[#1D7AD9] text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all"
             >
@@ -500,7 +616,7 @@ export const StudentsView: React.FC = () => {
                 console.log("Adding student:", data);
                 await new Promise((resolve) => setTimeout(resolve, 1000));
               }
-              
+
               setIsAddStudentModalOpen(false);
               setStudentToEdit(null);
             } catch (err) {
@@ -511,7 +627,7 @@ export const StudentsView: React.FC = () => {
         />
       )}
 
-      <DeleteConfirmationModal 
+      <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmBulkDelete}
