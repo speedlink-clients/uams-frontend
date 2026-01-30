@@ -354,22 +354,18 @@ const CoursesTab: React.FC = () => {
       </div>
 
       {/* Floating Action Bar */}
-      {selectedIds.length > 1 && (
+      {selectedIds.length > 0 && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-xl shadow-2xl border border-gray-100 flex items-center gap-6 z-50 animate-in slide-in-from-bottom duration-300">
           <span className="text-sm font-bold text-slate-700">
             {selectedIds.length} items selected
           </span>
           <div className="h-6 w-px bg-slate-200"></div>
-          <button className="flex items-center gap-2 bg-[#1D7AD9] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
-            <Download size={16} />
-            Bulk Download
-          </button>
           <button
             onClick={handleBulkDelete}
             className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors"
           >
             <Trash size={16} />
-            Bulk Delete
+            Delete
           </button>
         </div>
       )}

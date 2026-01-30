@@ -108,7 +108,7 @@ const StructureTab: React.FC = () => {
   const getStatusBadge = (isActive: boolean) => {
     return isActive
       ? "bg-green-100 text-green-600"
-      : "bg-red-100 text-red-600";
+      : "bg-gray-100 text-gray-600";
   };
 
   const handleSave = async () => {
@@ -215,7 +215,7 @@ const StructureTab: React.FC = () => {
       "Type": s.type,
       "Duration": s.duration,
       "Start Date": s.startDate,
-      "Status": s.isActive ? "Ongoing" : "Completed"
+      "Status": s.isActive ? "Active" : "Inactive"
     }));
 
     exportToExcel(dataToExport, "sessions_list", "Sessions");
@@ -384,7 +384,7 @@ const StructureTab: React.FC = () => {
                   <td className="px-6 py-4">{session.startDate}</td>
                   <td className="px-6 py-4">
                     <span className={`px-4 py-1 rounded-full text-[11px] font-bold ${getStatusBadge(session.isActive)}`}>
-                      {session.isActive ? "Ongoing" : "Completed"}
+                      {session.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -436,6 +436,22 @@ const StructureTab: React.FC = () => {
           </table>
         </div>
       </div>
+      {/* Floating Action Bar */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-xl shadow-2xl border border-gray-100 flex items-center gap-6 z-50 animate-in slide-in-from-bottom duration-300">
+          <span className="text-sm font-bold text-slate-700">
+            {selectedIds.length} items selected
+          </span>
+          <div className="h-6 w-px bg-slate-200"></div>
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors"
+          >
+            <Trash size={16} />
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 };
