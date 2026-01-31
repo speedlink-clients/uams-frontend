@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { academicsApi, Level, Semester } from "../api/accademicapi";
 import { programsCoursesApi } from "../api/programscourseapi";
-import { ProgramTypeResponse } from "../api/types";
+import { ProgramTypeResponse, Program } from "../api/types";
 
 interface CourseFormProps {
   initialData?: any; // Add initialData prop
@@ -15,9 +15,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
   const [levels, setLevels] = useState<Level[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
-
-  console.log(levels);
-  
+  const [programs, setPrograms] = useState<Program[]>([]);
 
   // ✅ State keys now match the logic in handleSubmit
   const [formData, setFormData] = useState({
@@ -26,6 +24,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     levelId: initialData?.levelId || "",
     semesterId: initialData?.semesterId || "",
     programTypeId: initialData?.programTypeId || "",
+    programId: initialData?.programId || "", // Added programId
     creditUnits: initialData?.creditUnits || 3,
   });
 
@@ -42,27 +41,35 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** FETCH LEVELS */
+  /** FETCH LEVELS - Depends on Program ID */
   useEffect(() => {
-    academicsApi.getLevels().then((levels) => setLevels(levels)).catch(console.error);
-  }, []);
+    if (formData.programId) {
+        academicsApi.getLevels(formData.programId).then((levels) => setLevels(levels)).catch(console.error);
+    } else {
+        setLevels([]);
+    }
+  }, [formData.programId]);
 
   /** FETCH SEMESTERS */
   useEffect(() => {
     academicsApi.getSemesters().then(setSemesters).catch(console.error);
   }, []);
 
-  /** FETCH PROGRAM TYPES */
+  /** FETCH PROGRAM TYPES & PROGRAMS */
   useEffect(() => {
-    const fetchProgramTypes = async () => {
+    const fetchData = async () => {
       try {
-        const types = await programsCoursesApi.getProgramTypes();
+        const [types, progs] = await Promise.all([
+            programsCoursesApi.getProgramTypes(),
+            programsCoursesApi.getProgramsByDepartment()
+        ]);
         setProgramTypes(types);
+        setPrograms(progs);
       } catch (err) {
-        console.error("Failed to fetch program types:", err);
+        console.error("Failed to fetch initial data:", err);
       }
     };
-    fetchProgramTypes();
+    fetchData();
   }, []);
 
   const handleChange = (field: string, value: string | number) => {
@@ -99,7 +106,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
         creditUnits: Number(formData.creditUnits),
         Level: isUndergraduate && level ? level.name.replace(" Level", "") : undefined,
         Semester: isUndergraduate && semester ? semester.name : undefined,
-        programTypeId: formData.programTypeId,
+        // programTypeId and programId are EXCLUDED as per user request/example
       };
 
       console.log("Sending course payload:", payload);
@@ -112,6 +119,8 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       setIsSubmitting(false);
     }
   };
+
+  const filteredPrograms = programs.filter(p => p.programTypeId === formData.programTypeId);
 
   return (
     <div className="bg-white rounded-lg shadow p-8">
@@ -127,24 +136,50 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Program Type Selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Program Type <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.programTypeId}
-            onChange={(e) => handleChange("programTypeId", e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Select Program Type</option>
-            {programTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Program Type Selection */}
+            <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+                Program Type <span className="text-red-500">*</span>
+            </label>
+            <select
+                value={formData.programTypeId}
+                onChange={(e) => {
+                    handleChange("programTypeId", e.target.value);
+                    handleChange("programId", ""); // Reset program when type changes
+                }}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+            >
+                <option value="">Select Program Type</option>
+                {programTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                    {type.name}
+                </option>
+                ))}
+            </select>
+            </div>
+
+            {/* Program Selection */}
+            <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+                Program <span className="text-red-500">*</span>
+            </label>
+            <select
+                value={formData.programId}
+                onChange={(e) => handleChange("programId", e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                disabled={!formData.programTypeId}
+            >
+                <option value="">Select Program</option>
+                {filteredPrograms.map((prog) => (
+                <option key={prog.id} value={prog.id}>
+                    {prog.name}
+                </option>
+                ))}
+            </select>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -177,7 +212,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
               required
             />
           </div>
-
+          
           {/* Level - Only show if Undergraduate */}
           {isUndergraduate && (
             <div>

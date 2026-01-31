@@ -36,13 +36,13 @@ const getProgramIdFromToken = () => {
 
 /** API */
 export const academicsApi = {
-  async getLevels(): Promise<Level[]> {
-    const programId = getProgramIdFromToken();
-    if (!programId) {
-        console.warn("No programId found in token, defaulting to empty list or base endpoint");
+  async getLevels(programId?: string): Promise<Level[]> {
+    const idToUse = programId || getProgramIdFromToken();
+    if (!idToUse) {
+        console.warn("No programId found (token or param), returning empty list");
         return []; 
     }
-    const res = await api.get(`/accademics/${programId}`);
+    const res = await api.get(`/accademics/${idToUse}`);
     return res.data;
   },
 
