@@ -23,27 +23,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
   const [error, setError] = useState("");
   const [duesData, setDuesData] = useState<DuesData | null>(null);
 
-  // get payment status on mount to update hasPaid state
-  const [sq, _] = useSearchParams();
-  const trxRef = useMemo(() => sq.get("trxRef"));
-
-  // handle successful id card payment
-  useEffect(() => {
-    if (trxRef) {
-      apiClient
-        .post("/payment/verify", {
-          reference: trxRef,
-        })
-        .then((res) => {
-          res.data.success &&
-            toaster.success({ description: "Payment verified successfully!" });
-        })
-        .catch(() => {
-          setError("Failed to verify payment. Please contact support.");
-          toaster.error({ description: "Payment verified successfully!" });
-        });
-    }
-  }, [trxRef]);
 
   useEffect(() => {
     const fetchDues = async () => {
@@ -73,8 +52,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
     setError("");
 
     try {
-      const callbackUrl = `${window.location.origin}/students/payment`;
-      const response = await authService.initializePayment(callbackUrl);
+      const callbackUrl = `${window.location.origin}/students/login`;
+      localStorage.setItem("paymentCallbackUrl", callbackUrl);
+      const response = await authService.initializePayment();
       // Redirect to Paystack checkout page
       window.location.href = response.data.authorizationUrl;
     } catch (err: any) {
