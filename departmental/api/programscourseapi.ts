@@ -28,6 +28,11 @@ export const programsCoursesApi = {
     await api.delete("/program-types/delete", { data: { ids: [id] } });
   },
 
+  updateProgramType: async (id: string, data: any): Promise<ProgramTypeResponse> => {
+    const response = await api.put<ProgramTypeResponse>(`/program-types/${id}`, data);
+    return response.data;
+  },
+
   bulkDeleteProgramTypes: async (ids: string[]): Promise<void> => {
     await api.delete("/program-types/delete", { data: { ids } });
   },

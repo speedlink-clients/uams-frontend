@@ -13,6 +13,7 @@ const ProgramTypeTab: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
+  const [currentProgramTypeId, setCurrentProgramTypeId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -43,6 +44,23 @@ const ProgramTypeTab: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleEdit = (programType: ProgramTypeResponse) => {
+      setFormData({
+          name: programType.name,
+          code: programType.code,
+          type: programType.type,
+          description: programType.description || ""
+      });
+      setCurrentProgramTypeId(programType.id);
+      setIsCreating(true);
+  };
+
+  const handleCancel = () => {
+      setIsCreating(false);
+      setCurrentProgramTypeId(null);
+      setFormData({ name: "", code: "", type: "UNDERGRADUATE", description: "" });
+  };
+
   const handleSave = async () => {
     if (!formData.name || !formData.code) {
       toast.error("Please fill in required fields");
@@ -51,14 +69,18 @@ const ProgramTypeTab: React.FC = () => {
 
     try {
       setIsSaving(true);
-      await programsCoursesApi.createProgramType(formData);
-      toast.success("Program Type created successfully");
-      setIsCreating(false);
-      setFormData({ name: "", code: "", type: "UNDERGRADUATE", description: "" });
+      if (currentProgramTypeId) {
+          await programsCoursesApi.updateProgramType(currentProgramTypeId, formData);
+          toast.success("Program Type updated successfully");
+      } else {
+          await programsCoursesApi.createProgramType(formData);
+          toast.success("Program Type created successfully");
+      }
+      handleCancel(); // Resets form and creation state
       fetchProgramTypes();
     } catch (error: any) {
-      console.error("Failed to create program type", error);
-      toast.error(error.response?.data?.message || "Failed to create program type");
+      console.error("Failed to save program type", error);
+      toast.error(error.response?.data?.message || "Failed to save program type");
     } finally {
       setIsSaving(false);
     }
@@ -121,7 +143,10 @@ const ProgramTypeTab: React.FC = () => {
         )}
         <div className="flex-1 flex justify-end">
         <button
-          onClick={() => setIsCreating(true)}
+          onClick={() => {
+              handleCancel(); // Ensure clean state
+              setIsCreating(true);
+          }}
           className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
         >
           <Plus size={18} />
@@ -133,7 +158,7 @@ const ProgramTypeTab: React.FC = () => {
       {isCreating && (
         <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm animate-in fade-in zoom-in-95 duration-200">
           <h3 className="text-xl font-bold text-slate-800 mb-8">
-            Create Program Type
+            {currentProgramTypeId ? "Edit Program Type" : "Create Program Type"}
           </h3>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
@@ -176,7 +201,7 @@ const ProgramTypeTab: React.FC = () => {
 
           <div className="flex justify-end gap-3 mt-8">
             <button
-              onClick={() => setIsCreating(false)}
+              onClick={handleCancel}
               className="px-8 py-2.5 rounded-lg text-sm font-medium border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Cancel
@@ -186,7 +211,7 @@ const ProgramTypeTab: React.FC = () => {
               disabled={isSaving}
               className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
             >
-              {isSaving ? "Saving..." : "Create Program Type"}
+              {isSaving ? "Saving..." : (currentProgramTypeId ? "Update Program Type" : "Create Program Type")}
             </button>
           </div>
         </div>
@@ -278,7 +303,7 @@ const ProgramTypeTab: React.FC = () => {
                             <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1 animate-in fade-in zoom-in-95 duration-200">
                               <button
                                 onClick={() => {
-                                  console.log("Edit", pt.id);
+                                  handleEdit(pt);
                                   setActiveActionId(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors text-left"
