@@ -1,3 +1,71 @@
+import React from 'react';
+import { CreditCard, Clock, Sparkles } from 'lucide-react';
+
+const Payments: React.FC = () => {
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center p-4 lg:p-8">
+      <div className="max-w-lg w-full text-center">
+        {/* Icon Container */}
+        <div className="relative mx-auto w-32 h-32 mb-8">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl rotate-6 opacity-20 animate-pulse"></div>
+          <div className="relative bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl w-full h-full flex items-center justify-center shadow-xl shadow-blue-200">
+            <CreditCard className="w-14 h-14 text-white" strokeWidth={1.5} />
+          </div>
+          <div className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-2 shadow-lg animate-bounce">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+        </div>
+
+        {/* Title */}
+        <h1 className="text-3xl lg:text-4xl font-black text-[#1e293b] mb-4 tracking-tight">
+          Coming Soon
+        </h1>
+
+        {/* Description */}
+        <p className="text-gray-500 text-base lg:text-lg mb-8 leading-relaxed max-w-md mx-auto">
+          We're working hard to bring you a seamless payment experience. 
+          Stay tuned for secure transactions and easy fee management!
+        </p>
+
+        {/* Status Badge */}
+        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-5 py-2.5 rounded-full text-sm font-bold">
+          <Clock className="w-4 h-4" />
+          <span>Under Development</span>
+        </div>
+
+        {/* Feature Preview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
+              <span className="text-lg">💳</span>
+            </div>
+            <p className="text-xs font-bold text-gray-600">Multiple Payment Methods</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
+              <span className="text-lg">🔒</span>
+            </div>
+            <p className="text-xs font-bold text-gray-600">Secure Transactions</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
+              <span className="text-lg">📊</span>
+            </div>
+            <p className="text-xs font-bold text-gray-600">Payment History</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Payments;
+
+/* ====================================================================
+   COMMENTED OUT ORIGINAL PAYMENTS IMPLEMENTATION
+   Uncomment and replace the above component when ready to implement
+   ====================================================================
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box, Flex, Text, Button, Input, IconButton, HStack, Image,
@@ -478,3 +546,5 @@ const Payments: React.FC = () => {
 };
 
 export default Payments;
+
+*/
