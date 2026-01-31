@@ -36,9 +36,9 @@ export const IDCardSettingsTab: React.FC = () => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
 
-            // Limit file size to 100KB (100 * 1024 bytes)
-            if (file.size > 100 * 1024) {
-                const errorMsg = "File is too large. Max size is 100KB.";
+            // Limit file size to 70KB (70 * 1024 bytes)
+            if (file.size > 70 * 1024) {
+                const errorMsg = "File is too large. Max size is 70KB.";
                 toast.error(errorMsg);
                 window.alert(errorMsg); // Fallback alert as requested
                 e.target.value = ""; // Clear the input so the user can re-select if needed

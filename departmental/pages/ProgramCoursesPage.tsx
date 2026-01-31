@@ -4,6 +4,7 @@ import TabButton from "../components/TabButton";
 import ProgramsTab from "../components/ProgramsTab";
 import CoursesTab from "../components/CoursesTab";
 import StructureTab from "../components/StructureTab";
+import ProgramTypeTab from "../components/ProgramTypeTab";
 import { BookOpen, Layers, Calendar } from "lucide-react";
 
 const ProgramCoursesPage: React.FC = () => {
@@ -12,6 +13,7 @@ const ProgramCoursesPage: React.FC = () => {
 
   const getActiveTab = (pathname: string) => {
     if (pathname.includes("/sessions") || pathname.includes("/structure")) return "Structure";
+    if (pathname.includes("/program-types")) return "Program Types";
     if (pathname.includes("/programs")) return "Programs";
     if (pathname.includes("/courses")) return "Courses";
     return "Structure";
@@ -31,6 +33,12 @@ const ProgramCoursesPage: React.FC = () => {
             label="Setup & Sessions"
           />
           <TabButton
+            active={activeTab === "Program Types"}
+            onClick={() => navigate("/program-courses/program-types")}
+            icon={<Layers size={16} />}
+            label="Program Types"
+          />
+          <TabButton
             active={activeTab === "Programs"}
             onClick={() => navigate("/program-courses/programs")}
             icon={<Layers size={16} />}
@@ -47,6 +55,7 @@ const ProgramCoursesPage: React.FC = () => {
 
       <Routes>
         <Route index element={<StructureTab />} />
+        <Route path="program-types" element={<ProgramTypeTab />} />
         <Route path="programs" element={<ProgramsTab />} />
         <Route path="courses" element={<CoursesTab />} />
 

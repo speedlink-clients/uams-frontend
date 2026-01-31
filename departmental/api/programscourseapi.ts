@@ -12,11 +12,24 @@ import {
 export const programsCoursesApi = {
   /** PROGRAMS **/
   
-  // ✅ New Endpoint: Get Program Types (Diploma, BSc, etc.)
+  // ✅ New Endpoint: Get Program Types 
   getProgramTypes: async (): Promise<ProgramTypeResponse[]> => {
     // This endpoint seems to be public or just authenticated; no specific param needed per user request
     const response = await api.get<ProgramTypeResponse[]>("/program-types");
     return response.data;
+  },
+
+  createProgramType: async (data: any): Promise<ProgramTypeResponse> => {
+    const response = await api.post<ProgramTypeResponse>("/program-types", data);
+    return response.data;
+  },
+
+  deleteProgramType: async (id: string): Promise<void> => {
+    await api.delete("/program-types/delete", { data: { ids: [id] } });
+  },
+
+  bulkDeleteProgramTypes: async (ids: string[]): Promise<void> => {
+    await api.delete("/program-types/delete", { data: { ids } });
   },
 
   getProgramsByDepartment: async (): Promise<Program[]> => {

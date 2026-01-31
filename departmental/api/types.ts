@@ -29,6 +29,8 @@ export interface ProgramTypeResponse {
   description: string;
   isActive: boolean;
   universityId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
