@@ -56,7 +56,13 @@ const ActivateAccountStep: React.FC<ActivateAccountStepProps> = ({ onNext, onFor
       await authService.activateAccount({ email, phone, password });
       onNext();
     } catch (err: any) {
-      setError(err.message || 'Account activation failed. Please try again.');
+      // Handle specific validation error (e.g., duplicate email)
+      const errorMessage = err.message || err.response?.data?.message || '';
+      if (errorMessage.toLowerCase().includes('validation error')) {
+        setError('Email already exists. Please use a different email address.');
+      } else {
+        setError(errorMessage || 'Account activation failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
