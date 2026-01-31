@@ -40,7 +40,7 @@ export const PaymentSplitKeysSection = ({
     <div className="pt-8 border-t border-gray-200">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-2xl font-semibold text-gray-900">
-            Payment Settings
+            Payment Amount Settings
         </h2>
         
         {programTypes.length > 0 && (

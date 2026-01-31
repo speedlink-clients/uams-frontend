@@ -139,4 +139,19 @@ export const programsCoursesApi = {
   deleteProgram: async (programId: string): Promise<void> => {
     await api.delete(`/program/${programId}`);
   },
+
+  /** CREDIT LIMITS **/
+  getCreditLimits: async (): Promise<any[]> => {
+    const response = await api.get("/credit-limit");
+    return response.data;
+  },
+
+  createCreditLimit: async (data: { levelId: string; semesterId: string; maxCreditLoad: number }): Promise<any> => {
+    const response = await api.post("/credit-limit", data);
+    return response.data;
+  },
+
+  deleteCreditLimit: async (id: string): Promise<void> => {
+    await api.delete(`/credit-limit/${id}`);
+  },
 };
