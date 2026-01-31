@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
     { label: 'Department', value: profile?.Department?.name  || 'Nil' },
     { label: 'Session', value: profile?.session?.name || 'Nil' },
     { label: 'Level', value: profile?.level ? `${profile.level} Level` : 'Nil' },
-    { label: 'Semester', value: profile?.semester || 'Nil' },
+    { label: 'Semester', value: profile?.activeSemester?.[0]?.name || 'Nil' },
     { label: 'Matric No.', value: profile?.studentId || 'Nil' },
     { label: 'Program', value: profile?.program?.name || 'Nil' },
   ];
