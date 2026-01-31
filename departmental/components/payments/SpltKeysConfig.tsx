@@ -12,26 +12,30 @@ import { Button } from "@/components/ui/Button";
  * Frontend field → backend payment_type mapping
  */
 const PAYMENT_TYPE_MAP: Record<string, string> = {
-  annual_access_fee: "annual_access_fee",
-  id_card_payment: "id_card_fee",
+  department_annual_fee: "department_annual_fee",
+  id_card_fee: "id_card_fee",
   transcript_fee: "transcript_fee",
 };
 
 type SplitsState = {
-  annual_access_fee: string;
-  id_card_payment: string;
+  department_annual_fee: string;
+  id_card_fee: string;
   transcript_fee: string;
 };
 
 const INITIAL_SPLITS: SplitsState = {
-  annual_access_fee: "",
-  id_card_payment: "",
+  department_annual_fee: "",
+  id_card_fee: "",
   transcript_fee: "",
 };
 
 const SplitKeysConfig = () => {
   const [splits, setSplits] = useState<SplitsState>(INITIAL_SPLITS);
   const [originalSplits, setOriginalSplits] = useState<SplitsState>(INITIAL_SPLITS);
+  // Store record IDs for each payment type (for PUT updates)
+  const [recordIds, setRecordIds] = useState<Record<string, string>>({});
+  // Store session ID from first fetched record
+  const [sessionId, setSessionId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -57,7 +61,7 @@ const SplitKeysConfig = () => {
   }, []);
 
   /**
-   * 🔹 Fetch existing payment splits and populate inputs
+   * 🔹 Fetch existing payment splits and filter by program type
    */
   useEffect(() => {
     if (!selectedProgramTypeId) return;
@@ -65,28 +69,44 @@ const SplitKeysConfig = () => {
     const fetchPaymentSplits = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get(`/university-admin/payment-splits?programTypeId=${selectedProgramTypeId}`);
+        const { data } = await api.get("/university-admin/payment-splits");
 
         const populatedSplits: SplitsState = { ...INITIAL_SPLITS };
+        const ids: Record<string, string> = {};
+        let fetchedSessionId = "";
 
         if (Array.isArray(data)) {
-          data.forEach((item: any) => {
+          // Filter by selected program type
+          const filtered = data.filter((item: any) => item.program_type_id === selectedProgramTypeId);
+          
+          filtered.forEach((item: any) => {
             const frontendKey = Object.keys(PAYMENT_TYPE_MAP).find(
               (key) => PAYMENT_TYPE_MAP[key] === item.payment_type,
             );
 
-            if (frontendKey && item.split_code) {
-              populatedSplits[frontendKey as keyof SplitsState] = item.split_code;
+            if (frontendKey) {
+              if (item.split_code) {
+                populatedSplits[frontendKey as keyof SplitsState] = item.split_code;
+              }
+              // Store record ID for updates
+              ids[frontendKey] = item.id;
+              // Get session ID from first record
+              if (!fetchedSessionId && item.academic_session_id) {
+                fetchedSessionId = item.academic_session_id;
+              }
             }
           });
         }
 
         setSplits(populatedSplits);
         setOriginalSplits(populatedSplits);
+        setRecordIds(ids);
+        if (fetchedSessionId) setSessionId(fetchedSessionId);
       } catch (err) {
         console.error("Failed to fetch payment splits:", err);
         setSplits(INITIAL_SPLITS);
         setOriginalSplits(INITIAL_SPLITS);
+        setRecordIds({});
       } finally {
         setLoading(false);
       }
@@ -113,28 +133,58 @@ const SplitKeysConfig = () => {
   };
 
   /**
-   * 🔹 Save split codes
+   * 🔹 Save split codes - update only changed fields using PUT
    */
   const handleSave = async () => {
-    const filledEntries = Object.entries(splits).filter(
-      ([_, value]) => value.trim() !== "",
+    // Find which fields have changed
+    const changedEntries = Object.entries(splits).filter(
+      ([key, value]) => value !== originalSplits[key as keyof SplitsState]
     );
 
-    if (filledEntries.length === 0) {
+    if (changedEntries.length === 0) {
+      setIsEditing(false);
       return;
     }
 
     try {
       setIsSaving(true);
 
+      // Update each changed field individually
       await Promise.all(
-        filledEntries.map(([key, splitCode]) =>
-          api.post("/university-admin/payment-splits", {
-            payment_type: PAYMENT_TYPE_MAP[key],
-            split_code: splitCode,
-            programTypeId: selectedProgramTypeId,
-          }),
-        ),
+        changedEntries.map(async ([key, splitCode]) => {
+          const recordId = recordIds[key];
+          const paymentType = PAYMENT_TYPE_MAP[key];
+          
+          if (recordId) {
+            // Update existing record
+            await api.put(`/university-admin/payment-splits/${recordId}`, {
+              payment_type: paymentType,
+              split_code: splitCode,
+              split_details: {
+                name: `${paymentType} split`,
+                type: "percentage",
+                currency: "NGN",
+                active: true
+              },
+              academic_session_id: sessionId,
+              program_type_id: selectedProgramTypeId,
+            });
+          } else {
+            // Create new record if doesn't exist
+            await api.post("/university-admin/payment-splits", {
+              payment_type: paymentType,
+              split_code: splitCode,
+              split_details: {
+                name: `${paymentType} split`,
+                type: "percentage",
+                currency: "NGN",
+                active: true
+              },
+              academic_session_id: sessionId,
+              program_type_id: selectedProgramTypeId,
+            });
+          }
+        }),
       );
 
       setOriginalSplits(splits);
@@ -147,8 +197,8 @@ const SplitKeysConfig = () => {
   };
 
   const FIELDS = [
-    { label: "Annual Access Fee", key: "annual_access_fee", placeholder: "SPL_xxxxxxxxx" },
-    { label: "ID Card Fee", key: "id_card_payment", placeholder: "SPL_xxxxxxxxx" },
+    { label: "Department Annual Fee", key: "department_annual_fee", placeholder: "SPL_xxxxxxxxx" },
+    { label: "ID Card Fee", key: "id_card_fee", placeholder: "SPL_xxxxxxxxx" },
     { label: "Transcript Fee", key: "transcript_fee", placeholder: "SPL_xxxxxxxxx" },
   ];
 
