@@ -37,7 +37,7 @@ const PaymentVerificationPage = () => {
           }
         })
         .catch(() => {
-          toaster.error({ description: "Payment verified successfully!" });
+          toaster.error({ description: "Payment verification failed!" });
           setVerificationStatus("failed");
         });
     }
