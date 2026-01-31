@@ -5,12 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AbsoluteCenter,
   Button,
-  Container,
   Spinner,
   Stack,
   Text,
+  Heading
 } from "@chakra-ui/react";
-import { Heading } from "lucide-react";
 
 const PaymentVerificationPage = () => {
   // get payment status on mount to update hasPaid state
@@ -63,7 +62,7 @@ const PaymentVerificationPage = () => {
           </Heading>
 
           <Link to={paymentCallbackUrl || "/"}>
-            <Button>Go back</Button>
+            <Button className="bg-black text-white p-4 rounded-md">Go back</Button>
           </Link>
         </Stack>
         <Toaster />
@@ -78,7 +77,7 @@ const PaymentVerificationPage = () => {
         </Heading>
 
         <Link to={paymentCallbackUrl || "/"}>
-          <Button>Continue</Button>
+          <Button className="bg-black text-white p-4 rounded-md">Continue</Button>
         </Link>
       </Stack>
 
