@@ -15,6 +15,7 @@ const CreditLimitSection: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     levelId: "",
     semesterId: "",
@@ -49,6 +50,20 @@ const CreditLimitSection: React.FC = () => {
       setSemesters(semestersData);
     } catch (err) {
       console.error("Failed to fetch dropdown data:", err);
+    }
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === creditLimits.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(creditLimits.map((cl) => cl.id));
     }
   };
 
@@ -88,18 +103,42 @@ const CreditLimitSection: React.FC = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (window.confirm(`Delete ${selectedIds.length} selected credit limits?`)) {
+      try {
+        await Promise.all(selectedIds.map((id) => programsCoursesApi.deleteCreditLimit(id)));
+        toast.success(`${selectedIds.length} credit limits deleted`);
+        setSelectedIds([]);
+        fetchCreditLimits();
+      } catch (err) {
+        toast.error("Failed to delete some credit limits");
+      }
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-8">
       <div className="p-6 flex items-center justify-between">
         <h3 className="text-lg font-bold text-slate-800">
           Credit Limit ({creditLimits.length})
         </h3>
-        <button
-          onClick={() => setIsFormOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-blue-700 transition-all"
-        >
-          <Plus size={16} /> Create Credit Limit
-        </button>
+        <div className="flex gap-3">
+          {selectedIds.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="bg-red-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-red-600 transition-all"
+            >
+              <Trash size={16} /> Delete ({selectedIds.length})
+            </button>
+          )}
+          <button
+            onClick={() => setIsFormOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-blue-700 transition-all"
+          >
+            <Plus size={16} /> Create Credit Limit
+          </button>
+        </div>
       </div>
 
       {/* Form Modal */}
@@ -140,7 +179,7 @@ const CreditLimitSection: React.FC = () => {
                   type="number"
                   value={formData.maxCreditLoad}
                   onChange={(e) => setFormData({ ...formData, maxCreditLoad: Number(e.target.value) })}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-md bg-white border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min={1}
                 />
               </div>
@@ -170,6 +209,14 @@ const CreditLimitSection: React.FC = () => {
         <table className="w-full text-left">
           <thead>
             <tr className="bg-slate-50/60 border-y border-gray-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+              <th className="px-6 py-4 w-12 text-center">
+                <input
+                  type="checkbox"
+                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                  checked={creditLimits.length > 0 && selectedIds.length === creditLimits.length}
+                  onChange={toggleSelectAll}
+                />
+              </th>
               <th className="px-6 py-4">Level</th>
               <th className="px-6 py-4">Semester</th>
               <th className="px-6 py-4">Credit Load</th>
@@ -179,19 +226,27 @@ const CreditLimitSection: React.FC = () => {
           <tbody className="divide-y divide-gray-50">
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                   <Loader2 className="animate-spin h-6 w-6 mx-auto" />
                 </td>
               </tr>
             ) : creditLimits.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                   No credit limits found
                 </td>
               </tr>
             ) : (
               creditLimits.map((cl) => (
-                <tr key={cl.id} className="hover:bg-slate-50/50 transition-colors text-sm text-slate-600">
+                <tr key={cl.id} className={`hover:bg-slate-50/50 transition-colors text-sm text-slate-600 ${selectedIds.includes(cl.id) ? "bg-blue-50/30" : ""}`}>
+                  <td className="px-6 py-4 text-center">
+                    <input
+                      type="checkbox"
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                      checked={selectedIds.includes(cl.id)}
+                      onChange={() => toggleSelection(cl.id)}
+                    />
+                  </td>
                   <td className="px-6 py-4">{cl.level?.name || cl.levelId}</td>
                   <td className="px-6 py-4">{cl.semester?.name || cl.semesterId}</td>
                   <td className="px-6 py-4">{cl.maxCreditLoad}</td>
