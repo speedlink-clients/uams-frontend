@@ -60,7 +60,7 @@ const PaymentVerificationPage = () => {
   if (verificationStatus === "failed") {
     return (
       <AbsoluteCenter>
-        <Stack gap="4" justify="center">
+        <Stack gap="4" justify="center" align="center">
 
           <LucideXCircle size={64} color="red" alignSelf="center" />
 
@@ -81,7 +81,7 @@ const PaymentVerificationPage = () => {
 
   return (
     <AbsoluteCenter>
-      <Stack gap="4" justify="center">
+      <Stack gap="4" justify="center" align="center">
 
         <LucideCheckCircle size={64} color="green" alignSelf="center" />
 
