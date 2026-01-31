@@ -120,30 +120,31 @@ interface InitializePaymentResponse {
  * Initialize payment for annual access fee
  * Redirects to Paystack checkout page
  */
-export const initializePayment =
-  async (): Promise<InitializePaymentResponse> => {
-    try {
-      const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
-      const response = await apiClient.post<InitializePaymentResponse>(
-        "/annual-access-fee/initialize",
-        { callbackUrl },
-      );
+export const initializePayment = async (
+  callbackUrl: string,
+): Promise<InitializePaymentResponse> => {
+  try {
+    // const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
+    const response = await apiClient.post<InitializePaymentResponse>(
+      "/annual-access-fee/initialize",
+      { callbackUrl },
+    );
 
-      if (response.data.success) {
-        return response.data;
-      }
-
-      throw new Error(response.data.message || "Payment initialization failed");
-    } catch (error) {
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      }
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error("Payment initialization failed. Please try again.");
+    if (response.data.success) {
+      return response.data;
     }
-  };
+
+    throw new Error(response.data.message || "Payment initialization failed");
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("Payment initialization failed. Please try again.");
+  }
+};
 
 /**
  * Logout student
@@ -243,9 +244,9 @@ export const getIdCardFee = async (): Promise<IdCardFeeResponse> => {
  * Initialize ID card payment
  */
 export const initializeIdCardPayment =
-  async (): Promise<InitializePaymentResponse> => {
+  async (callbackUrl:string): Promise<InitializePaymentResponse> => {
     try {
-      const callbackUrl = import.meta.env.VITE_ID_CARD_CALLBACK_URL;
+      // const callbackUrl = import.meta.env.VITE_ID_CARD_CALLBACK_URL;
       const response = await apiClient.post<InitializePaymentResponse>(
         "/annual-access-fee/idcard-payment",
         { callbackUrl },

@@ -73,7 +73,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
     setError("");
 
     try {
-      const response = await authService.initializePayment();
+      const callbackUrl = `${window.location.origin}/students/payment`;
+      const response = await authService.initializePayment(callbackUrl);
       // Redirect to Paystack checkout page
       window.location.href = response.data.authorizationUrl;
     } catch (err: any) {

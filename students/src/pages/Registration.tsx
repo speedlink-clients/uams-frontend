@@ -431,7 +431,8 @@ const OtherServicesView = ({
     setError("");
 
     try {
-      const response = await initializeIdCardPayment();
+      const callbackUrl = `${window.location.origin}/students/registration/other`;
+      const response = await initializeIdCardPayment(callbackUrl);
       window.location.href = response.data.authorizationUrl;
     } catch (err: any) {
       setError(
