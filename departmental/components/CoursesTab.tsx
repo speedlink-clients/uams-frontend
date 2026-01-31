@@ -17,6 +17,7 @@ const CreditLimitSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     programId: "",
     levelId: "",
@@ -85,7 +86,7 @@ const CreditLimitSection: React.FC = () => {
     }
   };
 
-  const handleCreate = async () => {
+  const handleSave = async () => {
     if (!formData.levelId || !formData.semesterId) {
       toast.error("Please select level and semester");
       return;
@@ -93,17 +94,26 @@ const CreditLimitSection: React.FC = () => {
 
     try {
       setIsSaving(true);
-      await programsCoursesApi.createCreditLimit({
+      const payload = {
         levelId: formData.levelId,
         semesterId: formData.semesterId,
         maxCreditLoad: Number(formData.maxCreditLoad),
-      });
-      toast.success("Credit limit created successfully");
+      };
+
+      if (editingId) {
+        await programsCoursesApi.updateCreditLimit(editingId, payload);
+        toast.success("Credit limit updated successfully");
+      } else {
+        await programsCoursesApi.createCreditLimit(payload);
+        toast.success("Credit limit created successfully");
+      }
+
       setIsFormOpen(false);
+      setEditingId(null);
       setFormData({ programId: "", levelId: "", semesterId: "", maxCreditLoad: 24 });
       fetchCreditLimits();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to create credit limit");
+      toast.error(err.response?.data?.message || "Failed to save credit limit");
     } finally {
       setIsSaving(false);
     }
@@ -163,7 +173,7 @@ const CreditLimitSection: React.FC = () => {
       {isFormOpen && (
         <div className="px-6 pb-6">
           <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h4 className="text-md font-semibold text-slate-700 mb-4">New Credit Limit</h4>
+            <h4 className="text-md font-semibold text-slate-700 mb-4">{editingId ? "Edit Credit Limit" : "New Credit Limit"}</h4>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
@@ -218,18 +228,18 @@ const CreditLimitSection: React.FC = () => {
             </div>
             <div className="flex justify-end gap-3 mt-4">
               <button
-                onClick={() => setIsFormOpen(false)}
+                onClick={() => { setIsFormOpen(false); setEditingId(null); setFormData({ programId: "", levelId: "", semesterId: "", maxCreditLoad: 24 }); }}
                 className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
-                onClick={handleCreate}
+                onClick={handleSave}
                 disabled={isSaving}
                 className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 disabled:bg-green-400 flex items-center gap-2"
               >
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isSaving ? "Saving..." : "Create"}
+                {isSaving ? "Saving..." : (editingId ? "Update" : "Create")}
               </button>
             </div>
           </div>
@@ -283,13 +293,31 @@ const CreditLimitSection: React.FC = () => {
                   <td className="px-6 py-4">{formatSemesterName(cl.semester?.name || cl.semesterId)}</td>
                   <td className="px-6 py-4">{cl.maxCreditLoad}</td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleDelete(cl.id)}
-                      className="p-1 hover:bg-red-50 text-red-500 rounded transition-colors"
-                      title="Delete"
-                    >
-                      <Trash size={16} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setFormData({
+                            programId: cl.programId || "",
+                            levelId: cl.levelId || "",
+                            semesterId: cl.semesterId || "",
+                            maxCreditLoad: cl.maxCreditLoad || 24,
+                          });
+                          setEditingId(cl.id);
+                          setIsFormOpen(true);
+                        }}
+                        className="p-1 hover:bg-amber-50 text-amber-500 rounded transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cl.id)}
+                        className="p-1 hover:bg-red-50 text-red-500 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

@@ -154,4 +154,9 @@ export const programsCoursesApi = {
   deleteCreditLimit: async (id: string): Promise<void> => {
     await api.delete(`/credit-limit/${id}`);
   },
+
+  updateCreditLimit: async (id: string, data: { levelId: string; semesterId: string; maxCreditLoad: number }): Promise<any> => {
+    const response = await api.put(`/credit-limit/${id}`, data);
+    return response.data;
+  },
 };
