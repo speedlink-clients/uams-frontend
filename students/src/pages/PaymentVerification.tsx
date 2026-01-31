@@ -72,7 +72,7 @@ const PaymentVerificationPage = () => {
 
   return (<AbsoluteCenter>
       <Stack gap="4">
-        <Heading size={48} alignSelf="center">
+        <Heading className="font-bold text-lg text-center"  size={48} alignSelf="center">
           Payment Verification Successful
         </Heading>
 
