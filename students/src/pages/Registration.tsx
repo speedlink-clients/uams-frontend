@@ -497,13 +497,20 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   // Set defaults from student profile when available
   useEffect(() => {
     if (studentProfile) {
-      // Use levelId if available, otherwise fallback to finding the level by name if needed, or just set empty
-      if (studentProfile.levelId) {
-         setSelectedLevel(studentProfile.levelId);
-      } else if (studentProfile.Level) {
-         const matchedLevel = levels.find(l => l.name.includes(studentProfile.Level.name) || l.name === studentProfile.Level.name);
-         if (matchedLevel) setSelectedLevel(matchedLevel.id);
-      }
+       // Prioritize the nested Level object if it exists and has an ID
+       if (studentProfile.Level?.id) {
+          setSelectedLevel(studentProfile.Level.id);
+       } 
+       // Fallback to flat levelId if available
+       else if (studentProfile.levelId) {
+          setSelectedLevel(studentProfile.levelId);
+       }
+       // Fallback to searching by name
+       else if (studentProfile.level || (studentProfile.Level as any)?.name) {
+          const levelName = studentProfile.level || (studentProfile.Level as any)?.name;
+          const matchedLevel = levels.find(l => l.name.includes(levelName) || l.name === levelName);
+          if (matchedLevel) setSelectedLevel(matchedLevel.id);
+       }
     }
   }, [studentProfile, levels]);
 
