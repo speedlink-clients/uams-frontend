@@ -500,9 +500,8 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
       // Use levelId if available, otherwise fallback to finding the level by name if needed, or just set empty
       if (studentProfile.levelId) {
          setSelectedLevel(studentProfile.levelId);
-      } else if (studentProfile.level) {
-        
-         const matchedLevel = levels.find(l => l.name.includes(studentProfile.level) || l.name === studentProfile.level);
+      } else if (studentProfile.Level) {
+         const matchedLevel = levels.find(l => l.name.includes(studentProfile.Level.name) || l.name === studentProfile.Level.name);
          if (matchedLevel) setSelectedLevel(matchedLevel.id);
       }
     }
