@@ -493,12 +493,20 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
     fetchCart();
   }, []);
 
+
   // Set defaults from student profile when available
   useEffect(() => {
     if (studentProfile) {
-      setSelectedLevel(studentProfile.levelId || studentProfile.level || '');
+      // Use levelId if available, otherwise fallback to finding the level by name if needed, or just set empty
+      if (studentProfile.levelId) {
+         setSelectedLevel(studentProfile.levelId);
+      } else if (studentProfile.level) {
+        
+         const matchedLevel = levels.find(l => l.name.includes(studentProfile.level) || l.name === studentProfile.level);
+         if (matchedLevel) setSelectedLevel(matchedLevel.id);
+      }
     }
-  }, [studentProfile]);
+  }, [studentProfile, levels]);
 
   // Set current session as default
   useEffect(() => {
@@ -757,7 +765,12 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     <option value="">Select Semester</option>
                     {semesters?.filter(semester => semester.isActive).map((semester) => (
                       <option key={semester.id} value={semester.id}>
-                        {semester.name}
+                        {(() => {
+                            const sem = semester.name.toLowerCase();
+                            if (sem === 'semester 1') return 'First Semester';
+                            if (sem === 'semester 2') return 'Second Semester';
+                            return semester.name;
+                        })()}
                       </option>
                     ))}
                   </select>

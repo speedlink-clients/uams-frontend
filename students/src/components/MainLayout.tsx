@@ -109,6 +109,7 @@ const MainLayout: React.FC = () => {
     if (pathname.startsWith('/registration')) return 'registration';
     if (pathname.startsWith('/payments')) return 'payments';
     if (pathname.startsWith('/schedule')) return 'schedule';
+    if (pathname.startsWith('/profile')) return 'profile';
     if (pathname.startsWith('/settings')) return 'settings';
     return 'dashboard';
   };
@@ -192,7 +193,7 @@ const MainLayout: React.FC = () => {
           <SidebarItem iconSrc={getAssetPath('assets/Books (1).png')} label="Registration" active={activeTab === 'registration'} onClick={() => { navigate('/registration'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/CalendarDots (1).png')} label="Schedule" active={activeTab === 'schedule'} onClick={() => { navigate('/schedule'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Money (1).png')} label="Payments" active={activeTab === 'payments'} onClick={() => { navigate('/payments'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
-          <SidebarItem iconSrc={getAssetPath('assets/305ae6c7f315bb219eb3b785a763838d55d71e73 (1).png')} label="Settings" active={activeTab === 'settings'} onClick={() => { navigate('/settings'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
+          <SidebarItem iconSrc={getAssetPath('assets/305ae6c7f315bb219eb3b785a763838d55d71e73 (1).png')} label="Profile" active={activeTab === 'profile'} onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
         </Box>
 
         <Box p={isSidebarCollapsed ? 4 : 6} borderTop="1px" borderColor="gray.100">

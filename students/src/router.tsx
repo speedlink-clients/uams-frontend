@@ -11,6 +11,7 @@ import SessionGuard from "./components/SessionGuard";
 import IdCardPaymentCallback from "./pages/IdCardPaymentCallback";
 
 import Checkout from "./pages/Checkout";
+import Profile from "./pages/Profile";
 
 const router = createBrowserRouter([
   {
@@ -85,6 +86,14 @@ const router = createBrowserRouter([
           {
             path: "payments/new",
             element: <PaymentsNew />,
+          },
+          {
+            path: "profile",
+            element: <Profile />,
+          },
+          {
+            path: "settings",
+            element: <Navigate to="/profile" replace />,
           },
         ],
       },
