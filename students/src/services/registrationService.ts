@@ -77,6 +77,15 @@ export const getStudentProfile = async (): Promise<StudentProfile | null> => {
     return null;
   }
 };
+export const getStudentPayments = async (studentId:string): Promise<any | null> => {
+  try {
+    const response = await apiClient.get<ApiResponse<StudentProfile>>(`/annual-access-fee/student/${studentId}`);
+    return response.data?.data ?? null;
+  } catch (error) {
+    console.error('Failed to fetch student profile:', error);
+    return null;
+  }
+};
 
 /**
  * Student registration item from GET /students/registrations
