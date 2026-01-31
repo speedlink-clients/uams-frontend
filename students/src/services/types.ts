@@ -73,7 +73,10 @@ export interface StudentProfile {
   createdAt: string;
   updatedAt: string;
   idCard: string | null;
-  Level: StudentLevel;
+  Level: {
+    id: string;
+    name: string;
+  };
   session: {
     id: string;
     name: string;
