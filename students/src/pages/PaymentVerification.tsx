@@ -8,8 +8,9 @@ import {
   Spinner,
   Stack,
   Text,
-  Heading
+  Heading,
 } from "@chakra-ui/react";
+import { LucideCheckCircle, LucideXCircle } from "lucide-react";
 
 const PaymentVerificationPage = () => {
   // get payment status on mount to update hasPaid state
@@ -27,7 +28,8 @@ const PaymentVerificationPage = () => {
   // handle successful id card payment
   useEffect(() => {
     if (trxRef || reference) {
-      apiClient.post("/payment/verify", {
+      apiClient
+        .post("/payment/verify", {
           reference: trxRef || reference,
         })
         .then((res) => {
@@ -44,7 +46,8 @@ const PaymentVerificationPage = () => {
   }, [trxRef]);
 
   if (verificationStatus === "pending") {
-    return (<AbsoluteCenter>
+    return (
+      <AbsoluteCenter>
         <Text>
           Verifying payment... <Spinner />
         </Text>
@@ -55,14 +58,20 @@ const PaymentVerificationPage = () => {
   }
 
   if (verificationStatus === "failed") {
-    return (<AbsoluteCenter>
+    return (
+      <AbsoluteCenter>
         <Stack gap="4" justify="center">
+
+          <LucideXCircle size={64} color="red" alignSelf="center" />
+
           <Heading size={48} color="red" alignSelf="center">
             Payment Verification failed
           </Heading>
 
           <Link to={paymentCallbackUrl || "/"}>
-            <Button className="bg-black text-white p-4 rounded-md">Go back</Button>
+            <Button className="bg-black text-white p-4 rounded-md">
+              Go back
+            </Button>
           </Link>
         </Stack>
         <Toaster />
@@ -70,14 +79,24 @@ const PaymentVerificationPage = () => {
     );
   }
 
-  return (<AbsoluteCenter>
+  return (
+    <AbsoluteCenter>
       <Stack gap="4" justify="center">
-        <Heading className="font-bold text-lg text-center"  size={48} alignSelf="center">
+
+        <LucideCheckCircle size={64} color="green" alignSelf="center" />
+
+        <Heading
+          className="font-bold text-lg text-center"
+          size={48}
+          alignSelf="center"
+        >
           Payment Verification Successful
         </Heading>
 
         <Link to={paymentCallbackUrl || "/"}>
-          <Button className="bg-black text-white p-4 rounded-md">Continue</Button>
+          <Button className="bg-black text-white p-4 rounded-md">
+            Continue
+          </Button>
         </Link>
       </Stack>
 
