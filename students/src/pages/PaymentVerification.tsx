@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { toaster } from "../components/ui/toaster";
+import { Toaster, toaster } from "../components/ui/toaster";
 import apiClient from "../services/api";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -15,7 +15,8 @@ import { Heading } from "lucide-react";
 const PaymentVerificationPage = () => {
   // get payment status on mount to update hasPaid state
   const [sq, _] = useSearchParams();
-  const trxRef = useMemo(() => sq.get("trxRef"));
+  const trxRef = useMemo(() => sq.get("trxref"));
+  const reference = useMemo(() => sq.get("reference"));
   const [verificationStatus, setVerificationStatus] = useState<
     "pending" | "success" | "failed"
   >("pending");
@@ -26,10 +27,9 @@ const PaymentVerificationPage = () => {
 
   // handle successful id card payment
   useEffect(() => {
-    if (trxRef) {
-      apiClient
-        .post("/payment/verify", {
-          reference: trxRef,
+    if (trxRef || reference) {
+      apiClient.post("/payment/verify", {
+          reference: trxRef || reference,
         })
         .then((res) => {
           if (res.data.success) {
@@ -45,18 +45,18 @@ const PaymentVerificationPage = () => {
   }, [trxRef]);
 
   if (verificationStatus === "pending") {
-    return (
-      <AbsoluteCenter>
+    return (<AbsoluteCenter>
         <Text>
-          Verifying payment <Spinner />
+          Verifying payment... <Spinner />
         </Text>
+
+        <Toaster />
       </AbsoluteCenter>
     );
   }
 
   if (verificationStatus === "failed") {
-    return (
-      <AbsoluteCenter>
+    return (<AbsoluteCenter>
         <Stack gap="4">
           <Heading size={48} color="red" alignSelf="center">
             Payment Verification failed
@@ -66,12 +66,12 @@ const PaymentVerificationPage = () => {
             <Button>Go back</Button>
           </Link>
         </Stack>
+        <Toaster />
       </AbsoluteCenter>
     );
   }
 
-  return (
-    <AbsoluteCenter>
+  return (<AbsoluteCenter>
       <Stack gap="4">
         <Heading size={48} alignSelf="center">
           Payment Verification Successful
@@ -81,6 +81,8 @@ const PaymentVerificationPage = () => {
           <Button>Continue</Button>
         </Link>
       </Stack>
+
+      <Toaster />
     </AbsoluteCenter>
   );
 };
