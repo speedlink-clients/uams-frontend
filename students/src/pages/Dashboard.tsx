@@ -59,10 +59,20 @@ const Dashboard: React.FC = () => {
     { label: 'Last name', value: displayLastName || 'Nil' },
     { label: 'Email', value: user?.email || 'Nil' },
     { label: 'Phone', value: user?.phone || profile?.phone || 'Nil' },
-    { label: 'Department', value: user?.department || profile?.department || 'Nil' },
-    { label: 'Faculty', value: user?.faculty || profile?.faculty || 'Nil' },
+    { label: 'Gender', value: profile?.gender || 'Nil' },
+    { label: 'Current GPA', value: profile?.currentGPA || 'Nil' },
+    { label: 'Department', value: profile?.Department?.name  || 'Nil' },
+    { label: 'Session', value: profile?.session?.name || 'Nil' },
     { label: 'Level', value: profile?.level ? `${profile.level} Level` : 'Nil' },
-    { label: 'Semester', value: profile?.semester || 'Nil' },
+    { 
+      label: 'Semester', 
+      value: (() => {
+        const sem = profile?.activeSemester?.[0]?.name?.toLowerCase();
+        if (sem === 'semester 1') return 'First Semester';
+        if (sem === 'semester 2') return 'Second Semester';
+        return profile?.activeSemester?.[0]?.name || 'Nil';
+      })()
+    },
     { label: 'Matric No.', value: profile?.studentId || 'Nil' },
     { label: 'Program', value: profile?.program?.name || 'Nil' },
   ];
@@ -153,6 +163,8 @@ const Dashboard: React.FC = () => {
                 <option>Today</option>
               </select>
             </div>
+            
+            {/* Calendar list commented out for now
             <div className="space-y-4">
               <div className="bg-[#3b82f6] p-5 lg:p-6 rounded-2xl text-white shadow-xl shadow-blue-100/30">
                 <h3 className="font-bold text-[13px] lg:text-[14px] mb-1">Electronic Engineering</h3>
@@ -179,6 +191,18 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+            */}
+
+            {/* Coming Soon Placeholder */}
+            <div className="flex flex-col items-center justify-center py-10 text-center space-y-4">
+              <div className="bg-blue-50 p-4 rounded-full">
+                <Clock className="w-8 h-8 text-blue-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Coming Soon</h3>
+                <p className="text-xs text-slate-500 mt-1">Calendar features are under development.</p>
+              </div>
             </div>
           </div>
 

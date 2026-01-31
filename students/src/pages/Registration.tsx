@@ -602,12 +602,26 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
     fetchCart();
   }, []);
 
+
   // Set defaults from student profile when available
   useEffect(() => {
     if (studentProfile) {
-      setSelectedLevel(studentProfile.levelId || studentProfile.level || "");
+       // Prioritize the nested Level object if it exists and has an ID
+       if (studentProfile.Level?.id) {
+          setSelectedLevel(studentProfile.Level.id);
+       } 
+       // Fallback to flat levelId if available
+       else if (studentProfile.levelId) {
+          setSelectedLevel(studentProfile.levelId);
+       }
+       // Fallback to searching by name
+       else if (studentProfile.level || (studentProfile.Level as any)?.name) {
+          const levelName = studentProfile.level || (studentProfile.Level as any)?.name;
+          const matchedLevel = levels.find(l => l.name.includes(levelName) || l.name === levelName);
+          if (matchedLevel) setSelectedLevel(matchedLevel.id);
+       }
     }
-  }, [studentProfile]);
+  }, [studentProfile, levels]);
 
   // Set current session as default
   useEffect(() => {
@@ -725,8 +739,9 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   const handleRegisterCourses = async () => {
     // Get levelId and sessionId from stored user profile
     const storedUser = getStoredUser();
-    const levelId = storedUser?.profile?.levelId;
-    const sessionId = storedUser?.profile?.sessionId;
+    // Prioritize nested Level object, fallback to flat levelId
+    const levelId = storedUser?.profile?.Level?.id || storedUser?.profile?.levelId;
+    const sessionId = storedUser?.profile?.session?.id || storedUser?.profile?.sessionId;
 
     if (!levelId || !sessionId) {
       toaster.create({
@@ -737,13 +752,6 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
       });
       return;
     }
-
-    // // Get payment reference from localStorage (set after payment)
-    // // const paymentRef = localStorage.getItem('pendingPaymentReference');
-    // // if (!paymentRef) {
-    // //   alert('Payment reference not found. Please complete payment first.');
-    // //   return;
-    // }
 
     setIsRegistering(true);
 
@@ -871,22 +879,23 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
             ) : (
               <div className="space-y-5">
                 <FormRow label="Current Level">
-                  <select
-                    value={selectedLevel}
-                    onChange={(e) => setSelectedLevel(e.target.value)}
-                    className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none"
-                  >
-                    <option value="">Select Level</option>
-                    {levels?.map((level) => (
-                      <option key={level.id} value={level.id}>
-                        {level.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"
-                    size={14}
-                  />
+                  {(() => {
+                    // Get Level from studentProfile or fallback to stored user
+                    const storedUser = getStoredUser();
+                    const levelData = studentProfile?.Level || storedUser?.profile?.Level;
+                    return (
+                      <select 
+                        value={levelData?.id || ''}
+                        disabled
+                        className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none cursor-not-allowed"
+                      >
+                        <option value={levelData?.id || ''}>
+                          {levelData?.name || 'Loading...'}
+                        </option>
+                      </select>
+                    );
+                  })()}
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" size={14} />
                 </FormRow>
 
                 <FormRow label="Semester">
@@ -896,13 +905,16 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none"
                   >
                     <option value="">Select Semester</option>
-                    {semesters
-                      ?.filter((semester) => semester.isActive)
-                      .map((semester) => (
-                        <option key={semester.id} value={semester.id}>
-                          {semester.name}
-                        </option>
-                      ))}
+                    {semesters?.filter(semester => semester.isActive).map((semester) => (
+                      <option key={semester.id} value={semester.id}>
+                        {(() => {
+                            const sem = semester.name.toLowerCase();
+                            if (sem === 'semester 1') return 'First Semester';
+                            if (sem === 'semester 2') return 'Second Semester';
+                            return semester.name;
+                        })()}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"

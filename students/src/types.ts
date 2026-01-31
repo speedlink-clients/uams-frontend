@@ -1,5 +1,5 @@
 
-export type NavigationItem = 'dashboard' | 'courses' | 'registration' | 'schedule' | 'payments' | 'settings';
+export type NavigationItem = 'dashboard' | 'courses' | 'registration' | 'schedule' | 'payments' | 'settings' | 'profile';
 
 export interface Course {
   id: string;

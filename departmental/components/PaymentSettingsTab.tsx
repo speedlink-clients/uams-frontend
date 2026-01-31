@@ -228,14 +228,14 @@ export const PaymentSettingsTab = () => {
           throw new Error(response.data.message || "Operation failed");
       }
 
-      toast.success("Payment settings saved successfully.");
+      toast.success("Payment amount settings saved successfully.");
       setIsEditing(false); // Exit edit mode on success
       setOriginalFees(fees); // Update backup to current
       
     } catch (error: any) {
       console.error("Save Error Details:", error);
       // Safe error extraction
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to save payment settings";
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to save payment amount settings";
       toast.error(errorMessage);
     } finally {
       setIsSaving(false);

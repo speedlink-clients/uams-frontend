@@ -6,6 +6,14 @@ export interface Level {
   id: string;
   name: string;
   code: string;
+  programId: string;
+  universityId: string;
+  duration: number;
+  program: {
+    id: string;
+    name: string;
+    code: string;
+  };
 }
 
 export interface Semester {
@@ -14,10 +22,27 @@ export interface Semester {
   isActive: boolean;
 }
 
+const getProgramIdFromToken = () => {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.programId;
+    } catch (e) {
+        console.error("Failed to extract programId from token", e);
+        return null;
+    }
+};
+
 /** API */
 export const academicsApi = {
-  async getLevels(): Promise<Level[]> {
-    const res = await api.get("/accademics/levels");
+  async getLevels(programId?: string): Promise<Level[]> {
+    const idToUse = programId || getProgramIdFromToken();
+    if (!idToUse) {
+        console.warn("No programId found (token or param), returning empty list");
+        return []; 
+    }
+    const res = await api.get(`/accademics/${idToUse}`);
     return res.data;
   },
 

@@ -27,8 +27,24 @@ import type {
 export const getLevels = async (programId?: string): Promise<Level[]> => {
   try {
     const url = `/accademics/${programId}`;
-    const response = await apiClient.get<Level[]>(url);
-    return response.data ?? [];
+    const response = await apiClient.get<any>(url);
+    
+    // Handle different response structures
+    // Case 1: response.data is the array directly
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    // Case 2: response.data has a 'levels' property
+    if (response.data?.levels && Array.isArray(response.data.levels)) {
+      return response.data.levels;
+    }
+    // Case 3: response.data has a 'data' property (double-wrapped)
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    
+    console.warn('Unexpected levels response structure:', response.data);
+    return [];
   } catch (error) {
     console.error('Failed to fetch levels:', error);
     return [];

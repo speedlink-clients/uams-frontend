@@ -12,11 +12,29 @@ import {
 export const programsCoursesApi = {
   /** PROGRAMS **/
   
-  // ✅ New Endpoint: Get Program Types (Diploma, BSc, etc.)
+  // ✅ New Endpoint: Get Program Types 
   getProgramTypes: async (): Promise<ProgramTypeResponse[]> => {
     // This endpoint seems to be public or just authenticated; no specific param needed per user request
     const response = await api.get<ProgramTypeResponse[]>("/program-types");
     return response.data;
+  },
+
+  createProgramType: async (data: any): Promise<ProgramTypeResponse> => {
+    const response = await api.post<ProgramTypeResponse>("/program-types", data);
+    return response.data;
+  },
+
+  deleteProgramType: async (id: string): Promise<void> => {
+    await api.delete("/program-types/delete", { data: { ids: [id] } });
+  },
+
+  updateProgramType: async (id: string, data: any): Promise<ProgramTypeResponse> => {
+    const response = await api.put<ProgramTypeResponse>(`/program-types/${id}`, data);
+    return response.data;
+  },
+
+  bulkDeleteProgramTypes: async (ids: string[]): Promise<void> => {
+    await api.delete("/program-types/delete", { data: { ids } });
   },
 
   getProgramsByDepartment: async (): Promise<Program[]> => {
@@ -120,5 +138,25 @@ export const programsCoursesApi = {
   },
   deleteProgram: async (programId: string): Promise<void> => {
     await api.delete(`/program/${programId}`);
+  },
+
+  /** CREDIT LIMITS **/
+  getCreditLimits: async (): Promise<any[]> => {
+    const response = await api.get("/credit-limit");
+    return response.data;
+  },
+
+  createCreditLimit: async (data: { levelId: string; semesterId: string; maxCreditLoad: number }): Promise<any> => {
+    const response = await api.post("/credit-limit", data);
+    return response.data;
+  },
+
+  deleteCreditLimit: async (id: string): Promise<void> => {
+    await api.delete(`/credit-limit/${id}`);
+  },
+
+  updateCreditLimit: async (id: string, data: { levelId: string; semesterId: string; maxCreditLoad: number }): Promise<any> => {
+    const response = await api.put(`/credit-limit/${id}`, data);
+    return response.data;
   },
 };
