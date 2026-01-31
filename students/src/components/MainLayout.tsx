@@ -244,25 +244,7 @@ const MainLayout: React.FC = () => {
               <Menu size={24} />
             </IconButton>
 
-            <Box position="relative" maxW={{ base: '160px', sm: 'xs', lg: 'md' }} w="full">
-              <Input 
-                placeholder="Search" 
-                bg="white" 
-                border="1px solid"
-                borderColor="gray.300" 
-                rounded="full" 
-                py={{ base: 2, lg: 2.5 }}
-                pl={4}
-                pr={10}
-                fontSize={{ base: 'xs', lg: 'sm' }}
-                color="#1e293b"
-                _focus={{ borderColor: 'blue.400', boxShadow: 'none' }}
-                _placeholder={{ color: 'gray.400' }}
-              />
-              <Box position="absolute" right={4} top="50%" transform="translateY(-50%)" color="gray.400" pointerEvents="none">
-                <Search size={16} />
-              </Box>
-            </Box>
+
           </Flex>
 
           <Flex align="center" gap={{ base: 4, lg: 6 }} ml={4} shrink={0}>
