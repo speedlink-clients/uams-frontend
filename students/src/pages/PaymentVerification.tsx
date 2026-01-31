@@ -56,7 +56,7 @@ const PaymentVerificationPage = () => {
 
   if (verificationStatus === "failed") {
     return (<AbsoluteCenter>
-        <Stack gap="4">
+        <Stack gap="4" justify="center">
           <Heading size={48} color="red" alignSelf="center">
             Payment Verification failed
           </Heading>
@@ -71,7 +71,7 @@ const PaymentVerificationPage = () => {
   }
 
   return (<AbsoluteCenter>
-      <Stack gap="4">
+      <Stack gap="4" justify="center">
         <Heading className="font-bold text-lg text-center"  size={48} alignSelf="center">
           Payment Verification Successful
         </Heading>
