@@ -622,8 +622,9 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   const handleRegisterCourses = async () => {
     // Get levelId and sessionId from stored user profile
     const storedUser = getStoredUser();
-    const levelId = storedUser?.profile?.levelId;
-    const sessionId = storedUser?.profile?.sessionId;
+    // Prioritize nested Level object, fallback to flat levelId
+    const levelId = storedUser?.profile?.Level?.id || storedUser?.profile?.levelId;
+    const sessionId = storedUser?.profile?.session?.id || storedUser?.profile?.sessionId;
 
     if (!levelId || !sessionId) {
       toaster.create({
@@ -741,16 +742,13 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
               <div className="space-y-5">
                 <FormRow label="Current Level">
                   <select 
-                    value={selectedLevel}
-                    onChange={(e) => setSelectedLevel(e.target.value)}
-                    className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none"
+                    value={studentProfile?.Level?.id || ''}
+                    disabled
+                    className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none cursor-not-allowed"
                   >
-                    <option value="">Select Level</option>
-                    {levels?.map((level) => (
-                      <option key={level.id} value={level.id}>
-                        {level.name}
-                      </option>
-                    ))}
+                    <option value={studentProfile?.Level?.id || ''}>
+                      {studentProfile?.Level?.name || 'Loading...'}
+                    </option>
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" size={14} />
                 </FormRow>
