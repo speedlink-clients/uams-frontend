@@ -4,8 +4,8 @@ import AuthBackground from "../components/AuthBackground";
 import AuthCard from "../components/AuthCard";
 import authService from "../../../services/authService";
 import { useSearchParams } from "react-router-dom";
-import apiClient from "@/src/services/api";
-import { toaster } from "@/src/components/ui/toaster";
+import apiClient from "../../../services/api";
+import { toaster } from "../../../components/ui/toaster";
 
 interface PaymentStepProps {
   onNext: () => void;
