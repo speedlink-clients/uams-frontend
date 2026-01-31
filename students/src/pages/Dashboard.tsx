@@ -91,17 +91,13 @@ const Dashboard: React.FC = () => {
               <p className="text-blue-100 text-base lg:text-lg mb-4 lg:mb-8 opacity-90 font-medium">Welcome back</p>
               
               <div className="mb-6 lg:mb-8">
-                <p className="text-white/90 text-xs lg:text-sm leading-relaxed">
-                  You have pending <br /> payments to make.
+                <p className="text-white/90 text-xs lg:text-sm leading-relaxed italic">
+                  "The more that you read, the more things you will know, the more that you learn, the more places you'll go."
                 </p>
-                <p className="text-white/90 text-xs lg:text-sm leading-relaxed">
-                  Let's get it done!
+                <p className="text-white/70 text-xs mt-2 font-medium">
+                  —Dr. Seuss
                 </p>
               </div>
-              
-              <button className="bg-white text-[#3b82f6] px-6 lg:px-8 py-2 lg:py-2.5 rounded-xl text-[10px] lg:text-xs font-bold hover:bg-blue-50 transition-all shadow-sm">
-                Review now!
-              </button>
             </div>
             
             {/* Decorative Background Shapes */}
@@ -116,14 +112,16 @@ const Dashboard: React.FC = () => {
 
           {/* Academic Performance Chart */}
           <div className="bg-white rounded-[24px] lg:rounded-[32px] p-6 lg:p-8 border border-gray-100 shadow-sm">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-10 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-8 gap-4">
               <h2 className="text-base lg:text-lg font-bold text-[#1e293b]">Academic Performance</h2>
-              <div className="relative w-full sm:w-auto">
-                <select className="w-full bg-[#f8fafc] border border-gray-100 text-[10px] font-bold rounded-lg px-4 py-2 text-gray-500 uppercase appearance-none pr-8">
-                  <option>All Time</option>
-                </select>
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
-              </div>
+            </div>
+            
+            {/* Original chart commented out for now
+            <div className="relative w-full sm:w-auto">
+              <select className="w-full bg-[#f8fafc] border border-gray-100 text-[10px] font-bold rounded-lg px-4 py-2 text-gray-500 uppercase appearance-none pr-8">
+                <option>All Time</option>
+              </select>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
             </div>
             <div className="h-60 lg:h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -136,11 +134,29 @@ const Dashboard: React.FC = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            */}
+
+            {/* Coming Soon Placeholder */}
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+              <div className="bg-green-50 p-4 rounded-full">
+                <div className="w-8 h-8 text-green-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Coming Soon</h3>
+                <p className="text-xs text-slate-500 mt-1">Performance tracking is under development.</p>
+              </div>
+            </div>
           </div>
 
           {/* Status Tab Grid */}
           <div className="bg-white rounded-[24px] lg:rounded-[32px] p-6 lg:p-8 border border-gray-100 shadow-sm">
-            <h2 className="text-base lg:text-lg font-bold text-[#1e293b] mb-8 lg:mb-10">Status Tab</h2>
+            <h2 className="text-base lg:text-lg font-bold text-[#1e293b] mb-6 lg:mb-8">Status Tab</h2>
+            
+            {/* Original status badges commented out for now
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 lg:gap-y-12 gap-x-8 lg:gap-x-16">
               <StatusBadge label="Courses Registration Status" value="Not Done" />
               <StatusBadge label="Transcript Application Status" value="Not Applicable" />
@@ -148,6 +164,22 @@ const Dashboard: React.FC = () => {
               <StatusBadge label="Department Fee Payment Status" value="Not Paid" />
               <StatusBadge label="Complaint Status" value="None" />
               <StatusBadge label="Complaint Status" value="None" />
+            </div>
+            */}
+
+            {/* Coming Soon Placeholder */}
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+              <div className="bg-amber-50 p-4 rounded-full">
+                <div className="w-8 h-8 text-amber-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Coming Soon</h3>
+                <p className="text-xs text-slate-500 mt-1">Status tracking is under development.</p>
+              </div>
             </div>
           </div>
         </div>

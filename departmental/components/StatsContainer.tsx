@@ -46,7 +46,8 @@ const StatsContainer: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [usersRes, transactionsRes] = await Promise.all([
+      const [studentsRes, usersRes, transactionsRes] = await Promise.all([
+        api.get("/university-admin/students", { params: { limit: 1, page: 1 } }), // Just to get pagination total
         api.get<UsersResponse>("/university-admin/users"),
         api.get<TransactionsResponse>("/annual-access-fee/transactions-all")
       ]);
@@ -54,10 +55,8 @@ const StatsContainer: React.FC = () => {
       const users = usersRes.data.users;
       const transactions = transactionsRes.data;
 
-      // Calculate statistics
-      const studentCount = users.filter(
-        (user) => user.role === "STUDENT"
-      ).length;
+      // Get student count from students endpoint pagination
+      const studentCount = studentsRes.data.pagination?.total || 0;
 
       // Academic staff includes: LECTURER, FACULTY_ADMIN, DEPARTMENT_ADMIN, UNIVERSITYADMIN
       const academicStaffCount = users.filter(

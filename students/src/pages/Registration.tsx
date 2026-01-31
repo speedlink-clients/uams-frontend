@@ -90,6 +90,32 @@ const TranscriptRegView = () => (
       Transcript Registration
     </h2>
 
+    {/* Coming Soon Placeholder */}
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="bg-indigo-50 p-5 rounded-full mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-indigo-500">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-bold text-slate-800 mb-3">Coming Soon</h3>
+      <p className="text-sm text-gray-500 max-w-md">
+        Transcript registration and request features are under development. Stay tuned!
+      </p>
+    </div>
+  </div>
+);
+
+/* ====================================================================
+   COMMENTED OUT ORIGINAL TRANSCRIPT REGISTRATION VIEW
+   Uncomment and replace the above component when ready to implement
+   ====================================================================
+
+const TranscriptRegView = () => (
+  <div className="bg-white rounded-3xl lg:rounded-4xl p-6 lg:p-12 border border-gray-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <h2 className="text-xl font-bold text-[#1e293b] mb-8 lg:mb-10">
+      Transcript Registration
+    </h2>
+
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
       <InputField
         label="Name of receiving institution or organization"
@@ -140,6 +166,7 @@ const TranscriptRegView = () => (
     </div>
   </div>
 );
+*/
 
 interface CoursesRegViewProps {
   levels: Level[];
