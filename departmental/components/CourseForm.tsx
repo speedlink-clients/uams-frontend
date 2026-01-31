@@ -29,13 +29,15 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     creditUnits: initialData?.creditUnits || 3,
   });
 
-  // Calculate if selected type is Bachelors
+  // Calculate if selected type is Bachelors/Undergraduate
   const selectedProgramType = programTypes.find(
     (t) => t.id === formData.programTypeId
   );
-  // Check against various forms of Bachelors naming convention if needed, or exact match
-  // As per request: "apart from bachelor fo science" (assuming "Bachelor of Science")
-  const isBachelors = selectedProgramType?.name === "Bachelor of Science";
+  
+  // Broader check for Undergraduate programs
+  const isUndergraduate = selectedProgramType?.type === "UNDERGRADUATE" || 
+                          selectedProgramType?.name === "Bachelor of Science" ||
+                          selectedProgramType?.name.includes("B.Sc");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,11 +58,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       try {
         const types = await programsCoursesApi.getProgramTypes();
         setProgramTypes(types);
-
-        // Auto-select first if available (optional, matched ProgramForm behavior)
-        // if (types.length > 0) {
-        //   handleChange("programTypeId", types[0].id);
-        // }
       } catch (err) {
         console.error("Failed to fetch program types:", err);
       }
@@ -80,7 +77,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       setError(null);
 
       // Validation logic based on type
-      if (isBachelors) {
+      if (isUndergraduate) {
         if (!formData.levelId || !formData.semesterId) {
           throw new Error("Please select level and semester");
         }
@@ -90,23 +87,18 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       const semester = semesters.find((s) => s.id === formData.semesterId);
 
       // Only checking detailed existence if we are in Bachelors mode
-      if (isBachelors && (!level || !semester)) {
+      if (isUndergraduate && (!level || !semester)) {
         throw new Error("Invalid level or semester selection");
       }
 
       const payload = {
-        levelId: isBachelors ? formData.levelId : undefined,
-        semesterId: isBachelors ? formData.semesterId : undefined,
+        levelId: isUndergraduate ? formData.levelId : undefined,
+        semesterId: isUndergraduate ? formData.semesterId : undefined,
         code: formData.code.trim(),
         title: formData.title.trim(),
         creditUnits: Number(formData.creditUnits),
-
-        // ✅ REQUIRED BY BACKEND (Handle Conditional)
-        // If not bachelors, current backend might still expect these fields or we send null/empty?
-        // Assuming undefined/null is okay or we skip them.
-        // User request implies hiding UI, which implies not sending them.
-        Level: isBachelors && level ? level.name.replace(" Level", "") : undefined,
-        Semester: isBachelors && semester ? semester.name : undefined,
+        Level: isUndergraduate && level ? level.name.replace(" Level", "") : undefined,
+        Semester: isUndergraduate && semester ? semester.name : undefined,
         programTypeId: formData.programTypeId,
       };
 
@@ -186,8 +178,8 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
             />
           </div>
 
-          {/* Level - Only show if Bachelors */}
-          {isBachelors && (
+          {/* Level - Only show if Undergraduate */}
+          {isUndergraduate && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Level <span className="text-red-500">*</span>
@@ -208,8 +200,8 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
             </div>
           )}
 
-          {/* Semester - Only show if Bachelors */}
-          {isBachelors && (
+          {/* Semester - Only show if Undergraduate */}
+          {isUndergraduate && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Semester <span className="text-red-500">*</span>

@@ -167,7 +167,7 @@ const ProgramTypeTab: React.FC = () => {
                 label="Name"
                 value={formData.name}
                 onChange={(val) => handleFormChange("name", val)}
-                placeholder="e.g. Undergraduate"
+                placeholder="e.g. Bachekor of Science"
               />
               <FormFieldHorizontal
                 label="Code"
