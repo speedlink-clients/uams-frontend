@@ -741,15 +741,22 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
             ) : (
               <div className="space-y-5">
                 <FormRow label="Current Level">
-                  <select 
-                    value={studentProfile?.Level?.id || ''}
-                    disabled
-                    className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none cursor-not-allowed"
-                  >
-                    <option value={studentProfile?.Level?.id || ''}>
-                      {studentProfile?.Level?.name || 'Loading...'}
-                    </option>
-                  </select>
+                  {(() => {
+                    // Get Level from studentProfile or fallback to stored user
+                    const storedUser = getStoredUser();
+                    const levelData = studentProfile?.Level || storedUser?.profile?.Level;
+                    return (
+                      <select 
+                        value={levelData?.id || ''}
+                        disabled
+                        className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none cursor-not-allowed"
+                      >
+                        <option value={levelData?.id || ''}>
+                          {levelData?.name || 'Loading...'}
+                        </option>
+                      </select>
+                    );
+                  })()}
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" size={14} />
                 </FormRow>
 
