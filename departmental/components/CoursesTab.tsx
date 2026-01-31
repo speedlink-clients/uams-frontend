@@ -10,6 +10,7 @@ import { academicsApi, Level, Semester } from "../api/accademicapi";
 // Credit Limit Section Component
 const CreditLimitSection: React.FC = () => {
   const [creditLimits, setCreditLimits] = useState<any[]>([]);
+  const [programs, setPrograms] = useState<any[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -17,6 +18,7 @@ const CreditLimitSection: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [formData, setFormData] = useState({
+    programId: "",
     levelId: "",
     semesterId: "",
     maxCreditLoad: 24,
@@ -24,8 +26,17 @@ const CreditLimitSection: React.FC = () => {
 
   useEffect(() => {
     fetchCreditLimits();
-    fetchDropdownData();
+    fetchInitialData();
   }, []);
+
+  // Fetch levels when programId changes
+  useEffect(() => {
+    if (formData.programId) {
+      academicsApi.getLevels(formData.programId).then(setLevels).catch(() => setLevels([]));
+    } else {
+      setLevels([]);
+    }
+  }, [formData.programId]);
 
   const fetchCreditLimits = async () => {
     try {
@@ -40,17 +51,24 @@ const CreditLimitSection: React.FC = () => {
     }
   };
 
-  const fetchDropdownData = async () => {
+  const fetchInitialData = async () => {
     try {
-      const [levelsData, semestersData] = await Promise.all([
-        academicsApi.getLevels(),
+      const [programsData, semestersData] = await Promise.all([
+        programsCoursesApi.getProgramsByDepartment(),
         academicsApi.getSemesters(),
       ]);
-      setLevels(levelsData);
+      setPrograms(programsData);
       setSemesters(semestersData);
     } catch (err) {
-      console.error("Failed to fetch dropdown data:", err);
+      console.error("Failed to fetch initial data:", err);
     }
+  };
+
+  const formatSemesterName = (name: string) => {
+    if (!name) return name;
+    if (name === "Semester 1" || name.toLowerCase() === "semester 1") return "First Semester";
+    if (name === "Semester 2" || name.toLowerCase() === "semester 2") return "Second Semester";
+    return name;
   };
 
   const toggleSelection = (id: string) => {
@@ -82,7 +100,7 @@ const CreditLimitSection: React.FC = () => {
       });
       toast.success("Credit limit created successfully");
       setIsFormOpen(false);
-      setFormData({ levelId: "", semesterId: "", maxCreditLoad: 24 });
+      setFormData({ programId: "", levelId: "", semesterId: "", maxCreditLoad: 24 });
       fetchCreditLimits();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to create credit limit");
@@ -146,13 +164,27 @@ const CreditLimitSection: React.FC = () => {
         <div className="px-6 pb-6">
           <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
             <h4 className="text-md font-semibold text-slate-700 mb-4">New Credit Limit</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                <select
+                  value={formData.programId}
+                  onChange={(e) => setFormData({ ...formData, programId: e.target.value, levelId: "" })}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Program</option>
+                  {programs.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
                 <select
                   value={formData.levelId}
                   onChange={(e) => setFormData({ ...formData, levelId: e.target.value })}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={!formData.programId}
                 >
                   <option value="">Select Level</option>
                   {levels.map((l) => (
@@ -169,7 +201,7 @@ const CreditLimitSection: React.FC = () => {
                 >
                   <option value="">Select Semester</option>
                   {semesters.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
+                    <option key={s.id} value={s.id}>{formatSemesterName(s.name)}</option>
                   ))}
                 </select>
               </div>
@@ -248,7 +280,7 @@ const CreditLimitSection: React.FC = () => {
                     />
                   </td>
                   <td className="px-6 py-4">{cl.level?.name || cl.levelId}</td>
-                  <td className="px-6 py-4">{cl.semester?.name || cl.semesterId}</td>
+                  <td className="px-6 py-4">{formatSemesterName(cl.semester?.name || cl.semesterId)}</td>
                   <td className="px-6 py-4">{cl.maxCreditLoad}</td>
                   <td className="px-6 py-4">
                     <button
