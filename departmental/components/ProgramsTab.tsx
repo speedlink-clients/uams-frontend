@@ -118,6 +118,9 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
 
       setEditingProgram(null);
       await fetchPrograms(); // Refresh the list after successful creation
+      
+      // Navigate back to programs list
+      navigate("/program-courses/programs");
     } catch (err: any) {
       console.error("Error saving program:", err);
       // Re-throw the error so ProgramForm can catch and display it

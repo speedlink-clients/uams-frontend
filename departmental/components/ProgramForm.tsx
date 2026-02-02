@@ -99,7 +99,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ initialData, onSubmit, onCanc
           <div className="space-y-6">
             <FormFieldHorizontal
               label="Program Name"
-              placeholder="Bachelor of Science in Computer Science"
+              placeholder="Computer Science"
               value={formData.name}
               onChange={(value) => handleChange("name", value)}
               required

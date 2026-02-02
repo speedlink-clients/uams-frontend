@@ -406,6 +406,15 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
     }
   }, [searchTerm, courses]);
 
+  // Format semester names
+  const formatSemesterName = (name: string) => {
+    if (!name) return name;
+    if (name === "Semester 1" || name.toLowerCase() === "semester 1") return "First Semester";
+    if (name === "Semester 2" || name.toLowerCase() === "semester 2") return "Second Semester";
+    if (name === "Semester 3" || name.toLowerCase() === "semester 3") return "Third Semester";
+    return name;
+  };
+
   const fetchCourses = async () => {
     try {
       setIsLoading(true);
@@ -640,7 +649,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                     <td className="px-6 py-4 font-medium">{course.code}</td>
                     <td className="px-6 py-4">{course.title}</td>
                     <td className="px-6 py-4">{course.level?.name}</td>
-                    <td className="px-6 py-4">{course.semester?.name}</td>
+                    <td className="px-6 py-4">{formatSemesterName(course.semester?.name)}</td>
                     <td className="px-6 py-4">{course.creditUnits}</td>
                     <td className="px-6 py-4">
                       {course.semester?.isActive ? "Active" : "Inactive"}

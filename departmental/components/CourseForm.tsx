@@ -72,6 +72,15 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     fetchData();
   }, []);
 
+  // Format semester names
+  const formatSemesterName = (name: string) => {
+    if (!name) return name;
+    if (name === "Semester 1" || name.toLowerCase() === "semester 1") return "First Semester";
+    if (name === "Semester 2" || name.toLowerCase() === "semester 2") return "Second Semester";
+    if (name === "Semester 3" || name.toLowerCase() === "semester 3") return "Third Semester";
+    return name;
+  };
+
   const handleChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -222,10 +231,17 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
               <select
                 value={formData.levelId}
                 onChange={(e) => handleChange("levelId", e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!formData.programTypeId || !formData.programId}
+                className={`w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  !formData.programTypeId || !formData.programId ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 required
               >
-                <option value="">Select Level</option>
+                <option value="">
+                  {!formData.programTypeId || !formData.programId 
+                    ? "Select Program Type & Program first" 
+                    : "Select Level"}
+                </option>
                 {levels.map((level) => (
                   <option key={level.id} value={level.id}>
                     {level.name}
@@ -250,7 +266,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
                 <option value="">Select Semester</option>
                 {semesters.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.name}
+                    {formatSemesterName(s.name)}
                   </option>
                 ))}
               </select>

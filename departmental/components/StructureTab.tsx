@@ -24,6 +24,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -34,14 +35,15 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
     if (isEditingRoute && id && sessions.length > 0) {
       const session = sessions.find(sub => sub.id === id);
       if (session) {
+        console.log("Editing session data:", session); // Debug log
         setEditingSession(session);
         setFormData({
           name: session.name,
           type: session.programType?.id || "",
-          semesters: session.semesters || "2",
+          semesters: session.semesters || session.semesterCount?.toString() || "",
           duration: session.duration + " Months",
           startDate: session.startDate || "",
-          description: session.description || "",
+          description: session.description || session.desc || "",
         });
       }
     } else if (!isEditingRoute) {
@@ -428,24 +430,47 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                   <td className="px-6 py-4 text-center">
                     <div className="relative">
                       <button
-                        onClick={() => setActiveActionId(activeActionId === session.id ? null : session.id)}
+                        onClick={(e) => {
+                          if (activeActionId === session.id) {
+                            setActiveActionId(null);
+                            setDropdownPosition(null);
+                          } else {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setDropdownPosition({
+                              top: rect.top - 10, // Position above the button
+                              right: window.innerWidth - rect.right,
+                            });
+                            setActiveActionId(session.id);
+                          }
+                        }}
                         className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
                       >
                         <MoreHorizontal size={18} />
                       </button>
 
-                      {activeActionId === session.id && (
+                      {activeActionId === session.id && dropdownPosition && (
                         <>
                           <div
-                            className="fixed inset-0 z-10"
-                            onClick={() => setActiveActionId(null)}
+                            className="fixed inset-0 z-40"
+                            onClick={() => {
+                              setActiveActionId(null);
+                              setDropdownPosition(null);
+                            }}
                           />
-                          <div className="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1 animate-in fade-in zoom-in-95 duration-200">
+                          <div 
+                            className="fixed w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-1 animate-in fade-in zoom-in-95 duration-200"
+                            style={{
+                              top: dropdownPosition.top,
+                              right: dropdownPosition.right,
+                              transform: 'translateY(-100%)',
+                            }}
+                          >
                             <button
                               onClick={() => {
                                 console.log("Edit", session.id);
                                 navigate(`/program-courses/sessions/edit/${session.id}`);
                                 setActiveActionId(null);
+                                setDropdownPosition(null);
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors text-left"
                             >
@@ -456,6 +481,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                               onClick={() => {
                                 handleDelete(session.id);
                                 setActiveActionId(null);
+                                setDropdownPosition(null);
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
                             >
@@ -475,6 +501,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                                     toast.error("Failed to update status");
                                   }
                                   setActiveActionId(null);
+                                  setDropdownPosition(null);
                                 }}
                                 className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                               >
