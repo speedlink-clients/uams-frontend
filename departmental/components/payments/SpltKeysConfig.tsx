@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Save, Edit2, X, RotateCcw } from "lucide-react";
+import { toast } from "react-hot-toast";
 import api from "@/api/axios";
 import { programsCoursesApi } from "@/api/programscourseapi";
 import { ProgramTypeResponse } from "@/api/types";
@@ -190,8 +191,11 @@ const SplitKeysConfig = ({ sessionId }: SplitKeysConfigProps) => {
 
       setOriginalSplits(splits);
       setIsEditing(false);
+      toast.success("Split keys saved successfully");
     } catch (err: any) {
       console.error("Save failed:", err);
+      const errorMessage = err?.response?.data?.message || err?.message || "Failed to save split keys";
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -204,7 +208,7 @@ const SplitKeysConfig = ({ sessionId }: SplitKeysConfigProps) => {
   ];
 
   return (
-    <div className="pt-8 border-t border-gray-200">
+    <div className="pt-8">
       {/* Header with Edit Toggle */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-2xl font-semibold text-gray-900">
