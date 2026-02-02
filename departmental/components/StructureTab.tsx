@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2, Download, Trash, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import FormFieldHorizontal from "./FormFieldHorizontal";
@@ -39,7 +39,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
           name: session.name,
           type: session.programType?.id || "",
           semesters: session.semesters || "2",
-          duration: session.duration || "12 Months",
+          duration: session.duration + " Months",
           startDate: session.startDate || "",
           description: session.description || "",
         });
@@ -49,16 +49,17 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       setFormData({
         name: "",
         type: "",
-        semesters: "2",
-        duration: "12 Months",
+        semesters: "",
+        duration: "",
         startDate: "",
         description: "",
       });
     }
   }, [isEditingRoute, id, sessions]);
 
-  // Fetch Program Types on Mount
-  // Fetch Program Types and Sessions on Mount
+  // Fetch Program Types and Sessions on Mount or when route changes
+  const location = useLocation();
+  
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -87,7 +88,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       }
     };
     fetchData();
-  }, []);
+  }, [location.pathname]);
 
   // Form State
   const [formData, setFormData] = useState({
