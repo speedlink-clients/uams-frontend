@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   ChevronDown,
   Loader2,
@@ -11,7 +11,7 @@ import {
   AlertCircle,
   X,
 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import {
   getStoredUser,
   getIdCardFee,
@@ -41,6 +41,7 @@ import type {
 } from "../services/types";
 import { toaster } from "../components/ui/toaster";
 import { profile } from "node:console";
+import apiClient from "../services/api";
 
 const checkboxClasses =
   "appearance-none w-4 h-4 bg-white border border-gray-300 rounded checked:bg-blue-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer transition-all bg-center bg-no-repeat checked:bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22white%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M16.707%205.293a1%201%200%20010%201.414l-8%208a1%201%200%2001-1.414%200l-4-4a1%201%200%20011.414-1.414L8%2012.586l7.293-7.293a1%201%200%20011.414%200z%22%20clip-rule%3D%22evenodd%22%20%2F%3E%3C%2Fsvg%3E')]";
@@ -388,6 +389,28 @@ const OtherServicesView = ({
   const [idCardFee, setIdCardFee] = useState<number | null>(null);
   const [error, setError] = useState("");
 
+  // get payment status on mount to update hasPaid state
+  const [sq, _] = useSearchParams();
+  const trxRef = useMemo(() => sq.get("trxRef"));
+
+  // handle successful id card payment
+  useEffect(() => {
+    if (trxRef) {
+      apiClient
+        .post("/payment/verify", {
+          reference: trxRef,
+        })
+        .then((res) => {
+          res.data.success &&
+            toaster.success({ description: "Payment verified successfully!" });
+          })
+          .catch(() => {
+            setError("Failed to verify payment. Please contact support.");
+            toaster.error({ description: "Payment verified successfully!" });
+        });
+    }
+  }, [trxRef]);
+
   const handleProceedToApply = async () => {
     setIsLoadingFee(true);
     setError("");
@@ -408,6 +431,8 @@ const OtherServicesView = ({
     setError("");
 
     try {
+      const callbackUrl = `${window.location.origin}/students/registration/other`;
+      localStorage.setItem("paymentCallbackUrl", callbackUrl);
       const response = await initializeIdCardPayment();
       window.location.href = response.data.authorizationUrl;
     } catch (err: any) {
@@ -629,24 +654,26 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
     fetchCart();
   }, []);
 
-
   // Set defaults from student profile when available
   useEffect(() => {
     if (studentProfile) {
-       // Prioritize the nested Level object if it exists and has an ID
-       if (studentProfile.Level?.id) {
-          setSelectedLevel(studentProfile.Level.id);
-       } 
-       // Fallback to flat levelId if available
-       else if (studentProfile.levelId) {
-          setSelectedLevel(studentProfile.levelId);
-       }
-       // Fallback to searching by name
-       else if (studentProfile.level || (studentProfile.Level as any)?.name) {
-          const levelName = studentProfile.level || (studentProfile.Level as any)?.name;
-          const matchedLevel = levels.find(l => l.name.includes(levelName) || l.name === levelName);
-          if (matchedLevel) setSelectedLevel(matchedLevel.id);
-       }
+      // Prioritize the nested Level object if it exists and has an ID
+      if (studentProfile.Level?.id) {
+        setSelectedLevel(studentProfile.Level.id);
+      }
+      // Fallback to flat levelId if available
+      else if (studentProfile.levelId) {
+        setSelectedLevel(studentProfile.levelId);
+      }
+      // Fallback to searching by name
+      else if (studentProfile.level || (studentProfile.Level as any)?.name) {
+        const levelName =
+          studentProfile.level || (studentProfile.Level as any)?.name;
+        const matchedLevel = levels.find(
+          (l) => l.name.includes(levelName) || l.name === levelName,
+        );
+        if (matchedLevel) setSelectedLevel(matchedLevel.id);
+      }
     }
   }, [studentProfile, levels]);
 
@@ -767,8 +794,10 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
     // Get levelId and sessionId from stored user profile
     const storedUser = getStoredUser();
     // Prioritize nested Level object, fallback to flat levelId
-    const levelId = storedUser?.profile?.Level?.id || storedUser?.profile?.levelId;
-    const sessionId = storedUser?.profile?.session?.id || storedUser?.profile?.sessionId;
+    const levelId =
+      storedUser?.profile?.Level?.id || storedUser?.profile?.levelId;
+    const sessionId =
+      storedUser?.profile?.session?.id || storedUser?.profile?.sessionId;
 
     if (!levelId || !sessionId) {
       toaster.create({
@@ -909,20 +938,24 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                   {(() => {
                     // Get Level from studentProfile or fallback to stored user
                     const storedUser = getStoredUser();
-                    const levelData = studentProfile?.Level || storedUser?.profile?.Level;
+                    const levelData =
+                      studentProfile?.Level || storedUser?.profile?.Level;
                     return (
-                      <select 
-                        value={levelData?.id || ''}
+                      <select
+                        value={levelData?.id || ""}
                         disabled
                         className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none cursor-not-allowed"
                       >
-                        <option value={levelData?.id || ''}>
-                          {levelData?.name || 'Loading...'}
+                        <option value={levelData?.id || ""}>
+                          {levelData?.name || "Loading..."}
                         </option>
                       </select>
                     );
                   })()}
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" size={14} />
+                  <ChevronDown
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"
+                    size={14}
+                  />
                 </FormRow>
 
                 <FormRow label="Semester">
@@ -932,16 +965,18 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none"
                   >
                     <option value="">Select Semester</option>
-                    {semesters?.filter(semester => semester.isActive).map((semester) => (
-                      <option key={semester.id} value={semester.id}>
-                        {(() => {
+                    {semesters
+                      ?.filter((semester) => semester.isActive)
+                      .map((semester) => (
+                        <option key={semester.id} value={semester.id}>
+                          {(() => {
                             const sem = semester.name.toLowerCase();
-                            if (sem === 'semester 1') return 'First Semester';
-                            if (sem === 'semester 2') return 'Second Semester';
+                            if (sem === "semester 1") return "First Semester";
+                            if (sem === "semester 2") return "Second Semester";
                             return semester.name;
-                        })()}
-                      </option>
-                    ))}
+                          })()}
+                        </option>
+                      ))}
                   </select>
                   <ChevronDown
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"

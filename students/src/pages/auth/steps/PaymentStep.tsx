@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { CreditCard, Loader2, AlertCircle } from 'lucide-react';
-import AuthBackground from '../components/AuthBackground';
-import AuthCard from '../components/AuthCard';
-import authService from '../../../services/authService';
+import React, { useState, useEffect,useMemo } from "react";
+import { CreditCard, Loader2, AlertCircle } from "lucide-react";
+import AuthBackground from "../components/AuthBackground";
+import AuthCard from "../components/AuthCard";
+import authService from "../../../services/authService";
+import { useSearchParams } from "react-router-dom";
+import apiClient from "../../../services/api";
+import { toaster } from "../../../components/ui/toaster";
 
 interface PaymentStepProps {
   onNext: () => void;
@@ -17,8 +20,9 @@ interface DuesData {
 const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingDues, setIsFetchingDues] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [duesData, setDuesData] = useState<DuesData | null>(null);
+
 
   useEffect(() => {
     const fetchDues = async () => {
@@ -26,7 +30,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
         const response = await authService.getDepartmentAnnualDue();
         setDuesData(response.data);
       } catch (err: any) {
-        setError(err.message || 'Failed to load dues information.');
+        setError(err.message || "Failed to load dues information.");
       } finally {
         setIsFetchingDues(false);
       }
@@ -36,23 +40,27 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
   }, []);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const handlePayNow = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
+      const callbackUrl = `${window.location.origin}/students/login`;
+      localStorage.setItem("paymentCallbackUrl", callbackUrl);
       const response = await authService.initializePayment();
       // Redirect to Paystack checkout page
       window.location.href = response.data.authorizationUrl;
     } catch (err: any) {
-      setError(err.message || 'Payment initialization failed. Please try again.');
+      setError(
+        err.message || "Payment initialization failed. Please try again.",
+      );
       setIsLoading(false);
     }
   };
@@ -66,7 +74,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
             Pay Department Annual Dues
           </h1>
           <p className="text-[14px] font-medium text-gray-400">
-            Complete your payment to activate your account 
+            Complete your payment to activate your account
           </p>
         </div>
 
@@ -81,26 +89,42 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
           {isFetchingDues ? (
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 flex items-center justify-center">
               <Loader2 size={24} className="animate-spin text-gray-400" />
-              <span className="ml-3 text-[13px] font-medium text-gray-400">Loading dues...</span>
+              <span className="ml-3 text-[13px] font-medium text-gray-400">
+                Loading dues...
+              </span>
             </div>
           ) : duesData ? (
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-gray-400">Department Dues</span>
-                <span className="text-[15px] font-bold text-[#1e293b]">{formatCurrency(duesData.departmentDues)}</span>
+                <span className="text-[13px] font-medium text-gray-400">
+                  Department Dues
+                </span>
+                <span className="text-[15px] font-bold text-[#1e293b]">
+                  {formatCurrency(duesData.departmentDues)}
+                </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-gray-400">Portal Access Fee</span>
-                <span className="text-[15px] font-bold text-[#1e293b]">{formatCurrency(duesData.accessFee)}</span>
+                <span className="text-[13px] font-medium text-gray-400">
+                  Portal Access Fee
+                </span>
+                <span className="text-[15px] font-bold text-[#1e293b]">
+                  {formatCurrency(duesData.accessFee)}
+                </span>
               </div>
               <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
-                <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">Total Dues</span>
-                <span className="text-2xl font-black text-[#1d76d2]">{formatCurrency(duesData.totalFee)}</span>
+                <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">
+                  Total Dues
+                </span>
+                <span className="text-2xl font-black text-[#1d76d2]">
+                  {formatCurrency(duesData.totalFee)}
+                </span>
               </div>
             </div>
           ) : (
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
-              <p className="text-[13px] text-gray-400 text-center">Unable to load dues information</p>
+              <p className="text-[13px] text-gray-400 text-center">
+                Unable to load dues information
+              </p>
             </div>
           )}
           <button
@@ -114,7 +138,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
                 <span>Initializing Payment...</span>
               </>
             ) : (
-              'Pay Now'
+              "Pay Now"
             )}
           </button>
         </div>

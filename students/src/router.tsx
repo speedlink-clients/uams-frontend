@@ -12,6 +12,7 @@ import IdCardPaymentCallback from "./pages/IdCardPaymentCallback";
 
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
+import PaymentVerificationPage from "./pages/PaymentVerification";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/payment",
     element: <Login initialStep="payment" />,
+  },
+  {
+    path: "/payment-verification",
+    element: <PaymentVerificationPage />,
   },
   {
     path: "/forgot-password",
