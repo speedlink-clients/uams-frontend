@@ -13,19 +13,19 @@ import { Button } from "@/components/ui/Button";
  * Frontend field → backend payment_type mapping
  */
 const PAYMENT_TYPE_MAP: Record<string, string> = {
-  department_annual_fee: "department_annual_fee",
+  annual_access_fee: "annual_access_fee",
   id_card_fee: "id_card_fee",
   transcript_fee: "transcript_fee",
 };
 
 type SplitsState = {
-  department_annual_fee: string;
+  annual_access_fee: string;
   id_card_fee: string;
   transcript_fee: string;
 };
 
 const INITIAL_SPLITS: SplitsState = {
-  department_annual_fee: "",
+  annual_access_fee: "",
   id_card_fee: "",
   transcript_fee: "",
 };
