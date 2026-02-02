@@ -1,7 +1,7 @@
 import { Box, Flex, Text, Button, IconButton, Stack, Collapsible, Image } from "@chakra-ui/react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const MotionBox = motion.create(Box);
 
