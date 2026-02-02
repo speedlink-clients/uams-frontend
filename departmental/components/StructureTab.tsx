@@ -181,17 +181,17 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
           isActive: true
         });
         toast.success("Session updated");
-        navigate("/program-courses");
       } else {
-        const res = await academicsApi.createSession(payload);
-        setSessions((prev) => [res, ...prev]);
+        await academicsApi.createSession(payload);
         toast.success("Session created successfully");
-        navigate("/program-courses");
       }
 
-      // Refresh list
+      // Refresh list BEFORE navigating
       const updatedSessions = await academicsApi.getAcademicSessions();
       setSessions(updatedSessions);
+      
+      // Navigate after refresh
+      navigate("/program-courses");
 
     } catch (error: any) {
       console.error("Failed to save session", error);
@@ -387,7 +387,25 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 text-sm">
-              {Array.isArray(sessions) && sessions.map((session) => (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center">
+                    <div className="flex items-center justify-center gap-2 text-slate-500">
+                      <svg className="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span className="text-sm font-medium">Loading sessions...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : !Array.isArray(sessions) || sessions.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                    No sessions found
+                  </td>
+                </tr>
+              ) : sessions.map((session) => (
                 <tr key={session.id} className="hover:bg-slate-50/50 transition-colors text-slate-600">
                   <td className="px-6 py-4 text-center">
                     <input
@@ -421,7 +439,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                             className="fixed inset-0 z-10"
                             onClick={() => setActiveActionId(null)}
                           />
-                          <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1 animate-in fade-in zoom-in-95 duration-200">
+                          <div className="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1 animate-in fade-in zoom-in-95 duration-200">
                             <button
                               onClick={() => {
                                 console.log("Edit", session.id);

@@ -27,16 +27,16 @@ const ProgramCoursesPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-800">Program & Courses</h2>
         <div className="flex bg-slate-100 p-1 rounded-xl">
           <TabButton
-            active={activeTab === "Structure"}
-            onClick={() => navigate("/program-courses")}
-            icon={<Calendar size={16} />}
-            label="Setup & Sessions"
-          />
-          <TabButton
             active={activeTab === "Program Types"}
             onClick={() => navigate("/program-courses/program-types")}
             icon={<Layers size={16} />}
             label="Program Types"
+          />
+          <TabButton
+            active={activeTab === "Structure"}
+            onClick={() => navigate("/program-courses")}
+            icon={<Calendar size={16} />}
+            label="Setup & Sessions"
           />
           <TabButton
             active={activeTab === "Programs"}
