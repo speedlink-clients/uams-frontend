@@ -273,7 +273,7 @@ export const PaymentSettingsTab = () => {
         </div>
       </section>
 
-      <PaymentSettings />
+      <PaymentSettings sessionId={activeSessionId} />
       
       <PaymentSplitKeysSection 
         values={fees} 

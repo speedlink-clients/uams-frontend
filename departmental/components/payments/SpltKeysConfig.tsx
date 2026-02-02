@@ -29,13 +29,15 @@ const INITIAL_SPLITS: SplitsState = {
   transcript_fee: "",
 };
 
-const SplitKeysConfig = () => {
+interface SplitKeysConfigProps {
+  sessionId: string;
+}
+
+const SplitKeysConfig = ({ sessionId }: SplitKeysConfigProps) => {
   const [splits, setSplits] = useState<SplitsState>(INITIAL_SPLITS);
   const [originalSplits, setOriginalSplits] = useState<SplitsState>(INITIAL_SPLITS);
   // Store record IDs for each payment type (for PUT updates)
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
-  // Store session ID from first fetched record
-  const [sessionId, setSessionId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -101,7 +103,6 @@ const SplitKeysConfig = () => {
         setSplits(populatedSplits);
         setOriginalSplits(populatedSplits);
         setRecordIds(ids);
-        if (fetchedSessionId) setSessionId(fetchedSessionId);
       } catch (err) {
         console.error("Failed to fetch payment splits:", err);
         setSplits(INITIAL_SPLITS);
