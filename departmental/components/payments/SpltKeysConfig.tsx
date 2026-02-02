@@ -202,7 +202,7 @@ const SplitKeysConfig = ({ sessionId }: SplitKeysConfigProps) => {
   };
 
   const FIELDS = [
-    { label: "Department Annual Fee", key: "department_annual_fee", placeholder: "SPL_xxxxxxxxx" },
+    { label: "Annual Access Fee", key: "annual_access_fee", placeholder: "SPL_xxxxxxxxx" },
     { label: "ID Card Fee", key: "id_card_fee", placeholder: "SPL_xxxxxxxxx" },
     { label: "Transcript Fee", key: "transcript_fee", placeholder: "SPL_xxxxxxxxx" },
   ];
