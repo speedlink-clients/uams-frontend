@@ -88,7 +88,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             left={0}
             right={0}
             bottom={0}
-            // zIndex={2001}
+            zIndex={2001}
             display="flex"
             alignItems="center"
             justifyContent="center"
