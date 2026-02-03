@@ -39,7 +39,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
         setEditingSession(session);
         setFormData({
           name: session.name,
-          type: session.programType?.id || "",
+          // type: session.programType?.id || "",
           semesters: session.semesters || session.semesterCount?.toString() || "",
           duration: session.duration + " Months",
           startDate: session.startDate || "",
@@ -50,7 +50,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       setEditingSession(null);
       setFormData({
         name: "",
-        type: "",
+        // type: "",
         semesters: "",
         duration: "",
         startDate: "",
@@ -96,7 +96,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
   const [formData, setFormData] = useState({
     name: "2023/2024 Academic Session",
     duration: "12 Months",
-    type: "Undergraduate",
     startDate: "2024-10-12", // Fixed date format for date input
     semesters: "2",
     description: "",
@@ -108,7 +107,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       setFormData({
         name: editingSession.name,
         duration: editingSession.duration,
-        type: editingSession.type,
         startDate: editingSession.startDate, // Ensure format YYYY-MM-DD
         semesters: "2", // Mock data doesn't have semesters, default or mock it
         description: "", // Mock data doesn't have description
@@ -118,7 +116,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       setFormData({
         name: "2023/2024 Academic Session",
         duration: "12 Months",
-        type: "Undergraduate",
         startDate: "2024-10-12",
         semesters: "2",
         description: "",
@@ -175,7 +172,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       if (editingSession) {
         await academicsApi.updateSession(editingSession.id, {
           name: payload.name,
-          type: programTypes.find(t => t.id === payload.type)?.name || payload.type,
           semesterCount: payload.semesterCount,
           duration: payload.duration,
           startDate: payload.startDate,
@@ -258,16 +254,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
               label="Session Name"
               value={formData.name}
               onChange={(val) => handleFormChange("name", val)}
-            />
-            <FormFieldHorizontal
-              label="Type"
-              type="select"
-              options={Array.isArray(programTypes) ? programTypes.map((t) => ({
-                label: t.name,
-                value: t.id,
-              })) : []}
-              value={formData.type}
-              onChange={(val) => handleFormChange("type", val)}
             />
             <FormFieldHorizontal
               label="Semesters"
@@ -382,7 +368,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                   />
                 </th>
                 <th className="px-6 py-4">Session Name</th>
-                <th className="px-6 py-4">Type</th>
                 <th className="px-6 py-4">Duration</th>
                 <th className="px-6 py-4">Start Date</th>
                 <th className="px-6 py-4">Status</th>
@@ -392,7 +377,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
             <tbody className="divide-y divide-gray-50 text-sm">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex items-center justify-center gap-2 text-slate-500">
                       <svg className="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -404,7 +389,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                 </tr>
               ) : !Array.isArray(sessions) || sessions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                     No sessions found
                   </td>
                 </tr>
@@ -419,7 +404,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                     />
                   </td>
                   <td className="px-6 py-4 font-medium">{session.name}</td>
-                  <td className="px-6 py-4">{session.type}</td>
                   <td className="px-6 py-4">{session.duration}</td>
                   <td className="px-6 py-4">{session.startDate}</td>
                   <td className="px-6 py-4">

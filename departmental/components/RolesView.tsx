@@ -17,6 +17,7 @@ import {
 import api from "../api/axios";
 import { idCardApi } from "../api/idcardapi";
 import toast, { Toaster } from "react-hot-toast";
+import { exportToExcel } from "../utils/excelExport";
 
 // --- Interfaces ---
 interface Student {
@@ -159,6 +160,20 @@ export const RolesView: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
+
+  // --- Export Students to Excel ---
+  const handleExportStudents = () => {
+    const exportData = students.map(s => ({
+      "Student Name": s.name,
+      "Matric No": s.matric,
+      "Department": s.department,
+      "Faculty": s.faculty,
+      "Status": s.status,
+      "ID Card Fee Paid": s.hasPaidIDCardFee ? "Yes" : "No"
+    }));
+    exportToExcel(exportData, "Students_List");
+    toast.success("Exporting students table to Excel...");
+  };
 
   // --- Camera Logic ---
   const startCamera = async () => {
@@ -691,7 +706,18 @@ export const RolesView: React.FC = () => {
 
       {/* Table Section */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left">
+        <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100">
+          <h3 className="text-lg font-bold text-slate-800">Students ({totalStudents})</h3>
+          <button 
+            onClick={handleExportStudents}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            <Download size={16} className="text-slate-400" />
+            Export Table
+          </button>
+        </div>
+        <div className="overflow-x-auto max-w-full">
+          <table className="w-full text-left min-w-[800px]">
           <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
             <tr>
               <th className="px-6 py-4 w-12 text-center">
@@ -797,6 +823,7 @@ export const RolesView: React.FC = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Pagination Controls */}

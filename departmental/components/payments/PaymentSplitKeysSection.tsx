@@ -64,7 +64,7 @@ export const PaymentSplitKeysSection = ({
       {/* PROGRAM TYPE TABS */}
       <section className="mb-8">
         <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            Program Levels
+            Program Types
         </h3>
         <div className="flex flex-wrap gap-2 bg-slate-50 p-1.5 rounded-xl w-fit">
             {programTypes.map((type) => (

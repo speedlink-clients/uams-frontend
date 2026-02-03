@@ -1,7 +1,8 @@
 // StudentsView.tsx
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Plus, Loader2, X, FileDown, FileUp } from "lucide-react";
+import { Plus, Loader2, X, FileDown, FileUp, Download } from "lucide-react";
 import { Student, StudentRole } from "../types";
+import { exportToExcel } from "../utils/excelExport";
 import api from "../api/axios";
 import { SearchFilterBar } from "../components/SearchFilterBAr";
 import { StudentsTable } from "../components/StudentsTable";
@@ -448,6 +449,30 @@ export const StudentsView: React.FC = () => {
     link.parentNode?.removeChild(link);
   };
 
+  // Export students to Excel
+  const handleExportStudents = () => {
+    const exportData = filteredStudents.map(s => ({
+      "Reg No": s.regNo,
+      "Mat No": s.matNo,
+      "Surname": s.surname,
+      "Other Names": s.otherNames,
+      "Email": s.email,
+      "Phone": s.phoneNo,
+      "Sex": s.sex,
+      "Department": s.department,
+      "Faculty": s.faculty,
+      "Level": s.level,
+      "Program": s.role,
+      "Admission Mode": s.admissionMode,
+      "Entry Qualification": s.entryQualification,
+      "Degree Course": s.degreeCourse,
+      "Program Duration": s.programDuration,
+      "Degree Award Code": s.degreeAwardCode
+    }));
+    exportToExcel(exportData, "Students_List");
+    toast.success("Exporting students table to Excel...");
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -562,6 +587,20 @@ export const StudentsView: React.FC = () => {
           filters={filters}
           onClearFilters={clearFilters}
         />
+
+        {/* Table Header with Export */}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-slate-800">
+            Students ({filteredStudents.length})
+          </h3>
+          <button
+            onClick={handleExportStudents}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            <Download size={16} className="text-slate-400" />
+            Export Table
+          </button>
+        </div>
 
         <StudentsTable
           students={students}

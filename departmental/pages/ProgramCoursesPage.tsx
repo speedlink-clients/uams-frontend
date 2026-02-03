@@ -16,7 +16,7 @@ const ProgramCoursesPage: React.FC = () => {
     if (pathname.includes("/program-types")) return "Program Types";
     if (pathname.includes("/programs")) return "Programs";
     if (pathname.includes("/courses")) return "Courses";
-    return "Structure";
+    return "Program Types";
   };
 
   const activeTab = getActiveTab(location.pathname);
@@ -54,7 +54,7 @@ const ProgramCoursesPage: React.FC = () => {
       </div>
 
       <Routes>
-        <Route index element={<StructureTab />} />
+        <Route index element={<ProgramTypeTab />} />
         <Route path="program-types" element={<ProgramTypeTab />} />
         <Route path="programs" element={<ProgramsTab />} />
         <Route path="courses" element={<CoursesTab />} />
