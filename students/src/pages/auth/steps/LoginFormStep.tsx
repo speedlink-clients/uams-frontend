@@ -56,7 +56,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
         <div className="text-center mb-10">
           <h1 className="text-2xl font-black text-[#1e293b] mb-3">Login</h1>
           <p className="text-[14px] font-medium text-gray-400">
-            Welcome back please login to your account
+            Welcome back please login to your
           </p>
         </div>
         <form
