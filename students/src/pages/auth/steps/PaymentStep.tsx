@@ -66,7 +66,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative font-['Inter']">
+    <div className="py-10 min-h-screen w-full flex items-center justify-center relative font-['Inter']">
       <AuthBackground />
       <AuthCard>
         <div className="text-center mb-10">
