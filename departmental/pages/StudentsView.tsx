@@ -213,7 +213,7 @@ export const StudentsView: React.FC = () => {
                 month: "short",
                 day: "numeric",
               }) || "N/A",
-            isActive: student.isActive || "N/A",
+            isActive: student.isActive ?? false,
             session:
               (student as any).session?.name ||
               new Date(student.createdAt).getFullYear().toString() +
