@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 import PaymentSettings from "@/components/payments/SpltKeysConfig";
 import { PaymentSplitKeysSection } from "@/components/payments/PaymentSplitKeysSection";
 import { programsCoursesApi } from "@/api/programscourseapi";
@@ -65,6 +66,7 @@ export const PaymentSettingsTab = () => {
   const [activeSessionId, setActiveSessionId] = useState<string>("");
   const [activeProgramType, setActiveProgramType] = useState<{id:string,name:string}>({id:"",name:""});
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // api calls
   const sessions = useAsync(async () => {
@@ -185,6 +187,7 @@ export const PaymentSettingsTab = () => {
       transcript_merchant_fee: paymentConfigForm.getValues("transcript_merchant_fee"),
       transcript_split_key: paymentConfigForm.getValues("transcript_split_key")
     }
+    setIsSaving(true);
     try {
       const response = await axios.patch(
         `${BASE_URL}/university-admin/payment-config`,
@@ -196,9 +199,12 @@ export const PaymentSettingsTab = () => {
         }
       );
       toast.success("Payment config updated successfully");
+      setIsEditing(false);
     } catch (error) {
-      console.error("Failed to fetch credentials:", error);
-      toast.error("Failed to fetch credentials");
+      console.error("Failed to save payment config:", error);
+      toast.error("Failed to save payment config");
+    } finally {
+      setIsSaving(false);
     }
   }, [activeSessionId,activeProgramType.id]); 
 
@@ -207,7 +213,17 @@ export const PaymentSettingsTab = () => {
     <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-10">
       <div className="flex justify-between align-start">
         <h2 className="text-xl font-bold">Payment Settings</h2>
-        <button onClick={()=> setIsEditing(!isEditing)} className="bg-gray-500 text-white px-4 py-2 rounded-md">{isEditing ? "Cancel" : "Edit"}</button>
+        <button 
+          onClick={() => setIsEditing(!isEditing)} 
+          disabled={isSaving}
+          className={`px-4 py-2 rounded-md font-semibold transition-colors ${
+            isEditing 
+              ? 'bg-red-500 text-white hover:bg-red-600' 
+              : 'bg-gray-500 text-white hover:bg-gray-600'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          {isEditing ? "Cancel" : "Edit"}
+        </button>
       </div>
 
       {/* sessions */}
@@ -383,7 +399,22 @@ export const PaymentSettingsTab = () => {
         </article>
       </section>
 
-      {isEditing && <button className="mt-6 bg-blue-500 text-white p-2 px-6 rounded-md">Save Changes</button>}
+      {isEditing && (
+        <button 
+          type="submit"
+          disabled={isSaving}
+          className="mt-6 bg-blue-500 text-white p-2 px-6 rounded-md font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isSaving ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Changes"
+          )}
+        </button>
+      )}
       </form>
     </section>
   </>

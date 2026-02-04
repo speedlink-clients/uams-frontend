@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Save, Edit2, X, RotateCcw } from "lucide-react";
+import { Save, Edit2, X, RotateCcw, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import api from "@/api/axios";
 import { programsCoursesApi } from "@/api/programscourseapi";
@@ -296,7 +296,7 @@ const SplitKeysConfig = ({ sessionId }: SplitKeysConfigProps) => {
             <RotateCcw size={16} /> Reset
           </button>
           <Button onClick={handleSave} variant="primary" disabled={isSaving} className="px-8">
-            {isSaving ? "Saving..." : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
+            {isSaving ? <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Saving...</span> : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
           </Button>
         </div>
       )}
