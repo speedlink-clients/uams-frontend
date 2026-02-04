@@ -127,6 +127,7 @@ export const StudentsTable: React.FC<StudentsTableProps> = ({
               <th className="px-6 py-5 min-w-[150px]">Degree Course</th>
               <th className="px-6 py-5 min-w-[120px]">Course Duration</th>
               <th className="px-6 py-5 min-w-[150px]">Degree Award Code</th>
+              <th className="px-6 py-5 min-w-[100px]">Status</th>
               <th className="px-6 py-5 text-right pr-12 sticky right-0 z-20 bg-slate-50/95 backdrop-blur-sm border-b border-gray-100">Action</th>
             </tr>
           </thead>
@@ -198,6 +199,11 @@ export const StudentsTable: React.FC<StudentsTableProps> = ({
                 </td>
                 <td className="px-6 py-5 text-slate-500 whitespace-nowrap">
                   {student.degreeAwardCode}
+                </td>
+                <td className="px-6 py-5 whitespace-nowrap">
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${student.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {student.isActive ? "Active" : "Inactive"}
+                  </span>
                 </td>
                 <td className={`px-6 py-5 text-right pr-12 sticky right-0 border-b border-gray-50 transition-colors ${
                     activeDropdownId === student.id ? "z-50" : "z-10"
