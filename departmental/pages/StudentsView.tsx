@@ -198,7 +198,7 @@ export const StudentsView: React.FC = () => {
             email: student.user.email || "N/A",
             phoneNo: student.user.phone || "N/A",
             department: student.Department?.name || "N/A",
-            level: getLevelFromLevelId(student.Level?.name) || "N/A",
+            level: student.Level?.name || "N/A",
             programId: student.programId || "",
             role: getProgramType(student.programId) || ("N/A" as StudentRole),
             sex: student.gender || "N/A",
@@ -335,15 +335,6 @@ export const StudentsView: React.FC = () => {
     return programId
       ? programMap[programId] || "Unknown Department"
       : "Unknown Department";
-  };
-
-  const getLevelFromLevelId = (levelId?: string): string => {
-    const levelMap: Record<string, string> = {
-      "6106e865-cd28-45bd-b13c-afcb8dca7b45": "100",
-      "a686c3ad-a974-4929-afde-e663aa862175": "200",
-      // Add more level ID mappings as needed
-    };
-    return levelId ? levelMap[levelId] || "Unknown Level" : "Unknown Level";
   };
 
   const getProgramType = (programId?: string): StudentRole => {
