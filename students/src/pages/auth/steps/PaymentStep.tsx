@@ -124,7 +124,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
                   Merchant Fee
                 </span>
                 <span className="text-[15px] font-bold text-[#1e293b]">
-                  {formatCurrency(duesData.breakdown.summary.total_merchant_fees)} + {formatCurrency(duesData.breakdown.summary.transaction_charges)}
+                  {formatCurrency(duesData.breakdown.summary.total_merchant_fees + duesData.breakdown.summary.transaction_charges)}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
