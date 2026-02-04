@@ -123,6 +123,7 @@ export const StudentsTable: React.FC<StudentsTableProps> = ({
               <th className="px-6 py-5 min-w-[150px]">Entry Qualification</th>
               <th className="px-6 py-5 min-w-[150px]">Faculty</th>
               <th className="px-6 py-5 min-w-[150px]">Department</th>
+              <th className="px-6 py-5 min-w-[100px]">Level</th>
               <th className="px-6 py-5 min-w-[150px]">Degree Course</th>
               <th className="px-6 py-5 min-w-[120px]">Course Duration</th>
               <th className="px-6 py-5 min-w-[150px]">Degree Award Code</th>
@@ -185,6 +186,9 @@ export const StudentsTable: React.FC<StudentsTableProps> = ({
                 </td>
                 <td className="px-6 py-5 text-slate-500 whitespace-nowrap">
                   {student.department}
+                </td>
+                <td className="px-6 py-5 text-slate-500 whitespace-nowrap">
+                  {student.level}
                 </td>
                 <td className="px-6 py-5 text-slate-500 whitespace-nowrap">
                   {student.degreeCourse}
