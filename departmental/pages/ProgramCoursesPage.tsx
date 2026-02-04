@@ -34,7 +34,7 @@ const ProgramCoursesPage: React.FC = () => {
           />
           <TabButton
             active={activeTab === "Structure"}
-            onClick={() => navigate("/program-courses")}
+            onClick={() => navigate("/program-courses/sessions")}
             icon={<Calendar size={16} />}
             label="Setup & Sessions"
           />
@@ -56,6 +56,7 @@ const ProgramCoursesPage: React.FC = () => {
       <Routes>
         <Route index element={<ProgramTypeTab />} />
         <Route path="program-types" element={<ProgramTypeTab />} />
+        <Route path="sessions" element={<StructureTab />} />
         <Route path="programs" element={<ProgramsTab />} />
         <Route path="courses" element={<CoursesTab />} />
 
