@@ -80,7 +80,6 @@ export const StudentsView: React.FC = () => {
     }
   };
 
-  // const fetchStudents = async () => {
   //   try {
   //     setIsLoading(true);
   //     setError(null);
