@@ -15,6 +15,14 @@ interface DuesData {
   departmentDues: number;
   accessFee: number;
   totalFee: number;
+  breakdown:  {
+    summary: {
+      total_base_fees: number;
+      total_merchant_fees: number;
+      transaction_charges: number;
+      total_fee: number;
+    };
+  };
 }
 
 const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
@@ -109,6 +117,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
                 </span>
                 <span className="text-[15px] font-bold text-[#1e293b]">
                   {formatCurrency(duesData.accessFee)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-medium text-gray-400">
+                  Merchant Fee
+                </span>
+                <span className="text-[15px] font-bold text-[#1e293b]">
+                  {formatCurrency(duesData.breakdown.summary.total_merchant_fees)} + {formatCurrency(duesData.breakdown.summary.transaction_charges)}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-4 flex items-center justify-between">

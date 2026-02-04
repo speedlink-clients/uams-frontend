@@ -180,6 +180,14 @@ export interface DepartmentDuesResponse {
     departmentDues: number;
     accessFee: number;
     totalFee: number;
+    breakdown: {
+      summary: {
+        total_base_fees: number;
+        total_merchant_fees: number;
+        transaction_charges: number;
+        total_fee: number;
+      };
+    };
   };
 }
 
