@@ -198,7 +198,7 @@ export const StudentsView: React.FC = () => {
             email: student.user.email || "N/A",
             phoneNo: student.user.phone || "N/A",
             department: student.Department?.name || "N/A",
-            level: getLevelFromLevelId(student.levelId) || "N/A",
+            level: getLevelFromLevelId(student.Level?.name) || "N/A",
             programId: student.programId || "",
             role: getProgramType(student.programId) || ("N/A" as StudentRole),
             sex: student.gender || "N/A",
