@@ -7,6 +7,14 @@ import { programsCoursesApi } from "../api/programscourseapi";
 import { exportToExcel } from "../utils/excelExport";
 import { academicsApi, Level, Semester } from "../api/accademicapi";
 
+// Helper to format semester names: "Semester 1" -> "First Semester", "Semester 2" -> "Second Semester"
+const formatSemesterName = (name: string | undefined): string => {
+  if (!name) return "N/A";
+  if (name === "Semester 1" || name.toLowerCase().includes("semester 1")) return "First Semester";
+  if (name === "Semester 2" || name.toLowerCase().includes("semester 2")) return "Second Semester";
+  return name;
+};
+
 // Credit Limit Section Component
 const CreditLimitSection: React.FC = () => {
   const [creditLimits, setCreditLimits] = useState<any[]>([]);
@@ -290,7 +298,7 @@ const CreditLimitSection: React.FC = () => {
                     />
                   </td>
                   <td className="px-6 py-4">{cl.level?.name || cl.levelId}</td>
-                  <td className="px-6 py-4">{formatSemesterName(cl.semester?.name || cl.semesterId)}</td>
+                  <td className="px-6 py-4">{formatSemesterName(cl.semesterDetail?.name)}</td>
                   <td className="px-6 py-4">{cl.maxCreditLoad}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">

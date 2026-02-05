@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { AuthData } from "../components/types";
+import { AuthData } from "../types";
 
 // Constants
 const SESSION_KEY = "uniedu_session";
@@ -111,6 +111,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     clearAuthStorage();
     setAuthData(null);
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "https://computerscience.uniport.edu.ng";
   };
 
   return (
