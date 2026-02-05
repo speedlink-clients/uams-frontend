@@ -152,7 +152,7 @@ export const initializePayment =
 export const logout = () => {
   localStorage.removeItem("authToken");
   localStorage.removeItem("user");
-  window.location.href = "/login";
+  window.location.href = "https://computerscience.uniport.edu.ng";
 };
 
 /**
@@ -220,6 +220,9 @@ export interface IdCardFeeResponse {
   success: boolean;
   data: {
     idCardFee: number;
+    merchant_fee: number;
+    transaction_charges: number;
+    subtotal: number;
   };
 }
 
