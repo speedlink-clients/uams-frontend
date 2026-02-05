@@ -421,6 +421,9 @@ const OtherServicesView = ({
     try {
       const response = await getIdCardFee();
       setIdCardFee(response.data.idCardFee);
+      setMerchantFee(response.data.merchant_fee);
+      setTransactionCharges(response.data.transaction_charges);
+      setSubtotal(response.data.subtotal);
       setShowPaymentModal(true);
     } catch (err: any) {
       setError(err.message || "Failed to fetch ID card fee. Please try again.");
