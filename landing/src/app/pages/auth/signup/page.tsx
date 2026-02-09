@@ -21,11 +21,7 @@ const SignupPage = () => {
 
     const onSubmit = useCallback((data: SignupFormData) => {
         signup(data);
-<<<<<<< HEAD
     }, [signup])
-=======
-    }, [])
->>>>>>> main
 
     return (
         <Container py="6" maxW="md">
