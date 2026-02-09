@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { IDCardSettingsTab } from './IDCardSettingsTab';
 import { PaymentSettingsTab } from './PaymentSettingsTab';
-import { ConfigsTab } from './ConfigsTab';
+// import { ConfigsTab } from './ConfigsTab';
 import { AcademicSettingsTab } from './AcademicSettingsTab';
 
 type SettingsTab =  'ID Card' | 'Payment' | 'Academic';
@@ -25,7 +25,7 @@ export const SettingsView: React.FC = () => {
     <div className="max-w-[1200px] mx-auto animate-in fade-in duration-500">
       
       {/* Tabs Navigation */}
-      <div className="bg-slate-50 p-1.5 rounded-lg flex items-center justify-between gap-1 overflow-x-auto mb-8 border border-slate-200">
+      <div className="bg-slate-50 p-1.5 rounded-lg flex items-center gap-2 overflow-x-auto mb-8 border border-slate-200">
          {/* <TabButton active={activeTab === 'SMS'} onClick={() => setActiveTab('SMS')} icon={<MessageSquare size={16}/>} label="SMS" />
          <TabButton active={activeTab === 'Email'} onClick={() => setActiveTab('Email')} icon={<Mail size={16}/>} label="Email" />
          <TabButton active={activeTab === 'Configs'} onClick={() => setActiveTab('Configs')} icon={<SettingsIcon size={16}/>} label="Configs" /> */}
