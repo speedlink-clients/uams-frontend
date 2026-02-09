@@ -22,7 +22,7 @@ export const AddStudentForm: React.FC<AddStudentFormProps> = ({ onClose, onSubmi
     degreeCourse: initialData?.department || "", // Map department 
     departmentName: initialData?.department || "", 
     degreeAwarded: initialData?.degreeAwarded || "",
-    programDuration: `${initialData?.courseDuration} years`,
+    courseDuration: initialData?.courseDuration || "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +89,7 @@ export const AddStudentForm: React.FC<AddStudentFormProps> = ({ onClose, onSubmi
                 onChange={handleChange}
               />
               <FormField
-                label="Level  "
+                label="Level"
                 name="level"
                 placeholder="100"
                 value={formData.level}
@@ -138,10 +138,10 @@ export const AddStudentForm: React.FC<AddStudentFormProps> = ({ onClose, onSubmi
                 onChange={handleChange}
               />
               <FormField
-                label="Program Duration"
-                name="programDuration"
+                label="Course Duration"
+                name="courseDuration"
                 placeholder="4"
-                value={formData.programDuration}
+                value={formData.courseDuration}
                 onChange={handleChange}
               />
             </div>
