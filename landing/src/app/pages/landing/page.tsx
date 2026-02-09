@@ -10,7 +10,7 @@ import ResourcesSection from "./components/ResourcesSection";
 import NewsletterSection from "./components/NewsletterSection";
 
 const LandingPage = () => {
-
+  
   return (
     <Box bg="white">
       <Hero />

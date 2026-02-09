@@ -334,8 +334,8 @@ export const changePassword = async (
   data: PasswordSchema,
 ): Promise<any> => {
   try {
-    const response = await apiClient.post<any>(
-      "/auth/change-password",
+    const response = await apiClient.patch<any>(
+      "/user/update-password",
       data,
     );
 

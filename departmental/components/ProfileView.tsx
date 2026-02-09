@@ -1,8 +1,42 @@
 
-import React from 'react';
-import { User, Mail, Phone, Lock, Bell, Globe, Camera, Save, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Mail, Phone, Lock, Bell, Globe, Camera, Save, ShieldCheck, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import api from '../api/axios';
 
 export const ProfileView: React.FC = () => {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword) {
+      toast.error('Please fill in both password fields');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      await api.patch('/user/update-password', {
+        currentPassword,
+        newPassword,
+      });
+      toast.success('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (error: any) {
+      console.error('Password change error:', error);
+      toast.error(error.response?.data?.message || 'Failed to change password');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="mb-10">
@@ -19,9 +53,9 @@ export const ProfileView: React.FC = () => {
                 <div className="w-36 h-36 rounded-[2rem] bg-slate-50 border-4 border-white overflow-hidden flex items-center justify-center shadow-xl shadow-slate-200/50">
                   <img src="https://picsum.photos/seed/admin/200/200" alt="Profile" className="w-full h-full object-cover" />
                 </div>
-                <button className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-3 rounded-2xl shadow-lg hover:bg-blue-700 transition-all border-4 border-white">
+                {/* <button className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-3 rounded-2xl shadow-lg hover:bg-blue-700 transition-all border-4 border-white">
                   <Camera size={20} />
-                </button>
+                </button> */}
               </div>
               <div className="text-center">
                 <p className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] mb-1">Administrator</p>
@@ -62,9 +96,41 @@ export const ProfileView: React.FC = () => {
               <Lock size={20} className="text-blue-600" /> Password & Security
             </h3>
             <div className="space-y-5">
-              <SecurityInput label="Current Password" placeholder="••••••••" />
-              <SecurityInput label="New Password" placeholder="••••••••" />
-              <button className="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold mt-2 shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all">Change Password</button>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Password</label>
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  disabled={isChangingPassword}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50" 
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">New Password</label>
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={isChangingPassword}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50" 
+                />
+              </div>
+              <button 
+                onClick={handleChangePassword}
+                disabled={isChangingPassword}
+                className="w-full bg-[#1D7AD9] text-white py-3 rounded-xl text-xs font-bold mt-2 shadow-lg shadow-slate-900/10 hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isChangingPassword ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Changing...
+                  </>
+                ) : (
+                  'Change Password'
+                )}
+              </button>
             </div>
           </div>
 

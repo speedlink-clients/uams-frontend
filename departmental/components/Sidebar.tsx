@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   Megaphone,
   Settings,
-  GraduationCap,
+  User,
   LogOut,
 } from "lucide-react";
 import { ViewType } from "../types";
@@ -28,6 +28,7 @@ const menuItems = [
   { icon: ShieldCheck, label: 'ID Card Management' as ViewType },
   { icon: Megaphone, label: 'Announcements' as ViewType },
   { icon: Settings, label: 'Settings' as ViewType },
+  { icon: User, label: 'Profile' as ViewType },
 ];
 
 
