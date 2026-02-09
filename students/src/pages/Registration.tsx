@@ -1404,11 +1404,11 @@ const Registration: React.FC = () => {
         ]);
 
         // Debug logging
-        console.log("Fetched levels:", levelsData);
-        console.log("Fetched semesters:", semestersData);
-        console.log("Fetched sessions:", sessionsData);
-        console.log("Fetched profileData:", profileData);
-        console.log("Fetched profileData.id:", profileData?.id);
+        // console.log("Fetched levels:", levelsData);
+        // console.log("Fetched semesters:", semestersData);
+        // console.log("Fetched sessions:", sessionsData);
+        // console.log("Fetched profileData:", profileData);
+        // console.log("Fetched profileData.id:", profileData?.id);
 
         setLevels(levelsData);
         setSemesters(semestersData);
@@ -1442,10 +1442,13 @@ const Registration: React.FC = () => {
     getStudentPayments(studentProfile.id)
       .then((payments) => {
         console.log("Payment check - Payments received:", payments);
+        // Check for id_card_fee payment using meta.payment_type (payment_for contains "ID Card Fee Payment")
         const idCardPayment = payments?.find(
-          (payment: any) => payment.payment_for === "id_card_fee",
+          (payment: any) => payment.meta?.payment_type === "id_card_fee",
         );
+        console.log("Payment check - ID Card Payment found:", idCardPayment);
         if (idCardPayment && idCardPayment.status === "success") {
+          console.log("Payment check - Setting hasPaidID to true");
           setHasPaidID(true);
           localStorage.setItem("idcard_paid", "true");
         }
