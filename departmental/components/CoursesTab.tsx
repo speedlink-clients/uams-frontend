@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
-import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download } from "lucide-react";
+import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download, Upload } from "lucide-react";
 import { toast } from "react-hot-toast";
 import CourseForm from "./CourseForm";
 import { programsCoursesApi } from "../api/programscourseapi";
@@ -353,6 +353,8 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync editingCourse with route ID
   useEffect(() => {
@@ -557,6 +559,47 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
           className="bg-white text-blue-600 px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-100 transition-all active:scale-95"
         >
           <Download size={18} /> Export table
+        </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".csv, .xlsx"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            
+            try {
+              setIsUploading(true);
+              const formData = new FormData();
+              formData.append("file", file);
+              
+              await programsCoursesApi.bulkUploadCourses(formData);
+              toast.success("Courses uploaded successfully!");
+              fetchCourses();
+            } catch (error: any) {
+              console.error("Bulk upload failed:", error);
+              toast.error(error.response?.data?.message || "Failed to upload courses");
+            } finally {
+              setIsUploading(false);
+              if (fileInputRef.current) fileInputRef.current.value = "";
+            }
+          }}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="bg-white text-green-600 px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-50 transition-all active:scale-95 disabled:opacity-50"
+        >
+          {isUploading ? (
+            <>
+              <Loader2 size={18} className="animate-spin" /> Uploading...
+            </>
+          ) : (
+            <>
+              <Upload size={18} /> Upload CSV
+            </>
+          )}
         </button>
         <button
           onClick={() => navigate("/program-courses/courses/new")}
