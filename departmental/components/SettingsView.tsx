@@ -14,6 +14,7 @@ import {
 import { IDCardSettingsTab } from './IDCardSettingsTab';
 import { PaymentSettingsTab } from './PaymentSettingsTab';
 import { ConfigsTab } from './ConfigsTab';
+import { AcademicSettingsTab } from './AcademicSettingsTab';
 
 type SettingsTab = 'SMS' | 'Email' | 'Configs' | 'ID Card' | 'Payment' | 'Website' | 'Academic' | 'Documents';
 
@@ -42,6 +43,8 @@ export const SettingsView: React.FC = () => {
         <PaymentSettingsTab />
       ) : activeTab === 'Configs' ? (
         <ConfigsTab />
+      ) : activeTab === 'Academic' ? (
+        <AcademicSettingsTab />
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center min-h-[600px] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300">
              <div className="bg-slate-50 p-6 rounded-full mb-6">
