@@ -159,4 +159,14 @@ export const programsCoursesApi = {
     const response = await api.put(`/credit-limit/${id}`, data);
     return response.data;
   },
+
+  /** BULK UPLOAD COURSES **/
+  bulkUploadCourses: async (formData: FormData): Promise<any> => {
+    const response = await api.post("/courses/course-bulk-upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  },
 };
