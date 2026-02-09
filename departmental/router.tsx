@@ -52,7 +52,7 @@ const router = createBrowserRouter([
             element: <PaymentsPage />,
           },
           {
-            path: "roles-permissions",
+            path: "id-card",
             element: <RolesView />,
           },
           {

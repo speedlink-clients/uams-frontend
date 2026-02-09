@@ -9,7 +9,7 @@ export const AcademicSettingsTab: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
     code: "",
-    type: "UNDERGRADUATE",
+    type: "",
     description: "",
   });
 
@@ -18,7 +18,7 @@ export const AcademicSettingsTab: React.FC = () => {
   };
 
   const handleCancel = () => {
-    setFormData({ name: "", code: "", type: "UNDERGRADUATE", description: "" });
+    setFormData({ name: "", code: "", type: "", description: "" });
   };
 
   const handleSave = async () => {
@@ -29,7 +29,10 @@ export const AcademicSettingsTab: React.FC = () => {
 
     try {
       setIsSaving(true);
-      await programsCoursesApi.createProgramType(formData);
+      await programsCoursesApi.createProgramType({
+        ...formData,
+        type: formData.type.toUpperCase(),
+      });
       toast.success("Program Type created successfully");
       handleCancel();
     } catch (error: any) {
@@ -74,15 +77,9 @@ export const AcademicSettingsTab: React.FC = () => {
             <div className="space-y-6">
               <FormFieldHorizontal
                 label="Type"
-                type="select"
-                options={[
-                  { label: "Undergraduate", value: "UNDERGRADUATE" },
-                  { label: "Post-Graduate", value: "POST-GRADUATE" },
-                  { label: "Diploma", value: "DIPLOMA" },
-                  { label: "Certificate", value: "CERTIFICATE" },
-                ]}
                 value={formData.type}
                 onChange={(val) => handleFormChange("type", val)}
+                placeholder="e.g. UNDERGRADUATE, POST-GRADUATE"
               />
               <FormFieldHorizontal
                 label="Description"
