@@ -82,7 +82,7 @@ const Profile: React.FC = () => {
               borderColor="gray.100"
               cursor="pointer"
             >
-              <Edit2 size={12} color="#64748b" />
+              {/* <Edit2 size={12} color="#64748b" /> */}
             </Box>
           </Box>
           <Box>

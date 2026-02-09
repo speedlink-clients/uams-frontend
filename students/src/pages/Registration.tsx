@@ -387,6 +387,9 @@ const OtherServicesView = ({
   const [isLoadingFee, setIsLoadingFee] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [idCardFee, setIdCardFee] = useState<number | null>(null);
+  const [merchantFee, setMerchantFee] = useState<number | null>(null);
+  const [transactionCharges, setTransactionCharges] = useState<number | null>(null);
+  const [subtotal, setSubtotal] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   // get payment status on mount to update hasPaid state
@@ -418,6 +421,9 @@ const OtherServicesView = ({
     try {
       const response = await getIdCardFee();
       setIdCardFee(response.data.idCardFee);
+      setMerchantFee(response.data.merchant_fee);
+      setTransactionCharges(response.data.transaction_charges);
+      setSubtotal(response.data.subtotal);
       setShowPaymentModal(true);
     } catch (err: any) {
       setError(err.message || "Failed to fetch ID card fee. Please try again.");
@@ -548,12 +554,20 @@ const OtherServicesView = ({
                   {formatCurrency(idCardFee)}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-medium text-gray-400">
+                  Merchant Fee
+                </span>
+                <span className="text-[15px] font-bold text-[#1e293b]">
+                  {formatCurrency(merchantFee + transactionCharges)}
+                </span>
+              </div>
               <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
                 <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">
                   Total
                 </span>
                 <span className="text-2xl font-black text-[#1d76d2]">
-                  {formatCurrency(idCardFee)}
+                  {formatCurrency(subtotal)}
                 </span>
               </div>
             </div>
@@ -1400,9 +1414,12 @@ const Registration: React.FC = () => {
     fetchData();
   }, []);
 
-  // Check for ID Card payment success from localStorage
+  // Check for ID Card payment success from API
   useEffect(() => {
-    getStudentPayments(studentProfile?.id)
+    // Only fetch if studentProfile.id is available
+    if (!studentProfile?.id) return;
+    
+    getStudentPayments(studentProfile.id)
       .then((payments) => {
         const idCardPayment = payments.find(
           (payment) => payment.payment_for === "id_card_fee",
@@ -1413,7 +1430,7 @@ const Registration: React.FC = () => {
         }
       })
       .catch(console.error);
-  }, [studentProfile]);
+  }, [studentProfile?.id]);
 
   // useEffect(() => {
   //   const paymentSuccess = localStorage.getItem('idCardPaymentSuccess');

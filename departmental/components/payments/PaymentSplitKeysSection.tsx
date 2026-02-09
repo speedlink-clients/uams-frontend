@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/Input";
 import TabButton from "@/components/TabButton";
-import { Layers, Edit2, X, Save, RotateCcw } from "lucide-react";
+import { Layers, Edit2, X, Save, RotateCcw, Loader2 } from "lucide-react";
 import { ProgramTypeResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 
@@ -121,7 +121,7 @@ export const PaymentSplitKeysSection = ({
                 <RotateCcw size={16} /> Reset
             </button>
             <Button onClick={onSave} variant="primary" disabled={isSaving} className="px-8">
-                {isSaving ? "Saving..." : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
+                {isSaving ? <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Saving...</span> : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
             </Button>
         </div>
       )}
