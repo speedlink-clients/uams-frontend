@@ -1366,6 +1366,7 @@ const Registration: React.FC = () => {
   });
   const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
   const [studentPhoto, setStudentPhoto] = useState<string | null>(null);
+  const [paymentCheckTrigger, setPaymentCheckTrigger] = useState(0); // Used to trigger payment re-check
 
   // Fetch initial data
   useEffect(() => {
@@ -1430,16 +1431,22 @@ const Registration: React.FC = () => {
         }
       })
       .catch(console.error);
-  }, [studentProfile?.id]);
+  }, [studentProfile?.id, paymentCheckTrigger]); // Added paymentCheckTrigger to re-check on demand
 
-  // useEffect(() => {
-  //   const paymentSuccess = localStorage.getItem('idCardPaymentSuccess');
-  //   if (paymentSuccess === 'true') {
-  //     setHasPaidID(true);
-  //     // Clear the flag so it doesn't auto-enable on page reload
-  //     localStorage.removeItem('idCardPaymentSuccess');
-  //   }
-  // }, [studentProfile]);
+  // Re-check payment status when page becomes visible (e.g., user returns from payment gateway)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        // Trigger payment re-check when page becomes visible
+        setPaymentCheckTrigger((prev) => prev + 1);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const activeSubTab = (() => {
     if (location.pathname.includes("/registration/transcript"))
