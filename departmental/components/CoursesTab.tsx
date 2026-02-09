@@ -622,6 +622,8 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                 <th className="px-6 py-4">Level</th>
                 <th className="px-6 py-4">Semester</th>
                 <th className="px-6 py-4">Credit Units</th>
+                <th className="px-6 py-4">Learning Hours</th>
+                <th className="px-6 py-4">Practical Hours</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Actions</th>
               </tr>
@@ -659,9 +661,9 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                     <td className="px-6 py-4">{course.level?.name}</td>
                     <td className="px-6 py-4">{formatSemesterName(course.semester?.name)}</td>
                     <td className="px-6 py-4">{course.creditUnits}</td>
-                    <td className="px-6 py-4">
-                      {course.semester?.isActive ? "Active" : "Inactive"}
-                    </td>
+                    <td className="px-6 py-4">{course.learningHours}</td>
+                    <td className="px-6 py-4">{course.practicalHours}</td>
+                    <td className="px-6 py-4">{course.status}</td>
                     <td className="px-6 py-4">
                       <div className="relative">
                         <button
@@ -696,7 +698,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                                 <Trash size={14} />
                                 Delete
                               </button>
-                              <div className="border-t border-gray-100 my-1 pt-1">
+                              {/* <div className="border-t border-gray-100 my-1 pt-1">
                                 <button
                                   onClick={async (e) => {
                                     e.stopPropagation();
@@ -718,7 +720,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                                     Active
                                   </span>
                                 </button>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                         )}
