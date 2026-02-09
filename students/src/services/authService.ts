@@ -1,3 +1,4 @@
+import { PasswordSchema } from "../pages/Profile";
 import apiClient from "./api";
 import type { LoginRequest, LoginResponse } from "./types";
 import { AxiosError } from "axios";
@@ -329,6 +330,31 @@ export const confirmIdCardPayment = async (
   }
 };
 
+export const changePassword = async (
+  data: PasswordSchema,
+): Promise<any> => {
+  try {
+    const response = await apiClient.post<any>(
+      "/auth/change-password",
+      data,
+    );
+
+    if (response.data.success) {
+      return response.data;
+    }
+
+    throw new Error("Failed to change password");
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("Failed to change password. Please try again.");
+  }
+};
+
 const authService = {
   login,
   logout,
@@ -341,6 +367,7 @@ const authService = {
   getIdCardFee,
   initializeIdCardPayment,
   confirmIdCardPayment,
+  changePassword,
 };
 
 export default authService;
