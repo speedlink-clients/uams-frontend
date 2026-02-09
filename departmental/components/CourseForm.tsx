@@ -26,6 +26,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     programTypeId: initialData?.programTypeId || "",
     programId: initialData?.programId || "", // Added programId
     creditUnits: initialData?.creditUnits || 3,
+    learningHours: initialData?.learningHours || "",
+    practicalHours: initialData?.practicalHours || "",
+    status: initialData?.status || "",
   });
 
   // Calculate if selected type is Bachelors/Undergraduate
@@ -113,6 +116,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
         code: formData.code.trim(),
         title: formData.title.trim(),
         creditUnits: Number(formData.creditUnits),
+        learningHours: formData.learningHours ? Number(formData.learningHours) : undefined,
+        practicalHours: formData.practicalHours ? Number(formData.practicalHours) : undefined,
+        status: formData.status || undefined,
         Level: isUndergraduate && level ? level.name.replace(" Level", "") : undefined,
         Semester: isUndergraduate && semester ? semester.name : undefined,
         // programTypeId and programId are EXCLUDED as per user request/example
@@ -291,6 +297,52 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
                   {unit}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Learning Hours */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Learning Hours
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="e.g. 45"
+              value={formData.learningHours}
+              onChange={(e) => handleChange("learningHours", e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Practical Hours */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Practical Hours
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="e.g. 15"
+              value={formData.practicalHours}
+              onChange={(e) => handleChange("practicalHours", e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => handleChange("status", e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Status</option>
+              <option value="C">Core (C)</option>
+              <option value="E">Elective (E)</option>
             </select>
           </div>
         </div>

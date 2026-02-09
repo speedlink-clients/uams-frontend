@@ -16,10 +16,10 @@ import { PaymentSettingsTab } from './PaymentSettingsTab';
 import { ConfigsTab } from './ConfigsTab';
 import { AcademicSettingsTab } from './AcademicSettingsTab';
 
-type SettingsTab = 'SMS' | 'Email' | 'Configs' | 'ID Card' | 'Payment' | 'Website' | 'Academic' | 'Documents';
+type SettingsTab =  'ID Card' | 'Payment' | 'Academic';
 
 export const SettingsView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('SMS');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('ID Card');
 
   return (
     <div className="max-w-[1200px] mx-auto animate-in fade-in duration-500">
@@ -41,8 +41,6 @@ export const SettingsView: React.FC = () => {
         <IDCardSettingsTab />
       ) : activeTab === 'Payment' ? (
         <PaymentSettingsTab />
-      ) : activeTab === 'Configs' ? (
-        <ConfigsTab />
       ) : activeTab === 'Academic' ? (
         <AcademicSettingsTab />
       ) : (
