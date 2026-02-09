@@ -97,7 +97,7 @@ export const StudentsTable: React.FC<StudentsTableProps> = ({
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden ">
       <div className="overflow-x-auto">
-        <table className="w-full max-w-[calc(100vh-5px)] text-left">
+        <table className="w-full max-w-[calc(100vh-200px)] text-left">
           <thead>
             <tr className="bg-slate-50/60 border-b border-gray-100 text-slate-500 font-bold text-[11px] uppercase tracking-wider text-nowrap">
               <th className="px-6 py-5 w-12 text-center sticky left-0 z-20 bg-slate-50/95 backdrop-blur-sm border-b border-gray-100">
