@@ -40,12 +40,12 @@ const Profile: React.FC = () => {
 
   return (
     <Box p={{ base: 4, lg: 8 }} maxW="1600px" mx="auto">
-      <Box 
-        bg="white" 
-        rounded={{ base: "24px", lg: "32px" }} 
-        p={{ base: 6, lg: 10 }} 
-        border="1px" 
-        borderColor="gray.100" 
+      <Box
+        bg="white"
+        rounded={{ base: "24px", lg: "32px" }}
+        p={{ base: 6, lg: 10 }}
+        border="1px"
+        borderColor="gray.100"
         shadow="sm"
       >
         <Text fontSize="2xl" fontWeight="bold" mb={8} color="slate.800">Profile</Text>
@@ -53,32 +53,32 @@ const Profile: React.FC = () => {
         {/* Avatar Section */}
         <Flex align="center" gap={6} mb={10}>
           <Box position="relative">
-            <Box 
-              w="24" h="24" 
-              rounded="full" 
-              bg="gray.100" 
-              border="1px solid" 
+            <Box
+              w="24" h="24"
+              rounded="full"
+              bg="gray.100"
+              border="1px solid"
               borderColor="gray.200"
               display="flex"
               alignItems="center"
               justifyContent="center"
               overflow="hidden"
             >
-               {user?.avatar ? (
-                 <Image src={user.avatar} w="full" h="full" objectFit="cover" />
-               ) : (
+              {user?.avatar ? (
+                <Image src={user.avatar} w="full" h="full" objectFit="cover" />
+              ) : (
                 <Camera size={32} color="#94a3b8" />
-               )}
+              )}
             </Box>
-            <Box 
-              position="absolute" 
-              bottom={0} 
-              right={0} 
-              bg="white" 
-              rounded="full" 
-              p={1.5} 
-              shadow="md" 
-              border="1px solid" 
+            <Box
+              position="absolute"
+              bottom={0}
+              right={0}
+              bg="white"
+              rounded="full"
+              p={1.5}
+              shadow="md"
+              border="1px solid"
               borderColor="gray.100"
               cursor="pointer"
             >
@@ -118,9 +118,15 @@ const Profile: React.FC = () => {
               <Text fontSize="sm" color="gray.500" fontWeight="medium">{otherName}</Text>
             </Box>
           </GridItem>
+          <GridItem>
+            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Level</Text>
+            <Box bg="gray.100" rounded="lg" p={3}>
+              <Text fontSize="sm" color="gray.500" fontWeight="medium">{profile?.level || 'N/A'}</Text>
+            </Box>
+          </GridItem>
 
           <GridItem>
-            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Sex</Text>
+            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Gender</Text>
             <Box bg="gray.100" rounded="lg" p={3}>
               <Text fontSize="sm" color="gray.500" fontWeight="medium">{profile?.gender || 'N/A'}</Text>
             </Box>
@@ -177,46 +183,45 @@ const Profile: React.FC = () => {
         {/* Contact Edit Section */}
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={8} mb={6}>
           <GridItem>
-             <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Email Address</Text>
-             <Input 
-               value={email}
-               onChange={(e) => setEmail(e.target.value)}
-               placeholder="Enter address" 
-               disabled={!isEditing}
-               bg="white"
-               borderColor="gray.200"
-               _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
-               _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-             />
+            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Email Address</Text>
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter address"
+              disabled={!isEditing}
+              bg="white"
+              borderColor="gray.200"
+              _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
+              _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+            />
           </GridItem>
           <GridItem>
-             <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Phone Number</Text>
-             <Input 
-               value={phone}
-               onChange={(e) => setPhone(e.target.value)}
-               placeholder="Enter address" 
-               disabled={!isEditing}
-               bg="white"
-               borderColor="gray.200"
-                _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
-                _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-             />
+            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Phone Number</Text>
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter address"
+              disabled={!isEditing}
+              bg="white"
+              borderColor="gray.200"
+              _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
+              _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+            />
           </GridItem>
         </Grid>
-        
+
         <Flex justify="flex-end">
-            <Button 
-                variant="outline" 
-                size="md"
-                rounded="lg"
-                color="slate.600"
-                borderColor="gray.200"
-                leftIcon={<Edit2 size={16} />}
-                onClick={() => setIsEditing(!isEditing)}
-                _hover={{ bg: 'gray.50' }}
-            >
-                {isEditing ? 'Save' : 'Edit'}
-            </Button>
+          <Button
+            variant="outline"
+            size="md"
+            rounded="lg"
+            color="slate.600"
+            borderColor="gray.200"
+            onClick={() => setIsEditing(!isEditing)}
+            _hover={{ bg: 'gray.50' }}
+          >
+            <Edit2 size={16} /> {isEditing ? 'Save' : 'Edit'}
+          </Button>
         </Flex>
 
       </Box>

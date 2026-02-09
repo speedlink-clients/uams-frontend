@@ -702,7 +702,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
       }
     }
   }, [sessions, selectedSession]);
-  
+
   // remove aleady registered courses from the department courses
   const filteredCourses = useMemo(() => {
     const registeredCourseIds =
@@ -990,7 +990,18 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none"
                   >
                     <option value="">Select Semester</option>
-                    {semesters
+                    {semesters?.map((semester) => (
+                      <option key={semester.id} value={semester.id}>
+                        {(() => {
+                          const sem = semester.name.toLowerCase();
+                          if (sem === "semester 1") return "First Semester";
+                          if (sem === "semester 2") return "Second Semester";
+                          if (sem === "semester 3") return "Third Semester";
+                          return semester.name;
+                        })()}
+                      </option>
+                    ))}
+                    {/* {semesters
                       ?.filter((semester) => semester.isActive)
                       .map((semester) => (
                         <option key={semester.id} value={semester.id}>
@@ -1001,7 +1012,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                             return semester.name;
                           })()}
                         </option>
-                      ))}
+                      ))} */}
                   </select>
                   <ChevronDown
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"
@@ -1143,8 +1154,8 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
             {cartMessage && (
               <div
                 className={`mt-2 p-3 rounded-lg text-[12px] font-medium ${cartMessage.type === "success"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
                   }`}
               >
                 {cartMessage.text}
@@ -1332,10 +1343,10 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     <td className="px-4 py-4">
                       <span
                         className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${course.status === "registered"
-                            ? "bg-[#f0fdf4] text-[#22c55e]"
-                            : course.status === "pending"
-                              ? "bg-yellow-50 text-yellow-600"
-                              : "bg-red-50 text-red-500"
+                          ? "bg-[#f0fdf4] text-[#22c55e]"
+                          : course.status === "pending"
+                            ? "bg-yellow-50 text-yellow-600"
+                            : "bg-red-50 text-red-500"
                           }`}
                       >
                         {course.status}
@@ -1495,8 +1506,8 @@ const Registration: React.FC = () => {
               key={tab}
               onClick={() => navigate(`/registration/${tab}`)}
               className={`px-8 lg:px-12 py-3 rounded-2xl text-[12px] lg:text-sm font-bold transition-all duration-300 ${activeSubTab === tab
-                  ? "bg-[#3b82f6] text-white shadow-md"
-                  : "text-gray-400 hover:text-gray-600"
+                ? "bg-[#3b82f6] text-white shadow-md"
+                : "text-gray-400 hover:text-gray-600"
                 }`}
             >
               {tab === "other"
