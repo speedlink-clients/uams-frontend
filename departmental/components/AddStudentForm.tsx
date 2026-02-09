@@ -14,14 +14,15 @@ export const AddStudentForm: React.FC<AddStudentFormProps> = ({ onClose, onSubmi
     matNo: initialData?.matNo || "",
     firstName: initialData?.surname || "", // Mapping surname to firstName for now if form expects firstName/otherName
     otherName: initialData?.otherNames || "",
-    sex: initialData?.sex || "",
+    gender: initialData?.gender || "",
+    level: initialData?.level || "",
     admissionMode: initialData?.admissionMode || "",
     entryQualification: initialData?.entryQualification || "",
     facultyName: initialData?.faculty || "", // Map faculty
     degreeCourse: initialData?.department || "", // Map department 
     departmentName: initialData?.department || "", 
-    degreeAwarded: initialData?.role === "Bachelors" ? "B.Sc" : initialData?.role || "",
-    programDuration: initialData?.programDuration || "",
+    degreeAwarded: initialData?.degreeAwarded || "",
+    programDuration: `${initialData?.courseDuration} years`,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,10 +82,17 @@ export const AddStudentForm: React.FC<AddStudentFormProps> = ({ onClose, onSubmi
                 onChange={handleChange}
               />
               <FormField
-                label="Sex"
-                name="sex"
+                label="Gender"
+                name="gender"
                 placeholder="Male"
-                value={formData.sex}
+                value={formData.gender}
+                onChange={handleChange}
+              />
+              <FormField
+                label="Level  "
+                name="level"
+                placeholder="100"
+                value={formData.level}
                 onChange={handleChange}
               />
               <FormField
