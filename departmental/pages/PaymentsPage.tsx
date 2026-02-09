@@ -205,9 +205,9 @@ export default function PaymentsPage() {
         </div>
 
         {/* Transactions Table */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-20">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-20 max-w-[calc(100vw-270px)]">
             <div className="overflow-x-auto">
-                <table className="w-full text-left max-w-[calc(100vh-5px)]">
+                <table className="w-full text-left ">
                     <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
                         <tr>
                             <th className="px-6 py-4 w-12 text-center">
