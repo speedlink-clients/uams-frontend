@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { User, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router";
 import api from "../api/axios";
-import { AuthData } from "../components/types";
+import { AuthData } from "../types";
 import { useAuth } from "../context/AuthProvider";
+import ForgotPasswordFlow from "./auth/steps/ForgotPasswordFlow";
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -14,6 +15,12 @@ const Login: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+  // Show ForgotPasswordFlow if state is true
+  if (showForgotPassword) {
+    return <ForgotPasswordFlow onBackToLogin={() => setShowForgotPassword(false)} />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,6 +242,7 @@ const Login: React.FC = () => {
               Forgot Password?{" "}
               <button
                 type="button"
+                onClick={() => setShowForgotPassword(true)}
                 className="text-[#3b82f6] hover:text-[#1d76d2] hover:underline transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >
