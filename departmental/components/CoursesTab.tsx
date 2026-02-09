@@ -622,7 +622,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto max-w-[50vw]">
         <div className="p-6 flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-800">
             Created Courses ({filteredCourses.length})
@@ -658,7 +658,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
           </div>
         </div>
 
-        <div className="overflow-x-auto max-w-[calc(100vw_-_300px)]">
+        <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50/60 border-y border-gray-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
