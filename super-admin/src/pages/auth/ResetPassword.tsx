@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { authService } from "../../services/authService";
 import Toast from "../../components/Toast";
@@ -118,7 +118,7 @@ const ResetPassword: React.FC = () => {
           }}
         >
           <img
-            src="/assets/reset-password-illustration.png"
+            src="/super-admin/assets/reset-password-illustration.png"
             alt="Reset Password Illustration"
             style={{
               width: "100%",

@@ -24,10 +24,27 @@ import type {
 /**
  * Get available academic levels (100, 200, 300, etc.)
  */
-export const getLevels = async (): Promise<Level[]> => {
+export const getLevels = async (programId?: string): Promise<Level[]> => {
   try {
-    const response = await apiClient.get<Level[]>('/accademics/levels');
-    return response.data ?? [];
+    const url = `/accademics/${programId}`;
+    const response = await apiClient.get<any>(url);
+    
+    // Handle different response structures
+    // Case 1: response.data is the array directly
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    // Case 2: response.data has a 'levels' property
+    if (response.data?.levels && Array.isArray(response.data.levels)) {
+      return response.data.levels;
+    }
+    // Case 3: response.data has a 'data' property (double-wrapped)
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    
+    console.warn('Unexpected levels response structure:', response.data);
+    return [];
   } catch (error) {
     console.error('Failed to fetch levels:', error);
     return [];
@@ -76,26 +93,95 @@ export const getStudentProfile = async (): Promise<StudentProfile | null> => {
     return null;
   }
 };
+export const getStudentPayments = async (studentId:string): Promise<any | null> => {
+  try {
+    const response = await apiClient.get<ApiResponse<StudentProfile>>(`/annual-access-fee/student/${studentId}`);
+    return response.data?.data ?? null;
+  } catch (error) {
+    console.error('Failed to fetch student profile:', error);
+    return null;
+  }
+};
+
+/**
+ * Student registration item from GET /students/registrations
+ */
+export interface StudentRegistration {
+  id: string;
+  universityId: string;
+  sessionId: string;
+  studentId: string;
+  semesterId: string;
+  courseId: string;
+  status: string;
+  totalCredits: number;
+  createdAt: string;
+  updatedAt: string;
+  Course: {
+    code: string;
+    title: string;
+    creditUnits: number;
+  };
+  Semester: {
+    name: string;
+  };
+  Session: {
+    name: string;
+  };
+}
+
+interface StudentRegistrationsResponse {
+  status: string;
+  registrations: StudentRegistration[];
+}
 
 /**
  * Get student's registered courses
- * @param session - Optional academic session filter
- * @param semester - Optional semester filter
+ * Returns courses formatted for the UI with lecturer defaulting to "Not Assigned"
+ * and status "confirmed" mapped to "Registered"
  */
-export const getRegistrations = async (
-  session?: string,
-  semester?: string
-): Promise<RegistrationData | null> => {
+export const getRegistrations = async (): Promise<RegistrationData | null> => {
   try {
-    const params = new URLSearchParams();
-    if (session) params.append('session', session);
-    if (semester) params.append('semester', semester);
+    const response = await apiClient.get<StudentRegistrationsResponse>('/students/registrations');
     
-    const queryString = params.toString();
-    const url = `/students/registrations${queryString ? `?${queryString}` : ''}`;
+    if (response.data?.status === 'success' && response.data.registrations) {
+      // Transform API response to RegistrationData format
+      const registrations = response.data.registrations;
+      
+      // Map status: "confirmed" -> "registered"
+      const formatStatus = (status: string): 'registered' | 'pending' | 'dropped' => {
+        if (status === 'confirmed') return 'registered';
+        if (status === 'pending') return 'pending';
+        return 'dropped';
+      };
+      
+      const courses: RegisteredCourse[] = registrations.map(reg => ({
+        id: reg.id,
+        courseId: reg.courseId,
+        code: reg.Course.code,
+        title: reg.Course.title,
+        creditUnits: reg.Course.creditUnits,
+        type: 'Departmental', // Default type since API doesn't return this
+        lecturer: 'Not Assigned', // API doesn't return lecturer info
+        status: formatStatus(reg.status),
+        registeredAt: reg.createdAt,
+        sessionId: reg.sessionId, 
+      }));
+
+      // Calculate total units
+      const totalUnits = courses.reduce((sum, c) => sum + c.creditUnits, 0);
+      
+      return {
+        session: registrations[0]?.Session?.name || '',
+        semester: registrations[0]?.Semester?.name || '',
+        totalUnits,
+        maxAllowedUnits: 24, // Default max units
+        registrationStatus: 'open',
+        courses,
+      };
+    }
     
-    const response = await apiClient.get<ApiResponse<RegistrationData>>(url);
-    return response.data?.data ?? null;
+    return null;
   } catch (error) {
     console.error('Failed to fetch registrations:', error);
     return null;
@@ -186,11 +272,11 @@ export const removeCourseFromCart = async (courseId: string): Promise<{ success:
  * @param data - Registration data including payment reference, level, session, credits, and amount
  */
 export const bulkRegisterCourses = async (data: {
-  paymentReference: string;
+  // paymentReference: string;
   levelId: string;
   sessionId: string;
   totalCredits: number;
-  totalAmount: number;
+  // totalAmount: number;
 }): Promise<{ success: boolean; message: string; data?: any }> => {
   try {
     const response = await apiClient.post('/course-registration/confirm', data);

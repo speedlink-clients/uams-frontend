@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { authService } from "../../services/authService";
 import Toast from "../../components/Toast";
 
@@ -140,7 +140,7 @@ const VerificationCode: React.FC = () => {
           }}
         >
           <img
-            src="/assets/verification-illustration.png"
+            src="/super-admin/assets/verification-illustration.png"
             alt="Verification Code Illustration"
             style={{
               width: "100%",

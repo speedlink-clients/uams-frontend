@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 // Custom SVG Icon Components
 const DashboardIcon: React.FC<{ size?: number; color?: string; style?: React.CSSProperties }> = ({ size = 18, color = "currentColor", style }) => (
@@ -164,7 +164,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         }}
       >
         <img
-          src="/assets/speedlink.png"
+          src="/super-admin/assets/speedlink.png"
           alt="SPEEDLINK Logo"
           style={{
             height: "48px",

@@ -44,19 +44,58 @@ export interface StudentProfile {
   programId: string;
   userId: string;
   studentId: string; // e.g., "MAT/2025/001"
+  registrationNo: string;
+  courseadviserId: string;
   level: string; // e.g., "500"
   levelId: string;
   sessionId: string;
   isActive: boolean;
   academicStanding: 'GOOD' | 'PROBATION' | 'SUSPENDED' | string;
+  entryQualification: string;
+  admissionMode: string;
+  degreeCourse: string;
+  degreeAwarded: string;
+  courseDuration: number;
+  admissionDate: string;
+  graduationDate: string;
+  jambScore: string;
+  entryYear: number;
+  exitYear: number;
+  admissionBatch: string;
+  sponsorship: string;
+  hostelAccommodation: string;
+  dateOfBirth: string;
   probationStartDate: string | null;
   probationEndDate: string | null;
   totalCreditsEarned: number;
   currentGPA: number;
+  gender: string;
   createdAt: string;
   updatedAt: string;
   idCard: string | null;
-  Level: StudentLevel;
+  Level: {
+    id: string;
+    name: string;
+  };
+  session: {
+    id: string;
+    name: string;
+    isActive: boolean;
+  };
+  Department: {
+    name: string;
+    code: string;
+    type: string;
+    description: string;
+  };
+  activeSemester: [
+    {
+      id: string;
+      name: string;
+      startDate: string;
+      endDate: string;
+    }
+  ]
 }
 
 
@@ -127,6 +166,7 @@ export interface RegisteredCourse {
   lecturer: string;
   status: 'registered' | 'pending' | 'dropped';
   registeredAt: string;
+  sessionId?: string; 
 }
 
 export interface RegistrationData {
@@ -148,6 +188,7 @@ export interface LoginUser {
   id: string;
   fullName: string;
   email: string;
+  avatar: string;
   role: string;
   profile: StudentProfile;
 }
