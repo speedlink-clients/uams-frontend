@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Text, Input, Button, Image, Grid, GridItem, Field } from '@chakra-ui/react';
-import { Camera, Edit2 } from 'lucide-react';
+import { Box, Flex, Text, Input, Button, Image, Grid, GridItem, Field, IconButton } from '@chakra-ui/react';
+import { Camera, Edit2, Eye, EyeOff } from 'lucide-react';
 import authService from '../services/authService';
 import { StudentProfile } from '../services/types';
 import { z } from 'zod';
@@ -29,6 +29,9 @@ const Profile: React.FC = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const storedUser = authService.getStoredUser();
@@ -280,49 +283,103 @@ const Profile: React.FC = () => {
             <GridItem>
               <Field.Root invalid={!!errors.currentPassword?.message}>
                 <Field.Label>Current Password</Field.Label>
-                <Input
-                  {...register('currentPassword')}
-                  defaultValue={"********"}
-                  placeholder="Enter current password"
-                  type="password"
-                  bg="white"
-                  pl="4"
-                  borderColor="gray.200"
-                  _hover={{ borderColor: 'blue.400' }}
-                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-                />
+                <Box position="relative" w="full">
+                  <Input
+                    {...register('currentPassword')}
+                    defaultValue={"********"}
+                    placeholder="Enter current password"
+                    type={showCurrentPassword ? "text" : "password"}
+                    bg="white"
+                    pl="4"
+                    pr="10"
+                    border="xs"
+                    borderColor="border"
+                    _hover={{ borderColor: 'blue.400' }}
+                    _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                  />
+                  <IconButton
+                    position="absolute"
+                    right="2"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    variant="ghost"
+                    size="sm"
+                    aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    color="gray.400"
+                    _hover={{ color: "blue.500", bg: "transparent" }}
+                  >
+                    {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </IconButton>
+                </Box>
                 <Field.ErrorText>{errors.currentPassword?.message}</Field.ErrorText>
               </Field.Root>
             </GridItem>
             <GridItem>
               <Field.Root invalid={!!errors.newPassword?.message}>
                 <Field.Label>New Password</Field.Label>
-                <Input
-                  {...register('newPassword')}
-                  placeholder="Enter new password"
-                  type="password"
-                  bg="white"
-                  pl="4"
-                  borderColor="gray.200"
-                  _hover={{ borderColor: 'blue.400' }}
-                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-                />
+                <Box position="relative" w="full">
+                  <Input
+                    {...register('newPassword')}
+                    placeholder="Enter new password"
+                    type={showNewPassword ? "text" : "password"}
+                    bg="white"
+                    pl="4"
+                    pr="10"
+                    border="xs"
+                    borderColor="border"
+                    _hover={{ borderColor: 'blue.400' }}
+                    _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                  />
+                  <IconButton
+                    position="absolute"
+                    right="2"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    variant="ghost"
+                    size="sm"
+                    aria-label={showNewPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    color="gray.400"
+                    _hover={{ color: "blue.500", bg: "transparent" }}
+                  >
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </IconButton>
+                </Box>
                 <Field.ErrorText>{errors.newPassword?.message}</Field.ErrorText>
               </Field.Root>
             </GridItem>
             <GridItem>
               <Field.Root invalid={!!errors.confirmNewPassword?.message}>
                 <Field.Label>Confirm New Password</Field.Label>
-                <Input
-                  {...register('confirmNewPassword')}
-                  placeholder="Confirm new password"
-                  type="password"
-                  bg="white"
-                  pl="4"
-                  borderColor="gray.200"
-                  _hover={{ borderColor: 'blue.400' }}
-                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-                />
+                <Box position="relative" w="full">
+                  <Input
+                    {...register('confirmNewPassword')}
+                    placeholder="Confirm new password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    bg="white"
+                    pl="4"
+                    pr="10"
+                    border="xs"
+                    borderColor="border"
+                    _hover={{ borderColor: 'blue.400' }}
+                    _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                  />
+                  <IconButton
+                    position="absolute"
+                    right="2"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    variant="ghost"
+                    size="sm"
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    color="gray.400"
+                    _hover={{ color: "blue.500", bg: "transparent" }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </IconButton>
+                </Box>
                 <Field.ErrorText>{errors.confirmNewPassword?.message}</Field.ErrorText>
               </Field.Root>
             </GridItem>
@@ -334,7 +391,7 @@ const Profile: React.FC = () => {
               p="2"
               rounded="lg"
               color="slate.600"
-              borderColor="gray.200"
+              borderColor="border"
               type="submit"
               _hover={{ bg: 'gray.100' }}
             >
