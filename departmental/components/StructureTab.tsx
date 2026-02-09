@@ -200,41 +200,41 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this session?")) {
-      try {
-        await academicsApi.deleteSession(id);
-        toast.success("Session deleted");
+  // const handleDelete = async (id: string) => {
+  //   if (window.confirm("Are you sure you want to delete this session?")) {
+  //     try {
+  //       await academicsApi.deleteSession(id);
+  //       toast.success("Session deleted");
 
-        // Refresh list
-        const updatedSessions = await academicsApi.getAcademicSessions();
-        const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
-        setSessions(sessionsList);
-      } catch (error: any) {
-        console.error("Failed to delete session", error);
-        toast.error(error.response?.data?.message || "Failed to delete session");
-      }
-    }
-  };
+  //       // Refresh list
+  //       const updatedSessions = await academicsApi.getAcademicSessions();
+  //       const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
+  //       setSessions(sessionsList);
+  //     } catch (error: any) {
+  //       console.error("Failed to delete session", error);
+  //       toast.error(error.response?.data?.message || "Failed to delete session");
+  //     }
+  //   }
+  // };
 
-  const handleBulkDelete = async () => {
-    if (selectedIds.length === 0) return;
+  // const handleBulkDelete = async () => {
+  //   if (selectedIds.length === 0) return;
 
-    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected sessions?`)) {
-      try {
-        await Promise.all(selectedIds.map(id => academicsApi.deleteSession(id)));
-        toast.success(`${selectedIds.length} sessions deleted successfully`);
-        setSelectedIds([]);
-        // Refresh list
-        const updatedSessions = await academicsApi.getAcademicSessions();
-        const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
-        setSessions(sessionsList);
-      } catch (err: any) {
-        console.error("Error bulk deleting sessions:", err);
-        toast.error("Failed to delete some sessions");
-      }
-    }
-  };
+  //   if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected sessions?`)) {
+  //     try {
+  //       await Promise.all(selectedIds.map(id => academicsApi.deleteSession(id)));
+  //       toast.success(`${selectedIds.length} sessions deleted successfully`);
+  //       setSelectedIds([]);
+  //       // Refresh list
+  //       const updatedSessions = await academicsApi.getAcademicSessions();
+  //       const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
+  //       setSessions(sessionsList);
+  //     } catch (err: any) {
+  //       console.error("Error bulk deleting sessions:", err);
+  //       toast.error("Failed to delete some sessions");
+  //     }
+  //   }
+  // };
 
   const handleExport = () => {
     exportToExcel(sessions, "Academic_Sessions");
@@ -461,7 +461,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                               <Edit size={14} />
                               Edit
                             </button>
-                            <button
+                            {/* <button
                               onClick={() => {
                                 handleDelete(session.id);
                                 setActiveActionId(null);
@@ -471,7 +471,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                             >
                               <Trash2 size={14} />
                               Delete
-                            </button>
+                            </button> */}
                             <div className="border-t border-gray-100 my-1 pt-1">
                               <button
                                 onClick={async (e) => {
@@ -514,14 +514,14 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
           <span className="text-sm font-bold text-slate-700">
             {selectedIds.length} items selected
           </span>
-          <div className="h-6 w-px bg-slate-200"></div>
-          <button
+          {/* <div className="h-6 w-px bg-slate-200"></div> */}
+          {/* <button
             onClick={handleBulkDelete}
             className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors"
           >
             <Trash size={16} />
             Delete
-          </button>
+          </button> */}
           <div className="h-6 w-px bg-slate-200"></div>
           <button
             onClick={() => setSelectedIds([])}

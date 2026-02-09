@@ -95,7 +95,7 @@ export const StudentsTable: React.FC<StudentsTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden max-w-[calc(100vh-200px)]">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden max-w-[calc(100vh-20px)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
@@ -118,7 +118,7 @@ export const StudentsTable: React.FC<StudentsTableProps> = ({
               <th className="px-6 py-5 min-w-[150px]">Other Names</th>
               <th className="px-6 py-5 min-w-[200px]">Email</th>
               <th className="px-6 py-5 min-w-[140px]">Phone No</th>
-              <th className="px-6 py-5 min-w-[100px]">Sex</th>
+              <th className="px-6 py-5 min-w-[100px]">Gender</th>
               <th className="px-6 py-5 min-w-[150px]">Admission Mode</th>
               <th className="px-6 py-5 min-w-[150px]">Entry Qualification</th>
               <th className="px-6 py-5 min-w-[150px]">Faculty</th>
