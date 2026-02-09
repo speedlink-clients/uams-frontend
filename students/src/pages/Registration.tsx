@@ -1432,20 +1432,31 @@ const Registration: React.FC = () => {
 
   // Check for ID Card payment success from API
   useEffect(() => {
+    // Debug log to see what studentProfile contains
+    console.log("Payment check - studentProfile:", studentProfile);
+    console.log("Payment check - studentProfile.id:", studentProfile?.id);
+    
     // Only fetch if studentProfile.id is available
-    if (!studentProfile?.id) return;
+    if (!studentProfile?.id) {
+      console.log("Payment check - SKIPPING: studentProfile.id is not available");
+      return;
+    }
 
+    console.log("Payment check - CALLING getStudentPayments with id:", studentProfile.id);
     getStudentPayments(studentProfile.id)
       .then((payments) => {
-        const idCardPayment = payments.find(
-          (payment) => payment.payment_for === "id_card_fee",
+        console.log("Payment check - Payments received:", payments);
+        const idCardPayment = payments?.find(
+          (payment: any) => payment.payment_for === "id_card_fee",
         );
         if (idCardPayment && idCardPayment.status === "success") {
           setHasPaidID(true);
           localStorage.setItem("idcard_paid", "true");
         }
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error("Payment check - Error:", err);
+      });
   }, [studentProfile?.id, paymentCheckTrigger]); // Added paymentCheckTrigger to re-check on demand
 
   // Re-check payment status when page becomes visible (e.g., user returns from payment gateway)
