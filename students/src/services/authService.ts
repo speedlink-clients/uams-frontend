@@ -334,9 +334,13 @@ export const changePassword = async (
   data: PasswordSchema,
 ): Promise<any> => {
   try {
-    const response = await apiClient.post<any>(
-      "/auth/change-password",
-      data,
+    // Only send currentPassword and newPassword to API (confirmNewPassword is for frontend validation only)
+    const response = await apiClient.patch<any>(
+      "/user/update-password",
+      {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      },
     );
 
     if (response.data.success) {
