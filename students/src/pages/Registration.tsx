@@ -42,6 +42,7 @@ import type {
 import { toaster } from "../components/ui/toaster";
 import { profile } from "node:console";
 import apiClient from "../services/api";
+import { useAsync } from "react-use"
 
 const checkboxClasses =
   "appearance-none w-4 h-4 bg-white border border-gray-300 rounded checked:bg-blue-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer transition-all bg-center bg-no-repeat checked:bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22white%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M16.707%205.293a1%201%200%20010%201.414l-8%208a1%201%200%2001-1.414%200l-4-4a1%201%200%20011.414-1.414L8%2012.586l7.293-7.293a1%201%200%20011.414%200z%22%20clip-rule%3D%22evenodd%22%20%2F%3E%3C%2Fsvg%3E')]";
@@ -394,7 +395,7 @@ const OtherServicesView = ({
 
   // get payment status on mount to update hasPaid state
   const [sq, _] = useSearchParams();
-  const trxRef = useMemo(() => sq.get("trxRef"));
+  const trxRef = useMemo(() => sq.get("trxRef"), [sq]);
 
   // handle successful id card payment
   useEffect(() => {
@@ -406,10 +407,10 @@ const OtherServicesView = ({
         .then((res) => {
           res.data.success &&
             toaster.success({ description: "Payment verified successfully!" });
-          })
-          .catch(() => {
-            setError("Failed to verify payment. Please contact support.");
-            toaster.error({ description: "Payment verified successfully!" });
+        })
+        .catch(() => {
+          setError("Failed to verify payment. Please contact support.");
+          toaster.error({ description: "Payment verified successfully!" });
         });
     }
   }, [trxRef]);
@@ -638,6 +639,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   const [isRegistering, setIsRegistering] = useState(false);
   const [paymentReference, setPaymentReference] = useState<string | null>(null);
 
+
   // Fetch department courses on mount
   useEffect(() => {
     const fetchData = async () => {
@@ -700,13 +702,26 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
       }
     }
   }, [sessions, selectedSession]);
-
+  
+  // remove aleady registered courses from the department courses
+  useEffect(() => {
+    if (departmentCourses.length > 0 && studentProfile) {
+      const registeredCourses = registrationData?.courses?.map(
+        (registration) => registration.courseId,
+      );
+      const filteredCourses = departmentCourses.filter(
+        (course) => !registeredCourses?.includes(course.id),
+      );
+      setDepartmentCourses(filteredCourses);
+    }
+  }, [departmentCourses, registrationData]);
+  
   // Filter courses based on search
-  const filteredCourses = departmentCourses.filter(
+  const filteredCourses = useMemo(() => departmentCourses.filter(
     (course) =>
       course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
       course.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  ), [departmentCourses, searchQuery]);
 
   const handleSelectCourse = (courseCode: string) => {
     setSelectedCoursesInDropdown((prev) =>
@@ -802,6 +817,8 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   const registeredCourses = selectedSession
     ? allCourses.filter((course) => course.sessionId === selectedSession)
     : allCourses;
+
+
 
   // Handle course registration
   const handleRegisterCourses = async () => {
@@ -1131,11 +1148,10 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
             {/* Cart Message */}
             {cartMessage && (
               <div
-                className={`mt-2 p-3 rounded-lg text-[12px] font-medium ${
-                  cartMessage.type === "success"
+                className={`mt-2 p-3 rounded-lg text-[12px] font-medium ${cartMessage.type === "success"
                     ? "bg-green-50 text-green-700 border border-green-200"
                     : "bg-red-50 text-red-700 border border-red-200"
-                }`}
+                  }`}
               >
                 {cartMessage.text}
               </div>
@@ -1321,13 +1337,12 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     </td>
                     <td className="px-4 py-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                          course.status === "registered"
+                        className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${course.status === "registered"
                             ? "bg-[#f0fdf4] text-[#22c55e]"
                             : course.status === "pending"
                               ? "bg-yellow-50 text-yellow-600"
                               : "bg-red-50 text-red-500"
-                        }`}
+                          }`}
                       >
                         {course.status}
                       </span>
@@ -1418,7 +1433,7 @@ const Registration: React.FC = () => {
   useEffect(() => {
     // Only fetch if studentProfile.id is available
     if (!studentProfile?.id) return;
-    
+
     getStudentPayments(studentProfile.id)
       .then((payments) => {
         const idCardPayment = payments.find(
@@ -1462,11 +1477,10 @@ const Registration: React.FC = () => {
             <button
               key={tab}
               onClick={() => navigate(`/registration/${tab}`)}
-              className={`px-8 lg:px-12 py-3 rounded-2xl text-[12px] lg:text-sm font-bold transition-all duration-300 ${
-                activeSubTab === tab
+              className={`px-8 lg:px-12 py-3 rounded-2xl text-[12px] lg:text-sm font-bold transition-all duration-300 ${activeSubTab === tab
                   ? "bg-[#3b82f6] text-white shadow-md"
                   : "text-gray-400 hover:text-gray-600"
-              }`}
+                }`}
             >
               {tab === "other"
                 ? "ID-Card"
