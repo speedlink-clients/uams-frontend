@@ -587,9 +587,14 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
               const formData = new FormData();
               formData.append("file", file);
 
-              await programsCoursesApi.bulkUploadCourses(formData);
-              toast.success("Courses uploaded successfully!");
-              fetchCourses();
+              const data = await programsCoursesApi.bulkUploadCourses(formData);
+              if(!data.error){
+                toast.success("Courses uploaded successfully!");
+                fetchCourses();
+                return;
+              }else{
+                toast.error(data?.details || "Failed to upload courses");
+              }
             } catch (error: any) {
               console.error("Bulk upload failed:", error);
               toast.error(error.response?.data?.message || "Failed to upload courses");
@@ -719,7 +724,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                     <td className="px-6 py-4">{course.creditUnits}</td>
                     <td className="px-6 py-4">{course.learningHours}</td>
                     <td className="px-6 py-4">{course.practicalHours}</td>
-                    <td className="px-6 py-4">{course.status}</td>
+                    <td className="px-6 py-4">{course.status === "C" ? "Core" : "Elective"}</td>
                     <td className="px-6 py-4">
                       <div className="relative">
                         <button
