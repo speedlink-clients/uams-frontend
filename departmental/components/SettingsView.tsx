@@ -26,14 +26,14 @@ export const SettingsView: React.FC = () => {
       
       {/* Tabs Navigation */}
       <div className="bg-slate-50 p-1.5 rounded-lg flex items-center justify-between gap-1 overflow-x-auto mb-8 border border-slate-200">
-         <TabButton active={activeTab === 'SMS'} onClick={() => setActiveTab('SMS')} icon={<MessageSquare size={16}/>} label="SMS" />
+         {/* <TabButton active={activeTab === 'SMS'} onClick={() => setActiveTab('SMS')} icon={<MessageSquare size={16}/>} label="SMS" />
          <TabButton active={activeTab === 'Email'} onClick={() => setActiveTab('Email')} icon={<Mail size={16}/>} label="Email" />
-         <TabButton active={activeTab === 'Configs'} onClick={() => setActiveTab('Configs')} icon={<SettingsIcon size={16}/>} label="Configs" />
+         <TabButton active={activeTab === 'Configs'} onClick={() => setActiveTab('Configs')} icon={<SettingsIcon size={16}/>} label="Configs" /> */}
          <TabButton active={activeTab === 'ID Card'} onClick={() => setActiveTab('ID Card')} icon={<UserSquare size={16}/>} label="ID Card" />
          <TabButton active={activeTab === 'Payment'} onClick={() => setActiveTab('Payment')} icon={<CreditCard size={16}/>} label="Payment" />
-         <TabButton active={activeTab === 'Website'} onClick={() => setActiveTab('Website')} icon={<Globe size={16}/>} label="Website" />
+         {/* <TabButton active={activeTab === 'Website'} onClick={() => setActiveTab('Website')} icon={<Globe size={16}/>} label="Website" /> */}
          <TabButton active={activeTab === 'Academic'} onClick={() => setActiveTab('Academic')} icon={<GraduationCap size={16}/>} label="Academic" />
-         <TabButton active={activeTab === 'Documents'} onClick={() => setActiveTab('Documents')} icon={<FileText size={16}/>} label="Documents" />
+         {/* <TabButton active={activeTab === 'Documents'} onClick={() => setActiveTab('Documents')} icon={<FileText size={16}/>} label="Documents" /> */}
       </div>
 
       {/* Content Area */}
