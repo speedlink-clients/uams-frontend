@@ -11,6 +11,7 @@ import PaymentsPage from "./pages/PaymentsPage";
 import { SettingsView } from "./components/SettingsView";
 import { NotificationsView } from "./components/NotificationsView";
 import { RolesView } from "./components/RolesView";
+import { ProfileView } from "./components/ProfileView";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
           {
             path: "notifications",
             element: <NotificationsView />,
+          },
+          {
+            path: "profile",
+            element: <ProfileView />,
           },
         ],
       },
