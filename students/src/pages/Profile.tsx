@@ -59,7 +59,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <Box p={{ base: 4, lg: 8 }} maxW="1600px" mx="auto">
+    <Box p={{ base: 4, lg: 8 }} maxW="1600px" mx="auto" spaceY="6">
       <Box
         bg="white"
         rounded={{ base: "24px", lg: "32px" }}
@@ -273,6 +273,7 @@ const Profile: React.FC = () => {
                   placeholder="Enter current password"
                   type="password"
                   bg="white"
+                  pl="4"
                   borderColor="gray.200"
                   _hover={{ borderColor: 'blue.400' }}
                   _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
@@ -287,6 +288,7 @@ const Profile: React.FC = () => {
                   placeholder="Enter new password"
                   type="password"
                   bg="white"
+                  pl="4"
                   borderColor="gray.200"
                   _hover={{ borderColor: 'blue.400' }}
                   _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
@@ -302,6 +304,7 @@ const Profile: React.FC = () => {
                   placeholder="Confirm new password"
                   type="password"
                   bg="white"
+                  pl="4"
                   borderColor="gray.200"
                   _hover={{ borderColor: 'blue.400' }}
                   _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
