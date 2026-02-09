@@ -173,19 +173,20 @@ export const PaymentSettingsTab = () => {
     const payload = {
       academic_session_id: activeSessionId,
       program_type_id: activeProgramType.id,
-      paystack_public_key: paymentConfigForm.getValues("paystack_public_key"),
-      paystack_secret_key: paymentConfigForm.getValues("paystack_secret_key"),
+      paystack_public_key: paymentConfigForm.getValues("paystack_public_key").trim(),
+      paystack_secret_key: paymentConfigForm.getValues("paystack_secret_key").trim(),
       annual_access_fee: paymentConfigForm.getValues("annual_access_fee"),
       annual_access_merchant_fee: paymentConfigForm.getValues("annual_access_merchant_fee"),
-      annual_access_split_key: paymentConfigForm.getValues("annual_access_split_key"),
-      department_annual_access_dues: paymentConfigForm.getValues("department_annual_access_dues"),
+      annual_access_split_key: paymentConfigForm.getValues("annual_access_split_key").trim(),
+      department_annual_access_dues: paymentConfigForm.getValues("department_annual_access_dues") ,
       department_annual_access_merchant_fee: paymentConfigForm.getValues("department_annual_access_merchant_fee"),
+      department_annual_access_split_key: paymentConfigForm.getValues("department_annual_access_split_key").trim(),
       id_card_payment: paymentConfigForm.getValues("id_card_payment"),
       id_card_merchant_fee: paymentConfigForm.getValues("id_card_merchant_fee"),
-      id_card_split_key: paymentConfigForm.getValues("id_card_split_key"),
+      id_card_split_key: paymentConfigForm.getValues("id_card_split_key").trim(),
       transcript_fee: paymentConfigForm.getValues("transcript_fee"),
       transcript_merchant_fee: paymentConfigForm.getValues("transcript_merchant_fee"),
-      transcript_split_key: paymentConfigForm.getValues("transcript_split_key")
+      transcript_split_key: paymentConfigForm.getValues("transcript_split_key").trim()
     }
     setIsSaving(true);
     try {
