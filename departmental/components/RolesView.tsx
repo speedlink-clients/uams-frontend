@@ -752,7 +752,7 @@ export const RolesView: React.FC = () => {
                   onChange={toggleSelectAll}
                 />
               </th>
-              <th className="px-6 py-4 w-16"></th> {/* Image Column */}
+              {/* <th className="px-6 py-4 w-16"></th> Image Column */}
               <th className="px-6 py-4">Student Name</th>
               <th className="px-6 py-4">Matric No</th>
               <th className="px-6 py-4">Department</th>
@@ -798,7 +798,7 @@ export const RolesView: React.FC = () => {
                       onChange={() => toggleSelection(student.id)}
                     />
                   </td>
-                  <td className="px-6 py-4">
+                  {/* <td className="px-6 py-4">
                     <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
                        <img 
                           src={
@@ -810,7 +810,7 @@ export const RolesView: React.FC = () => {
                           className="h-full w-full object-cover"
                         />
                     </div>
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 font-bold text-slate-700">
                     {student.name}
                   </td>
