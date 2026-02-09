@@ -19,9 +19,9 @@ export const ProfileView: React.FC = () => {
                 <div className="w-36 h-36 rounded-[2rem] bg-slate-50 border-4 border-white overflow-hidden flex items-center justify-center shadow-xl shadow-slate-200/50">
                   <img src="https://picsum.photos/seed/admin/200/200" alt="Profile" className="w-full h-full object-cover" />
                 </div>
-                <button className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-3 rounded-2xl shadow-lg hover:bg-blue-700 transition-all border-4 border-white">
+                {/* <button className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-3 rounded-2xl shadow-lg hover:bg-blue-700 transition-all border-4 border-white">
                   <Camera size={20} />
-                </button>
+                </button> */}
               </div>
               <div className="text-center">
                 <p className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] mb-1">Administrator</p>
@@ -64,7 +64,7 @@ export const ProfileView: React.FC = () => {
             <div className="space-y-5">
               <SecurityInput label="Current Password" placeholder="••••••••" />
               <SecurityInput label="New Password" placeholder="••••••••" />
-              <button className="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold mt-2 shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all">Change Password</button>
+              <button className="w-full bg-[#1D7AD9] text-white py-3 rounded-xl text-xs font-bold mt-2 shadow-lg shadow-slate-900/10 hover:bg-blue-700 transition-all">Change Password</button>
             </div>
           </div>
 
