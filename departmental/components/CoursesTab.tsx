@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
-import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download, Upload } from "lucide-react";
+import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "react-hot-toast";
 import CourseForm from "./CourseForm";
 import { programsCoursesApi } from "../api/programscourseapi";
@@ -354,6 +354,8 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync editingCourse with route ID
@@ -415,6 +417,17 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
       setFilteredCourses(filtered);
     }
   }, [searchTerm, courses]);
+
+  // Pagination Logic
+  const totalItems = filteredCourses.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedCourses = filteredCourses.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to first page when search or data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, courses, itemsPerPage]);
 
   // Format semester names
   const formatSemesterName = (name: string) => {
@@ -568,12 +581,12 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
           onChange={async (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            
+
             try {
               setIsUploading(true);
               const formData = new FormData();
               formData.append("file", file);
-              
+
               await programsCoursesApi.bulkUploadCourses(formData);
               toast.success("Courses uploaded successfully!");
               fetchCourses();
@@ -645,7 +658,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
           </div>
         </div>
 
-        <div className="overflow-x-auto max-h-[calc(100vw_-_300px)]">
+        <div className="overflow-x-auto max-h-[calc(100vw_-_320px)]">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50/60 border-y border-gray-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
@@ -673,10 +686,10 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
             </thead>
 
             <tbody className="divide-y divide-gray-50">
-              {filteredCourses.length === 0 ? (
+              {paginatedCourses.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={10}
                     className="px-6 py-8 text-center text-slate-500"
                   >
                     {searchTerm
@@ -685,7 +698,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                   </td>
                 </tr>
               ) : (
-                filteredCourses.map((course) => (
+                paginatedCourses.map((course) => (
                   <tr
                     key={course.id}
                     className={`hover:bg-slate-50/50 transition-colors text-sm text-slate-600 group ${selectedIds.includes(course.id) ? "bg-blue-50/30" : ""
@@ -774,6 +787,74 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Footer */}
+        <div className="px-6 py-4 flex items-center justify-between border-t border-gray-100 bg-slate-50/10">
+          <div className="text-xs text-slate-500 font-medium">
+            Showing <span className="text-slate-700">{totalItems > 0 ? startIndex + 1 : 0}</span> to{" "}
+            <span className="text-slate-700">{Math.min(startIndex + itemsPerPage, totalItems)}</span> of{" "}
+            <span className="text-slate-700">{totalItems}</span> results
+          </div>
+
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Rows per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                className="text-xs bg-transparent font-bold text-slate-600 outline-none cursor-pointer hover:text-blue-600 transition-colors"
+              >
+                {[10, 20, 50, 100].map(size => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                  })
+                  .map((page, index, array) => {
+                    const prevPage = array[index - 1];
+                    const showEllipsis = prevPage && page - prevPage > 1;
+
+                    return (
+                      <React.Fragment key={page}>
+                        {showEllipsis && <span className="text-slate-400 px-1 text-xs">...</span>}
+                        <button
+                          onClick={() => setCurrentPage(page)}
+                          className={`min-w-[32px] h-8 text-xs font-bold rounded-lg transition-all ${currentPage === page
+                            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                            : "text-slate-500 hover:bg-slate-50"
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
