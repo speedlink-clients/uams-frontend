@@ -132,9 +132,9 @@ const Navbar = () => {
                                 color="white"
                                 w="100%"
                                 borderRadius="none"
-                                onClick={(e) => { setIsOpen(false); handleComingSoon(e); }}
+                                onClick={() => { setIsOpen(false); openLogin(); }}
                             >
-                                Apply Now
+                                Login
                             </Button>
                         </Stack>
                     </Box>

@@ -6,14 +6,22 @@ import { StudentProfile } from '../services/types';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Toaster, toaster } from '../components/ui/toaster';
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string().min(1, 'New password is required'),
+  newPassword: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
   confirmNewPassword: z.string().min(1, 'Confirm new password is required'),
+}).refine((data) => data.newPassword === data.confirmNewPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmNewPassword'],
 });
 
-type PasswordSchema = z.infer<typeof passwordSchema>;
+export type PasswordSchema = z.infer<typeof passwordSchema>;
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -54,8 +62,13 @@ const Profile: React.FC = () => {
     resolver: zodResolver(passwordSchema),
   });
 
-  const handleChangePassword = (data: PasswordSchema) => {
-    console.log(data);
+  const handleChangePassword = async (data: PasswordSchema) => {
+    try {
+      const response = await authService.changePassword(data);
+      toaster.success(response.message);
+    } catch (error) {
+      toaster.error(error.message);
+    }
   };
 
   return (
@@ -265,7 +278,7 @@ const Profile: React.FC = () => {
           <Text fontSize="lg" fontWeight="bold" mb={6} color="#1e293b">Change Password</Text>
           <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={8} mb={6}>
             <GridItem>
-              <Field.Root>
+              <Field.Root invalid={!!errors.currentPassword?.message}>
                 <Field.Label>Current Password</Field.Label>
                 <Input
                   {...register('currentPassword')}
@@ -278,10 +291,11 @@ const Profile: React.FC = () => {
                   _hover={{ borderColor: 'blue.400' }}
                   _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
                 />
+                <Field.ErrorText>{errors.currentPassword?.message}</Field.ErrorText>
               </Field.Root>
             </GridItem>
             <GridItem>
-              <Field.Root>
+              <Field.Root invalid={!!errors.newPassword?.message}>
                 <Field.Label>New Password</Field.Label>
                 <Input
                   {...register('newPassword')}
@@ -297,7 +311,7 @@ const Profile: React.FC = () => {
               </Field.Root>
             </GridItem>
             <GridItem>
-              <Field.Root>
+              <Field.Root invalid={!!errors.confirmNewPassword?.message}>
                 <Field.Label>Confirm New Password</Field.Label>
                 <Input
                   {...register('confirmNewPassword')}
@@ -328,7 +342,7 @@ const Profile: React.FC = () => {
             </Button>
           </Flex>
         </form>
-
+        <Toaster />
       </Box>
     </Box>
   );
