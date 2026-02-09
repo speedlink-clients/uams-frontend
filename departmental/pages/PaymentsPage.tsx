@@ -262,16 +262,9 @@ export default function PaymentsPage() {
                                         {t.reference}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <img 
-                                                src={getAvatarUrl(t.studentInfo?.fullName || "Unkown")} 
-                                                alt={t.studentInfo?.fullName || "Student"} 
-                                                className="w-8 h-8 rounded-full bg-slate-100" 
-                                            />
-                                            <div>
-                                                <p className="font-bold text-slate-700">{t.studentInfo?.fullName || "Unknown Student"}</p>
-                                                <p className="text-xs text-slate-500">{t.studentInfo?.studentId || "N/A"}</p>
-                                            </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-700">{t.studentInfo?.fullName || "Unknown Student"}</p>
+                                            <p className="text-xs text-slate-500">{t.studentInfo?.studentId || "N/A"}</p>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-slate-600">
