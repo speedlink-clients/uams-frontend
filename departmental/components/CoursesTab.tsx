@@ -622,7 +622,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto max-w-[50vw]">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto max-w-[calc(100vw_-_320px)]">
         <div className="p-6 flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-800">
             Created Courses ({filteredCourses.length})
