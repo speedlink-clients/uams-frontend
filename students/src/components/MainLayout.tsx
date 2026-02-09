@@ -189,7 +189,7 @@ const MainLayout: React.FC = () => {
           '&::-webkit-scrollbar-thumb': { background: '#cbd5e1', borderRadius: '2px' },
         }}>
           <SidebarItem iconSrc={getAssetPath('assets/House (1).png')} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
-          <SidebarItem iconSrc={getAssetPath('assets/BookOpen (1).png')} label="Courses" active={activeTab === 'courses'} onClick={() => { navigate('/courses/results'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
+          <SidebarItem iconSrc={getAssetPath('assets/BookOpen (1).png')} label="Courses" active={activeTab === 'courses'} onClick={() => { navigate('/courses/courses'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Books (1).png')} label="Registration" active={activeTab === 'registration'} onClick={() => { navigate('/registration'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/CalendarDots (1).png')} label="Schedule" active={activeTab === 'schedule'} onClick={() => { navigate('/schedule'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Money (1).png')} label="Payments" active={activeTab === 'payments'} onClick={() => { navigate('/payments'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
@@ -248,7 +248,7 @@ const MainLayout: React.FC = () => {
           </Flex>
 
           <Flex align="center" gap={{ base: 4, lg: 6 }} ml={4} shrink={0}>
-            <HStack spacing={3} display="flex">
+            <HStack gap={3} display="flex">
               <Box as="button" p={2} color="gray.400" _hover={{ color: 'gray.600' }} transition="colors 0.2s">
                 <Bell size={20} />
               </Box>
@@ -262,8 +262,8 @@ const MainLayout: React.FC = () => {
                 <User size={20} />
               </Flex>
               <Flex direction="column" display={{ base: 'none', sm: 'flex' }}>
-                <Text fontSize={{ base: '12px', lg: '13px' }} fontWeight="bold" color="#1e293b" lineHeight="tight" noOfLines={1} maxW={{ base: '80px', lg: 'none' }}>{userName}</Text>
-                <Text fontSize="10px" color="gray.400" fontWeight="medium" lineHeight="tight" noOfLines={1}>{userEmail}</Text>
+                <Text fontSize={{ base: '12px', lg: '13px' }} fontWeight="bold" color="#1e293b" lineHeight="tight" maxW={{ base: '80px', lg: 'none' }}>{userName}</Text>
+                <Text fontSize="10px" color="gray.400" fontWeight="medium" lineHeight="tight" >{userEmail}</Text>
               </Flex>
             </Flex>
           </Flex>
