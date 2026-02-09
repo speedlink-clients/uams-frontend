@@ -13,7 +13,7 @@ import {
 import { toaster } from "@components/ui/toaster";
 import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
-import LoginModal from "./LoginModal";
+import LoginModal from "@components/shared/LoginModal";
 
 const LOGO_SRC = "/images/a7f14cb8262ed215ba9b9d5819404f20e896d5cc.png";
 
