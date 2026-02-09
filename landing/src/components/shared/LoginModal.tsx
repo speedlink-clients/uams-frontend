@@ -133,7 +133,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 {/* Header */}
                                 <VStack gap={2} mb={8} align="center">
                                     <Image
-                                        src="/images/a7f14cb8262ed215ba9b9d5819404f20e896d5cc.png"
+                                        src="/images/uniport-crest.png"
                                         alt="University Logo"
                                         // w={20}
                                         h={14}
