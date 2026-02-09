@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Text, Input, Button, Image, Grid, GridItem } from '@chakra-ui/react';
+import { Box, Flex, Text, Input, Button, Image, Grid, GridItem, Field } from '@chakra-ui/react';
 import { Camera, Edit2 } from 'lucide-react';
 import authService from '../services/authService';
 import { StudentProfile } from '../services/types';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(1, 'New password is required'),
+  confirmNewPassword: z.string().min(1, 'Confirm new password is required'),
+});
+
+type PasswordSchema = z.infer<typeof passwordSchema>;
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -37,6 +48,15 @@ const Profile: React.FC = () => {
   const mockEntryQual = 'O-LEVEL';
   const mockDuration = 4;
   const mockDegree = 'B.SC';
+
+
+  const { register, handleSubmit, formState: { errors } } = useForm<PasswordSchema>({
+    resolver: zodResolver(passwordSchema),
+  });
+
+  const handleChangePassword = (data: PasswordSchema) => {
+    console.log(data);
+  };
 
   return (
     <Box p={{ base: 4, lg: 8 }} maxW="1600px" mx="auto">
@@ -183,46 +203,128 @@ const Profile: React.FC = () => {
         {/* Contact Edit Section */}
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={8} mb={6}>
           <GridItem>
-            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Email Address</Text>
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter address"
-              disabled={!isEditing}
-              bg="white"
-              borderColor="gray.200"
-              _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
-              _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-            />
+            <Field.Root>
+              <Field.Label>Email Address</Field.Label>
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter address"
+                disabled={!isEditing}
+                bg="white"
+                borderColor="gray.200"
+                _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
+                _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+              />
+            </Field.Root>
           </GridItem>
           <GridItem>
-            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Phone Number</Text>
-            <Input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Enter address"
-              disabled={!isEditing}
-              bg="white"
-              borderColor="gray.200"
-              _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
-              _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-            />
+            <Field.Root>
+              <Field.Label>Phone Number</Field.Label>
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter address"
+                disabled={!isEditing}
+                bg="white"
+                borderColor="gray.200"
+                _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
+                _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+              />
+            </Field.Root>
           </GridItem>
         </Grid>
 
         <Flex justify="flex-end">
           <Button
-            variant="outline"
+            variant="surface"
             size="md"
+            p="2"
             rounded="lg"
             color="slate.600"
             borderColor="gray.200"
             onClick={() => setIsEditing(!isEditing)}
-            _hover={{ bg: 'gray.50' }}
+            _hover={{ bg: 'gray.100' }}
           >
             <Edit2 size={16} /> {isEditing ? 'Save' : 'Edit'}
           </Button>
         </Flex>
+
+      </Box>
+
+
+      {/* passowfk */}
+      <Box
+        bg="white"
+        rounded={{ base: "24px", lg: "32px" }}
+        p={{ base: 6, lg: 10 }}
+        border="1px"
+        borderColor="gray.100"
+        shadow="sm"
+      >
+        <form onSubmit={handleSubmit(handleChangePassword)}>
+          <Text fontSize="lg" fontWeight="bold" mb={6} color="#1e293b">Change Password</Text>
+          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={8} mb={6}>
+            <GridItem>
+              <Field.Root>
+                <Field.Label>Current Password</Field.Label>
+                <Input
+                  {...register('currentPassword')}
+                  defaultValue={"********"}
+                  placeholder="Enter current password"
+                  type="password"
+                  bg="white"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'blue.400' }}
+                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                />
+              </Field.Root>
+            </GridItem>
+            <GridItem>
+              <Field.Root>
+                <Field.Label>New Password</Field.Label>
+                <Input
+                  {...register('newPassword')}
+                  placeholder="Enter new password"
+                  type="password"
+                  bg="white"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'blue.400' }}
+                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                />
+                <Field.ErrorText>{errors.newPassword?.message}</Field.ErrorText>
+              </Field.Root>
+            </GridItem>
+            <GridItem>
+              <Field.Root>
+                <Field.Label>Confirm New Password</Field.Label>
+                <Input
+                  {...register('confirmNewPassword')}
+                  placeholder="Confirm new password"
+                  type="password"
+                  bg="white"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'blue.400' }}
+                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                />
+                <Field.ErrorText>{errors.confirmNewPassword?.message}</Field.ErrorText>
+              </Field.Root>
+            </GridItem>
+          </Grid>
+          <Flex justify="flex-end">
+            <Button
+              variant="surface"
+              size="md"
+              p="2"
+              rounded="lg"
+              color="slate.600"
+              borderColor="gray.200"
+              type="submit"
+              _hover={{ bg: 'gray.100' }}
+            >
+              Update Password
+            </Button>
+          </Flex>
+        </form>
 
       </Box>
     </Box>
