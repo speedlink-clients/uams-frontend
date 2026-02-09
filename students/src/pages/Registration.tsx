@@ -704,24 +704,18 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   }, [sessions, selectedSession]);
   
   // remove aleady registered courses from the department courses
-  useEffect(() => {
-    if (departmentCourses.length > 0 && studentProfile) {
-      const registeredCourses = registrationData?.courses?.map(
-        (registration) => registration.courseId,
-      );
-      const filteredCourses = departmentCourses.filter(
-        (course) => !registeredCourses?.includes(course.id),
-      );
-      setDepartmentCourses(filteredCourses);
-    }
-  }, [departmentCourses, registrationData]);
-  
-  // Filter courses based on search
-  const filteredCourses = useMemo(() => departmentCourses.filter(
-    (course) =>
-      course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  ), [departmentCourses, searchQuery]);
+  const filteredCourses = useMemo(() => {
+    const registeredCourseIds =
+      registrationData?.courses?.map((reg) => reg.courseId) || [];
+
+    return departmentCourses.filter((course) => {
+      const isNotRegistered = !registeredCourseIds.includes(course.id);
+      const matchesSearch =
+        course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.title.toLowerCase().includes(searchQuery.toLowerCase());
+      return isNotRegistered && matchesSearch;
+    });
+  }, [departmentCourses, registrationData, searchQuery]);
 
   const handleSelectCourse = (courseCode: string) => {
     setSelectedCoursesInDropdown((prev) =>
