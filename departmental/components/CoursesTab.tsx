@@ -658,7 +658,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
           </div>
         </div>
 
-        <div className="overflow-x-auto max-h-[calc(100vw_-_320px)]">
+        <div className="overflow-x-auto max-w-[calc(100vw_-_300px)]">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50/60 border-y border-gray-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
