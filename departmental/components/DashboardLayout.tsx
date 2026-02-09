@@ -67,7 +67,14 @@ const DashboardLayout: React.FC = () => {
         onLogout={logout}
       />
       <main className="flex-1 ml-64 bg-[#F8FAFC]">
-        <Toaster position="top-right" />
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              zIndex: 9999,
+            },
+          }}
+        />
         <Header
           onViewChange={handleViewChange}
           currentUser={currentUser}
