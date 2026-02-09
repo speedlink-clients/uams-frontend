@@ -16,7 +16,7 @@ const ProgramCoursesPage: React.FC = () => {
     if (pathname.includes("/program-types")) return "Program Types";
     if (pathname.includes("/programs")) return "Programs";
     if (pathname.includes("/courses")) return "Courses";
-    return "Program Types";
+    return "Structure";
   };
 
   const activeTab = getActiveTab(location.pathname);
@@ -26,12 +26,6 @@ const ProgramCoursesPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-800">Program & Courses</h2>
         <div className="flex bg-slate-100 p-1 rounded-xl">
-          <TabButton
-            active={activeTab === "Program Types"}
-            onClick={() => navigate("/program-courses/program-types")}
-            icon={<Layers size={16} />}
-            label="Program Types"
-          />
           <TabButton
             active={activeTab === "Structure"}
             onClick={() => navigate("/program-courses/sessions")}
@@ -50,15 +44,21 @@ const ProgramCoursesPage: React.FC = () => {
             icon={<BookOpen size={16} />}
             label="Course Catalog"
           />
+          <TabButton
+            active={activeTab === "Program Types"}
+            onClick={() => navigate("/program-courses/program-types")}
+            icon={<Layers size={16} />}
+            label="Program Types"
+          />
         </div>
       </div>
 
       <Routes>
-        <Route index element={<ProgramTypeTab />} />
-        <Route path="program-types" element={<ProgramTypeTab />} />
+        <Route index element={<StructureTab />} />
         <Route path="sessions" element={<StructureTab />} />
         <Route path="programs" element={<ProgramsTab />} />
         <Route path="courses" element={<CoursesTab />} />
+        <Route path="program-types" element={<ProgramTypeTab />} />
 
         {/* Creation and Edit routes will be handled within tabs or here */}
         <Route path="sessions/new" element={<StructureTab isCreatingRoute={true} />} />

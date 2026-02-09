@@ -57,6 +57,7 @@ export const RolesView: React.FC = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "unpaid">("all");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -160,6 +161,14 @@ export const RolesView: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
+
+  // --- Filter students by payment status ---
+  const filteredStudents = students.filter((student) => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "paid") return student.hasPaidIDCardFee;
+    if (statusFilter === "unpaid") return !student.hasPaidIDCardFee;
+    return true;
+  });
 
   // --- Export Students to Excel ---
   const handleExportStudents = () => {
@@ -690,17 +699,31 @@ export const RolesView: React.FC = () => {
             Capture photos and generate official university ID cards.
           </p>
         </div>
-        <div className="relative w-full md:w-96">
-          <input
-            type="text"
-            placeholder="Search by name or matric..."
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 bg-slate-100 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/20"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            size={18}
-          />
+        <div className="flex items-center gap-3">
+          {/* Status Filter Dropdown */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as "all" | "paid" | "unpaid")}
+            className="px-4 py-2.5 border border-slate-200 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium text-slate-600"
+          >
+            <option value="all">All Status</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+
+          {/* Search Input */}
+          <div className="relative w-full md:w-80">
+            <input
+              type="text"
+              placeholder="Search by name or matric..."
+              className="w-full pl-10 pr-4 py-2.5 border border-slate-200 bg-slate-100 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/20"
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              size={18}
+            />
+          </div>
         </div>
       </div>
 
@@ -724,7 +747,7 @@ export const RolesView: React.FC = () => {
                 <input
                   type="checkbox"
                   className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
-                  checked={selectedIds.length === students.length && students.length > 0}
+                  checked={selectedIds.length === filteredStudents.length && filteredStudents.length > 0}
                   onChange={toggleSelectAll}
                 />
               </th>
@@ -748,17 +771,17 @@ export const RolesView: React.FC = () => {
                   </div>
                 </td>
               </tr>
-            ) : students.length === 0 ? (
+            ) : filteredStudents.length === 0 ? (
               <tr>
                 <td
                   colSpan={7}
                   className="px-6 py-12 text-center text-slate-400"
                 >
-                  No students found
+                  {statusFilter === "all" ? "No students found" : `No ${statusFilter} students found`}
                 </td>
               </tr>
             ) : (
-              students.map((student) => (
+              filteredStudents.map((student) => (
                 <tr
                   key={student.id}
                   className={`hover:bg-slate-50/50 transition-colors group ${
