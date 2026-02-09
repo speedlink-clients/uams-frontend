@@ -122,7 +122,7 @@ export default function PaymentsPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-[1400px] mx-auto py-10 px-8 relative">
+      <div className="max-w-[1400px] mx-auto py-2 px-2 relative">
         <header className="mb-10 flex flex-col md:flex-row justify-between md:items-end gap-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
