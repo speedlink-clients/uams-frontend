@@ -24,7 +24,7 @@ const ResourcesSection = () => {
         });
     };
     return (
-        <Box py={20} bg="white">
+        <Box id="resources" py={20} bg="white">
             <Container maxW="container.xl">
                 <Heading as="h3" size="3xl" color="#003366" textAlign="center" mb={12}>
                     Access Our Resources

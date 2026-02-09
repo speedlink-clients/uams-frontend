@@ -11,9 +11,9 @@ import {
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GraduationCap, BookOpen, School, Settings, ArrowRight } from "lucide-react";
-import { useCallback } from "react";
+import { useNavigate } from "react-router";
 
-const MotionBox = motion.create(Box);
+const MotionBox = motion(Box);
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -56,10 +56,12 @@ const loginOptions = [
 ];
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
-  const handleNavigation = useCallback((url: string) => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (url: string) => {
     // Navigate to the specific login page
-    window.location.href = url;
-  }, []);
+    navigate(url);
+  };
 
   return (
     <AnimatePresence>
@@ -137,7 +139,14 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     h={14}
                     mb={2}
                   />
-                  {/*  */}
+                  {/* <Heading
+                    textAlign="center"
+                    fontSize="2xl"
+                    fontWeight="800"
+                    color="#1e293b"
+                  >
+                    Welcome to UAMS
+                  </Heading> */}
                   <Text textAlign="center" color="gray.500" fontSize="md">
                     Please select your role to continue
                   </Text>

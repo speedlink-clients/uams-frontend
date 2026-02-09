@@ -16,7 +16,7 @@ const About = () => {
         });
     };
     return (
-        <Box py={{ base: 12, md: 20 }} bg="white" overflow="hidden">
+        <Box id="about" py={{ base: 12, md: 20 }} bg="white" overflow="hidden">
             <Container maxW="container.xl">
                 <MotionFlex
                     direction={{ base: "column", lg: "row" }}

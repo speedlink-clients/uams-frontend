@@ -70,7 +70,7 @@ const LatestNews = () => {
         });
     };
     return (
-        <Box py={20} bg="#F7FAFC">
+        <Box id="blog" py={20} bg="#F7FAFC">
             <Container maxW="container.xl">
                 <Box mb={12}>
                     <Heading as="h3" size="2xl" color="#154A99" mb={2}>

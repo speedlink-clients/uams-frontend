@@ -9,7 +9,7 @@ const MotionFlex = motion(Flex);
 
 const LibrarySection = () => {
     return (
-        <Box overflow="hidden" bg="white">
+        <Box id="library" overflow="hidden" bg="white">
             <Flex direction={{ base: "column", lg: "row" }} minH={{ base: "auto", lg: "500px" }}>
 
                 <MotionBox

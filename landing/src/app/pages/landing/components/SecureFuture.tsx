@@ -24,7 +24,7 @@ const SecureFuture = () => {
     ];
 
     return (
-        <Box bg="#154A99" py={{ base: 12, md: 16 }} position="relative" overflow="hidden">
+        <Box id="research" bg="#154A99" py={{ base: 12, md: 16 }} position="relative" overflow="hidden">
             <Container maxW="container.xl">
                 <Flex direction={{ base: "column", md: "row" }} align="center" justify="space-between" gap={10}>
 
