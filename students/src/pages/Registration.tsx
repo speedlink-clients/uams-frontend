@@ -1407,6 +1407,8 @@ const Registration: React.FC = () => {
         console.log("Fetched levels:", levelsData);
         console.log("Fetched semesters:", semestersData);
         console.log("Fetched sessions:", sessionsData);
+        console.log("Fetched profileData:", profileData);
+        console.log("Fetched profileData.id:", profileData?.id);
 
         setLevels(levelsData);
         setSemesters(semestersData);

@@ -87,7 +87,11 @@ export const getSessions = async (): Promise<Session[]> => {
 export const getStudentProfile = async (): Promise<StudentProfile | null> => {
   try {
     const response = await apiClient.get<ApiResponse<StudentProfile>>('/students/profile');
-    return response.data?.data ?? null;
+    // Handle both wrapped ({ data: profile }) and unwrapped (profile directly) responses
+    const profileData = response.data?.data ?? response.data;
+    console.log("getStudentProfile - raw response.data:", response.data);
+    console.log("getStudentProfile - returning:", profileData);
+    return profileData as StudentProfile ?? null;
   } catch (error) {
     console.error('Failed to fetch student profile:', error);
     return null;
