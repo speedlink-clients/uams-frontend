@@ -87,7 +87,7 @@ const Navbar = () => {
                             display={{ base: "none", sm: "inline-flex" }}
                             onClick={() => setIsLoginModalOpen(true)}
                         >
-                            LOGIN
+                            Login
                         </Button>
 
                         {/* Mobile Menu Toggle */}
@@ -116,6 +116,7 @@ const Navbar = () => {
                         </Link>
                     </Flex>
                 </Container>
+
             </Box>
 
             {/* Mobile Menu Overlay */}
@@ -159,7 +160,7 @@ const Navbar = () => {
                                 setIsLoginModalOpen(true);
                             }}
                         >
-                            LOGIN
+                            Login
                         </Button>
                     </Stack>
                 </Box>
