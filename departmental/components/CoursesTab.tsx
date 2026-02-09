@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
-import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download } from "lucide-react";
+import { Plus, Search, Filter, Loader2, X, MoreHorizontal, Pencil, Trash, Download, Upload } from "lucide-react";
 import { toast } from "react-hot-toast";
 import CourseForm from "./CourseForm";
 import { programsCoursesApi } from "../api/programscourseapi";
 import { exportToExcel } from "../utils/excelExport";
 import { academicsApi, Level, Semester } from "../api/accademicapi";
+
+// Helper to format semester names: "Semester 1" -> "First Semester", "Semester 2" -> "Second Semester"
+const formatSemesterName = (name: string | undefined): string => {
+  if (!name) return "N/A";
+  if (name === "Semester 1" || name.toLowerCase().includes("semester 1")) return "First Semester";
+  if (name === "Semester 2" || name.toLowerCase().includes("semester 2")) return "Second Semester";
+  return name;
+};
 
 // Credit Limit Section Component
 const CreditLimitSection: React.FC = () => {
@@ -290,7 +298,7 @@ const CreditLimitSection: React.FC = () => {
                     />
                   </td>
                   <td className="px-6 py-4">{cl.level?.name || cl.levelId}</td>
-                  <td className="px-6 py-4">{formatSemesterName(cl.semester?.name || cl.semesterId)}</td>
+                  <td className="px-6 py-4">{formatSemesterName(cl.semesterDetail?.name)}</td>
                   <td className="px-6 py-4">{cl.maxCreditLoad}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
@@ -345,6 +353,8 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync editingCourse with route ID
   useEffect(() => {
@@ -405,6 +415,15 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
       setFilteredCourses(filtered);
     }
   }, [searchTerm, courses]);
+
+  // Format semester names
+  const formatSemesterName = (name: string) => {
+    if (!name) return name;
+    if (name === "Semester 1" || name.toLowerCase() === "semester 1") return "First Semester";
+    if (name === "Semester 2" || name.toLowerCase() === "semester 2") return "Second Semester";
+    if (name === "Semester 3" || name.toLowerCase() === "semester 3") return "Third Semester";
+    return name;
+  };
 
   const fetchCourses = async () => {
     try {
@@ -541,6 +560,47 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
         >
           <Download size={18} /> Export table
         </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".csv, .xlsx"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            
+            try {
+              setIsUploading(true);
+              const formData = new FormData();
+              formData.append("file", file);
+              
+              await programsCoursesApi.bulkUploadCourses(formData);
+              toast.success("Courses uploaded successfully!");
+              fetchCourses();
+            } catch (error: any) {
+              console.error("Bulk upload failed:", error);
+              toast.error(error.response?.data?.message || "Failed to upload courses");
+            } finally {
+              setIsUploading(false);
+              if (fileInputRef.current) fileInputRef.current.value = "";
+            }
+          }}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="bg-white text-green-600 px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-50 transition-all active:scale-95 disabled:opacity-50"
+        >
+          {isUploading ? (
+            <>
+              <Loader2 size={18} className="animate-spin" /> Uploading...
+            </>
+          ) : (
+            <>
+              <Upload size={18} /> Upload CSV
+            </>
+          )}
+        </button>
         <button
           onClick={() => navigate("/program-courses/courses/new")}
           className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all"
@@ -549,7 +609,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
         <div className="p-6 flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-800">
             Created Courses ({filteredCourses.length})
@@ -585,7 +645,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[calc(100vw_-_300px)]">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50/60 border-y border-gray-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
@@ -605,6 +665,8 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                 <th className="px-6 py-4">Level</th>
                 <th className="px-6 py-4">Semester</th>
                 <th className="px-6 py-4">Credit Units</th>
+                <th className="px-6 py-4">Learning Hours</th>
+                <th className="px-6 py-4">Practical Hours</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Actions</th>
               </tr>
@@ -640,11 +702,11 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                     <td className="px-6 py-4 font-medium">{course.code}</td>
                     <td className="px-6 py-4">{course.title}</td>
                     <td className="px-6 py-4">{course.level?.name}</td>
-                    <td className="px-6 py-4">{course.semester?.name}</td>
+                    <td className="px-6 py-4">{formatSemesterName(course.semester?.name)}</td>
                     <td className="px-6 py-4">{course.creditUnits}</td>
-                    <td className="px-6 py-4">
-                      {course.semester?.isActive ? "Active" : "Inactive"}
-                    </td>
+                    <td className="px-6 py-4">{course.learningHours}</td>
+                    <td className="px-6 py-4">{course.practicalHours}</td>
+                    <td className="px-6 py-4">{course.status}</td>
                     <td className="px-6 py-4">
                       <div className="relative">
                         <button
@@ -679,7 +741,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                                 <Trash size={14} />
                                 Delete
                               </button>
-                              <div className="border-t border-gray-100 my-1 pt-1">
+                              {/* <div className="border-t border-gray-100 my-1 pt-1">
                                 <button
                                   onClick={async (e) => {
                                     e.stopPropagation();
@@ -701,7 +763,7 @@ const CoursesTab: React.FC<CoursesTabProps> = ({ isCreatingRoute, isEditingRoute
                                     Active
                                   </span>
                                 </button>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                         )}

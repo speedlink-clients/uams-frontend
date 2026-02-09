@@ -42,6 +42,7 @@ import type {
 import { toaster } from "../components/ui/toaster";
 import { profile } from "node:console";
 import apiClient from "../services/api";
+import { useAsync } from "react-use"
 
 const checkboxClasses =
   "appearance-none w-4 h-4 bg-white border border-gray-300 rounded checked:bg-blue-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer transition-all bg-center bg-no-repeat checked:bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22white%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M16.707%205.293a1%201%200%20010%201.414l-8%208a1%201%200%2001-1.414%200l-4-4a1%201%200%20011.414-1.414L8%2012.586l7.293-7.293a1%201%200%20011.414%200z%22%20clip-rule%3D%22evenodd%22%20%2F%3E%3C%2Fsvg%3E')]";
@@ -387,11 +388,14 @@ const OtherServicesView = ({
   const [isLoadingFee, setIsLoadingFee] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [idCardFee, setIdCardFee] = useState<number | null>(null);
+  const [merchantFee, setMerchantFee] = useState<number | null>(null);
+  const [transactionCharges, setTransactionCharges] = useState<number | null>(null);
+  const [subtotal, setSubtotal] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   // get payment status on mount to update hasPaid state
   const [sq, _] = useSearchParams();
-  const trxRef = useMemo(() => sq.get("trxRef"));
+  const trxRef = useMemo(() => sq.get("trxRef"), [sq]);
 
   // handle successful id card payment
   useEffect(() => {
@@ -403,10 +407,10 @@ const OtherServicesView = ({
         .then((res) => {
           res.data.success &&
             toaster.success({ description: "Payment verified successfully!" });
-          })
-          .catch(() => {
-            setError("Failed to verify payment. Please contact support.");
-            toaster.error({ description: "Payment verified successfully!" });
+        })
+        .catch(() => {
+          setError("Failed to verify payment. Please contact support.");
+          toaster.error({ description: "Payment verified successfully!" });
         });
     }
   }, [trxRef]);
@@ -418,6 +422,9 @@ const OtherServicesView = ({
     try {
       const response = await getIdCardFee();
       setIdCardFee(response.data.idCardFee);
+      setMerchantFee(response.data.merchant_fee);
+      setTransactionCharges(response.data.transaction_charges);
+      setSubtotal(response.data.subtotal);
       setShowPaymentModal(true);
     } catch (err: any) {
       setError(err.message || "Failed to fetch ID card fee. Please try again.");
@@ -548,12 +555,20 @@ const OtherServicesView = ({
                   {formatCurrency(idCardFee)}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-medium text-gray-400">
+                  Merchant Fee
+                </span>
+                <span className="text-[15px] font-bold text-[#1e293b]">
+                  {formatCurrency(merchantFee + transactionCharges)}
+                </span>
+              </div>
               <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
                 <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">
                   Total
                 </span>
                 <span className="text-2xl font-black text-[#1d76d2]">
-                  {formatCurrency(idCardFee)}
+                  {formatCurrency(subtotal)}
                 </span>
               </div>
             </div>
@@ -624,6 +639,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   const [isRegistering, setIsRegistering] = useState(false);
   const [paymentReference, setPaymentReference] = useState<string | null>(null);
 
+
   // Fetch department courses on mount
   useEffect(() => {
     const fetchData = async () => {
@@ -687,12 +703,19 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
     }
   }, [sessions, selectedSession]);
 
-  // Filter courses based on search
-  const filteredCourses = departmentCourses.filter(
-    (course) =>
-      course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // remove aleady registered courses from the department courses
+  const filteredCourses = useMemo(() => {
+    const registeredCourseIds =
+      registrationData?.courses?.map((reg) => reg.courseId) || [];
+
+    return departmentCourses.filter((course) => {
+      const isNotRegistered = !registeredCourseIds.includes(course.id);
+      const matchesSearch =
+        course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        course.title.toLowerCase().includes(searchQuery.toLowerCase());
+      return isNotRegistered && matchesSearch;
+    });
+  }, [departmentCourses, registrationData, searchQuery]);
 
   const handleSelectCourse = (courseCode: string) => {
     setSelectedCoursesInDropdown((prev) =>
@@ -788,6 +811,8 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   const registeredCourses = selectedSession
     ? allCourses.filter((course) => course.sessionId === selectedSession)
     : allCourses;
+
+
 
   // Handle course registration
   const handleRegisterCourses = async () => {
@@ -965,7 +990,18 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     className="w-full bg-[#f8fafc] border border-gray-100 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-600 appearance-none focus:outline-none"
                   >
                     <option value="">Select Semester</option>
-                    {semesters
+                    {semesters?.map((semester) => (
+                      <option key={semester.id} value={semester.id}>
+                        {(() => {
+                          const sem = semester.name.toLowerCase();
+                          if (sem === "semester 1") return "First Semester";
+                          if (sem === "semester 2") return "Second Semester";
+                          if (sem === "semester 3") return "Third Semester";
+                          return semester.name;
+                        })()}
+                      </option>
+                    ))}
+                    {/* {semesters
                       ?.filter((semester) => semester.isActive)
                       .map((semester) => (
                         <option key={semester.id} value={semester.id}>
@@ -976,7 +1012,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                             return semester.name;
                           })()}
                         </option>
-                      ))}
+                      ))} */}
                   </select>
                   <ChevronDown
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"
@@ -1117,11 +1153,10 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
             {/* Cart Message */}
             {cartMessage && (
               <div
-                className={`mt-2 p-3 rounded-lg text-[12px] font-medium ${
-                  cartMessage.type === "success"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
-                }`}
+                className={`mt-2 p-3 rounded-lg text-[12px] font-medium ${cartMessage.type === "success"
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
               >
                 {cartMessage.text}
               </div>
@@ -1307,13 +1342,12 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                     </td>
                     <td className="px-4 py-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                          course.status === "registered"
-                            ? "bg-[#f0fdf4] text-[#22c55e]"
-                            : course.status === "pending"
-                              ? "bg-yellow-50 text-yellow-600"
-                              : "bg-red-50 text-red-500"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${course.status === "registered"
+                          ? "bg-[#f0fdf4] text-[#22c55e]"
+                          : course.status === "pending"
+                            ? "bg-yellow-50 text-yellow-600"
+                            : "bg-red-50 text-red-500"
+                          }`}
                       >
                         {course.status}
                       </span>
@@ -1352,6 +1386,7 @@ const Registration: React.FC = () => {
   });
   const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
   const [studentPhoto, setStudentPhoto] = useState<string | null>(null);
+  const [paymentCheckTrigger, setPaymentCheckTrigger] = useState(0); // Used to trigger payment re-check
 
   // Fetch initial data
   useEffect(() => {
@@ -1380,9 +1415,11 @@ const Registration: React.FC = () => {
         ]);
 
         // Debug logging
-        console.log("Fetched levels:", levelsData);
-        console.log("Fetched semesters:", semestersData);
-        console.log("Fetched sessions:", sessionsData);
+        // console.log("Fetched levels:", levelsData);
+        // console.log("Fetched semesters:", semestersData);
+        // console.log("Fetched sessions:", sessionsData);
+        // console.log("Fetched profileData:", profileData);
+        // console.log("Fetched profileData.id:", profileData?.id);
 
         setLevels(levelsData);
         setSemesters(semestersData);
@@ -1400,29 +1437,52 @@ const Registration: React.FC = () => {
     fetchData();
   }, []);
 
-  // Check for ID Card payment success from localStorage
+  // Check for ID Card payment success from API
   useEffect(() => {
-    getStudentPayments(studentProfile?.id)
+    // Debug log to see what studentProfile contains
+    console.log("Payment check - studentProfile:", studentProfile);
+    console.log("Payment check - studentProfile.id:", studentProfile?.id);
+    
+    // Only fetch if studentProfile.id is available
+    if (!studentProfile?.id) {
+      console.log("Payment check - SKIPPING: studentProfile.id is not available");
+      return;
+    }
+
+    console.log("Payment check - CALLING getStudentPayments with id:", studentProfile.id);
+    getStudentPayments(studentProfile.id)
       .then((payments) => {
-        const idCardPayment = payments.find(
-          (payment) => payment.payment_for === "id_card_fee",
+        console.log("Payment check - Payments received:", payments);
+        // Check for id_card_fee payment using meta.payment_type (payment_for contains "ID Card Fee Payment")
+        const idCardPayment = payments?.find(
+          (payment: any) => payment.meta?.payment_type === "id_card_fee",
         );
+        console.log("Payment check - ID Card Payment found:", idCardPayment);
         if (idCardPayment && idCardPayment.status === "success") {
+          console.log("Payment check - Setting hasPaidID to true");
           setHasPaidID(true);
           localStorage.setItem("idcard_paid", "true");
         }
       })
-      .catch(console.error);
-  }, [studentProfile]);
+      .catch((err) => {
+        console.error("Payment check - Error:", err);
+      });
+  }, [studentProfile?.id, paymentCheckTrigger]); // Added paymentCheckTrigger to re-check on demand
 
-  // useEffect(() => {
-  //   const paymentSuccess = localStorage.getItem('idCardPaymentSuccess');
-  //   if (paymentSuccess === 'true') {
-  //     setHasPaidID(true);
-  //     // Clear the flag so it doesn't auto-enable on page reload
-  //     localStorage.removeItem('idCardPaymentSuccess');
-  //   }
-  // }, [studentProfile]);
+  // Re-check payment status when page becomes visible (e.g., user returns from payment gateway)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        // Trigger payment re-check when page becomes visible
+        setPaymentCheckTrigger((prev) => prev + 1);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const activeSubTab = (() => {
     if (location.pathname.includes("/registration/transcript"))
@@ -1445,11 +1505,10 @@ const Registration: React.FC = () => {
             <button
               key={tab}
               onClick={() => navigate(`/registration/${tab}`)}
-              className={`px-8 lg:px-12 py-3 rounded-2xl text-[12px] lg:text-sm font-bold transition-all duration-300 ${
-                activeSubTab === tab
-                  ? "bg-[#3b82f6] text-white shadow-md"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
+              className={`px-8 lg:px-12 py-3 rounded-2xl text-[12px] lg:text-sm font-bold transition-all duration-300 ${activeSubTab === tab
+                ? "bg-[#3b82f6] text-white shadow-md"
+                : "text-gray-400 hover:text-gray-600"
+                }`}
             >
               {tab === "other"
                 ? "ID-Card"

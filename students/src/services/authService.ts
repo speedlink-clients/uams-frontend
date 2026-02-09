@@ -152,7 +152,7 @@ export const initializePayment =
 export const logout = () => {
   localStorage.removeItem("authToken");
   localStorage.removeItem("user");
-  window.location.href = "/login";
+  window.location.href = "https://computerscience.uniport.edu.ng";
 };
 
 /**
@@ -180,6 +180,14 @@ export interface DepartmentDuesResponse {
     departmentDues: number;
     accessFee: number;
     totalFee: number;
+    breakdown: {
+      summary: {
+        total_base_fees: number;
+        total_merchant_fees: number;
+        transaction_charges: number;
+        total_fee: number;
+      };
+    };
   };
 }
 
@@ -212,6 +220,9 @@ export interface IdCardFeeResponse {
   success: boolean;
   data: {
     idCardFee: number;
+    merchant_fee: number;
+    transaction_charges: number;
+    subtotal: number;
   };
 }
 

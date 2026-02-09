@@ -289,7 +289,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       Students: "/students",
       Lecturers: "/staff",
       Payments: "/payments",
-      "ID Card Management": "/roles-permissions",
+      "ID Card Management": "/id-card",
       Announcements: "/announcements",
       Settings: "/settings",
       Notifications: "/notifications",
@@ -305,7 +305,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       "/students": "Students",
       "/staff": "Lecturers",
       "/payments": "Payments",
-      "/roles-permissions": "ID Card Management",
+      "/id-card": "ID Card Management",
       "/announcements": "Announcements",
       "/settings": "Settings",
       "/notifications": "Notifications",
@@ -545,7 +545,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <Route path="/staff" element={renderContent("Lecturers")} />
             <Route path="/payments" element={renderContent("Payments")} />
             <Route
-              path="/roles-permissions"
+              path="/id-card"
               element={renderContent("ID Card Management")}
             />
             <Route

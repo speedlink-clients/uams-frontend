@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Text, Input, Button, Image, Grid, GridItem } from '@chakra-ui/react';
+import { Box, Flex, Text, Input, Button, Image, Grid, GridItem, Field } from '@chakra-ui/react';
 import { Camera, Edit2 } from 'lucide-react';
 import authService from '../services/authService';
 import { StudentProfile } from '../services/types';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(1, 'New password is required'),
+  confirmNewPassword: z.string().min(1, 'Confirm new password is required'),
+});
+
+type PasswordSchema = z.infer<typeof passwordSchema>;
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -38,14 +49,23 @@ const Profile: React.FC = () => {
   const mockDuration = 4;
   const mockDegree = 'B.SC';
 
+
+  const { register, handleSubmit, formState: { errors } } = useForm<PasswordSchema>({
+    resolver: zodResolver(passwordSchema),
+  });
+
+  const handleChangePassword = (data: PasswordSchema) => {
+    console.log(data);
+  };
+
   return (
-    <Box p={{ base: 4, lg: 8 }} maxW="1600px" mx="auto">
-      <Box 
-        bg="white" 
-        rounded={{ base: "24px", lg: "32px" }} 
-        p={{ base: 6, lg: 10 }} 
-        border="1px" 
-        borderColor="gray.100" 
+    <Box p={{ base: 4, lg: 8 }} maxW="1600px" mx="auto" spaceY="6">
+      <Box
+        bg="white"
+        rounded={{ base: "24px", lg: "32px" }}
+        p={{ base: 6, lg: 10 }}
+        border="1px"
+        borderColor="gray.100"
         shadow="sm"
       >
         <Text fontSize="2xl" fontWeight="bold" mb={8} color="slate.800">Profile</Text>
@@ -53,36 +73,36 @@ const Profile: React.FC = () => {
         {/* Avatar Section */}
         <Flex align="center" gap={6} mb={10}>
           <Box position="relative">
-            <Box 
-              w="24" h="24" 
-              rounded="full" 
-              bg="gray.100" 
-              border="1px solid" 
+            <Box
+              w="24" h="24"
+              rounded="full"
+              bg="gray.100"
+              border="1px solid"
               borderColor="gray.200"
               display="flex"
               alignItems="center"
               justifyContent="center"
               overflow="hidden"
             >
-               {user?.avatar ? (
-                 <Image src={user.avatar} w="full" h="full" objectFit="cover" />
-               ) : (
+              {user?.avatar ? (
+                <Image src={user.avatar} w="full" h="full" objectFit="cover" />
+              ) : (
                 <Camera size={32} color="#94a3b8" />
-               )}
+              )}
             </Box>
-            <Box 
-              position="absolute" 
-              bottom={0} 
-              right={0} 
-              bg="white" 
-              rounded="full" 
-              p={1.5} 
-              shadow="md" 
-              border="1px solid" 
+            <Box
+              position="absolute"
+              bottom={0}
+              right={0}
+              bg="white"
+              rounded="full"
+              p={1.5}
+              shadow="md"
+              border="1px solid"
               borderColor="gray.100"
               cursor="pointer"
             >
-              <Edit2 size={12} color="#64748b" />
+              {/* <Edit2 size={12} color="#64748b" /> */}
             </Box>
           </Box>
           <Box>
@@ -118,9 +138,15 @@ const Profile: React.FC = () => {
               <Text fontSize="sm" color="gray.500" fontWeight="medium">{otherName}</Text>
             </Box>
           </GridItem>
+          <GridItem>
+            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Level</Text>
+            <Box bg="gray.100" rounded="lg" p={3}>
+              <Text fontSize="sm" color="gray.500" fontWeight="medium">{profile?.level || 'N/A'}</Text>
+            </Box>
+          </GridItem>
 
           <GridItem>
-            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Sex</Text>
+            <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Gender</Text>
             <Box bg="gray.100" rounded="lg" p={3}>
               <Text fontSize="sm" color="gray.500" fontWeight="medium">{profile?.gender || 'N/A'}</Text>
             </Box>
@@ -177,47 +203,131 @@ const Profile: React.FC = () => {
         {/* Contact Edit Section */}
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={8} mb={6}>
           <GridItem>
-             <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Email Address</Text>
-             <Input 
-               value={email}
-               onChange={(e) => setEmail(e.target.value)}
-               placeholder="Enter address" 
-               disabled={!isEditing}
-               bg="white"
-               borderColor="gray.200"
-               _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
-               _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-             />
-          </GridItem>
-          <GridItem>
-             <Text fontSize="sm" fontWeight="semibold" mb={2} color="#1e293b">Phone Number</Text>
-             <Input 
-               value={phone}
-               onChange={(e) => setPhone(e.target.value)}
-               placeholder="Enter address" 
-               disabled={!isEditing}
-               bg="white"
-               borderColor="gray.200"
+            <Field.Root>
+              <Field.Label>Email Address</Field.Label>
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter address"
+                disabled={!isEditing}
+                bg="white"
+                borderColor="gray.200"
                 _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
                 _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
-             />
+              />
+            </Field.Root>
+          </GridItem>
+          <GridItem>
+            <Field.Root>
+              <Field.Label>Phone Number</Field.Label>
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter address"
+                disabled={!isEditing}
+                bg="white"
+                borderColor="gray.200"
+                _hover={{ borderColor: isEditing ? 'blue.400' : 'gray.200' }}
+                _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+              />
+            </Field.Root>
           </GridItem>
         </Grid>
-        
+
         <Flex justify="flex-end">
-            <Button 
-                variant="outline" 
-                size="md"
-                rounded="lg"
-                color="slate.600"
-                borderColor="gray.200"
-                leftIcon={<Edit2 size={16} />}
-                onClick={() => setIsEditing(!isEditing)}
-                _hover={{ bg: 'gray.50' }}
-            >
-                {isEditing ? 'Save' : 'Edit'}
-            </Button>
+          <Button
+            variant="surface"
+            size="md"
+            p="2"
+            rounded="lg"
+            color="slate.600"
+            borderColor="gray.200"
+            onClick={() => setIsEditing(!isEditing)}
+            _hover={{ bg: 'gray.100' }}
+          >
+            <Edit2 size={16} /> {isEditing ? 'Save' : 'Edit'}
+          </Button>
         </Flex>
+
+      </Box>
+
+
+      {/* passowfk */}
+      <Box
+        bg="white"
+        rounded={{ base: "24px", lg: "32px" }}
+        p={{ base: 6, lg: 10 }}
+        border="1px"
+        borderColor="gray.100"
+        shadow="sm"
+      >
+        <form onSubmit={handleSubmit(handleChangePassword)}>
+          <Text fontSize="lg" fontWeight="bold" mb={6} color="#1e293b">Change Password</Text>
+          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={8} mb={6}>
+            <GridItem>
+              <Field.Root>
+                <Field.Label>Current Password</Field.Label>
+                <Input
+                  {...register('currentPassword')}
+                  defaultValue={"********"}
+                  placeholder="Enter current password"
+                  type="password"
+                  bg="white"
+                  pl="4"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'blue.400' }}
+                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                />
+              </Field.Root>
+            </GridItem>
+            <GridItem>
+              <Field.Root>
+                <Field.Label>New Password</Field.Label>
+                <Input
+                  {...register('newPassword')}
+                  placeholder="Enter new password"
+                  type="password"
+                  bg="white"
+                  pl="4"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'blue.400' }}
+                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                />
+                <Field.ErrorText>{errors.newPassword?.message}</Field.ErrorText>
+              </Field.Root>
+            </GridItem>
+            <GridItem>
+              <Field.Root>
+                <Field.Label>Confirm New Password</Field.Label>
+                <Input
+                  {...register('confirmNewPassword')}
+                  placeholder="Confirm new password"
+                  type="password"
+                  bg="white"
+                  pl="4"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: 'blue.400' }}
+                  _focus={{ borderColor: 'blue.500', ring: 1, ringColor: 'blue.500' }}
+                />
+                <Field.ErrorText>{errors.confirmNewPassword?.message}</Field.ErrorText>
+              </Field.Root>
+            </GridItem>
+          </Grid>
+          <Flex justify="flex-end">
+            <Button
+              variant="surface"
+              size="md"
+              p="2"
+              rounded="lg"
+              color="slate.600"
+              borderColor="gray.200"
+              type="submit"
+              _hover={{ bg: 'gray.100' }}
+            >
+              Update Password
+            </Button>
+          </Flex>
+        </form>
 
       </Box>
     </Box>

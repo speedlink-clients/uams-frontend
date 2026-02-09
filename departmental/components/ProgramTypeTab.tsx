@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Filter, Search, Edit, Trash2, Plus, MoreHorizontal } from "lucide-react";
+import { Filter, Search, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import FormFieldHorizontal from "./FormFieldHorizontal";
 import { programsCoursesApi } from "../api/programscourseapi";
 import { ProgramTypeResponse } from "../api/types";
@@ -141,25 +141,11 @@ const ProgramTypeTab: React.FC = () => {
                 Delete Selected ({selectedIds.length})
             </button>
         )}
-        <div className="flex-1 flex justify-end">
-        <button
-          onClick={() => {
-              handleCancel(); // Ensure clean state
-              setIsCreating(true);
-          }}
-          className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
-        >
-          <Plus size={18} />
-          Create Program Type
-        </button>
-        </div>
       </div>
 
       {isCreating && (
         <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-          <h3 className="text-xl font-bold text-slate-800 mb-8">
-            {currentProgramTypeId ? "Edit Program Type" : "Create Program Type"}
-          </h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-8">Edit Program Type</h3>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-6">
             <div className="space-y-6">
@@ -211,7 +197,7 @@ const ProgramTypeTab: React.FC = () => {
               disabled={isSaving}
               className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#00B01D] text-white hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
             >
-              {isSaving ? "Saving..." : (currentProgramTypeId ? "Update Program Type" : "Create Program Type")}
+              {isSaving ? "Saving..." : "Update Program Type"}
             </button>
           </div>
         </div>

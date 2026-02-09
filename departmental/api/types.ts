@@ -56,8 +56,9 @@ export interface Course {
   code: string;
   title: string;
   creditUnits: number;
-  creditHours: number;
-  contactHoursPerWeek: number;
+  learningHours: number;
+  practicalHours: number;
+  status: string;
   createdAt: string;
   updatedAt: string;
   semester: {
@@ -76,8 +77,9 @@ export interface CreateCourseData {
   code: string;
   title: string;
   creditUnits: number;
-  creditHours: number;
-  contactHoursPerWeek: number;
+  learningHours: number;
+  practicalHours: number;
+  status: string;
   levelId?: string;
   programTypeId: string;
 }

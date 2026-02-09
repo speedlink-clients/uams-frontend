@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import { Filter, MoreHorizontal, Search, ChevronDown, Edit, Trash2, Download, Trash, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import FormFieldHorizontal from "./FormFieldHorizontal";
@@ -24,6 +24,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [programTypes, setProgramTypes] = useState<ProgramTypeResponse[]>([]);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -34,31 +35,33 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
     if (isEditingRoute && id && sessions.length > 0) {
       const session = sessions.find(sub => sub.id === id);
       if (session) {
+        console.log("Editing session data:", session); // Debug log
         setEditingSession(session);
         setFormData({
           name: session.name,
-          type: session.programType?.id || "",
-          semesters: session.semesters || "2",
-          duration: session.duration || "12 Months",
+          // type: session.programType?.id || "",
+          semesters: session.semesters || session.semesterCount?.toString() || "",
+          duration: session.duration + " Months",
           startDate: session.startDate || "",
-          description: session.description || "",
+          description: session.description || session.desc || "",
         });
       }
     } else if (!isEditingRoute) {
       setEditingSession(null);
       setFormData({
         name: "",
-        type: "",
-        semesters: "2",
-        duration: "12 Months",
+        // type: "",
+        semesters: "",
+        duration: "",
         startDate: "",
         description: "",
       });
     }
   }, [isEditingRoute, id, sessions]);
 
-  // Fetch Program Types on Mount
-  // Fetch Program Types and Sessions on Mount
+  // Fetch Program Types and Sessions on Mount or when route changes
+  const location = useLocation();
+  
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -87,13 +90,12 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       }
     };
     fetchData();
-  }, []);
+  }, [location.pathname]);
 
   // Form State
   const [formData, setFormData] = useState({
     name: "2023/2024 Academic Session",
     duration: "12 Months",
-    type: "Undergraduate",
     startDate: "2024-10-12", // Fixed date format for date input
     semesters: "2",
     description: "",
@@ -105,7 +107,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       setFormData({
         name: editingSession.name,
         duration: editingSession.duration,
-        type: editingSession.type,
         startDate: editingSession.startDate, // Ensure format YYYY-MM-DD
         semesters: "2", // Mock data doesn't have semesters, default or mock it
         description: "", // Mock data doesn't have description
@@ -115,7 +116,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       setFormData({
         name: "2023/2024 Academic Session",
         duration: "12 Months",
-        type: "Undergraduate",
         startDate: "2024-10-12",
         semesters: "2",
         description: "",
@@ -172,7 +172,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
       if (editingSession) {
         await academicsApi.updateSession(editingSession.id, {
           name: payload.name,
-          type: programTypes.find(t => t.id === payload.type)?.name || payload.type,
           semesterCount: payload.semesterCount,
           duration: payload.duration,
           startDate: payload.startDate,
@@ -201,41 +200,41 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this session?")) {
-      try {
-        await academicsApi.deleteSession(id);
-        toast.success("Session deleted");
+  // const handleDelete = async (id: string) => {
+  //   if (window.confirm("Are you sure you want to delete this session?")) {
+  //     try {
+  //       await academicsApi.deleteSession(id);
+  //       toast.success("Session deleted");
 
-        // Refresh list
-        const updatedSessions = await academicsApi.getAcademicSessions();
-        const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
-        setSessions(sessionsList);
-      } catch (error: any) {
-        console.error("Failed to delete session", error);
-        toast.error(error.response?.data?.message || "Failed to delete session");
-      }
-    }
-  };
+  //       // Refresh list
+  //       const updatedSessions = await academicsApi.getAcademicSessions();
+  //       const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
+  //       setSessions(sessionsList);
+  //     } catch (error: any) {
+  //       console.error("Failed to delete session", error);
+  //       toast.error(error.response?.data?.message || "Failed to delete session");
+  //     }
+  //   }
+  // };
 
-  const handleBulkDelete = async () => {
-    if (selectedIds.length === 0) return;
+  // const handleBulkDelete = async () => {
+  //   if (selectedIds.length === 0) return;
 
-    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected sessions?`)) {
-      try {
-        await Promise.all(selectedIds.map(id => academicsApi.deleteSession(id)));
-        toast.success(`${selectedIds.length} sessions deleted successfully`);
-        setSelectedIds([]);
-        // Refresh list
-        const updatedSessions = await academicsApi.getAcademicSessions();
-        const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
-        setSessions(sessionsList);
-      } catch (err: any) {
-        console.error("Error bulk deleting sessions:", err);
-        toast.error("Failed to delete some sessions");
-      }
-    }
-  };
+  //   if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected sessions?`)) {
+  //     try {
+  //       await Promise.all(selectedIds.map(id => academicsApi.deleteSession(id)));
+  //       toast.success(`${selectedIds.length} sessions deleted successfully`);
+  //       setSelectedIds([]);
+  //       // Refresh list
+  //       const updatedSessions = await academicsApi.getAcademicSessions();
+  //       const sessionsList = Array.isArray(updatedSessions) ? updatedSessions : (updatedSessions as any)?.data || (updatedSessions as any)?.sessions || [];
+  //       setSessions(sessionsList);
+  //     } catch (err: any) {
+  //       console.error("Error bulk deleting sessions:", err);
+  //       toast.error("Failed to delete some sessions");
+  //     }
+  //   }
+  // };
 
   const handleExport = () => {
     exportToExcel(sessions, "Academic_Sessions");
@@ -255,16 +254,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
               label="Session Name"
               value={formData.name}
               onChange={(val) => handleFormChange("name", val)}
-            />
-            <FormFieldHorizontal
-              label="Type"
-              type="select"
-              options={Array.isArray(programTypes) ? programTypes.map((t) => ({
-                label: t.name,
-                value: t.id,
-              })) : []}
-              value={formData.type}
-              onChange={(val) => handleFormChange("type", val)}
             />
             <FormFieldHorizontal
               label="Semesters"
@@ -379,7 +368,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                   />
                 </th>
                 <th className="px-6 py-4">Session Name</th>
-                <th className="px-6 py-4">Type</th>
                 <th className="px-6 py-4">Duration</th>
                 <th className="px-6 py-4">Start Date</th>
                 <th className="px-6 py-4">Status</th>
@@ -389,7 +377,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
             <tbody className="divide-y divide-gray-50 text-sm">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex items-center justify-center gap-2 text-slate-500">
                       <svg className="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -401,7 +389,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                 </tr>
               ) : !Array.isArray(sessions) || sessions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                     No sessions found
                   </td>
                 </tr>
@@ -416,7 +404,6 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                     />
                   </td>
                   <td className="px-6 py-4 font-medium">{session.name}</td>
-                  <td className="px-6 py-4">{session.type}</td>
                   <td className="px-6 py-4">{session.duration}</td>
                   <td className="px-6 py-4">{session.startDate}</td>
                   <td className="px-6 py-4">
@@ -427,40 +414,64 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                   <td className="px-6 py-4 text-center">
                     <div className="relative">
                       <button
-                        onClick={() => setActiveActionId(activeActionId === session.id ? null : session.id)}
+                        onClick={(e) => {
+                          if (activeActionId === session.id) {
+                            setActiveActionId(null);
+                            setDropdownPosition(null);
+                          } else {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setDropdownPosition({
+                              top: rect.top - 10, // Position above the button
+                              right: window.innerWidth - rect.right,
+                            });
+                            setActiveActionId(session.id);
+                          }
+                        }}
                         className="p-1 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
                       >
                         <MoreHorizontal size={18} />
                       </button>
 
-                      {activeActionId === session.id && (
+                      {activeActionId === session.id && dropdownPosition && (
                         <>
                           <div
-                            className="fixed inset-0 z-10"
-                            onClick={() => setActiveActionId(null)}
+                            className="fixed inset-0 z-40"
+                            onClick={() => {
+                              setActiveActionId(null);
+                              setDropdownPosition(null);
+                            }}
                           />
-                          <div className="absolute right-0 bottom-full mb-1 w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-20 py-1 animate-in fade-in zoom-in-95 duration-200">
+                          <div 
+                            className="fixed w-32 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-1 animate-in fade-in zoom-in-95 duration-200"
+                            style={{
+                              top: dropdownPosition.top,
+                              right: dropdownPosition.right,
+                              transform: 'translateY(-100%)',
+                            }}
+                          >
                             <button
                               onClick={() => {
                                 console.log("Edit", session.id);
                                 navigate(`/program-courses/sessions/edit/${session.id}`);
                                 setActiveActionId(null);
+                                setDropdownPosition(null);
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors text-left"
                             >
                               <Edit size={14} />
                               Edit
                             </button>
-                            <button
+                            {/* <button
                               onClick={() => {
                                 handleDelete(session.id);
                                 setActiveActionId(null);
+                                setDropdownPosition(null);
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
                             >
                               <Trash2 size={14} />
                               Delete
-                            </button>
+                            </button> */}
                             <div className="border-t border-gray-100 my-1 pt-1">
                               <button
                                 onClick={async (e) => {
@@ -474,6 +485,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
                                     toast.error("Failed to update status");
                                   }
                                   setActiveActionId(null);
+                                  setDropdownPosition(null);
                                 }}
                                 className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                               >
@@ -502,14 +514,14 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
           <span className="text-sm font-bold text-slate-700">
             {selectedIds.length} items selected
           </span>
-          <div className="h-6 w-px bg-slate-200"></div>
-          <button
+          {/* <div className="h-6 w-px bg-slate-200"></div> */}
+          {/* <button
             onClick={handleBulkDelete}
             className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors"
           >
             <Trash size={16} />
             Delete
-          </button>
+          </button> */}
           <div className="h-6 w-px bg-slate-200"></div>
           <button
             onClick={() => setSelectedIds([])}

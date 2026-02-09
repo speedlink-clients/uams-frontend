@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Save, Edit2, X, RotateCcw } from "lucide-react";
+import { Save, Edit2, X, RotateCcw, Loader2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import api from "@/api/axios";
 import { programsCoursesApi } from "@/api/programscourseapi";
 import { ProgramTypeResponse } from "@/api/types";
@@ -12,30 +13,32 @@ import { Button } from "@/components/ui/Button";
  * Frontend field → backend payment_type mapping
  */
 const PAYMENT_TYPE_MAP: Record<string, string> = {
-  department_annual_fee: "department_annual_fee",
+  annual_access_fee: "annual_access_fee",
   id_card_fee: "id_card_fee",
   transcript_fee: "transcript_fee",
 };
 
 type SplitsState = {
-  department_annual_fee: string;
+  annual_access_fee: string;
   id_card_fee: string;
   transcript_fee: string;
 };
 
 const INITIAL_SPLITS: SplitsState = {
-  department_annual_fee: "",
+  annual_access_fee: "",
   id_card_fee: "",
   transcript_fee: "",
 };
 
-const SplitKeysConfig = () => {
+interface SplitKeysConfigProps {
+  sessionId: string;
+}
+
+const SplitKeysConfig = ({ sessionId }: SplitKeysConfigProps) => {
   const [splits, setSplits] = useState<SplitsState>(INITIAL_SPLITS);
   const [originalSplits, setOriginalSplits] = useState<SplitsState>(INITIAL_SPLITS);
   // Store record IDs for each payment type (for PUT updates)
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
-  // Store session ID from first fetched record
-  const [sessionId, setSessionId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -101,7 +104,6 @@ const SplitKeysConfig = () => {
         setSplits(populatedSplits);
         setOriginalSplits(populatedSplits);
         setRecordIds(ids);
-        if (fetchedSessionId) setSessionId(fetchedSessionId);
       } catch (err) {
         console.error("Failed to fetch payment splits:", err);
         setSplits(INITIAL_SPLITS);
@@ -189,21 +191,24 @@ const SplitKeysConfig = () => {
 
       setOriginalSplits(splits);
       setIsEditing(false);
+      toast.success("Split keys saved successfully");
     } catch (err: any) {
       console.error("Save failed:", err);
+      const errorMessage = err?.response?.data?.message || err?.message || "Failed to save split keys";
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
   };
 
   const FIELDS = [
-    { label: "Department Annual Fee", key: "department_annual_fee", placeholder: "SPL_xxxxxxxxx" },
+    { label: "Annual Access Fee", key: "annual_access_fee", placeholder: "SPL_xxxxxxxxx" },
     { label: "ID Card Fee", key: "id_card_fee", placeholder: "SPL_xxxxxxxxx" },
     { label: "Transcript Fee", key: "transcript_fee", placeholder: "SPL_xxxxxxxxx" },
   ];
 
   return (
-    <div className="pt-8 border-t border-gray-200">
+    <div className="pt-8">
       {/* Header with Edit Toggle */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-2xl font-semibold text-gray-900">
@@ -231,7 +236,7 @@ const SplitKeysConfig = () => {
       {/* PROGRAM TYPE TABS */}
       <section className="mb-8">
         <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-          Program Levels
+          Program Types
         </h3>
         <div className="flex flex-wrap gap-2 bg-slate-50 p-1.5 rounded-xl w-fit">
           {programTypes.map((type) => (
@@ -291,7 +296,7 @@ const SplitKeysConfig = () => {
             <RotateCcw size={16} /> Reset
           </button>
           <Button onClick={handleSave} variant="primary" disabled={isSaving} className="px-8">
-            {isSaving ? "Saving..." : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
+            {isSaving ? <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Saving...</span> : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
           </Button>
         </div>
       )}

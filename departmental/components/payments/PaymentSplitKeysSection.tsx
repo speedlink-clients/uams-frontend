@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/Input";
 import TabButton from "@/components/TabButton";
-import { Layers, Edit2, X, Save, RotateCcw } from "lucide-react";
+import { Layers, Edit2, X, Save, RotateCcw, Loader2 } from "lucide-react";
 import { ProgramTypeResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 
@@ -64,7 +64,7 @@ export const PaymentSplitKeysSection = ({
       {/* PROGRAM TYPE TABS */}
       <section className="mb-8">
         <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            Program Levels
+            Program Types
         </h3>
         <div className="flex flex-wrap gap-2 bg-slate-50 p-1.5 rounded-xl w-fit">
             {programTypes.map((type) => (
@@ -121,7 +121,7 @@ export const PaymentSplitKeysSection = ({
                 <RotateCcw size={16} /> Reset
             </button>
             <Button onClick={onSave} variant="primary" disabled={isSaving} className="px-8">
-                {isSaving ? "Saving..." : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
+                {isSaving ? <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Saving...</span> : <span className="flex items-center gap-2"><Save size={16} /> Save Changes</span>}
             </Button>
         </div>
       )}

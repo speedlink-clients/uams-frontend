@@ -246,7 +246,7 @@ const Dashboard: React.FC = () => {
               {bioData.map((item, idx) => (
                 <div key={idx} className="min-w-0">
                   <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-1 truncate">{item.label}</p>
-                  <p className="text-[11px] lg:text-[12px] font-bold text-[#1e293b] truncate">{item.value}</p>
+                  <p title={item.value} className="text-[11px] lg:text-[12px] font-bold text-[#1e293b] truncate">{item.value}</p>
                 </div>
               ))}
             </div>

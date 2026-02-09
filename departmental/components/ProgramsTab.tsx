@@ -21,6 +21,7 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
 
   const [editingProgram, setEditingProgram] = useState<any | null>(null);
 
@@ -54,12 +55,25 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
 
   const toggleDropdown = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveDropdownId(activeDropdownId === id ? null : id);
+    if (activeDropdownId === id) {
+      setActiveDropdownId(null);
+      setDropdownPosition(null);
+    } else {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.top - 10,
+        right: window.innerWidth - rect.right,
+      });
+      setActiveDropdownId(id);
+    }
   };
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => setActiveDropdownId(null);
+    const handleClickOutside = () => {
+      setActiveDropdownId(null);
+      setDropdownPosition(null);
+    };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
@@ -118,6 +132,9 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
 
       setEditingProgram(null);
       await fetchPrograms(); // Refresh the list after successful creation
+      
+      // Navigate back to programs list
+      navigate("/program-courses/programs");
     } catch (err: any) {
       console.error("Error saving program:", err);
       // Re-throw the error so ProgramForm can catch and display it
@@ -368,14 +385,22 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
                           <MoreHorizontal size={18} />
                         </button>
 
-                        {activeDropdownId === program.id && (
-                          <div className="absolute right-0 top-8 w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        {activeDropdownId === program.id && dropdownPosition && (
+                          <div 
+                            className="fixed w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                            style={{ 
+                              top: dropdownPosition.top, 
+                              right: dropdownPosition.right,
+                              transform: 'translateY(-100%)'
+                            }}
+                          >
                             <div className="p-1">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate(`/program-courses/programs/edit/${program.id}`);
                                   setActiveDropdownId(null);
+                                  setDropdownPosition(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                               >
@@ -387,6 +412,7 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
                                   e.stopPropagation();
                                   handleDelete(program.id, program.name);
                                   setActiveDropdownId(null);
+                                  setDropdownPosition(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                               >
@@ -405,6 +431,7 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ isCreatingRoute, isEditingRou
                                       toast.error("Failed to update status");
                                     }
                                     setActiveDropdownId(null);
+                                    setDropdownPosition(null);
                                   }}
                                   className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                                 >

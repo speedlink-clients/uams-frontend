@@ -66,7 +66,7 @@ const CoursesTab = () => {
   }, []);
 
   return (
-    <VStack spacing={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
+    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
       <Box 
         bg="white" 
         rounded={{ base: "24px", lg: "32px" }} 
@@ -161,7 +161,7 @@ const CoursesTab = () => {
 
 const ResultsTab = () => {
   return (
-    <VStack spacing={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
+    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
       <Box 
         bg="white" 
         rounded={{ base: "24px", lg: "32px" }} 
@@ -220,7 +220,7 @@ const ResultsTab = () => {
   };
 
   return (
-    <VStack spacing={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
+    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
       ... original content ...
     </VStack>
   );
@@ -251,25 +251,25 @@ const ApplicationDetail = ({ onBack }: { onBack: () => void }) => (
     >
       <Flex align="center" gap={{ base: 3, lg: 4 }}>
         <IconButton 
-          aria-label="Back" 
-          icon={<ChevronLeft size={20} />} 
+          aria-label="Back"  
           onClick={onBack} 
           variant="ghost" 
           rounded="full" 
           color="gray.400" 
           _hover={{ bg: "slate.50" }}
-        />
+        >
+          <ChevronLeft size={20} />
+        </IconButton>
         <Heading 
           fontSize={{ base: "14px", lg: "15px" }} 
           fontWeight="bold" 
           color="slate.800" 
-          noOfLines={1} 
           maxW={{ base: "150px", lg: "none" }}
         >
           Complaint - CPT011
         </Heading>
       </Flex>
-      <HStack spacing={{ base: 2, lg: 3 }}>
+      <HStack gap={{ base: 2, lg: 3 }}>
         <Text display={{ base: "none", sm: "inline" }} fontSize="11px" fontWeight="bold" color="gray.400">Status</Text>
         <Badge 
           px={3} py={1} 
@@ -290,7 +290,7 @@ const ApplicationDetail = ({ onBack }: { onBack: () => void }) => (
       flex="1" 
       overflowY="auto" 
       p={{ base: 4, lg: 8 }} 
-      spacing={{ base: 6, lg: 8 }} 
+      gap={{ base: 6, lg: 8 }} 
       bg="white" 
       align="stretch"
       css={{
@@ -350,7 +350,6 @@ const ApplicationDetail = ({ onBack }: { onBack: () => void }) => (
         <Box position="absolute" right={4} top="50%" transform="translateY(-50%)" display="flex" alignItems="center">
           <IconButton
             aria-label="Send"
-            icon={<Send size={16} />}
             variant="ghost"
             bg="blue.500"
             color="white"
@@ -358,7 +357,9 @@ const ApplicationDetail = ({ onBack }: { onBack: () => void }) => (
             size="sm"
             p={2}
             mr={2}
-          />
+          >
+            <Send size={16} />
+          </IconButton>
           <Image src={getAssetPath('assets/Paperclip.png')} alt="Attach" boxSize="18px" cursor="pointer" />
         </Box>
       </Box>
@@ -368,7 +369,7 @@ const ApplicationDetail = ({ onBack }: { onBack: () => void }) => (
 
 const ApplicationsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, onSelect: (id: string) => void }) => {
   return (
-    <VStack spacing={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
+    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
       <Box 
         bg="white" 
         rounded={{ base: "24px", lg: "32px" }} 
@@ -415,7 +416,7 @@ const ApplicationsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, on
   ];
 
   return (
-    <VStack spacing={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
+    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
       ... original content ...
     </VStack>
   );
@@ -434,7 +435,7 @@ const Courses: React.FC = () => {
 
   return (
     <Box p={{ base: 4, lg: 8 }} maxW="1600px" mx="auto">
-      <VStack spacing={{ base: 6, lg: 8 }} w="full">
+      <VStack gap={{ base: 6, lg: 8 }} w="full">
         {/* Sub-Tabs Navigation */}
         <Flex justify="center" overflowX="auto" mx={-4} px={4} py={2} w="full">
           <HStack 
@@ -444,7 +445,7 @@ const Courses: React.FC = () => {
             border="1px" 
             borderColor="gray.100" 
             shadow="sm" 
-            spacing={0}
+            gap={0}
           >
             {(['courses', 'results', 'applications'] as const).map((tab) => (
               <Button

@@ -13,26 +13,27 @@ import {
 } from 'lucide-react';
 import { IDCardSettingsTab } from './IDCardSettingsTab';
 import { PaymentSettingsTab } from './PaymentSettingsTab';
-import { ConfigsTab } from './ConfigsTab';
+// import { ConfigsTab } from './ConfigsTab';
+import { AcademicSettingsTab } from './AcademicSettingsTab';
 
-type SettingsTab = 'SMS' | 'Email' | 'Configs' | 'ID Card' | 'Payment' | 'Website' | 'Academic' | 'Documents';
+type SettingsTab =  'ID Card' | 'Payment' | 'Academic';
 
 export const SettingsView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('SMS');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('ID Card');
 
   return (
     <div className="max-w-[1200px] mx-auto animate-in fade-in duration-500">
       
       {/* Tabs Navigation */}
-      <div className="bg-slate-50 p-1.5 rounded-lg flex items-center justify-between gap-1 overflow-x-auto mb-8 border border-slate-200">
-         <TabButton active={activeTab === 'SMS'} onClick={() => setActiveTab('SMS')} icon={<MessageSquare size={16}/>} label="SMS" />
+      <div className="bg-slate-50 p-1.5 rounded-lg flex items-center gap-2 overflow-x-auto mb-8 border border-slate-200">
+         {/* <TabButton active={activeTab === 'SMS'} onClick={() => setActiveTab('SMS')} icon={<MessageSquare size={16}/>} label="SMS" />
          <TabButton active={activeTab === 'Email'} onClick={() => setActiveTab('Email')} icon={<Mail size={16}/>} label="Email" />
-         <TabButton active={activeTab === 'Configs'} onClick={() => setActiveTab('Configs')} icon={<SettingsIcon size={16}/>} label="Configs" />
+         <TabButton active={activeTab === 'Configs'} onClick={() => setActiveTab('Configs')} icon={<SettingsIcon size={16}/>} label="Configs" /> */}
          <TabButton active={activeTab === 'ID Card'} onClick={() => setActiveTab('ID Card')} icon={<UserSquare size={16}/>} label="ID Card" />
          <TabButton active={activeTab === 'Payment'} onClick={() => setActiveTab('Payment')} icon={<CreditCard size={16}/>} label="Payment" />
-         <TabButton active={activeTab === 'Website'} onClick={() => setActiveTab('Website')} icon={<Globe size={16}/>} label="Website" />
+         {/* <TabButton active={activeTab === 'Website'} onClick={() => setActiveTab('Website')} icon={<Globe size={16}/>} label="Website" /> */}
          <TabButton active={activeTab === 'Academic'} onClick={() => setActiveTab('Academic')} icon={<GraduationCap size={16}/>} label="Academic" />
-         <TabButton active={activeTab === 'Documents'} onClick={() => setActiveTab('Documents')} icon={<FileText size={16}/>} label="Documents" />
+         {/* <TabButton active={activeTab === 'Documents'} onClick={() => setActiveTab('Documents')} icon={<FileText size={16}/>} label="Documents" /> */}
       </div>
 
       {/* Content Area */}
@@ -40,8 +41,8 @@ export const SettingsView: React.FC = () => {
         <IDCardSettingsTab />
       ) : activeTab === 'Payment' ? (
         <PaymentSettingsTab />
-      ) : activeTab === 'Configs' ? (
-        <ConfigsTab />
+      ) : activeTab === 'Academic' ? (
+        <AcademicSettingsTab />
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 text-center min-h-[600px] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300">
              <div className="bg-slate-50 p-6 rounded-full mb-6">

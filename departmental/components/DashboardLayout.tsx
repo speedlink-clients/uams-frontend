@@ -25,7 +25,7 @@ const DashboardLayout: React.FC = () => {
       "/students": "Students",
       "/staff": "Lecturers",
       "/payments": "Payments",
-      "/roles-permissions": "ID Card Management",
+      "/id-card": "ID Card Management",
       "/announcements": "Announcements",
       "/settings": "Settings",
       "/notifications": "Notifications",
@@ -50,7 +50,7 @@ const DashboardLayout: React.FC = () => {
       Students: "/students",
       Lecturers: "/staff",
       Payments: "/payments",
-      "ID Card Management": "/roles-permissions",
+      "ID Card Management": "/id-card",
       Announcements: "/announcements",
       Settings: "/settings",
       Notifications: "/notifications",
@@ -67,7 +67,14 @@ const DashboardLayout: React.FC = () => {
         onLogout={logout}
       />
       <main className="flex-1 ml-64 bg-[#F8FAFC]">
-        <Toaster position="top-right" />
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              zIndex: 9999,
+            },
+          }}
+        />
         <Header
           onViewChange={handleViewChange}
           currentUser={currentUser}

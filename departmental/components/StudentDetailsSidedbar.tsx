@@ -190,7 +190,7 @@ export const StudentDetailsSidebar: React.FC<StudentDetailsSidebarProps> = ({
             <BioItem
               icon={<ShieldCheck size={14} />}
               label="Level"
-              value={profile.Level?.name || "N/A"}
+              value={profile.level || "N/A"}
             />
             
             <div className="grid grid-cols-2 gap-4 mt-4">

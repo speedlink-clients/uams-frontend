@@ -15,6 +15,14 @@ interface DuesData {
   departmentDues: number;
   accessFee: number;
   totalFee: number;
+  breakdown:  {
+    summary: {
+      total_base_fees: number;
+      total_merchant_fees: number;
+      transaction_charges: number;
+      total_fee: number;
+    };
+  };
 }
 
 const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
@@ -66,7 +74,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative font-['Inter']">
+    <div className="py-10 min-h-screen w-full flex items-center justify-center relative font-['Inter']">
       <AuthBackground />
       <AuthCard>
         <div className="text-center mb-10">
@@ -111,9 +119,17 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
                   {formatCurrency(duesData.accessFee)}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-medium text-gray-400">
+                  Merchant Fee
+                </span>
+                <span className="text-[15px] font-bold text-[#1e293b]">
+                  {formatCurrency(duesData.breakdown.summary.total_merchant_fees + duesData.breakdown.summary.transaction_charges)}
+                </span>
+              </div>
               <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
                 <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">
-                  Total Dues
+                  Total Fee
                 </span>
                 <span className="text-2xl font-black text-[#1d76d2]">
                   {formatCurrency(duesData.totalFee)}

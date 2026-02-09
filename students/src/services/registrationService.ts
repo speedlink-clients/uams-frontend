@@ -87,18 +87,26 @@ export const getSessions = async (): Promise<Session[]> => {
 export const getStudentProfile = async (): Promise<StudentProfile | null> => {
   try {
     const response = await apiClient.get<ApiResponse<StudentProfile>>('/students/profile');
-    return response.data?.data ?? null;
+    // Handle both wrapped ({ data: profile }) and unwrapped (profile directly) responses
+    const profileData = response.data?.data ?? response.data;
+    console.log("getStudentProfile - raw response.data:", response.data);
+    console.log("getStudentProfile - returning:", profileData);
+    return profileData as StudentProfile ?? null;
   } catch (error) {
     console.error('Failed to fetch student profile:', error);
     return null;
   }
 };
-export const getStudentPayments = async (studentId:string): Promise<any | null> => {
+export const getStudentPayments = async (studentId:string): Promise<any[] | null> => {
   try {
-    const response = await apiClient.get<ApiResponse<StudentProfile>>(`/annual-access-fee/student/${studentId}`);
-    return response.data?.data ?? null;
+    const response = await apiClient.get<{ success: boolean; data: any[] }>(`/annual-access-fee/student/${studentId}`);
+    // Response is { success: true, data: [...payments] }
+    const payments = response.data?.data ?? response.data;
+    console.log("getStudentPayments - raw response.data:", response.data);
+    console.log("getStudentPayments - returning payments:", payments);
+    return Array.isArray(payments) ? payments : [];
   } catch (error) {
-    console.error('Failed to fetch student profile:', error);
+    console.error('Failed to fetch student payments:', error);
     return null;
   }
 };

@@ -70,7 +70,7 @@ const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }
   const currentImage = recoveryImages[internalStep];
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative font-['Inter']">
+    <div className="py-10 min-h-screen w-full flex items-center justify-center relative font-['Inter']">
       <AuthBackground />
       <AuthCard>
         {internalStep === "forgot-password" && (
