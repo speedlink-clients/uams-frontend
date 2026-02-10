@@ -57,12 +57,13 @@ export const RolesView: React.FC = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "unpaid">("all");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -80,12 +81,12 @@ export const RolesView: React.FC = () => {
       try {
         const response = await idCardApi.getDefaultIDCard();
         if (response?.template) {
-           setIdCardSettings({
-             backTemplate: response.template.backCardTemplate || response.template.backTemplate,
-             backDescription: response.template.backDescription,
-             backDisclaimer: response.template.backDisclaimer,
-             signature: response.template.hodSignature || response.template.signature
-           });
+          setIdCardSettings({
+            backTemplate: response.template.backCardTemplate || response.template.backTemplate,
+            backDescription: response.template.backDescription,
+            backDisclaimer: response.template.backDisclaimer,
+            signature: response.template.hodSignature || response.template.signature
+          });
         }
       } catch (error) {
         console.error("Failed to fetch ID card settings", error);
@@ -103,19 +104,24 @@ export const RolesView: React.FC = () => {
 
   // Toggle select all
   const toggleSelectAll = () => {
-    if (selectedIds.length === students.length) {
+    if (selectedIds.length === filteredStudents.length && filteredStudents.length > 0) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(students.map((s) => s.id));
+      setSelectedIds(filteredStudents.map((s) => s.id));
     }
   };
 
   // --- API Logic ---
-  const fetchStudents = async (search = "", page = 1) => {
+  const fetchStudents = async (search = "", page = 1, status = "all") => {
     try {
       setLoading(true);
       const response = await api.get(`/university-admin/students`, {
-        params: { search, limit: ITEMS_PER_PAGE, page },
+        params: {
+          search,
+          limit: ITEMS_PER_PAGE,
+          page,
+          status: status !== "all" ? status : undefined
+        },
       });
 
       const transformed: Student[] = response.data.students.map(
@@ -137,7 +143,7 @@ export const RolesView: React.FC = () => {
       );
 
       setStudents(transformed);
-      
+
       // Store pagination info from response
       if (response.data.pagination) {
         setTotalPages(response.data.pagination.pages || 1);
@@ -152,15 +158,23 @@ export const RolesView: React.FC = () => {
     }
   };
 
-  // Fetch students when page or search changes
+  // Handle search debouncing
   useEffect(() => {
-    fetchStudents(searchQuery, currentPage);
-  }, [searchQuery, currentPage]);
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
-  // Reset to page 1 when search changes
+  // Fetch students when page, debounced search, or status filter changes
+  useEffect(() => {
+    fetchStudents(debouncedSearchQuery, currentPage, statusFilter);
+  }, [debouncedSearchQuery, currentPage, statusFilter]);
+
+  // Reset to page 1 when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, statusFilter]);
 
   // --- Filter students by payment status ---
   const filteredStudents = students.filter((student) => {
@@ -593,55 +607,55 @@ export const RolesView: React.FC = () => {
   const handleBulkDownloadIDCards = async () => {
     if (selectedIds.length === 0) return;
     try {
-        const toastId = toast.loading("Fetching template & downloading ID Cards...");
-        
-        // 1. Fetch default template ID
-        const templateResponse = await idCardApi.getDefaultIDCard();
-        const templateId = templateResponse?.template?.id;
+      const toastId = toast.loading("Fetching template & downloading ID Cards...");
 
-        if (!templateId) {
-             toast.error("Could not find default ID Card template", { id: toastId });
-             return;
-        }
+      // 1. Fetch default template ID
+      const templateResponse = await idCardApi.getDefaultIDCard();
+      const templateId = templateResponse?.template?.id;
 
-        // 2. Trigger download with templateId
-        const blob = await idCardApi.bulkDownloadIDCards(selectedIds, templateId);
-        
-        const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'ID_Cards.pdf'); 
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
-        
-        toast.success("Download started", { id: toastId });
-        setSelectedIds([]); 
+      if (!templateId) {
+        toast.error("Could not find default ID Card template", { id: toastId });
+        return;
+      }
+
+      // 2. Trigger download with templateId
+      const blob = await idCardApi.bulkDownloadIDCards(selectedIds, templateId);
+
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'ID_Cards.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+
+      toast.success("Download started", { id: toastId });
+      setSelectedIds([]);
     } catch (error: any) {
-        console.error("Failed to download ID Cards:", error);
-        toast.error("Failed to download items");
+      console.error("Failed to download ID Cards:", error);
+      toast.error("Failed to download items");
     }
   };
 
   const handleBulkDownloadBanner = async () => {
     if (selectedIds.length === 0) return;
     try {
-        const toastId = toast.loading("Downloading Banner...");
-        const blob = await idCardApi.bulkDownloadBanner(selectedIds);
-        
-        const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'Banners.pdf'); 
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
-        
-        toast.success("Download started", { id: toastId });
-        setSelectedIds([]);
+      const toastId = toast.loading("Downloading Banner...");
+      const blob = await idCardApi.bulkDownloadBanner(selectedIds);
+
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Banners.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+
+      toast.success("Download started", { id: toastId });
+      setSelectedIds([]);
     } catch (error: any) {
-        console.error("Failed to download Banner:", error);
-        toast.error("Failed to download items");
+      console.error("Failed to download Banner:", error);
+      toast.error("Failed to download items");
     }
   };
 
@@ -732,7 +746,7 @@ export const RolesView: React.FC = () => {
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100">
           <h3 className="text-lg font-bold text-slate-800">Students ({totalStudents})</h3>
-          <button 
+          <button
             onClick={handleExportStudents}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
           >
@@ -742,63 +756,62 @@ export const RolesView: React.FC = () => {
         </div>
         <div className="overflow-x-auto max-w-full">
           <table className="w-full text-left min-w-[800px]">
-          <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
-            <tr>
-              <th className="px-6 py-4 w-12 text-center">
-                <input
-                  type="checkbox"
-                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
-                  checked={selectedIds.length === filteredStudents.length && filteredStudents.length > 0}
-                  onChange={toggleSelectAll}
-                />
-              </th>
-              {/* <th className="px-6 py-4 w-16"></th> Image Column */}
-              <th className="px-6 py-4">Student Name</th>
-              <th className="px-6 py-4">Matric No</th>
-              <th className="px-6 py-4">Department</th>
-              <th className="px-6 py-4 text-center">Status</th>
-              <th className="px-6 py-4 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50 text-sm">
-            {loading ? (
+            <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center">
-                  <div className="flex items-center justify-center gap-2 text-slate-500">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span className="text-sm font-medium">
-                      Fetching students…
-                    </span>
-                  </div>
-                </td>
+                <th className="px-6 py-4 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                    checked={selectedIds.length === filteredStudents.length && filteredStudents.length > 0}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
+                {/* <th className="px-6 py-4 w-16"></th> Image Column */}
+                <th className="px-6 py-4">Student Name</th>
+                <th className="px-6 py-4">Matric No</th>
+                <th className="px-6 py-4">Department</th>
+                <th className="px-6 py-4 text-center">Status</th>
+                <th className="px-6 py-4 text-center">Action</th>
               </tr>
-            ) : filteredStudents.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-6 py-12 text-center text-slate-400"
-                >
-                  {statusFilter === "all" ? "No students found" : `No ${statusFilter} students found`}
-                </td>
-              </tr>
-            ) : (
-              filteredStudents.map((student) => (
-                <tr
-                  key={student.id}
-                  className={`hover:bg-slate-50/50 transition-colors group ${
-                    selectedIds.includes(student.id) ? "bg-blue-50/30" : ""
-                  }`}
-                  onClick={() => toggleSelection(student.id)}
-                >
-                  <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
-                      checked={selectedIds.includes(student.id)}
-                      onChange={() => toggleSelection(student.id)}
-                    />
+            </thead>
+            <tbody className="divide-y divide-slate-50 text-sm">
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center">
+                    <div className="flex items-center justify-center gap-2 text-slate-500">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span className="text-sm font-medium">
+                        Fetching students…
+                      </span>
+                    </div>
                   </td>
-                  {/* <td className="px-6 py-4">
+                </tr>
+              ) : filteredStudents.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
+                    {statusFilter === "all" ? "No students found" : `No ${statusFilter} students found`}
+                  </td>
+                </tr>
+              ) : (
+                filteredStudents.map((student) => (
+                  <tr
+                    key={student.id}
+                    className={`hover:bg-slate-50/50 transition-colors group ${selectedIds.includes(student.id) ? "bg-blue-50/30" : ""
+                      }`}
+                    onClick={() => toggleSelection(student.id)}
+                  >
+                    <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                        checked={selectedIds.includes(student.id)}
+                        onChange={() => toggleSelection(student.id)}
+                      />
+                    </td>
+                    {/* <td className="px-6 py-4">
                     <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
                        <img 
                           src={
@@ -811,42 +824,40 @@ export const RolesView: React.FC = () => {
                         />
                     </div>
                   </td> */}
-                  <td className="px-6 py-4 font-bold text-slate-700">
-                    {student.name}
-                  </td>
-                  <td className="px-6 py-4 text-slate-500">{student.matric}</td>
-                  <td className="px-6 py-4 text-slate-500">
-                    {student.department}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-bold ${
-                        student.hasPaidIDCardFee
+                    <td className="px-6 py-4 font-bold text-slate-700">
+                      {student.name}
+                    </td>
+                    <td className="px-6 py-4 text-slate-500">{student.matric}</td>
+                    <td className="px-6 py-4 text-slate-500">
+                      {student.department}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-[10px] font-bold ${student.hasPaidIDCardFee
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {student.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleIssueCard(student)}
-                      disabled={!student.hasPaidIDCardFee}
-                      className={`font-bold ${
-                        student.hasPaidIDCardFee
+                          }`}
+                      >
+                        {student.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => handleIssueCard(student)}
+                        disabled={!student.hasPaidIDCardFee}
+                        className={`font-bold ${student.hasPaidIDCardFee
                           ? "text-blue-600 hover:underline"
                           : "text-slate-300 cursor-not-allowed"
-                      }`}
-                    >
-                      Issue Card
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                          }`}
+                      >
+                        Issue Card
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -860,11 +871,10 @@ export const RolesView: React.FC = () => {
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1 || loading}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-                currentPage === 1 || loading
-                  ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${currentPage === 1 || loading
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
             >
               Previous
             </button>
@@ -886,11 +896,10 @@ export const RolesView: React.FC = () => {
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
                     disabled={loading}
-                    className={`w-10 h-10 rounded-lg text-sm font-bold transition-colors ${
-                      currentPage === pageNum
-                        ? "bg-[#1D7AD9] text-white"
-                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                    }`}
+                    className={`w-10 h-10 rounded-lg text-sm font-bold transition-colors ${currentPage === pageNum
+                      ? "bg-[#1D7AD9] text-white"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
                   >
                     {pageNum}
                   </button>
@@ -900,11 +909,10 @@ export const RolesView: React.FC = () => {
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages || loading}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-                currentPage === totalPages || loading
-                  ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${currentPage === totalPages || loading
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
             >
               Next
             </button>
@@ -1064,26 +1072,26 @@ export const RolesView: React.FC = () => {
                       />
                       <div className="absolute inset-0 flex flex-col items-center pt-10 text-center px-6">
                         <p className="text-[9px] font-bold text-slate-900 mb-2 leading-tigher max-w-[95%]">
-                            {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+                          {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
                         </p>
                         <p className="text-[8px] font-bold text-slate-900 leading-tight max-w-[95%]">
-                            {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+                          {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
                         </p>
-                        
+
                         <div className="mt-auto mb-6 flex flex-col items-center">
-                            {/* Signature Image */}
-                            {idCardSettings?.signature && (
-                                <img 
-                                    src={idCardSettings.signature} 
-                                    alt="Signature" 
-                                    className="w-44 h-7 mb-0 object-contain"
-                                />
-                            )}
-                            {/* Line and Title */}
-                            <div className="w-40 h-[1.5px] bg-slate-900 mb-1"></div>
-                            <p className="text-[7px] font-bold text-slate-900">
-                                Department Admin's Signature
-                            </p>
+                          {/* Signature Image */}
+                          {idCardSettings?.signature && (
+                            <img
+                              src={idCardSettings.signature}
+                              alt="Signature"
+                              className="w-44 h-7 mb-0 object-contain"
+                            />
+                          )}
+                          {/* Line and Title */}
+                          <div className="w-40 h-[1.5px] bg-slate-900 mb-1"></div>
+                          <p className="text-[7px] font-bold text-slate-900">
+                            Department Admin's Signature
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1128,14 +1136,14 @@ export const RolesView: React.FC = () => {
             {selectedIds.length} items selected
           </span>
           <div className="h-6 w-px bg-slate-200"></div>
-          <button 
+          <button
             onClick={handleBulkDownloadBanner}
             className="flex items-center gap-2 bg-[#1D7AD9] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
           >
             <Download size={16} />
             Bulk Download Banner
           </button>
-          <button 
+          <button
             onClick={handleBulkDownloadIDCards}
             className="flex items-center gap-2 bg-[#1D7AD9] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
           >
