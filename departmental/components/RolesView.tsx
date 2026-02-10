@@ -57,7 +57,6 @@ export const RolesView: React.FC = () => {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "unpaid">("all");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
@@ -112,16 +111,11 @@ export const RolesView: React.FC = () => {
   };
 
   // --- API Logic ---
-  const fetchStudents = async (search = "", page = 1, status = "all") => {
+  const fetchStudents = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/university-admin/students`, {
-        params: {
-          search,
-          limit: ITEMS_PER_PAGE,
-          page,
-          status: status !== "all" ? status : undefined
-        },
+        params: { limit: 1000 }, // Fetch a large batch for client-side handling
       });
 
       const transformed: Student[] = response.data.students.map(
@@ -143,13 +137,7 @@ export const RolesView: React.FC = () => {
       );
 
       setStudents(transformed);
-
-      // Store pagination info from response
-      if (response.data.pagination) {
-        setTotalPages(response.data.pagination.pages || 1);
-        setTotalStudents(response.data.pagination.total || 0);
-        setCurrentPage(response.data.pagination.page || 1);
-      }
+      setTotalStudents(transformed.length);
     } catch (err) {
       console.error("Failed to fetch students", err);
       toast.error("Failed to load students");
@@ -158,31 +146,41 @@ export const RolesView: React.FC = () => {
     }
   };
 
-  // Handle search debouncing
+  // Initial fetch
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
+    fetchStudents();
+  }, []);
 
-  // Fetch students when page, debounced search, or status filter changes
-  useEffect(() => {
-    fetchStudents(debouncedSearchQuery, currentPage, statusFilter);
-  }, [debouncedSearchQuery, currentPage, statusFilter]);
+  // Update total students and pages based on filtered results
+  const allFilteredStudents = students.filter((student) => {
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "paid" && student.hasPaidIDCardFee) ||
+      (statusFilter === "unpaid" && !student.hasPaidIDCardFee);
 
-  // Reset to page 1 when search or filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch =
+      searchQuery === "" ||
+      student.name.toLowerCase().includes(searchLower) ||
+      student.matric.toLowerCase().includes(searchLower) ||
+      student.department.toLowerCase().includes(searchLower) ||
+      student.faculty.toLowerCase().includes(searchLower);
 
-  // --- Filter students by payment status ---
-  const filteredStudents = students.filter((student) => {
-    if (statusFilter === "all") return true;
-    if (statusFilter === "paid") return student.hasPaidIDCardFee;
-    if (statusFilter === "unpaid") return !student.hasPaidIDCardFee;
-    return true;
+    return matchesStatus && matchesSearch;
   });
+
+  useEffect(() => {
+    const total = allFilteredStudents.length;
+    setTotalStudents(total);
+    setTotalPages(Math.ceil(total / ITEMS_PER_PAGE) || 1);
+    setCurrentPage(1); // Reset to first page on search/filter change
+  }, [searchQuery, statusFilter, students.length]);
+
+  // Paginated view of filtered students
+  const filteredStudents = allFilteredStudents.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   // --- Export Students to Excel ---
   const handleExportStudents = () => {
