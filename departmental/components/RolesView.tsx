@@ -128,10 +128,12 @@ export const RolesView: React.FC = () => {
           faculty: s.Department?.Faculty?.name || "N/A",
           department: s.Department?.name || "N/A",
           graduationDate: "2026-06-15",
-          status: "Active",
+          status: s.PaymentTransactions?.some(
+              (t) => t.payment_for === "ID Card Fee Payment" && t.status === "success"
+            ) ? "success" : "pending",
           hasPaidIDCardFee:
             s.PaymentTransactions?.some(
-              (t) => t.payment_for === "id_card_fee" && t.status === "success"
+              (t) => t.payment_for === "ID Card Fee Payment" && t.status === "success"
             ) || false,
         })
       );
