@@ -27,6 +27,7 @@ interface Student {
   matric: string;
   faculty: string;
   department: string;
+  level: string;
   graduationDate: string;
   status: string;
   hasPaidIDCardFee: boolean;
@@ -36,6 +37,7 @@ interface Student {
 interface ApiStudent {
   id: string;
   studentId: string;
+  level?: string;
   user: { fullName: string; email: string; phone: string | null; id: string; avatar: string };
   Department?: { name: string; Faculty?: { name: string } };
   PaymentTransactions?: Array<{ payment_for: string; status: string }>;
@@ -58,6 +60,7 @@ export const RolesView: React.FC = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "unpaid">("all");
+  const [levelFilter, setLevelFilter] = useState<string>("all");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -127,6 +130,7 @@ export const RolesView: React.FC = () => {
           matric: s.studentId,
           faculty: s.Department?.Faculty?.name || "N/A",
           department: s.Department?.name || "N/A",
+          level: s.level || "N/A",
           graduationDate: "2026-06-15",
           status: s.PaymentTransactions?.some(
               (t) => t.payment_for === "ID Card Fee Payment" && t.status === "success"
@@ -154,11 +158,16 @@ export const RolesView: React.FC = () => {
   }, []);
 
   // Update total students and pages based on filtered results
+  // --- Get unique levels for filter dropdown ---
+  const uniqueLevels = Array.from(new Set(students.map(s => s.level).filter(l => l && l !== "N/A"))).sort();
+
   const allFilteredStudents = students.filter((student) => {
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "paid" && student.hasPaidIDCardFee) ||
       (statusFilter === "unpaid" && !student.hasPaidIDCardFee);
+
+    const matchesLevel = levelFilter === "all" || student.level === levelFilter;
 
     const searchLower = searchQuery.toLowerCase();
     const matchesSearch =
@@ -168,7 +177,7 @@ export const RolesView: React.FC = () => {
       student.department.toLowerCase().includes(searchLower) ||
       student.faculty.toLowerCase().includes(searchLower);
 
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesLevel && matchesSearch;
   });
 
   useEffect(() => {
@@ -176,7 +185,7 @@ export const RolesView: React.FC = () => {
     setTotalStudents(total);
     setTotalPages(Math.ceil(total / ITEMS_PER_PAGE) || 1);
     setCurrentPage(1); // Reset to first page on search/filter change
-  }, [searchQuery, statusFilter, students.length]);
+  }, [searchQuery, statusFilter, levelFilter, students.length]);
 
   // Paginated view of filtered students
   const filteredStudents = allFilteredStudents.slice(
@@ -191,6 +200,7 @@ export const RolesView: React.FC = () => {
       "Matric No": s.matric,
       "Department": s.department,
       "Faculty": s.faculty,
+      "Level": s.level,
       "Status": s.status,
       "ID Card Fee Paid": s.hasPaidIDCardFee ? "Yes" : "No"
     }));
@@ -714,6 +724,18 @@ export const RolesView: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* Level Filter Dropdown */}
+          <select
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value)}
+            className="px-4 py-2.5 border border-slate-200 bg-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium text-slate-600"
+          >
+            <option value="all">All Levels</option>
+            {uniqueLevels.map(level => (
+              <option key={level} value={level}>{level}</option>
+            ))}
+          </select>
+
           {/* Status Filter Dropdown */}
           <select
             value={statusFilter}
@@ -756,108 +778,99 @@ export const RolesView: React.FC = () => {
         </div>
         <div className="overflow-x-auto max-w-full">
           <table className="w-full text-left min-w-[800px]">
-            <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+          <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+            <tr>
+              <th className="px-6 py-4 w-12 text-center">
+                <input
+                  type="checkbox"
+                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                  checked={selectedIds.length === filteredStudents.length && filteredStudents.length > 0}
+                  onChange={toggleSelectAll}
+                />
+              </th>
+              <th className="px-6 py-4">Student Name</th>
+              <th className="px-6 py-4">Matric No</th>
+              <th className="px-6 py-4">Department</th>
+              <th className="px-6 py-4">Level</th>
+              <th className="px-6 py-4 text-center">Status</th>
+              <th className="px-6 py-4 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50 text-sm">
+            {loading ? (
               <tr>
-                <th className="px-6 py-4 w-12 text-center">
-                  <input
-                    type="checkbox"
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
-                    checked={selectedIds.length === filteredStudents.length && filteredStudents.length > 0}
-                    onChange={toggleSelectAll}
-                  />
-                </th>
-                {/* <th className="px-6 py-4 w-16"></th> Image Column */}
-                <th className="px-6 py-4">Student Name</th>
-                <th className="px-6 py-4">Matric No</th>
-                <th className="px-6 py-4">Department</th>
-                <th className="px-6 py-4 text-center">Status</th>
-                <th className="px-6 py-4 text-center">Action</th>
+                <td colSpan={8} className="px-6 py-12 text-center">
+                  <div className="flex items-center justify-center gap-2 text-slate-500">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span className="text-sm font-medium">
+                      Fetching students…
+                    </span>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50 text-sm">
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
-                    <div className="flex items-center justify-center gap-2 text-slate-500">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <span className="text-sm font-medium">
-                        Fetching students…
-                      </span>
-                    </div>
+            ) : filteredStudents.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={8}
+                  className="px-6 py-12 text-center text-slate-400"
+                >
+                  {statusFilter === "all" ? "No students found" : `No ${statusFilter} students found`}
+                </td>
+              </tr>
+            ) : (
+              filteredStudents.map((student) => (
+                <tr
+                  key={student.id}
+                  className={`hover:bg-slate-50/50 transition-colors group ${selectedIds.includes(student.id) ? "bg-blue-50/30" : ""
+                    }`}
+                  onClick={() => toggleSelection(student.id)}
+                >
+                  <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
+                      checked={selectedIds.includes(student.id)}
+                      onChange={() => toggleSelection(student.id)}
+                    />
                   </td>
-                </tr>
-              ) : filteredStudents.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-6 py-12 text-center text-slate-400"
-                  >
-                    {statusFilter === "all" ? "No students found" : `No ${statusFilter} students found`}
+                  <td className="px-6 py-4 font-bold text-slate-700">
+                    {student.name}
                   </td>
-                </tr>
-              ) : (
-                filteredStudents.map((student) => (
-                  <tr
-                    key={student.id}
-                    className={`hover:bg-slate-50/50 transition-colors group ${selectedIds.includes(student.id) ? "bg-blue-50/30" : ""
-                      }`}
-                    onClick={() => toggleSelection(student.id)}
-                  >
-                    <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
-                        checked={selectedIds.includes(student.id)}
-                        onChange={() => toggleSelection(student.id)}
-                      />
-                    </td>
-                    {/* <td className="px-6 py-4">
-                    <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
-                       <img 
-                          src={
-                            student.avatar 
-                              ? (student.avatar.startsWith('data:') ? student.avatar : `data:image/jpeg;base64,${student.avatar}`)
-                              : `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`
-                          } 
-                          alt={student.name}
-                          className="h-full w-full object-cover"
-                        />
-                    </div>
-                  </td> */}
-                    <td className="px-6 py-4 font-bold text-slate-700">
-                      {student.name}
-                    </td>
-                    <td className="px-6 py-4 text-slate-500">{student.matric}</td>
-                    <td className="px-6 py-4 text-slate-500">
-                      {student.department}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-bold ${student.hasPaidIDCardFee
+                  <td className="px-6 py-4 text-slate-500">{student.matric}</td>
+                  <td className="px-6 py-4 text-slate-500">
+                    {student.department}
+                  </td>
+                  <td className="px-6 py-4 text-slate-500">
+                    {student.level}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-bold ${
+                        student.hasPaidIDCardFee
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
-                          }`}
-                      >
-                        {student.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => handleIssueCard(student)}
-                        disabled={!student.hasPaidIDCardFee}
-                        className={`font-bold ${student.hasPaidIDCardFee
-                          ? "text-blue-600 hover:underline"
-                          : "text-slate-300 cursor-not-allowed"
-                          }`}
-                      >
-                        Issue Card
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                      }`}
+                    >
+                      {student.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() => handleIssueCard(student)}
+                      disabled={!student.hasPaidIDCardFee}
+                      className={`font-bold ${student.hasPaidIDCardFee
+                        ? "text-blue-600 hover:underline"
+                        : "text-slate-300 cursor-not-allowed"
+                      }`}
+                    >
+                      Issue Card
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
         </div>
       </div>
 
