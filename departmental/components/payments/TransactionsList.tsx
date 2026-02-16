@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Search, Filter, Download, Calendar, ArrowUpRight, ArrowLeft } from "lucide-react";
+import { Search, Download, Upload, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { TransactionData, TransactionStatistics } from "../../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+type PaymentTab = "Access Fee" | "ID Card" | "Transcript";
 
 interface TransactionsListProps {
   onBack: () => void;
@@ -13,40 +15,36 @@ interface TransactionsListProps {
 }
 
 export default function TransactionsList({ onBack, programTypeId, programTypeName }: TransactionsListProps) {
+  const [activeTab, setActiveTab] = useState<PaymentTab>("Access Fee");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sessionFilter, setSessionFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [stats, setStats] = useState<TransactionStatistics>({ totalTransactions: 0, totalAmount: 0 });
   const [loading, setLoading] = useState(true);
 
+  const tabs: PaymentTab[] = ["Access Fee", "ID Card", "Transcript"];
+
+  // Map tab names to paymentType values from the API
+  const tabToPaymentType: Record<PaymentTab, string[]> = {
+    "Access Fee": ["access_fee", "annual_access_fee", "department_annual_access"],
+    "ID Card": ["id_card", "idcard", "id_card_payment"],
+    "Transcript": ["transcript", "transcript_fee"],
+  };
+
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         setLoading(true);
-        // GET /annual-access-fee/transactions-all
         const response = await axios.get(`${BASE_URL}/annual-access-fee/transactions-all`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 
         if (response.data.success) {
-          let data = response.data.data as TransactionData[];
-          
-          // Client-side filtering by program type if provided
-          // Note: The transaction object might not strictly have programTypeId on it based on previous inspection.
-          // We might need to filter based on other criteria or update backend. 
-          // For now, I'll assume we filter if the data supports it, or just show all if we can't distiguish.
-          // IF the transaction data doesn't have program info, we CANNOT filter by program type accurately here without more data.
-          // However, assuming for this task that the user understands the limitation or the data structure supports it.
-          // Let's check the studentInfo or similar. 
-          
-          // If programTypeId is passed, we *should* filter. 
-          // Since I can't see programId in TransactionData, I will skip filtering for NOW and just show the list, 
-          // or ideally, I should ask for a backend update. 
-          // But I'll implement the UI first.
-          
-          setTransactions(data);
+          setTransactions(response.data.data as TransactionData[]);
           setStats(response.data.statistics);
         } else {
           toast.error("Failed to load transactions");
@@ -61,247 +59,272 @@ export default function TransactionsList({ onBack, programTypeId, programTypeNam
     fetchTransactions();
   }, [programTypeId]);
 
-  const filteredTransactions = transactions.filter((t) => {
-    const studentName = t.studentInfo?.fullName || "Unknown";
-    const matricNo = t.studentInfo?.studentId || "N/A";
-    const email = t.studentInfo?.email || "";
+  // Filter transactions by active tab's payment type
+  const tabFilteredTransactions = useMemo(() => {
+    const allowedTypes = tabToPaymentType[activeTab].map(t => t.toLowerCase());
+    return transactions.filter(t => {
+      const pType = t.paymentType?.toLowerCase().replace(/[\s-]/g, "_") || "";
+      return allowedTypes.some(allowed => pType.includes(allowed));
+    });
+  }, [transactions, activeTab]);
 
-    const matchesSearch =
-      studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      matricNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      email.toLowerCase().includes(searchQuery.toLowerCase());
+  // Calculate total for the active tab
+  const tabTotal = useMemo(() => {
+    return tabFilteredTransactions
+      .filter(t => t.status === "success")
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [tabFilteredTransactions]);
 
-    const matchesStatus = statusFilter === "all" || t.status === statusFilter;
+  // Apply search, status, date filters
+  const filteredTransactions = useMemo(() => {
+    return tabFilteredTransactions.filter((t) => {
+      const studentName = t.studentInfo?.fullName || "Unknown";
+      const email = t.studentInfo?.email || "";
+      const ref = t.reference || "";
 
-    return matchesSearch && matchesStatus;
-  });
+      const matchesSearch =
+        !searchQuery ||
+        studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ref.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        email.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const toggleSelection = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+      const matchesStatus = statusFilter === "all" || t.status === statusFilter;
+
+      // Date filtering
+      let matchesDate = true;
+      if (dateFrom) {
+        matchesDate = matchesDate && new Date(t.createdAt) >= new Date(dateFrom);
+      }
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59, 999);
+        matchesDate = matchesDate && new Date(t.createdAt) <= toDate;
+      }
+
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+  }, [tabFilteredTransactions, searchQuery, statusFilter, dateFrom, dateTo]);
+
+  const handleClearDateFilters = () => {
+    setDateFrom("");
+    setDateTo("");
   };
 
-  const toggleSelectAll = () => {
-    if (selectedIds.length === filteredTransactions.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(filteredTransactions.map((t) => t.id));
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "success": return "bg-green-100 text-green-700";
+      case "pending": return "bg-yellow-100 text-yellow-700";
+      case "failed": return "bg-red-100 text-red-600";
+      default: return "bg-slate-100 text-slate-600";
     }
   };
 
-  const handleBulkDownload = () => {
-    toast.success(`Downloading ${selectedIds.length} receipts...`);
-    // Future: Implement actual bulk download API
-    setSelectedIds([]);
-  };
-
-  const getStatusColor = (status: string) => {
+  const getStatusLabel = (status: string) => {
     switch (status) {
-      case "success": return "bg-green-100 text-green-700 border-green-200";
-      case "pending": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "failed": return "bg-red-100 text-red-700 border-red-200";
-      default: return "bg-slate-100 text-slate-700 border-slate-200";
+      case "success": return "Success";
+      case "pending": return "Pending";
+      case "failed": return "Decline";
+      default: return status;
     }
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
+    return "N" + new Intl.NumberFormat("en-NG").format(amount);
   };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  };
+
+  const truncateRef = (ref: string) => {
+    if (ref.length <= 20) return ref;
+    return ref.substring(0, 8) + "…." + ref.substring(ref.length - 4);
+  };
+
+  const tabLabel = activeTab === "Access Fee" ? "Access Fee" : activeTab === "ID Card" ? "ID Card" : "Transcript";
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-[1400px] mx-auto py-2 px-2 relative">
-        <header className="mb-8">
-            <button 
-              onClick={onBack}
-              className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-4 group"
-            >
-              <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Back to Revenue Summary</span>
-            </button>
-            
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {programTypeName ? `${programTypeName} Transactions` : "All Transactions"}
-                </h1>
-                <p className="text-gray-500 mt-2">
-                  View and monitor payment transactions{programTypeName ? ` for ${programTypeName}` : ""}.
-                </p>
-              </div>
-            </div>
-        </header>
+      <div className="max-w-[1400px] mx-auto py-2 px-2">
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-              <ArrowUpRight size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Transactions</p>
-              <h3 className="text-2xl font-bold text-slate-900">
-                {loading ? "..." : stats.totalTransactions}
-              </h3>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-              <Download size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Amount</p>
-              <h3 className="text-2xl font-bold text-slate-900">
-                {loading ? "..." : formatCurrency(stats.totalAmount)}
-              </h3>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
-              <Calendar size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">This Month</p>
-              {/* Placeholder for monthly stat if API doesn't provide it yet, or derive from stats if available */}
-              <h3 className="text-2xl font-bold text-slate-900">--</h3>
-            </div>
+        {/* Tabs */}
+        <div className="flex items-center mb-6">
+          <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-6 py-2.5 text-sm font-semibold transition-colors ${
+                  activeTab === tab
+                    ? "bg-white text-[#1D7AD9] border-b-2 border-[#1D7AD9]"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Filters & Actions */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative w-full md:w-80">
-              <input
-                type="text"
-                placeholder="Search by student, matric or ref..."
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/10 shadow-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+        {/* Summary Card + Export */}
+        <div className="flex items-start justify-between mb-8">
+          <div className="bg-gradient-to-r from-[#e8f5e9] to-[#f1f8e9] rounded-xl px-8 py-6 flex items-center gap-4 min-w-[400px]">
+            <div className="h-12 w-12 rounded-lg bg-[#4caf50]/20 flex items-center justify-center">
+              <Upload size={22} className="text-[#4caf50]" />
             </div>
-
-            <select
-              className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500/10 shadow-sm text-sm font-medium text-slate-700 cursor-pointer"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="success">Success</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-            </select>
+            <div>
+              <p className="text-sm text-slate-600 font-medium">Total {tabLabel} Payments</p>
+              <h2 className="text-3xl font-bold text-slate-900">{formatCurrency(tabTotal)}</h2>
+            </div>
           </div>
 
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm">
+          <button className="flex items-center gap-2 bg-[#1D7AD9] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all">
             <Download size={18} />
-            Export CSV
+            Export
           </button>
         </div>
 
+        {/* Transaction History Header + Filters */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+          <h2 className="text-lg font-bold text-slate-900">
+            Transaction History <span className="text-slate-400">({filteredTransactions.length})</span>
+          </h2>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Search */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by name, email or code"
+                className="w-64 pl-10 pr-4 py-2 border border-slate-200 rounded-full bg-white outline-none text-sm focus:ring-2 focus:ring-blue-500/10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            </div>
+
+            {/* Status Filter */}
+            <div className="relative">
+              <select
+                className="appearance-none px-4 py-2 pr-8 border border-slate-200 rounded-full bg-white outline-none text-sm font-medium text-slate-600 cursor-pointer"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">Status</option>
+                <option value="success">Success</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Decline</option>
+              </select>
+              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
+
+            {/* Session Filter */}
+            <div className="relative">
+              <select
+                className="appearance-none px-4 py-2 pr-8 border border-slate-200 rounded-full bg-white outline-none text-sm font-medium text-slate-600 cursor-pointer"
+                value={sessionFilter}
+                onChange={(e) => setSessionFilter(e.target.value)}
+              >
+                <option value="all">Session</option>
+              </select>
+              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
+
+            {/* Date From */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-500">From</span>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="px-3 py-2 border border-slate-200 rounded-full bg-white outline-none text-sm text-slate-600 cursor-pointer"
+              />
+            </div>
+
+            {/* Date To */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-500">To</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="px-3 py-2 border border-slate-200 rounded-full bg-white outline-none text-sm text-slate-600 cursor-pointer"
+              />
+            </div>
+
+            {/* Clear Dates */}
+            {(dateFrom || dateTo) && (
+              <button onClick={handleClearDateFilters} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X size={18} />
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Transactions Table */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-20">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left ">
-              <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+            <table className="w-full text-left">
+              <thead className="border-b border-slate-100">
                 <tr>
-                  <th className="px-6 py-4 w-12 text-center">
-                    <input
-                      type="checkbox"
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
-                      checked={selectedIds.length === filteredTransactions.length && filteredTransactions.length > 0}
-                      onChange={toggleSelectAll}
-                    />
-                  </th>
-                  <th className="px-6 py-4">Transaction Ref</th>
-                  <th className="px-6 py-4">Student</th>
-                  <th className="px-6 py-4">Email</th>
-                  <th className="px-6 py-4">Payment For</th>
-                  <th className="px-6 py-4">Amount</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4 text-center">Status</th>
-                  <th className="px-6 py-4 text-right">Action</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider w-14">S/N</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Transaction Id</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Payment from</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Payment for</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 text-sm">
                 {loading ? (
                   <tr>
-                    <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
-                      Loading transactions...
+                    <td colSpan={7} className="px-6 py-16 text-center text-slate-400">
+                      <div className="flex justify-center items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-slate-400"></div>
+                        Loading transactions...
+                      </div>
                     </td>
                   </tr>
                 ) : filteredTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
-                      No transactions found matching your filters.
+                    <td colSpan={7} className="px-6 py-16 text-center text-slate-400">
+                      No transactions found.
                     </td>
                   </tr>
                 ) : (
-                  filteredTransactions.map((t) => (
-                    <tr
-                      key={t.id}
-                      className={`hover:bg-slate-50/50 transition-colors group cursor-pointer ${selectedIds.includes(t.id) ? "bg-blue-50/30" : ""
-                        }`}
-                      onClick={() => toggleSelection(t.id)}
-                    >
-                      <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500/10 cursor-pointer"
-                          checked={selectedIds.includes(t.id)}
-                          onChange={() => toggleSelection(t.id)}
-                        />
+                  filteredTransactions.map((t, index) => (
+                    <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 text-slate-500">{index + 1}</td>
+                      <td className="px-6 py-4 text-slate-600 font-mono text-xs">
+                        {truncateRef(t.reference)}
                       </td>
-                      <td className="px-6 py-4 font-mono text-xs text-slate-500">
-                        {t.reference}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div>
-                          <p className="font-semibold text-sm text-slate-700">{t.studentInfo?.fullName || "Unknown Student"}</p>
-                          <p className="text-xs text-slate-500">{t.studentInfo?.studentId || "N/A"}</p>
-                        </div>
+                      <td className="px-6 py-4 text-slate-700 font-medium">
+                        {t.studentInfo?.fullName || "Unknown"}
                       </td>
                       <td className="px-6 py-4 text-slate-600">
-                        {t.studentInfo?.email || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 font-medium">
-                        {t.paymentType.replace(/_/g, " ").toUpperCase()}
+                        {t.paymentType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900">
                         {formatCurrency(t.amount)}
                       </td>
                       <td className="px-6 py-4 text-slate-500">
-                        {new Date(t.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(t.status)}`}>
-                          {t.status.toUpperCase()}
-                        </span>
+                        {formatDate(t.createdAt)}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-[#1D7AD9] text-xs font-bold hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
-                          View Receipt
-                        </button>
+                        <span className={`inline-block px-4 py-1 rounded-full text-xs font-bold ${getStatusStyle(t.status)}`}>
+                          {getStatusLabel(t.status)}
+                        </span>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
-          </div>
-
-          {/* Pagination Footer (Mock) */}
-          <div className="px-6 py-4 border-t border-slate-50 flex justify-between items-center text-sm text-slate-500">
-            <span>Showing {filteredTransactions.length} results</span>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Previous</button>
-              <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Next</button>
-            </div>
           </div>
         </div>
 
