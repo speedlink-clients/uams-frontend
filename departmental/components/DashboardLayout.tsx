@@ -29,6 +29,7 @@ const DashboardLayout: React.FC = () => {
       "/announcements": "Announcements",
       "/settings": "Settings",
       "/notifications": "Notifications",
+      "/profile": "Profile",
       "/timetable": "Timetable",
     };
 
