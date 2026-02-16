@@ -29,6 +29,7 @@ const DashboardLayout: React.FC = () => {
       "/announcements": "Announcements",
       "/settings": "Settings",
       "/notifications": "Notifications",
+      "/timetable": "Timetable",
     };
 
     // Check if path starts with one of the keys for nested sub-routes
@@ -55,6 +56,7 @@ const DashboardLayout: React.FC = () => {
       Settings: "/settings",
       Notifications: "/notifications",
       Profile: "/profile",
+      Timetable: "/timetable",
     };
     navigate(routeMap[view] || "/dashboard");
   };

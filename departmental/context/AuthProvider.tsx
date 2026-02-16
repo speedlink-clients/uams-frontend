@@ -67,6 +67,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  // Proactive token expiry check — runs every 30 seconds
+  useEffect(() => {
+    const checkTokenExpiry = () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const expiresAt = payload.exp * 1000; // Convert to ms
+        if (Date.now() >= expiresAt) {
+          // Token has expired — clear session and redirect
+          clearAuthStorage();
+          setAuthData(null);
+          window.location.href = "/departmental-admin/login";
+        }
+      } catch {
+        // If token can't be decoded, it's invalid
+        clearAuthStorage();
+        setAuthData(null);
+        window.location.href = "/departmental-admin/login";
+      }
+    };
+
+    // Check immediately, then every 30 seconds
+    checkTokenExpiry();
+    const interval = setInterval(checkTokenExpiry, 30_000);
+    return () => clearInterval(interval);
+  }, [authData]);
+
   const clearAuthStorage = () => {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem("token");

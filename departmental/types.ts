@@ -75,7 +75,7 @@ export interface Session {
   status: 'Current' | 'Past' | 'Upcoming';
 }
 
-export type ViewType = 'Dashboard' | 'Program & Courses' | 'Students' | 'Lecturers' | 'Payments' | 'ID Card Management' | 'Announcements' | 'Settings' | 'Notifications' | 'Profile';
+export type ViewType = 'Dashboard' | 'Program & Courses' | 'Students' | 'Lecturers' | 'Payments' | 'ID Card Management' | 'Timetable' | 'Announcements' | 'Settings' | 'Notifications' | 'Profile';
 
 export interface Permission {
   id: string;

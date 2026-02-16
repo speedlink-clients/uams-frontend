@@ -34,8 +34,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Session expired — clear all auth data and redirect to login
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      localStorage.removeItem("uniedu_session");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("tenantId");
+      localStorage.removeItem("universityId");
+      localStorage.removeItem("facultyId");
+      localStorage.removeItem("departmentId");
+      localStorage.removeItem("userEmail");
+      window.location.href = "/departmental-admin/login";
     }
     return Promise.reject(error);
   }

@@ -12,6 +12,7 @@ import { SettingsView } from "./components/SettingsView";
 import { NotificationsView } from "./components/NotificationsView";
 import { RolesView } from "./components/RolesView";
 import { ProfileView } from "./components/ProfileView";
+import { TimetableView } from "./components/TimetableView";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
           {
             path: "id-card",
             element: <RolesView />,
+          },
+          {
+            path: "timetable",
+            element: <TimetableView />,
           },
           {
             path: "announcements",
