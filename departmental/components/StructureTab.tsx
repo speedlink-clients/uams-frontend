@@ -327,7 +327,7 @@ const StructureTab: React.FC<StructureTabProps> = ({ isCreatingRoute, isEditingR
         </button>
         <button
           onClick={() => navigate("/program-courses/sessions/new")}
-          className="bg-[#00B01D] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all active:scale-95"
         >
           Create Session
         </button>
