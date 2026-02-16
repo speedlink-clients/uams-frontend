@@ -193,3 +193,28 @@ export interface UserSession {
 export interface LoginProps {
   onLogin: (authData: AuthData) => void;
 }
+
+export interface StudentInfo {
+  studentId: string;
+  registrationNo: string | null;
+  fullName: string;
+  email: string;
+}
+
+export interface TransactionData {
+  id: string;
+  reference: string;
+  amount: number;
+  status: "success" | "pending" | "failed";
+  paymentType: string;
+  paymentMethod: string | null;
+  currency: string;
+  createdAt: string;
+  paidAt: string | null;
+  studentInfo: StudentInfo | null;
+}
+
+export interface TransactionStatistics {
+  totalTransactions: number;
+  totalAmount: number;
+}
