@@ -1,105 +1,168 @@
+import React, { useState, useEffect } from 'react';
+import { Plus, Clock, Search, X } from 'lucide-react';
+import api from '../api/axios';
+import toast, { Toaster } from 'react-hot-toast';
+import { CreateAnnouncementModal } from './CreateAnnouncementModal';
 
-import React from 'react';
-import { Plus } from 'lucide-react';
-
-interface AnnouncementItem {
+interface Announcement {
   id: string;
   title: string;
-  description: string;
-  type: 'blue' | 'white';
+  content: string; // mapped from API 'content'
+  createdAt: string;
+  recipients: string[];
 }
 
-// const ANNOUNCEMENTS_MOCK: AnnouncementItem[] = [
-//   { 
-//     id: '1', 
-//     title: 'Matriculation Date Released', 
-//     description: 'The Math test scheduled for 2nd January has been cancelled. A new date will be announced soon', 
-//     type: 'blue' 
-//   },
-//   { 
-//     id: '2', 
-//     title: 'Field Trip Rescheduled', 
-//     description: 'The field trip to London has been rescheduled. Please check back for the new date and further instructions', 
-//     type: 'white' 
-//   },
-//   { 
-//     id: '3', 
-//     title: 'Field Trip Rescheduled', 
-//     description: 'The field trip to London has been rescheduled. Please check back for the new date and further instructions', 
-//     type: 'white' 
-//   },
-//   { 
-//     id: '4', 
-//     title: 'About Mth 110 Test', 
-//     description: 'The Math test scheduled for 2nd January has been cancelled. A new date will be announced soon', 
-//     type: 'blue' 
-//   },
-//   { 
-//     id: '5', 
-//     title: 'Matriculation Date Released', 
-//     description: 'The Math test scheduled for 2nd January has been cancelled. A new date will be announced soon', 
-//     type: 'blue' 
-//   },
-//   { 
-//     id: '6', 
-//     title: 'Field Trip Rescheduled', 
-//     description: 'The field trip to London has been rescheduled. Please check back for the new date and further instructions', 
-//     type: 'white' 
-//   },
-//   { 
-//     id: '7', 
-//     title: 'Field Trip Rescheduled', 
-//     description: 'The field trip to London has been rescheduled. Please check back for the new date and further instructions', 
-//     type: 'white' 
-//   },
-//   { 
-//     id: '8', 
-//     title: 'About Mth 110 Test', 
-//     description: 'The Math test scheduled for 2nd January has been cancelled. A new date will be announced soon', 
-//     type: 'blue' 
-//   },
-// ];
-
 export const AnnouncementsView: React.FC = () => {
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  
+  // Date Filters
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const fetchAnnouncements = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/announcements/my-department');
+      const data = response.data?.data || [];
+      
+      const transformed = data.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        createdAt: item.createdAt,
+        recipients: item.recipients || []
+      }));
+      
+      setAnnouncements(transformed);
+    } catch (err) {
+      console.error("Failed to fetch announcements", err);
+      toast.error("Failed to load announcements");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-CA'); // YYYY-MM-DD
+  };
+
+  // Filter logic
+  const filteredAnnouncements = announcements.filter(item => {
+    if (!dateFrom && !dateTo) return true;
+    
+    const itemDate = new Date(item.createdAt).setHours(0,0,0,0);
+    const from = dateFrom ? new Date(dateFrom).setHours(0,0,0,0) : null;
+    const to = dateTo ? new Date(dateTo).setHours(0,0,0,0) : null;
+
+    if (from && itemDate < from) return false;
+    if (to && itemDate > to) return false;
+    
+    return true;
+  });
+
+  const handleClearFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white rounded-3xl border border-dashed border-slate-200 p-12 text-center animate-in fade-in zoom-in-95 duration-500">
-      <div className="bg-blue-50 p-6 rounded-full mb-6">
-        <Plus className="h-12 w-12 text-[#1D7AD9]" strokeWidth={1.5} />
+    <div className="max-w-[1400px] mx-auto animate-in fade-in duration-500 pb-20">
+      <Toaster position="top-right" />
+      
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-900">Announcement</h2>
+        <button 
+          onClick={() => setShowCreateModal(true)}
+          className="bg-[#1D7AD9] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/10 hover:bg-blue-700 transition-all active:scale-95"
+        >
+          <Plus size={18} /> 
+          Create New Announcement
+        </button>
       </div>
-      <h2 className="text-2xl font-bold text-slate-800 mb-3">Announcement Board Coming Soon</h2>
-      <p className="text-slate-500 max-w-md mx-auto leading-relaxed">
-        We are building a robust announcement system to keep your department informed. 
-        Check back soon for updates! 🚀
-      </p>
+
+      {/* Date Filters */}
+      <div className="flex justify-end mb-8">
+        <div className="flex items-center bg-slate-100 rounded-lg p-1.5 px-3 gap-2">
+          <span className="text-xs font-semibold text-slate-500 mr-2">From</span>
+          <input 
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer"
+          />
+          <span className="text-slate-300">|</span>
+          <span className="text-xs font-semibold text-slate-500 mx-2">To</span>
+          <input 
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer"
+          />
+          
+          {(dateFrom || dateTo) && (
+            <button 
+              onClick={handleClearFilters}
+              className="ml-2 p-1 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Announcements List */}
+      <div className="space-y-4">
+        {loading ? (
+           <div className="flex justify-center py-20">
+             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1D7AD9]"></div>
+           </div>
+        ) : filteredAnnouncements.length === 0 ? (
+          <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <p className="text-slate-500 font-medium">No announcements found</p>
+          </div>
+        ) : (
+          filteredAnnouncements.map((item) => (
+            <div 
+              key={item.id}
+              className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow relative group"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-sm font-bold text-slate-800">{item.title}</h3>
+                <span className="text-[10px] font-medium text-slate-400">
+                  {formatDate(item.createdAt)}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                {item.content}
+              </p>
+              
+              {/* Optional: Show recipient tags if needed, though not in screenshot */}
+              {/* <div className="mt-3 flex gap-2">
+                {item.recipients.map(r => (
+                  <span key={r} className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] rounded-full capitalize">
+                    {r}
+                  </span>
+                ))}
+              </div> */}
+            </div>
+          ))
+        )}
+      </div>
+
+      <CreateAnnouncementModal 
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={fetchAnnouncements}
+      />
     </div>
   );
-
-//   return (
-//     <div className="max-w-[1400px] mx-auto animate-in fade-in duration-500">
-//       <div className="flex justify-between items-center mb-12">
-//         <h2 className="text-3xl font-bold text-slate-900">Announcement</h2>
-//         <button className="bg-[#1D7AD9] text-white px-6 py-3 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-lg shadow-blue-500/10 hover:bg-blue-700 transition-all">
-//           <Plus size={20} /> Create New Announcement
-//         </button>
-//       </div>
-
-//       <div className="rounded-2xl overflow-hidden">
-//         {ANNOUNCEMENTS_MOCK.map((announcement) => (
-//           <div 
-//             key={announcement.id} 
-//             className={`px-10 py-8 transition-colors ${
-//               announcement.type === 'blue' ? 'bg-[#F4FAFF]' : 'bg-white'
-//             }`}
-//           >
-//             <h3 className="text-base font-bold text-slate-700 mb-2">
-//               {announcement.title}
-//             </h3>
-//             <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">
-//               {announcement.description}
-//             </p>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
 };
