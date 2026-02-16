@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Search, Download, Upload, X } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { TransactionData, TransactionStatistics } from "../../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -14,6 +13,40 @@ interface TransactionsListProps {
   programTypeName?: string;
 }
 
+interface TransactionItem {
+  transactionReference: string;
+  transactionId: string;
+  paymentFrom: string;
+  studentName: string;
+  studentRegNumber: string;
+  paymentFor: string;
+  paymentType: string;
+  amount: string;
+  currency: string;
+  date: string;
+  status: string;
+  sessionId: string;
+  sessionName: string;
+  statusBadge: string;
+}
+
+interface ProgramPayments {
+  programInfo: { id: string; name: string; code: string };
+  accessFee: TransactionItem[];
+  idCardFee: TransactionItem[];
+  transcriptFee: TransactionItem[];
+  otherPayments: TransactionItem[];
+}
+
+interface ProgramTypeSummary {
+  id: string;
+  name: string;
+  code: string;
+  accessFee: { amount: number };
+  idCardFee: { amount: number };
+  transcriptFee: { amount: number };
+}
+
 export default function TransactionsList({ onBack, programTypeId, programTypeName }: TransactionsListProps) {
   const [activeTab, setActiveTab] = useState<PaymentTab>("Access Fee");
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,30 +55,33 @@ export default function TransactionsList({ onBack, programTypeId, programTypeNam
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  const [transactions, setTransactions] = useState<TransactionData[]>([]);
-  const [stats, setStats] = useState<TransactionStatistics>({ totalTransactions: 0, totalAmount: 0 });
+  const [programPayments, setProgramPayments] = useState<ProgramPayments | null>(null);
+  const [programSummary, setProgramSummary] = useState<ProgramTypeSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   const tabs: PaymentTab[] = ["Access Fee", "ID Card", "Transcript"];
 
-  // Map tab names to paymentType values from the API
-  const tabToPaymentType: Record<PaymentTab, string[]> = {
-    "Access Fee": ["access_fee", "annual_access_fee", "department_annual_access"],
-    "ID Card": ["id_card", "idcard", "id_card_payment"],
-    "Transcript": ["transcript", "transcript_fee"],
-  };
-
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${BASE_URL}/annual-access-fee/transactions-all`, {
+        const response = await axios.get(`${BASE_URL}/university-admin/payments`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 
         if (response.data.success) {
-          setTransactions(response.data.data as TransactionData[]);
-          setStats(response.data.statistics);
+          const data = response.data.data;
+
+          // Find the matching program type in paymentsByProgramType
+          const match = data.paymentsByProgramType?.find(
+            (p: ProgramPayments) => p.programInfo.id === programTypeId
+          );
+          if (match) setProgramPayments(match);
+
+          // Find the matching summary
+          const summaries: Record<string, ProgramTypeSummary> = data.summary?.programTypes || {};
+          const summaryMatch = Object.values(summaries).find((s) => s.id === programTypeId);
+          if (summaryMatch) setProgramSummary(summaryMatch);
         } else {
           toast.error("Failed to load transactions");
         }
@@ -56,54 +92,56 @@ export default function TransactionsList({ onBack, programTypeId, programTypeNam
         setLoading(false);
       }
     };
-    fetchTransactions();
+    fetchData();
   }, [programTypeId]);
 
-  // Filter transactions by active tab's payment type
-  const tabFilteredTransactions = useMemo(() => {
-    const allowedTypes = tabToPaymentType[activeTab].map(t => t.toLowerCase());
-    return transactions.filter(t => {
-      const pType = t.paymentType?.toLowerCase().replace(/[\s-]/g, "_") || "";
-      return allowedTypes.some(allowed => pType.includes(allowed));
-    });
-  }, [transactions, activeTab]);
+  // Get transactions for the active tab
+  const tabTransactions: TransactionItem[] = useMemo(() => {
+    if (!programPayments) return [];
+    switch (activeTab) {
+      case "Access Fee": return programPayments.accessFee || [];
+      case "ID Card": return programPayments.idCardFee || [];
+      case "Transcript": return programPayments.transcriptFee || [];
+      default: return [];
+    }
+  }, [programPayments, activeTab]);
 
-  // Calculate total for the active tab
+  // Get the total amount for the active tab from summary
   const tabTotal = useMemo(() => {
-    return tabFilteredTransactions
-      .filter(t => t.status === "success")
-      .reduce((sum, t) => sum + t.amount, 0);
-  }, [tabFilteredTransactions]);
+    if (!programSummary) return 0;
+    switch (activeTab) {
+      case "Access Fee": return programSummary.accessFee.amount;
+      case "ID Card": return programSummary.idCardFee.amount;
+      case "Transcript": return programSummary.transcriptFee.amount;
+      default: return 0;
+    }
+  }, [programSummary, activeTab]);
 
   // Apply search, status, date filters
   const filteredTransactions = useMemo(() => {
-    return tabFilteredTransactions.filter((t) => {
-      const studentName = t.studentInfo?.fullName || "Unknown";
-      const email = t.studentInfo?.email || "";
-      const ref = t.reference || "";
-
+    return tabTransactions.filter((t) => {
       const matchesSearch =
         !searchQuery ||
-        studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ref.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        email.toLowerCase().includes(searchQuery.toLowerCase());
+        t.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.paymentFrom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.transactionReference.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.studentRegNumber.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesStatus = statusFilter === "all" || t.status === statusFilter;
 
-      // Date filtering
       let matchesDate = true;
       if (dateFrom) {
-        matchesDate = matchesDate && new Date(t.createdAt) >= new Date(dateFrom);
+        matchesDate = matchesDate && new Date(t.date) >= new Date(dateFrom);
       }
       if (dateTo) {
         const toDate = new Date(dateTo);
         toDate.setHours(23, 59, 59, 999);
-        matchesDate = matchesDate && new Date(t.createdAt) <= toDate;
+        matchesDate = matchesDate && new Date(t.date) <= toDate;
       }
 
       return matchesSearch && matchesStatus && matchesDate;
     });
-  }, [tabFilteredTransactions, searchQuery, statusFilter, dateFrom, dateTo]);
+  }, [tabTransactions, searchQuery, statusFilter, dateFrom, dateTo]);
 
   const handleClearDateFilters = () => {
     setDateFrom("");
@@ -128,8 +166,9 @@ export default function TransactionsList({ onBack, programTypeId, programTypeNam
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return "N" + new Intl.NumberFormat("en-NG").format(amount);
+  const formatCurrency = (amount: number | string) => {
+    const num = typeof amount === "string" ? parseFloat(amount) : amount;
+    return "₦" + new Intl.NumberFormat("en-NG").format(num);
   };
 
   const formatDate = (dateStr: string) => {
@@ -298,22 +337,22 @@ export default function TransactionsList({ onBack, programTypeId, programTypeNam
                   </tr>
                 ) : (
                   filteredTransactions.map((t, index) => (
-                    <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={t.transactionId} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4 text-slate-500">{index + 1}</td>
                       <td className="px-6 py-4 text-slate-600 font-mono text-xs">
-                        {truncateRef(t.reference)}
+                        {truncateRef(t.transactionReference)}
                       </td>
                       <td className="px-6 py-4 text-slate-700 font-medium">
-                        {t.studentInfo?.fullName || "Unknown"}
+                        {t.studentName}
                       </td>
                       <td className="px-6 py-4 text-slate-600">
-                        {t.paymentType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                        {t.paymentFor}
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900">
                         {formatCurrency(t.amount)}
                       </td>
                       <td className="px-6 py-4 text-slate-500">
-                        {formatDate(t.createdAt)}
+                        {formatDate(t.date)}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <span className={`inline-block px-4 py-1 rounded-full text-xs font-bold ${getStatusStyle(t.status)}`}>
