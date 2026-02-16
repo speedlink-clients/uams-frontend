@@ -196,7 +196,7 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !title || !description || !Object.values(recipients).some(Boolean)}
             className="px-8 py-3 bg-[#1D7AD9] text-white font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
