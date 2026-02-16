@@ -190,7 +190,7 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
         <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-8 py-3 bg-white border border-slate-900 text-slate-900 font-bold rounded-lg hover:bg-slate-50 transition-colors"
+            className="px-8 py-3 bg-slate-100 border border-slate-100 text-slate-900 font-bold rounded-lg hover:bg-slate-200 transition-colors"
           >
             Cancel
           </button>
