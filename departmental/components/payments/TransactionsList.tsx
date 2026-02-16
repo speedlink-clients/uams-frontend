@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Search, Download, Upload, X } from "lucide-react";
+import { Search, Download, Upload, X, ArrowLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -190,6 +190,15 @@ export default function TransactionsList({ onBack, programTypeId, programTypeNam
     <div className="min-h-screen bg-[#F8FAFC]">
       <div className="max-w-[1400px] mx-auto py-2 px-2">
 
+        {/* Back Button */}
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-4 group"
+        >
+          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="font-medium">Back to Payments</span>
+        </button>
+
         {/* Tabs */}
         <div className="flex items-center mb-6">
           <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden">
@@ -238,7 +247,7 @@ export default function TransactionsList({ onBack, programTypeId, programTypeNam
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search by name, email or code"
+                placeholder="Search by name or transaction ID"
                 className="w-64 pl-10 pr-4 py-2 border border-slate-200 rounded-full bg-white outline-none text-sm focus:ring-2 focus:ring-blue-500/10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
