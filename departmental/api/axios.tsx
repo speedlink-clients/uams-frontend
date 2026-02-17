@@ -34,6 +34,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Don't redirect if the 401 came from a login/auth request — 
+      // let the Login component handle it and show the error message
+      const requestUrl = error.config?.url || "";
+      if (requestUrl.includes("/auth/")) {
+        return Promise.reject(error);
+      }
+
       // Session expired — clear all auth data and redirect to login
       localStorage.removeItem("token");
       localStorage.removeItem("uniedu_session");
