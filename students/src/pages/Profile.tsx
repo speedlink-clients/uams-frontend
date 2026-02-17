@@ -106,20 +106,6 @@ const Profile: React.FC = () => {
                 <Camera size={32} color="#94a3b8" />
               )}
             </Box>
-            <Box
-              position="absolute"
-              bottom={0}
-              right={0}
-              bg="white"
-              rounded="full"
-              p={1.5}
-              shadow="md"
-              border="1px solid"
-              borderColor="gray.100"
-              cursor="pointer"
-            >
-              {/* <Edit2 size={12} color="#64748b" /> */}
-            </Box>
           </Box>
           <Box>
             <Text fontSize="xl" fontWeight="bold" color="slate.800">{user?.fullName || 'Student Name'}</Text>

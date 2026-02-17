@@ -108,7 +108,7 @@ const MainLayout: React.FC = () => {
     if (pathname.startsWith('/courses')) return 'courses';
     if (pathname.startsWith('/registration')) return 'registration';
     if (pathname.startsWith('/payments')) return 'payments';
-    if (pathname.startsWith('/schedule')) return 'schedule';
+    if (pathname.startsWith('/timetable')) return 'timetable';
     if (pathname.startsWith('/profile')) return 'profile';
     if (pathname.startsWith('/settings')) return 'settings';
     return 'dashboard';
@@ -191,7 +191,7 @@ const MainLayout: React.FC = () => {
           <SidebarItem iconSrc={getAssetPath('assets/House (1).png')} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/BookOpen (1).png')} label="Courses" active={activeTab === 'courses'} onClick={() => { navigate('/courses/courses'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Books (1).png')} label="Registration" active={activeTab === 'registration'} onClick={() => { navigate('/registration'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
-          <SidebarItem iconSrc={getAssetPath('assets/CalendarDots (1).png')} label="Schedule" active={activeTab === 'schedule'} onClick={() => { navigate('/schedule'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
+          <SidebarItem iconSrc={getAssetPath('assets/CalendarDots (1).png')} label="Timetable" active={activeTab === 'timetable'} onClick={() => { navigate('/timetable'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Money (1).png')} label="Payments" active={activeTab === 'payments'} onClick={() => { navigate('/payments'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/305ae6c7f315bb219eb3b785a763838d55d71e73 (1).png')} label="Profile" active={activeTab === 'profile'} onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
         </Box>
@@ -209,13 +209,13 @@ const MainLayout: React.FC = () => {
             px={isSidebarCollapsed ? 2 : 4}
             py={5}
             rounded="xl"
-            color="gray.500"
+            color="red.500"
             fontWeight="medium"
             _hover={{ bg: 'red.50', color: 'red.500' }}
             transition="all 0.2s"
           >
             <LogOut size={18} />
-            {!isSidebarCollapsed && <Text fontSize="14px">Logout</Text>}
+            {!isSidebarCollapsed && <Text fontSize="14px" color='red.500'>Logout</Text>}
           </Button>
           {!isSidebarCollapsed && (
             <Text mt={4} fontSize="10px" color="gray.400" fontWeight="bold" textTransform="uppercase" letterSpacing="widest" textAlign="center">
@@ -259,7 +259,11 @@ const MainLayout: React.FC = () => {
             
             <Flex align="center" gap={{ base: 2, lg: 3 }}>
               <Flex w={{ base: 9, lg: 10 }} h={{ base: 9, lg: 10 }} rounded="full" bg="#0891b2" align="center" justify="center" color="white" shadow="sm" overflow="hidden" shrink={0}>
-                <User size={20} />
+                {user?.avatar ? (
+                  <Image src={user.avatar} w="full" h="full" objectFit="cover" />
+                ) : (
+                  <User size={20} />
+                )}
               </Flex>
               <Flex direction="column" display={{ base: 'none', sm: 'flex' }}>
                 <Text fontSize={{ base: '12px', lg: '13px' }} fontWeight="bold" color="#1e293b" lineHeight="tight" maxW={{ base: '80px', lg: 'none' }}>{userName}</Text>

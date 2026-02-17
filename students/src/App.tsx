@@ -17,7 +17,7 @@ import {
 import Dashboard from './pages/Dashboard';
 import Courses from './pages/Courses';
 import Registration from './pages/Registration';
-import Schedule from './pages/Schedule';
+import Timetable from './pages/Timetable';
 import Payments from './pages/Payments';
 import PaymentsNew from './pages/PaymentsNew';
 import Login from './pages/Login';
@@ -116,7 +116,7 @@ const MainLayout: React.FC = () => {
     if (pathname.startsWith('/courses')) return 'courses';
     if (pathname.startsWith('/registration')) return 'registration';
     if (pathname.startsWith('/payments')) return 'payments';
-    if (pathname.startsWith('/schedule')) return 'schedule';
+    if (pathname.startsWith('/timetable')) return 'timetable';
     if (pathname.startsWith('/settings')) return 'settings';
     return 'dashboard';
   };
@@ -198,7 +198,7 @@ const MainLayout: React.FC = () => {
           <SidebarItem iconSrc="/assets/House (1).png" label="Dashboard" active={activeTab === 'dashboard'} onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc="/assets/BookOpen (1).png" label="Courses" active={activeTab === 'courses'} onClick={() => { navigate('/courses/results'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc="/assets/Books (1).png" label="Registration" active={activeTab === 'registration'} onClick={() => { navigate('/registration'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
-          <SidebarItem iconSrc="/assets/CalendarDots (1).png" label="Schedule" active={activeTab === 'schedule'} onClick={() => { navigate('/schedule'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
+          <SidebarItem iconSrc="/assets/CalendarDots (1).png" label="Timetable" active={activeTab === 'timetable'} onClick={() => { navigate('/timetable'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc="/assets/Money (1).png" label="Payments" active={activeTab === 'payments'} onClick={() => { navigate('/payments'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc="/assets/305ae6c7f315bb219eb3b785a763838d55d71e73 (1).png" label="Profile" active={activeTab === 'settings'} onClick={() => { navigate('/settings'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
         </Box>
@@ -307,7 +307,7 @@ const App: React.FC = () => {
         <Route path="courses/*" element={<Courses />} />
         <Route path="registration" element={<Navigate to="/registration/courses" replace />} />
         <Route path="registration/*" element={<Registration />} />
-        <Route path="schedule" element={<Schedule />} />
+        <Route path="timetable" element={<Timetable />} />
         <Route path="payments" element={<Payments />} />
         <Route path="payments/new" element={<PaymentsNew />} />
         <Route path="*" element={<Dashboard />} />

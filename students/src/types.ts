@@ -1,5 +1,6 @@
+import { Level, Semester, Session, RegistrationData, StudentProfile } from "./services/types";
 
-export type NavigationItem = 'dashboard' | 'courses' | 'registration' | 'schedule' | 'payments' | 'settings' | 'profile';
+export type NavigationItem = 'dashboard' | 'courses' | 'registration' | 'timetable' | 'payments' | 'settings' | 'profile';
 
 export interface Course {
   id: string;
@@ -23,4 +24,13 @@ export interface Payment {
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+}
+
+export interface CoursesRegViewProps {
+  levels: Level[];
+  semesters: Semester[];
+  sessions: Session[];
+  registrationData: RegistrationData | null;
+  studentProfile: StudentProfile | null;
+  isLoading: boolean;
 }

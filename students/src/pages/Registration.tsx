@@ -10,6 +10,8 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
+  Plus,
+  Search,
 } from "lucide-react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import {
@@ -25,7 +27,7 @@ import {
   getRegistrations,
   getDepartmentCourses,
   addCourseToCart,
-  getCourseCart,
+  // getCourseCart,
   removeCourseFromCart,
   bulkRegisterCourses,
   getStudentPayments,
@@ -39,6 +41,7 @@ import type {
   RegisteredCourse,
   DepartmentCourse,
 } from "../services/types";
+import type { CoursesRegViewProps } from "../types";
 import { toaster } from "../components/ui/toaster";
 import { profile } from "node:console";
 import apiClient from "../services/api";
@@ -85,37 +88,19 @@ const InputField = ({
   </div>
 );
 
-const TranscriptRegView = () => (
+const TranscriptFormView = ({ onBack }: { onBack: () => void }) => (
   <div className="bg-white rounded-3xl lg:rounded-4xl p-6 lg:p-12 border border-gray-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <h2 className="text-xl font-bold text-[#1e293b] mb-8 lg:mb-10">
-      Transcript Registration
-    </h2>
-
-    {/* Coming Soon Placeholder */}
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="bg-indigo-50 p-5 rounded-full mb-6">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-indigo-500">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-        </svg>
-      </div>
-      <h3 className="text-lg font-bold text-slate-800 mb-3">Coming Soon</h3>
-      <p className="text-sm text-gray-500 max-w-md">
-        Transcript registration and request features are under development. Stay tuned!
-      </p>
+    <div className="flex items-center justify-between mb-8 lg:mb-10">
+      <h2 className="text-xl font-bold text-[#1e293b]">
+        Transcript Registration
+      </h2>
+      <button
+        onClick={onBack}
+        className="text-gray-400 hover:text-gray-600 text-[13px] font-bold transition-colors"
+      >
+        ← Back to list
+      </button>
     </div>
-  </div>
-);
-
-/* ====================================================================
-   COMMENTED OUT ORIGINAL TRANSCRIPT REGISTRATION VIEW
-   Uncomment and replace the above component when ready to implement
-   ====================================================================
-
-const TranscriptRegView = () => (
-  <div className="bg-white rounded-3xl lg:rounded-4xl p-6 lg:p-12 border border-gray-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <h2 className="text-xl font-bold text-[#1e293b] mb-8 lg:mb-10">
-      Transcript Registration
-    </h2>
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
       <InputField
@@ -161,22 +146,110 @@ const TranscriptRegView = () => (
       <button className="bg-[#22c55e] hover:bg-green-600 text-white px-8 py-3 rounded-lg text-[13px] font-bold transition-all shadow-md shadow-green-100">
         Proceed to make payment
       </button>
-      <button className="bg-white border border-gray-200 text-gray-500 px-8 py-3 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all">
+      <button
+        onClick={onBack}
+        className="bg-white border border-gray-200 text-gray-500 px-8 py-3 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all"
+      >
         Cancel
       </button>
     </div>
   </div>
 );
-*/
 
-interface CoursesRegViewProps {
-  levels: Level[];
-  semesters: Semester[];
-  sessions: Session[];
-  registrationData: RegistrationData | null;
-  studentProfile: StudentProfile | null;
-  isLoading: boolean;
-}
+const transcriptApplications = [
+  { sn: 1, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '13/02/2026', status: 'In Progress', color: 'blue' },
+  { sn: 2, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '12/01/2026', status: 'Completed', color: 'green' },
+  { sn: 2, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '12/01/2026', status: 'Completed', color: 'green' },
+  { sn: 2, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '12/01/2026', status: 'Completed', color: 'green' },
+];
+
+const TranscriptRegView = () => {
+  const [showForm, setShowForm] = React.useState(false);
+
+  if (showForm) {
+    return <TranscriptFormView onBack={() => setShowForm(false)} />;
+  }
+
+  return (
+    <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* New Application Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowForm(true)}
+          className="flex items-center gap-2 bg-[#3b82f6] hover:bg-blue-600 text-white px-6 py-3 rounded-xl text-[13px] font-bold transition-all shadow-md"
+        >
+          <Plus size={16} />
+          New Transcript Application
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-3xl lg:rounded-4xl p-6 lg:p-8 border border-gray-100 shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <h2 className="text-base lg:text-lg font-bold text-[#1e293b]">
+            Transcript Applications
+          </h2>
+          <div className="flex items-center gap-3">
+            {/* Search */}
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+              <input
+                placeholder="Search by institution, status"
+                className="bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-2 text-[12px] font-medium text-slate-700 placeholder:text-gray-300 focus:outline-none focus:border-blue-300 w-full md:w-[220px] h-[36px]"
+              />
+            </div>
+            {/* Filter */}
+            <div className="relative">
+              <select className="bg-[#f8fafc] border border-gray-100 rounded-lg px-3 pr-7 py-2 text-[11px] font-bold text-gray-500 appearance-none cursor-pointer h-[36px]">
+                <option>All Application</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3">S/N</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3">Receiving Institution</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden md:table-cell">Email</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden lg:table-cell">Address</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden md:table-cell">Delivery Mode</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3">Date</th>
+                <th className="text-center text-[11px] font-bold text-gray-400 py-3 px-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transcriptApplications.map((app, idx) => (
+                <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <td className="py-4 px-3 text-[12px] font-bold text-slate-700">{app.sn}</td>
+                  <td className="py-4 px-3 text-[12px] font-medium text-slate-700">{app.institution}</td>
+                  <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.email}</td>
+                  <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden lg:table-cell">{app.address}</td>
+                  <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.mode}</td>
+                  <td className="py-4 px-3 text-[11px] text-gray-400 font-medium">{app.date}</td>
+                  <td className="py-4 px-3 text-center">
+                    <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-bold ${
+                      app.color === 'blue'
+                        ? 'bg-blue-50 text-blue-500'
+                        : 'bg-green-50 text-green-600'
+                    }`}>
+                      {app.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const FormRow = ({
   label,
@@ -652,23 +725,23 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
   }, []);
 
   // Fetch cart on mount to populate previewer
-  useEffect(() => {
-    const fetchCart = async () => {
-      const cartItems = await getCourseCart();
-      if (cartItems.length > 0) {
-        // Convert cart items to DepartmentCourse format for previewer
-        const cartCourses = cartItems.map((item) => ({
-          id: item.course.id,
-          code: item.course.code,
-          title: item.course.title,
-          creditUnits: item.course.creditUnits,
-        })) as any;
-        setPreviewedCourses(cartCourses);
-        setIsCartConfirmed(true); // Enable buttons if cart already has items
-      }
-    };
-    fetchCart();
-  }, []);
+  // useEffect(() => {
+  //   const fetchCart = async () => {
+  //     const cartItems = await getCourseCart();
+  //     if (cartItems.length > 0) {
+  //       // Convert cart items to DepartmentCourse format for previewer
+  //       const cartCourses = cartItems.map((item) => ({
+  //         id: item.course.id,
+  //         code: item.course.code,
+  //         title: item.course.title,
+  //         creditUnits: item.course.creditUnits,
+  //       })) as any;
+  //       setPreviewedCourses(cartCourses);
+  //       setIsCartConfirmed(true); // Enable buttons if cart already has items
+  //     }
+  //   };
+  //   fetchCart();
+  // }, []);
 
   // Set defaults from student profile when available
   useEffect(() => {

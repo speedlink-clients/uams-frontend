@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import Registration from "./pages/Registration";
-import Schedule from "./pages/Schedule";
+import Timetable from "./pages/Timetable";
 import Payments from "./pages/Payments";
 import PaymentsNew from "./pages/PaymentsNew";
 import Login from "./pages/Login";
@@ -81,8 +81,8 @@ const router = createBrowserRouter([
             element: <Registration />,
           },
           {
-            path: "schedule",
-            element: <Schedule />,
+            path: "timetable",
+            element: <Timetable />,
           },
           {
             path: "payments",

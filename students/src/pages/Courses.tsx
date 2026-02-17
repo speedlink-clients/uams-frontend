@@ -4,7 +4,7 @@ import {
   Box, Flex, Grid, GridItem, Text, Heading, Button, IconButton, Input, Image, NativeSelect, 
   Table, Checkbox, Badge, 
   Stack, HStack, VStack, 
-  useBreakpointValue
+  useBreakpointValue, Textarea
 } from '@chakra-ui/react';
 import { 
   LineChart, 
@@ -227,185 +227,8 @@ const ResultsTab = () => {
 };
 */
 
-const ApplicationDetail = ({ onBack }: { onBack: () => void }) => (
-  <Box 
-    bg="white" 
-    rounded={{ base: "24px", lg: "32px" }} 
-    border="1px" 
-    borderColor="gray.100" 
-    shadow="sm" 
-    overflow="hidden" 
-    display="flex" 
-    flexDirection="column" 
-    h={{ base: "70vh", lg: "750px" }} 
-    animation="slide-in-from-right 0.3s"
-  >
-    <Flex 
-      px={{ base: 6, lg: 8 }} 
-      py={{ base: 5, lg: 6 }} 
-      borderBottom="1px" 
-      borderColor="gray.50" 
-      align="center" 
-      justify="space-between" 
-      flexShrink={0}
-    >
-      <Flex align="center" gap={{ base: 3, lg: 4 }}>
-        <IconButton 
-          aria-label="Back"  
-          onClick={onBack} 
-          variant="ghost" 
-          rounded="full" 
-          color="gray.400" 
-          _hover={{ bg: "slate.50" }}
-        >
-          <ChevronLeft size={20} />
-        </IconButton>
-        <Heading 
-          fontSize={{ base: "14px", lg: "15px" }} 
-          fontWeight="bold" 
-          color="slate.800" 
-          maxW={{ base: "150px", lg: "none" }}
-        >
-          Complaint - CPT011
-        </Heading>
-      </Flex>
-      <HStack gap={{ base: 2, lg: 3 }}>
-        <Text display={{ base: "none", sm: "inline" }} fontSize="11px" fontWeight="bold" color="gray.400">Status</Text>
-        <Badge 
-          px={3} py={1} 
-          bg="blue.50" 
-          color="blue.500" 
-          rounded="full" 
-          fontSize="9px" 
-          fontWeight="bold" 
-          textTransform="uppercase" 
-          letterSpacing="wider"
-        >
-          Active
-        </Badge>
-      </HStack>
-    </Flex>
-    
-    <VStack 
-      flex="1" 
-      overflowY="auto" 
-      p={{ base: 4, lg: 8 }} 
-      gap={{ base: 6, lg: 8 }} 
-      bg="white" 
-      align="stretch"
-      css={{
-        '&::-webkit-scrollbar': { width: '4px' },
-        '&::-webkit-scrollbar-track': { background: 'transparent' },
-        '&::-webkit-scrollbar-thumb': { background: '#cbd5e1', borderRadius: '24px' },
-      }}
-    >
-      <Flex direction="column" maxW={{ base: "90%", sm: "85%" }}>
-        <Box 
-          bg="blue.50" 
-          p={{ base: 4, lg: 6 }} 
-          rounded={{ base: "20px", lg: "24px" }} 
-          border="1px" 
-          borderColor="blue.100"
-        >
-          <Text fontSize={{ base: "12px", lg: "13px" }} color="slate.800" lineHeight="relaxed" fontWeight="medium">
-            I hope this message finds you well. I am writing to kindly notify you that my result for MTH 110.1 is currently missing...
-          </Text>
-        </Box>
-        <Text fontSize="10px" fontWeight="bold" color="gray.300" mt={2} px={1}>9:00 am</Text>
-      </Flex>
-
-      <Flex direction="column" maxW={{ base: "90%", sm: "85%" }} alignSelf="flex-start">
-        <Box 
-          bg="white" 
-          p={{ base: 4, lg: 6 }} 
-          rounded={{ base: "20px", lg: "24px" }} 
-          border="1px" 
-          borderColor="gray.100" 
-          shadow="sm"
-        >
-          <Text fontSize={{ base: "12px", lg: "13px" }} color="slate.800" lineHeight="relaxed" fontWeight="medium">
-            Thank you for bringing this to my attention. Kindly confirm your full name and matric number...
-          </Text>
-        </Box>
-        <Text fontSize="10px" fontWeight="bold" color="gray.300" mt={2} px={1} textAlign="right">10:00 am</Text>
-      </Flex>
-    </VStack>
-
-    <Box p={{ base: 4, lg: 8 }} bg="white" borderTop="1px" borderColor="gray.50" flexShrink={0}>
-      <Box position="relative">
-        <Input 
-          placeholder="Type text here to follow up on complaint" 
-          bg="slate.50" 
-          borderColor="gray.200" 
-          rounded="2xl" 
-          py={{ base: 4, lg: 5 }} 
-          pl={{ base: 5, lg: 8 }} 
-          pr={{ base: 12, lg: 14 }} 
-          fontSize={{ base: "13px", lg: "sm" }} 
-          fontWeight="medium" 
-          color="slate.800" 
-          _focus={{ outline: "none", borderColor: "blue.300" }}
-          h="auto"
-        />
-        <Box position="absolute" right={4} top="50%" transform="translateY(-50%)" display="flex" alignItems="center">
-          <IconButton
-            aria-label="Send"
-            variant="ghost"
-            bg="blue.500"
-            color="white"
-            _hover={{ bg: "blue.600" }}
-            size="sm"
-            p={2}
-            mr={2}
-          >
-            <Send size={16} />
-          </IconButton>
-          <Image src={getAssetPath('assets/Paperclip.png')} alt="Attach" boxSize="18px" cursor="pointer" />
-        </Box>
-      </Box>
-    </Box>
-  </Box>
-);
-
-const ApplicationsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, onSelect: (id: string) => void }) => {
-  return (
-    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
-      <Box 
-        bg="white" 
-        rounded={{ base: "24px", lg: "32px" }} 
-        p={{ base: 8, lg: 12 }} 
-        border="1px" 
-        borderColor="gray.100" 
-        shadow="sm"
-        w="full"
-      >
-        <Flex direction="column" align="center" justify="center" py={16} textAlign="center">
-          <Box bg="orange.50" p={5} rounded="full" mb={6}>
-            <Box color="orange.500" w={10} h={10}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-              </svg>
-            </Box>
-          </Box>
-          <Heading fontSize={{ base: "lg", lg: "xl" }} fontWeight="bold" color="slate.800" mb={3}>
-            Coming Soon
-          </Heading>
-          <Text fontSize="sm" color="gray.500" maxW="md">
-            Application and complaint logging features are under development. Stay tuned!
-          </Text>
-        </Flex>
-      </Box>
-    </VStack>
-  );
-};
-
-/* ====================================================================
-   COMMENTED OUT ORIGINAL APPLICATIONS LIST VIEW IMPLEMENTATION
-   Uncomment and replace the above component when ready to implement
-   ====================================================================
-
-const ApplicationsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, onSelect: (id: string) => void }) => {
-  const applications = [
+const ComplaintsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, onSelect: (id: string) => void }) => {
+  const complaints = [
     { id: '1', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '30m ago', status: 'In Progress', color: 'blue' },
     { id: '2', code: 'CPT011', subject: 'Result Remark Request', desc: 'I believe my result for MTH110.1 is not my score...', update: '3d ago', status: 'In Progress', color: 'blue' },
     { id: '3', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '7d ago', status: 'Pending Review', color: 'pink' },
@@ -415,13 +238,271 @@ const ApplicationsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, on
     { id: '7', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '1yr ago', status: 'Completed', color: 'green' },
   ];
 
+  const getStatusStyle = (color: string) => {
+    switch (color) {
+      case 'blue': return { bg: 'blue.50', color: 'blue.500' };
+      case 'pink': return { bg: 'orange.50', color: 'orange.500' };
+      case 'green': return { bg: 'green.50', color: 'green.600' };
+      default: return { bg: 'gray.100', color: 'gray.500' };
+    }
+  };
+
   return (
     <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
-      ... original content ...
+      {/* Log New Complaints Button */}
+      <Flex justify="flex-end" w="full">
+        <Button
+          onClick={onLogNew}
+          bg="blue.500"
+          color="white"
+          rounded="xl"
+          px={6}
+          py={5}
+          fontSize="13px"
+          fontWeight="bold"
+          _hover={{ bg: 'blue.600' }}
+          shadow="md"
+        >
+          <Plus size={16} />
+          Log New Complaints
+        </Button>
+      </Flex>
+
+      {/* Complaints Table */}
+      <Box
+        bg="white"
+        rounded={{ base: "24px", lg: "32px" }}
+        p={{ base: 5, lg: 8 }}
+        border="1px"
+        borderColor="gray.100"
+        shadow="sm"
+        w="full"
+      >
+        {/* Header */}
+        <Flex
+          justify="space-between"
+          align={{ base: "start", md: "center" }}
+          mb={6}
+          direction={{ base: "column", md: "row" }}
+          gap={4}
+        >
+          <Heading fontSize={{ base: "md", lg: "lg" }} fontWeight="bold" color="slate.800">
+            All Complaints
+          </Heading>
+          <HStack gap={3}>
+            {/* Search */}
+            <Box position="relative">
+              <Box position="absolute" left={3} top="50%" transform="translateY(-50%)" color="gray.300" zIndex={1}>
+                <Search size={14} />
+              </Box>
+              <Input
+                placeholder="Search by subject, code, date"
+                bg="gray.50"
+                border="1px solid"
+                borderColor="gray.100"
+                rounded="lg"
+                pl={9}
+                pr={4}
+                py={2}
+                fontSize="12px"
+                fontWeight="medium"
+                color="slate.700"
+                _placeholder={{ color: 'gray.300' }}
+                _focus={{ outline: 'none', borderColor: 'blue.300' }}
+                w={{ base: "full", md: "220px" }}
+                h="36px"
+              />
+            </Box>
+            {/* Filter */}
+            <Box position="relative">
+              <select
+                style={{
+                  background: '#f8fafc',
+                  border: '1px solid #f1f5f9',
+                  borderRadius: '8px',
+                  padding: '6px 28px 6px 12px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: '#64748b',
+                  appearance: 'none',
+                  cursor: 'pointer',
+                  height: '36px',
+                }}
+              >
+                <option>All Complaints</option>
+                <option>In Progress</option>
+                <option>Pending Review</option>
+                <option>Completed</option>
+              </select>
+              <Box position="absolute" right={2} top="50%" transform="translateY(-50%)" pointerEvents="none" color="gray.400">
+                <ChevronDown size={14} />
+              </Box>
+            </Box>
+          </HStack>
+        </Flex>
+
+        {/* Table */}
+        <Box overflowX="auto">
+          <Table.Root size="sm" variant="line">
+            <Table.Header>
+              <Table.Row borderBottom="1px solid" borderColor="gray.100">
+                <Table.ColumnHeader w="40px" py={3}>
+                  <TableCheckbox />
+                </Table.ColumnHeader>
+                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3}>Code</Table.ColumnHeader>
+                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3}>Subject</Table.ColumnHeader>
+                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3} display={{ base: "none", md: "table-cell" }}>Description</Table.ColumnHeader>
+                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3}>Last Update</Table.ColumnHeader>
+                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3} textAlign="center">Status</Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {complaints.map((app) => {
+                const statusStyle = getStatusStyle(app.color);
+                return (
+                  <Table.Row
+                    key={app.id}
+                    borderBottom="1px solid"
+                    borderColor="gray.50"
+                    _hover={{ bg: 'gray.25' }}
+                    cursor="pointer"
+                    onClick={() => onSelect(app.id)}
+                  >
+                    <Table.Cell py={4} onClick={(e) => e.stopPropagation()}>
+                      <TableCheckbox />
+                    </Table.Cell>
+                    <Table.Cell py={4}>
+                      <Text fontSize="12px" fontWeight="bold" color="slate.700">{app.code}</Text>
+                    </Table.Cell>
+                    <Table.Cell py={4}>
+                      <Text fontSize="12px" fontWeight="medium" color="slate.700">{app.subject}</Text>
+                    </Table.Cell>
+                    <Table.Cell py={4} display={{ base: "none", md: "table-cell" }}>
+                      <Text fontSize="12px" color="gray.400" fontWeight="medium" maxW="350px" truncate>{app.desc}</Text>
+                    </Table.Cell>
+                    <Table.Cell py={4}>
+                      <Text fontSize="11px" fontWeight="medium" color="gray.400">{app.update}</Text>
+                    </Table.Cell>
+                    <Table.Cell py={4} textAlign="center">
+                      <Badge
+                        px={3} py={1}
+                        bg={statusStyle.bg}
+                        color={statusStyle.color}
+                        rounded="full"
+                        fontSize="9px"
+                        fontWeight="bold"
+                        textTransform="capitalize"
+                      >
+                        {app.status}
+                      </Badge>
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table.Root>
+        </Box>
+      </Box>
     </VStack>
   );
 };
-*/
+
+const MakeComplaintView = ({ onBack }: { onBack: () => void }) => (
+  <Box
+    bg="white"
+    rounded={{ base: "24px", lg: "32px" }}
+    p={{ base: 6, lg: 10 }}
+    border="1px"
+    borderColor="gray.100"
+    shadow="sm"
+    animation="fade-in 0.3s"
+  >
+    <Heading fontSize={{ base: "md", lg: "lg" }} fontWeight="bold" color="slate.800" mb={6}>
+      Make Complaint
+    </Heading>
+
+    {/* Subject */}
+    <Box mb={5}>
+      <Text fontSize="13px" fontWeight="bold" color="slate.700" mb={2}>Subject</Text>
+      <Input
+        placeholder="Missing script"
+        bg="gray.50"
+        border="1px solid"
+        borderColor="gray.200"
+        rounded="lg"
+        px={4}
+        py={5}
+        fontSize="13px"
+        fontWeight="medium"
+        color="slate.800"
+        _placeholder={{ color: 'gray.300' }}
+        _focus={{ outline: 'none', borderColor: 'blue.300' }}
+        h="auto"
+      />
+    </Box>
+
+    {/* Message */}
+    <Box mb={8}>
+      <Text fontSize="13px" fontWeight="bold" color="slate.700" mb={2}>Message</Text>
+      <Textarea
+        placeholder="Your message here..."
+        bg="gray.50"
+        border="1px solid"
+        borderColor="gray.200"
+        rounded="lg"
+        px={4}
+        py={4}
+        fontSize="13px"
+        fontWeight="medium"
+        color="slate.800"
+        w="full"
+        minH="200px"
+        resize="vertical"
+        _placeholder={{ color: 'gray.300' }}
+        _focus={{ outline: 'none', borderColor: 'blue.300' }}
+        css={{
+          '&::placeholder': { color: '#cbd5e1' },
+          '&:focus': { outline: 'none', borderColor: '#93c5fd' },
+        }}
+      />
+    </Box>
+
+    {/* Actions */}
+    <Flex justify="flex-end" gap={3}>
+      <Button
+        onClick={onBack}
+        variant="ghost"
+        border="1px solid"
+        borderColor="gray.200"
+        rounded="lg"
+        px={4}
+        py={3}
+        fontSize="13px"
+        fontWeight="bold"
+        color="gray.500"
+        bg="white"
+        _hover={{ bg: 'gray.100' }}
+        h="auto"
+      >
+        Cancel
+      </Button>
+      <Button
+        bg="blue.500"
+        color="white"
+        rounded="lg"
+        px={6}
+        py={3}
+        fontSize="13px"
+        fontWeight="bold"
+        _hover={{ bg: 'blue.600' }}
+        shadow="sm"
+        h="auto"
+      >
+        Submit
+      </Button>
+    </Flex>
+  </Box>
+);
 
 const Courses: React.FC = () => {
   const navigate = useNavigate();
@@ -429,7 +510,7 @@ const Courses: React.FC = () => {
 
   const activeSubTab = (() => {
     if (location.pathname.includes('/courses/courses')) return 'courses';
-    if (location.pathname.includes('/courses/applications')) return 'applications';
+    if (location.pathname.includes('/courses/complaints')) return 'complaints';
     return 'results';
   })();
 
@@ -447,7 +528,9 @@ const Courses: React.FC = () => {
             shadow="sm" 
             gap={0}
           >
-            {(['courses', 'results', 'applications'] as const).map((tab) => (
+            {(['courses', 'results', 'complaints'] as const).map((tab) => {
+              const tabLabels: Record<string, string> = { courses: 'Courses', results: 'Results', complaints: 'Complaints' };
+              return (
               <Button
                 key={tab}
                 onClick={() => navigate(`/courses/${tab}`)}
@@ -466,9 +549,10 @@ const Courses: React.FC = () => {
                 shadow={activeSubTab === tab ? 'md' : 'none'}
                 transition="all 0.3s"
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tabLabels[tab]}
               </Button>
-            ))}
+              );
+            })}
           </HStack>
         </Flex>
 
@@ -477,9 +561,8 @@ const Courses: React.FC = () => {
           <Routes>
             <Route path="courses" element={<CoursesTab />} />
             <Route path="results" element={<ResultsTab />} />
-            <Route path="applications" element={<ApplicationsListView onLogNew={() => navigate('applications/new')} onSelect={(id: string) => navigate(`applications/${id}`)} />} />
-            <Route path="applications/new" element={<ApplicationDetail onBack={() => navigate('/courses/applications')} />} />
-            <Route path="applications/:id" element={<ApplicationDetail onBack={() => navigate('/courses/applications')} />} />
+            <Route path="complaints" element={<ComplaintsListView onLogNew={() => navigate('complaints/new')} onSelect={(id: string) => navigate(`complaints/${id}`)} />} />
+            <Route path="complaints/new" element={<MakeComplaintView onBack={() => navigate('/courses/complaints')} />} />
             <Route path="*" element={<ResultsTab />} />
           </Routes>
         </Box>

@@ -232,15 +232,15 @@ export interface CartItem {
 /**
  * Get all courses in the cart
  */
-export const getCourseCart = async (): Promise<CartItem[]> => {
-  try {
-    const response = await apiClient.get<CartItem[]>('/course-cart/');
-    return response.data ?? [];
-  } catch (error) {
-    console.error('Failed to fetch course cart:', error);
-    return [];
-  }
-};
+// export const getCourseCart = async (): Promise<CartItem[]> => {
+//   try {
+//     const response = await apiClient.get<CartItem[]>('/course-cart/');
+//     return response.data ?? [];
+//   } catch (error) {
+//     console.error('Failed to fetch course cart:', error);
+//     return [];
+//   }
+// };
 
 /**
  * Add course(s) to the registration cart
