@@ -50,7 +50,7 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
       await Promise.all(
         isForValues.map(isFor =>
           api.post('/notifications', {
-            title,
+            title: title.toUpperCase(),
             body: description,
             isFor,
           })
