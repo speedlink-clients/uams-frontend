@@ -290,6 +290,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       Lecturers: "/staff",
       Payments: "/payments",
       "ID Card Management": "/id-card",
+      Timetable: "/timetable",
       Announcements: "/announcements",
       Settings: "/settings",
       Notifications: "/notifications",

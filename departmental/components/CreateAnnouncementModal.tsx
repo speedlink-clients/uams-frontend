@@ -16,10 +16,9 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [recipients, setRecipients] = useState<{ student: boolean; staff: boolean; management: boolean }>({
+  const [recipients, setRecipients] = useState<{ student: boolean; staff: boolean; }>({
     student: false,
     staff: false,
-    management: false
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,7 +30,7 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
       toast.error('Please enter a title');
       return;
     }
-    if (!recipients.student && !recipients.staff && !recipients.management) {
+    if (!recipients.student && !recipients.staff) {
       toast.error('Please select at least one recipient');
       return;
     }
@@ -42,17 +41,21 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
 
     setLoading(true);
     try {
-      const recipientList = [];
-      if (recipients.student) recipientList.push('student');
-      if (recipients.staff) recipientList.push('staff');
-      if (recipients.management) recipientList.push('management');
+      // Map selections to API values: student → "STUDENT", staff → "OTHERS"
+      const isForValues: string[] = [];
+      if (recipients.student) isForValues.push('STUDENT');
+      if (recipients.staff) isForValues.push('OTHERS');
 
-      await api.post('/announcements', {
-        title,
-        content: description,
-        recipients: recipientList,
-        priority: 'normal' // default
-      });
+      // Send one request per recipient type
+      await Promise.all(
+        isForValues.map(isFor =>
+          api.post('/notifications', {
+            title,
+            body: description,
+            isFor,
+          })
+        )
+      );
 
       toast.success('Announcement created successfully');
       onSuccess();
@@ -60,7 +63,7 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
       // Reset form
       setTitle('');
       setDescription('');
-      setRecipients({ student: false, staff: false, management: false });
+      setRecipients({ student: false, staff: false });
     } catch (error) {
       console.error('Failed to create announcement:', error);
       toast.error('Failed to create announcement');
@@ -69,7 +72,7 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
     }
   };
 
-  const toggleRecipient = (type: 'student' | 'staff' | 'management') => {
+  const toggleRecipient = (type: 'student' | 'staff') => {
     setRecipients(prev => ({ ...prev, [type]: !prev[type] }));
   };
 
@@ -78,7 +81,6 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
     const selected = [];
     if (recipients.student) selected.push('Student');
     if (recipients.staff) selected.push('Staff');
-    if (recipients.management) selected.push('Management');
     
     if (selected.length === 0) return 'Select Recipient(s)';
     if (selected.length <= 2) return selected.join(', ');
@@ -155,15 +157,6 @@ export const CreateAnnouncementModal: React.FC<CreateAnnouncementModalProps> = (
                     className="w-5 h-5 rounded border-slate-300 text-[#1D7AD9] focus:ring-[#1D7AD9] cursor-pointer"
                   />
                   <span className="ml-3 text-sm font-medium text-slate-700">Staff</span>
-                </label>
-                <label className="flex items-center px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={recipients.management}
-                    onChange={() => toggleRecipient('management')}
-                    className="w-5 h-5 rounded border-slate-300 text-[#1D7AD9] focus:ring-[#1D7AD9] cursor-pointer"
-                  />
-                  <span className="ml-3 text-sm font-medium text-slate-700">Management</span>
                 </label>
               </div>
             )}

@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Announcement, ChartDataItem } from "../components/types";
+import { Announcement, ChartDataItem } from "../types";
 import { AnnouncementList } from "../components/AnnouncementList";
 import StatsContainer from "../components/StatsContainer";
 import { useAuth } from "../context/AuthProvider";

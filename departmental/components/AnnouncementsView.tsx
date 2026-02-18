@@ -7,9 +7,10 @@ import { CreateAnnouncementModal } from './CreateAnnouncementModal';
 interface Announcement {
   id: string;
   title: string;
-  content: string; // mapped from API 'content'
+  content: string; // mapped from API 'body'
   createdAt: string;
-  recipients: string[];
+  isFor: string;
+  isRead: boolean;
 }
 
 export const AnnouncementsView: React.FC = () => {
@@ -24,15 +25,16 @@ export const AnnouncementsView: React.FC = () => {
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/announcements/my-department');
+      const response = await api.get('/notifications');
       const data = response.data?.data || [];
       
       const transformed = data.map((item: any) => ({
         id: item.id,
         title: item.title,
-        content: item.content,
+        content: item.body,
         createdAt: item.createdAt,
-        recipients: item.recipients || []
+        isFor: item.isFor,
+        isRead: item.isRead,
       }));
       
       setAnnouncements(transformed);
@@ -82,14 +84,13 @@ export const AnnouncementsView: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-900">Announcement</h2>
         <button 
           onClick={() => setShowCreateModal(true)}
-          className="bg-[#1D7AD9] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/10 hover:bg-blue-700 transition-all active:scale-95"
+          className="bg-[#1D7AD9] text-white px-5 py-2.5 rounded-lg cursor-pointer flex items-center gap-2 text-sm font-bold shadow-lg shadow-blue-500/10 hover:bg-blue-700 transition-all active:scale-95"
         >
           <Plus size={18} /> 
           Create New Announcement
         </button>
       </div>
 
-      {/* Date Filters */}
       {/* Date Filters */}
       <div className="flex justify-end items-center mb-8 gap-3">
         <label className="text-sm font-medium text-slate-700">From</label>
