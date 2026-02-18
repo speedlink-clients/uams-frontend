@@ -20,6 +20,7 @@ import Registration from './pages/Registration';
 import Timetable from './pages/Timetable';
 import Payments from './pages/Payments';
 import PaymentsNew from './pages/PaymentsNew';
+import Announcements from './pages/Announcements';
 import Login from './pages/Login';
 import authService from './services/authService';
 import { Routes, Route, useLocation, useNavigate, Navigate, Outlet } from 'react-router-dom';
@@ -116,6 +117,7 @@ const MainLayout: React.FC = () => {
     if (pathname.startsWith('/courses')) return 'courses';
     if (pathname.startsWith('/registration')) return 'registration';
     if (pathname.startsWith('/payments')) return 'payments';
+    if (pathname.startsWith('/announcements')) return 'announcements';
     if (pathname.startsWith('/timetable')) return 'timetable';
     if (pathname.startsWith('/settings')) return 'settings';
     return 'dashboard';
@@ -200,6 +202,7 @@ const MainLayout: React.FC = () => {
           <SidebarItem iconSrc="/assets/Books (1).png" label="Registration" active={activeTab === 'registration'} onClick={() => { navigate('/registration'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc="/assets/CalendarDots (1).png" label="Timetable" active={activeTab === 'timetable'} onClick={() => { navigate('/timetable'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc="/assets/Money (1).png" label="Payments" active={activeTab === 'payments'} onClick={() => { navigate('/payments'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
+          <SidebarItem iconSrc="/assets/CalendarDots (1).png" label="Announcements" active={activeTab === 'announcements'} onClick={() => { navigate('/announcements'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc="/assets/305ae6c7f315bb219eb3b785a763838d55d71e73 (1).png" label="Profile" active={activeTab === 'settings'} onClick={() => { navigate('/settings'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
         </Box>
 
@@ -310,6 +313,7 @@ const App: React.FC = () => {
         <Route path="timetable" element={<Timetable />} />
         <Route path="payments" element={<Payments />} />
         <Route path="payments/new" element={<PaymentsNew />} />
+        <Route path="announcements" element={<Announcements />} />
         <Route path="*" element={<Dashboard />} />
       </Route>
     </Routes>

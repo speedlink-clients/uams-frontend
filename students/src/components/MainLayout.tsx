@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import apiClient from '../services/api';
 import { 
   Box, Flex, Text, Image, Button, Input, 
   IconButton, HStack 
@@ -10,7 +11,8 @@ import {
   Menu,
   X,
   User,
-  LogOut
+  LogOut,
+  Megaphone
 } from 'lucide-react';
 import authService from '../services/authService';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
@@ -35,12 +37,14 @@ const Logo = ({ collapsed }: { collapsed?: boolean }) => (
 
 const SidebarItem = ({ 
   iconSrc, 
+  icon,
   label, 
   active, 
   onClick,
   collapsed = false,
 }: { 
-  iconSrc: string, 
+  iconSrc?: string, 
+  icon?: React.ReactNode,
   label: string, 
   active: boolean, 
   onClick: () => void,
@@ -66,13 +70,31 @@ const SidebarItem = ({
       transition="all 0.2s"
       title={collapsed ? label : undefined}
     >
-      <Image 
-        src={iconSrc} 
-        alt={label} 
-        boxSize={collapsed ? '20px' : '22px'} 
-        objectFit="contain" 
-      />
-      <Box as="span" ml={collapsed ? 0 : 3} style={{ transition: 'opacity 0.18s, width 0.18s', opacity: collapsed ? 0 : 1, width: collapsed ? 0 : 'auto', overflow: 'hidden', display: 'inline-block' }}>
+      {/* Icon logic */}
+      {icon ? (
+        <Box boxSize={collapsed ? '20px' : '22px'} display="flex" alignItems="center" justifyContent="center">
+          {icon}
+        </Box>
+      ) : (
+        <Image 
+          src={iconSrc} 
+          alt={label} 
+          boxSize={collapsed ? '20px' : '22px'} 
+          objectFit="contain" 
+        />
+      )}
+
+      <Box
+        as="span"
+        ml={collapsed ? 0 : 3}
+        style={{
+          transition: 'opacity 0.18s, width 0.18s',
+          opacity: collapsed ? 0 : 1,
+          width: collapsed ? 0 : 'auto',
+          overflow: 'hidden',
+          display: 'inline-block'
+        }}
+      >
         <Text fontSize="15px" display="inline">{label}</Text>
       </Box>
     </Button>
@@ -84,6 +106,7 @@ const SidebarItem = ({
     </Box>
   );
 };
+
 
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -108,6 +131,7 @@ const MainLayout: React.FC = () => {
     if (pathname.startsWith('/courses')) return 'courses';
     if (pathname.startsWith('/registration')) return 'registration';
     if (pathname.startsWith('/payments')) return 'payments';
+    if (pathname.startsWith('/announcements')) return 'announcements';
     if (pathname.startsWith('/timetable')) return 'timetable';
     if (pathname.startsWith('/profile')) return 'profile';
     if (pathname.startsWith('/settings')) return 'settings';
@@ -115,6 +139,19 @@ const MainLayout: React.FC = () => {
   };
 
   const activeTab = getTabFromPath(location.pathname);
+
+  // Notification count
+  const [notifCount, setNotifCount] = useState(0);
+  useEffect(() => {
+    apiClient.get('/notifications')
+      .then((res) => {
+        const data = res.data?.data ?? res.data;
+        if (Array.isArray(data)) {
+          setNotifCount(data.filter((n: any) => !n.isRead).length);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Logout handler
   const handleLogout = () => {
@@ -193,6 +230,7 @@ const MainLayout: React.FC = () => {
           <SidebarItem iconSrc={getAssetPath('assets/Books (1).png')} label="Registration" active={activeTab === 'registration'} onClick={() => { navigate('/registration'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/CalendarDots (1).png')} label="Timetable" active={activeTab === 'timetable'} onClick={() => { navigate('/timetable'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Money (1).png')} label="Payments" active={activeTab === 'payments'} onClick={() => { navigate('/payments'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
+          <SidebarItem icon={<Megaphone size={20} />} label="Announcements" active={activeTab === 'announcements'} onClick={() => { navigate('/announcements'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/305ae6c7f315bb219eb3b785a763838d55d71e73 (1).png')} label="Profile" active={activeTab === 'profile'} onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
         </Box>
 
@@ -249,8 +287,28 @@ const MainLayout: React.FC = () => {
 
           <Flex align="center" gap={{ base: 4, lg: 6 }} ml={4} shrink={0}>
             <HStack gap={3} display="flex">
-              <Box as="button" p={2} color="gray.400" _hover={{ color: 'gray.600' }} transition="colors 0.2s">
+              <Box as="button" p={2} color="gray.400" _hover={{ color: 'gray.600' }} transition="colors 0.2s" position="relative" onClick={() => navigate('/announcements')}>
                 <Bell size={20} />
+                {notifCount > 0 && (
+                  <Box
+                    position="absolute"
+                    top="2px"
+                    right="2px"
+                    bg="red.500"
+                    color="white"
+                    fontSize="9px"
+                    fontWeight="bold"
+                    rounded="full"
+                    w="16px"
+                    h="16px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    lineHeight="1"
+                  >
+                    {notifCount > 9 ? '9+' : notifCount}
+                  </Box>
+                )}
               </Box>
               <Box as="button" p={2} color="gray.400" _hover={{ color: 'gray.600' }} transition="colors 0.2s">
                 <History size={20} />

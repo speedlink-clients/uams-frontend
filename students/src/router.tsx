@@ -13,6 +13,7 @@ import IdCardPaymentCallback from "./pages/IdCardPaymentCallback";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import PaymentVerificationPage from "./pages/PaymentVerification";
+import Announcements from "./pages/Announcements";
 
 const router = createBrowserRouter([
   {
@@ -93,12 +94,12 @@ const router = createBrowserRouter([
             element: <PaymentsNew />,
           },
           {
-            path: "profile",
-            element: <Profile />,
+            path: "announcements",
+            element: <Announcements />,
           },
           {
-            path: "settings",
-            element: <Navigate to="/profile" replace />,
+            path: "profile",
+            element: <Profile />,
           },
         ],
       },
@@ -111,7 +112,7 @@ const router = createBrowserRouter([
     element: <Navigate to="/" replace />,
   },
 ], {
-  basename: "/students"
+  basename: "/students/"
 });
 
 export default router;

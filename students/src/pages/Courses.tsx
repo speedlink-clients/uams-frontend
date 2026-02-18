@@ -17,6 +17,8 @@ import {
 } from 'recharts';
 import { Search, Plus, ChevronLeft, Send, ChevronDown } from 'lucide-react';
 import { getAssetPath } from '../utils/assetPath';
+import apiClient from '../services/api';
+import { toaster } from '../components/ui/toaster';
 
 const TableCheckbox = () => (
   <Checkbox.Root colorPalette="blue" size="sm">
@@ -228,186 +230,288 @@ const ResultsTab = () => {
 */
 
 const ComplaintsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, onSelect: (id: string) => void }) => {
-  const complaints = [
-    { id: '1', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '30m ago', status: 'In Progress', color: 'blue' },
-    { id: '2', code: 'CPT011', subject: 'Result Remark Request', desc: 'I believe my result for MTH110.1 is not my score...', update: '3d ago', status: 'In Progress', color: 'blue' },
-    { id: '3', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '7d ago', status: 'Pending Review', color: 'pink' },
-    { id: '4', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '1w ago', status: 'Completed', color: 'green' },
-    { id: '5', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '2mon ago', status: 'Completed', color: 'green' },
-    { id: '6', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '1yr ago', status: 'Pending Review', color: 'pink' },
-    { id: '7', code: 'CPT011', subject: 'Missing Result Complaint', desc: 'My result for MTH110.1 is missing and i wrote...', update: '1yr ago', status: 'Completed', color: 'green' },
-  ];
+  const [query, setQuery] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState('all');
+  const [hoveredRow, setHoveredRow] = React.useState<string | null>(null);
+  const [complaints, setComplaints] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  const getStatusStyle = (color: string) => {
-    switch (color) {
-      case 'blue': return { bg: 'blue.50', color: 'blue.500' };
-      case 'pink': return { bg: 'orange.50', color: 'orange.500' };
-      case 'green': return { bg: 'green.50', color: 'green.600' };
-      default: return { bg: 'gray.100', color: 'gray.500' };
+  React.useEffect(() => {
+    apiClient.get('/complaints')
+      .then((res) => {
+        const data = res.data?.data ?? res.data;
+        setComplaints(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => console.error('Failed to fetch complaints:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const mapStatus = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case 'RESOLVED': return 'Resolved';
+      case 'DECLINED': return 'Declined';
+      case 'ON_PROGRESS': return 'Pending';
+      case 'PENDING': return 'Pending';
+      default: return 'Pending';
     }
   };
 
+  const timeAgo = (dateStr: string) => {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now.getTime() - date.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}hr${hrs > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 30) return `${days} day${days > 1 ? 's' : ''} ago`;
+    const months = Math.floor(days / 30);
+    return `${months} month${months > 1 ? 's' : ''} ago`;
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Resolved': return { bg: '#dcfce7', color: '#16a34a' };
+      case 'Declined': return { bg: '#ffedd5', color: '#ea580c' };
+      case 'Pending':
+      default: return { bg: '#f1f5f9', color: '#64748b' };
+    }
+  };
+
+  const filtered = React.useMemo(() => {
+    return complaints.filter((c) => {
+      const displayStatus = mapStatus(c.status);
+      if (query) {
+        const q = query.toLowerCase();
+        if (!c.subject?.toLowerCase().includes(q) && !c.compliant?.toLowerCase().includes(q)) return false;
+      }
+      if (statusFilter !== 'all' && displayStatus !== statusFilter) return false;
+      return true;
+    });
+  }, [complaints, query, statusFilter]);
+
+  const truncate = (text: string, max = 45) => text.length > max ? text.substring(0, max) + '...' : text;
+
   return (
-    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
-      {/* Log New Complaints Button */}
-      <Flex justify="flex-end" w="full">
-        <Button
-          onClick={onLogNew}
-          bg="blue.500"
-          color="white"
-          rounded="xl"
-          px={6}
-          py={5}
-          fontSize="13px"
-          fontWeight="bold"
-          _hover={{ bg: 'blue.600' }}
-          shadow="md"
-        >
-          <Plus size={16} />
-          Log New Complaints
-        </Button>
+    <VStack gap={0} w="full" animation="fade-in 0.5s">
+      {/* Search + Filter + Button Row */}
+      <Flex
+        w="full"
+        gap={3}
+        align="center"
+        mb={6}
+        direction={{ base: 'column', md: 'row' }}
+      >
+        {/* Search */}
+        <Box position="relative" flex={1} maxW={{ md: '400px' }}>
+          <Box position="absolute" left={3} top="50%" transform="translateY(-50%)" color="gray.300" zIndex={1}>
+            <Search size={16} />
+          </Box>
+          <Input
+            placeholder="Search by subject..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            bg="white"
+            border="1px solid"
+            borderColor="gray.200"
+            rounded="lg"
+            pl={10}
+            pr={4}
+            py={2}
+            fontSize="13px"
+            fontWeight="medium"
+            color="slate.700"
+            _placeholder={{ color: 'gray.300' }}
+            _focus={{ outline: 'none', borderColor: 'blue.300' }}
+            h="40px"
+          />
+        </Box>
+
+        <Flex gap={3} align="center" ml={{ md: 'auto' }}>
+          {/* Status Filter */}
+          <Box position="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                background: 'white',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '6px 30px 6px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#334155',
+                appearance: 'none',
+                cursor: 'pointer',
+                height: '40px',
+              }}
+            >
+              <option value="all">Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Declined">Declined</option>
+            </select>
+            <Box position="absolute" right={2} top="50%" transform="translateY(-50%)" pointerEvents="none" color="gray.400">
+              <ChevronDown size={14} />
+            </Box>
+          </Box>
+
+          {/* New Complaint Button */}
+          <Button
+            onClick={onLogNew}
+            bg="#D9ECFF"
+            color="blue.500"
+            rounded="lg"
+            px={5}
+            h="40px"
+            fontSize="13px"
+            fontWeight="bold"
+            _hover={{ bg: 'blue.200' }}
+            shadow="sm"
+          >
+            <Plus size={16} style={{ marginRight: '6px' }} />
+            New complaint
+          </Button>
+        </Flex>
       </Flex>
 
-      {/* Complaints Table */}
+      {/* Table */}
       <Box
         bg="white"
-        rounded={{ base: "24px", lg: "32px" }}
-        p={{ base: 5, lg: 8 }}
+        rounded={{ base: '20px', lg: '24px' }}
         border="1px"
         borderColor="gray.100"
         shadow="sm"
+        overflowX="auto"
         w="full"
       >
-        {/* Header */}
-        <Flex
-          justify="space-between"
-          align={{ base: "start", md: "center" }}
-          mb={6}
-          direction={{ base: "column", md: "row" }}
-          gap={4}
-        >
-          <Heading fontSize={{ base: "md", lg: "lg" }} fontWeight="bold" color="slate.800">
-            All Complaints
-          </Heading>
-          <HStack gap={3}>
-            {/* Search */}
-            <Box position="relative">
-              <Box position="absolute" left={3} top="50%" transform="translateY(-50%)" color="gray.300" zIndex={1}>
-                <Search size={14} />
-              </Box>
-              <Input
-                placeholder="Search by subject, code, date"
-                bg="gray.50"
-                border="1px solid"
-                borderColor="gray.100"
-                rounded="lg"
-                pl={9}
-                pr={4}
-                py={2}
-                fontSize="12px"
-                fontWeight="medium"
-                color="slate.700"
-                _placeholder={{ color: 'gray.300' }}
-                _focus={{ outline: 'none', borderColor: 'blue.300' }}
-                w={{ base: "full", md: "220px" }}
-                h="36px"
-              />
-            </Box>
-            {/* Filter */}
-            <Box position="relative">
-              <select
-                style={{
-                  background: '#f8fafc',
-                  border: '1px solid #f1f5f9',
-                  borderRadius: '8px',
-                  padding: '6px 28px 6px 12px',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: '#64748b',
-                  appearance: 'none',
-                  cursor: 'pointer',
-                  height: '36px',
-                }}
-              >
-                <option>All Complaints</option>
-                <option>In Progress</option>
-                <option>Pending Review</option>
-                <option>Completed</option>
-              </select>
-              <Box position="absolute" right={2} top="50%" transform="translateY(-50%)" pointerEvents="none" color="gray.400">
-                <ChevronDown size={14} />
-              </Box>
-            </Box>
-          </HStack>
-        </Flex>
-
-        {/* Table */}
-        <Box overflowX="auto">
-          <Table.Root size="sm" variant="line">
-            <Table.Header>
-              <Table.Row borderBottom="1px solid" borderColor="gray.100">
-                <Table.ColumnHeader w="40px" py={3}>
-                  <TableCheckbox />
-                </Table.ColumnHeader>
-                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3}>Code</Table.ColumnHeader>
-                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3}>Subject</Table.ColumnHeader>
-                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3} display={{ base: "none", md: "table-cell" }}>Description</Table.ColumnHeader>
-                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3}>Last Update</Table.ColumnHeader>
-                <Table.ColumnHeader fontSize="11px" fontWeight="bold" color="gray.400" textTransform="capitalize" py={3} textAlign="center">Status</Table.ColumnHeader>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {complaints.map((app) => {
-                const statusStyle = getStatusStyle(app.color);
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#F8FAFC' }}>
+              <th style={{ padding: '16px 20px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: 600, width: '60px' }}>S/N</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Subject</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Description</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Created at</th>
+              <th style={{ padding: '16px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={5} style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                  <Flex justify="center" align="center" gap={2}>
+                    <Loader2 size={18} className="animate-spin" />
+                    Loading complaints...
+                  </Flex>
+                </td>
+              </tr>
+            ) : filtered.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                  No complaints found
+                </td>
+              </tr>
+            ) : (
+              filtered.map((c, idx) => {
+                const displayStatus = mapStatus(c.status);
+                const badge = getStatusBadge(displayStatus);
+                const desc = c.compliant || '';
                 return (
-                  <Table.Row
-                    key={app.id}
-                    borderBottom="1px solid"
-                    borderColor="gray.50"
-                    _hover={{ bg: 'gray.25' }}
-                    cursor="pointer"
-                    onClick={() => onSelect(app.id)}
+                  <tr
+                    key={c.id}
+                    style={{
+                      borderBottom: '1px solid #f8fafc',
+                      cursor: 'pointer',
+                      backgroundColor: hoveredRow === c.id ? '#f8fafc' : 'transparent',
+                    }}
+                    onMouseEnter={() => setHoveredRow(c.id)}
+                    onMouseLeave={() => setHoveredRow(null)}
+                    onClick={() => onSelect(c.id)}
                   >
-                    <Table.Cell py={4} onClick={(e) => e.stopPropagation()}>
-                      <TableCheckbox />
-                    </Table.Cell>
-                    <Table.Cell py={4}>
-                      <Text fontSize="12px" fontWeight="bold" color="slate.700">{app.code}</Text>
-                    </Table.Cell>
-                    <Table.Cell py={4}>
-                      <Text fontSize="12px" fontWeight="medium" color="slate.700">{app.subject}</Text>
-                    </Table.Cell>
-                    <Table.Cell py={4} display={{ base: "none", md: "table-cell" }}>
-                      <Text fontSize="12px" color="gray.400" fontWeight="medium" maxW="350px" truncate>{app.desc}</Text>
-                    </Table.Cell>
-                    <Table.Cell py={4}>
-                      <Text fontSize="11px" fontWeight="medium" color="gray.400">{app.update}</Text>
-                    </Table.Cell>
-                    <Table.Cell py={4} textAlign="center">
+                    <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{idx + 1}</td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', color: '#334155', fontWeight: 500 }}>{c.subject}</td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b', fontWeight: 400, position: 'relative' }}>
+                      <span style={{ cursor: 'default' }}>
+                        {truncate(desc)}
+                      </span>
+                      {/* Custom tooltip on hover */}
+                      {hoveredRow === c.id && desc.length > 45 && (
+                        <Box
+                          position="absolute"
+                          top="-8px"
+                          left="20px"
+                          bg="white"
+                          border="1px solid"
+                          borderColor="gray.200"
+                          rounded="lg"
+                          p={3}
+                          shadow="lg"
+                          zIndex={10}
+                          maxW="350px"
+                          fontSize="12px"
+                          color="slate.600"
+                          fontWeight="medium"
+                          lineHeight="1.5"
+                          pointerEvents="none"
+                        >
+                          {desc}
+                        </Box>
+                      )}
+                    </td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{timeAgo(c.createdAt)}</td>
+                    <td style={{ padding: '16px 20px', textAlign: 'center' }}>
                       <Badge
                         px={3} py={1}
-                        bg={statusStyle.bg}
-                        color={statusStyle.color}
+                        bg={badge.bg}
+                        color={badge.color}
                         rounded="full"
-                        fontSize="9px"
+                        fontSize="11px"
                         fontWeight="bold"
                         textTransform="capitalize"
                       >
-                        {app.status}
+                        {displayStatus}
                       </Badge>
-                    </Table.Cell>
-                  </Table.Row>
+                    </td>
+                  </tr>
                 );
-              })}
-            </Table.Body>
-          </Table.Root>
-        </Box>
+              })
+            )}
+          </tbody>
+        </table>
       </Box>
     </VStack>
   );
 };
 
-const MakeComplaintView = ({ onBack }: { onBack: () => void }) => (
+const MakeComplaintView = ({ onBack }: { onBack: () => void }) => {
+  const [subject, setSubject] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const handleSubmit = async () => {
+    if (!subject.trim() || !message.trim()) {
+      toaster.create({ title: 'Please fill in both Subject and Message', type: 'error' });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await apiClient.post('/complaints', {
+        subject: subject.trim(),
+        compliant: message.trim(),
+      });
+      toaster.create({ title: 'Complaint filed successfully', type: 'success' });
+      onBack();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Failed to file complaint';
+      toaster.create({ title: msg, type: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
   <Box
     bg="white"
     rounded={{ base: "24px", lg: "32px" }}
@@ -426,6 +530,8 @@ const MakeComplaintView = ({ onBack }: { onBack: () => void }) => (
       <Text fontSize="13px" fontWeight="bold" color="slate.700" mb={2}>Subject</Text>
       <Input
         placeholder="Missing script"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
         bg="gray.50"
         border="1px solid"
         borderColor="gray.200"
@@ -446,6 +552,8 @@ const MakeComplaintView = ({ onBack }: { onBack: () => void }) => (
       <Text fontSize="13px" fontWeight="bold" color="slate.700" mb={2}>Message</Text>
       <Textarea
         placeholder="Your message here..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
         bg="gray.50"
         border="1px solid"
         borderColor="gray.200"
@@ -483,10 +591,12 @@ const MakeComplaintView = ({ onBack }: { onBack: () => void }) => (
         bg="white"
         _hover={{ bg: 'gray.100' }}
         h="auto"
+        disabled={submitting || !subject.trim() || !message.trim()}
       >
         Cancel
       </Button>
       <Button
+        onClick={handleSubmit}
         bg="blue.500"
         color="white"
         rounded="lg"
@@ -497,12 +607,15 @@ const MakeComplaintView = ({ onBack }: { onBack: () => void }) => (
         _hover={{ bg: 'blue.600' }}
         shadow="sm"
         h="auto"
+        loading={submitting}
+        loadingText="Submitting..."
       >
         Submit
       </Button>
     </Flex>
   </Box>
-);
+  );
+};
 
 const Courses: React.FC = () => {
   const navigate = useNavigate();

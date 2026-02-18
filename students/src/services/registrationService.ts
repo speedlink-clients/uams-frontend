@@ -260,20 +260,6 @@ export const addCourseToCart = async (courseIds: string | string[]): Promise<{ s
   }
 };
 
-/**
- * Remove a course from the registration cart
- * @param courseId - The ID of the course to remove
- */
-export const removeCourseFromCart = async (courseId: string): Promise<{ success: boolean; message: string }> => {
-  try {
-    const response = await apiClient.delete(`/course-cart/remove`, {data: {courseId}});
-    return { success: true, message: response.data?.message || 'Course removed from cart' };
-  } catch (error: any) {
-    console.error('Failed to remove course from cart:', error);
-    const message = error.response?.data?.message || 'Failed to remove course from cart';
-    return { success: false, message };
-  }
-}
 
 /**
  * Bulk register courses for a semester

@@ -1,6 +1,6 @@
 import { Level, Semester, Session, RegistrationData, StudentProfile } from "./services/types";
 
-export type NavigationItem = 'dashboard' | 'courses' | 'registration' | 'timetable' | 'payments' | 'settings' | 'profile';
+export type NavigationItem = 'dashboard' | 'courses' | 'registration' | 'timetable' | 'payments' | 'announcements' | 'settings' | 'profile';
 
 export interface Course {
   id: string;

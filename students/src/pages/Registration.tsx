@@ -27,8 +27,6 @@ import {
   getRegistrations,
   getDepartmentCourses,
   addCourseToCart,
-  // getCourseCart,
-  removeCourseFromCart,
   bulkRegisterCourses,
   getStudentPayments,
 } from "../services/registrationService";
@@ -811,27 +809,18 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
     setSearchQuery("");
   };
 
-  const handleRemoveCourse = async (courseId: string) => {
-    // Call API to remove from cart
-    const result = await removeCourseFromCart(courseId);
+  const handleRemoveCourse = (courseId: string) => {
+    // Remove from previewer (frontend only, no API call)
+    setPreviewedCourses((prev) =>
+      prev.filter((course) => course.id !== courseId),
+    );
 
-    if (result.success) {
-      // Remove from previewer on success
-      setPreviewedCourses((prev) =>
-        prev.filter((course) => course.id !== courseId),
-      );
-
-      // If no courses left, disable the buttons
-      const remainingCourses = previewedCourses.filter(
-        (course) => course.id !== courseId,
-      );
-      if (remainingCourses.length === 0) {
-        setIsCartConfirmed(false);
-      }
-    } else {
-      // Show error message if removal failed
-      setCartMessage({ type: "error", text: result.message });
-      setTimeout(() => setCartMessage(null), 7000);
+    // If no courses left, disable the buttons
+    const remainingCourses = previewedCourses.filter(
+      (course) => course.id !== courseId,
+    );
+    if (remainingCourses.length === 0) {
+      setIsCartConfirmed(false);
     }
   };
 
@@ -1169,7 +1158,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                                 setSelectedCoursesInDropdown([]);
                                 setSearchQuery("");
                               }}
-                              className="px-4 py-1.5 text-[11px] font-bold text-gray-400 hover:bg-gray-200 rounded-lg transition-colors"
+                              className="px-4 py-1.5 bg-red-500 text-[11px] font-bold text-white hover:bg-red-600 rounded-lg transition-colors"
                             >
                               Cancel
                             </button>
@@ -1216,9 +1205,9 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                 className="bg-[#3b82f6] text-white px-6 py-2.5 rounded-lg text-[11px] font-bold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 {isAddingToCart && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isAddingToCart ? "Adding..." : "Confirm Courses"}
+                {isAddingToCart ? "Adding..." : "Confirm Course(s)"}
               </button>
-              <button className="bg-white border border-gray-200 text-[#1e293b] px-6 py-2.5 rounded-lg text-[11px] font-bold hover:bg-gray-50 transition-colors">
+              <button className="bg-red-50 border border-red-200 text-red-500 px-6 py-2.5 rounded-lg text-[11px] font-bold hover:bg-red-100 transition-colors">
                 Cancel
               </button>
             </div>
@@ -1243,7 +1232,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
               >
                 Register Courses
               </button>
-              <button className="bg-white border border-gray-200 text-[#1e293b] px-10 py-3 rounded-lg text-xs font-bold hover:bg-gray-50 transition-all min-w-30">
+              <button className="bg-red-50 border border-red-200 text-red-500 px-10 py-3 rounded-lg text-xs font-bold hover:bg-red-100 transition-all min-w-30">
                 Cancel
               </button>
             </div>
