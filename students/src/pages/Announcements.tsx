@@ -53,7 +53,7 @@ const Announcements: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '32px', maxWidth: '1350px', margin: '0 auto' }}>
+    <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1e293b', margin: 0 }}>Announcement</h1>
