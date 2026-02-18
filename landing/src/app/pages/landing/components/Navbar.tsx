@@ -11,7 +11,7 @@ import {
     Stack,
 } from "@chakra-ui/react";
 import { toaster } from "@components/ui/toaster";
-import { Search, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import LoginModal from "@components/shared/LoginModal";
 
@@ -59,24 +59,19 @@ const Navbar = () => {
 
                         {/* Actions */}
                         <HStack gap={{ base: 2, md: 4 }}>
-                            <IconButton aria-label="Search" variant="ghost" size="sm">
-                                <Search size={20} color="gray" />
-                            </IconButton>
                             <Button
-                                colorScheme="cyan"
                                 bg="#2AB0E8"
-
                                 color="white"
                                 size={{ base: "xs", md: "sm" }}
-                                px={{ base: 4, md: 6 }}
+                                px={{ base: 3, md: 6 }}
                                 borderRadius="none"
-                                _hover={{ bg: "#2AB0E8" }}
-                                display={{ base: "none", sm: "inline-flex" }}
+                                _hover={{ bg: "#23a1d5" }}
+                                // Button is now always visible
+                                display="inline-flex"
                                 onClick={openLogin}
                             >
                                 Login
                             </Button>
-
 
                             {/* Mobile Menu Toggle */}
                             <IconButton
@@ -91,9 +86,8 @@ const Navbar = () => {
                     </Flex>
                 </Container>
 
-                {/* Admission Bar (Now below the header) */}
+                {/* Admission Bar */}
                 <Box bg="#4CC5F5" py={2}>
-
                     <Container maxW="container.xl">
                         <Flex justify="center" align="center" gap={2} fontSize={{ base: "xs", md: "sm" }} color="white" flexWrap="wrap">
                             <Text textAlign="center">
@@ -121,25 +115,24 @@ const Navbar = () => {
                         right={0}
                         boxShadow="md"
                     >
-                        <Stack gap={4} py={4}>
+                        <Stack gap={1} py={4}>
                             {navLinks.map((item) => (
-                                <Link key={item} href="#" fontSize="md" fontWeight="medium" color="gray.700" onClick={(e) => { setIsOpen(false); handleComingSoon(e); }}>
+                                <Link 
+                                    key={item} 
+                                    href="#" 
+                                    fontSize="md" 
+                                    fontWeight="medium" 
+                                    color="gray.700" 
+                                    py={3} // Added padding for better mobile touch targets
+                                    onClick={(e) => { setIsOpen(false); handleComingSoon(e); }}
+                                >
                                     {item}
                                 </Link>
                             ))}
-                            <Button
-                                bg="#40C4FF"
-                                color="white"
-                                w="100%"
-                                borderRadius="none"
-                                onClick={() => { setIsOpen(false); openLogin(); }}
-                            >
-                                Login
-                            </Button>
+                            {/* Login Button removed from here as it is persistent in the header */}
                         </Stack>
                     </Box>
                 )}
-
             </Box>
 
             <LoginModal isOpen={isLoginOpen} onClose={closeLogin} />
