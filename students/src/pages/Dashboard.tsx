@@ -22,29 +22,7 @@ const performanceData = [
   { name: 'Year 5', gpa: 3.0, cgpa: 3.4 },
 ];
 
-// Mock announcements data
-const announcements = [
-  {
-    title: 'Matriculation Date Released',
-    description: 'The date had scheduled for 30th January has been cancelled. A new date will be announced soon.',
-    date: '2025-01-01',
-  },
-  {
-    title: 'Field Trip Rescheduled',
-    description: 'The field trip to Calabar has been rescheduled. Please check back for the new date and further instructions.',
-    date: '2025-01-05',
-  },
-  {
-    title: 'Field Trip Rescheduled',
-    description: 'The field trip to Calabar has been rescheduled. Please check back for the new date and further instructions.',
-    date: '2025-01-02',
-  },
-  {
-    title: 'About Mth 110 Test',
-    description: 'The date had scheduled for 30th January has been cancelled. A new date will be announced soon.',
-    date: '2025-01-02',
-  },
-];
+
 
 const DAY_NAMES = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'] as const;
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -76,6 +54,7 @@ const Dashboard: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState(() => DAY_NAMES[new Date().getDay()]);
   const [courseRegStatus, setCourseRegStatus] = useState<'loading' | 'registered' | 'pending'>('loading');
   const [idCardStatus, setIdCardStatus] = useState<'loading' | 'paid' | 'not_paid'>('loading');
+  const [notifAnnouncements, setNotifAnnouncements] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetch timetable
@@ -86,6 +65,14 @@ const Dashboard: React.FC = () => {
       })
       .catch((err) => console.error('Failed to fetch timetable:', err))
       .finally(() => setTimetableLoading(false));
+
+    // Fetch notifications for announcements
+    apiClient.get('/notifications')
+      .then((res) => {
+        const data = res.data?.data ?? res.data;
+        setNotifAnnouncements(Array.isArray(data) ? data.slice(0, 4) : []);
+      })
+      .catch(() => {});
 
     // Fetch course registration status
     apiClient.get('/students/registrations')
@@ -238,9 +225,11 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              {announcements.map((item, idx) => (
+              {notifAnnouncements.length === 0 ? (
+                <p className="text-[12px] text-gray-400 text-center py-4">No announcements</p>
+              ) : notifAnnouncements.map((item) => (
                 <div
-                  key={idx}
+                  key={item.id}
                   className="flex items-start justify-between gap-4 p-4 rounded-xl bg-[#f8fafc] border border-gray-50 hover:bg-[#f1f5f9] transition-colors cursor-pointer"
                 >
                   <div className="flex gap-3 min-w-0">
@@ -248,11 +237,11 @@ const Dashboard: React.FC = () => {
                     <div className="w-1 flex-shrink-0 rounded-full bg-[#3b82f6] self-stretch" />
                     <div className="min-w-0">
                       <p className="text-[13px] font-bold text-[#1e293b] truncate">{item.title}</p>
-                      <p className="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
+                      <p className="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">{item.body}</p>
                     </div>
                   </div>
                   <span className="text-[10px] font-bold text-gray-300 whitespace-nowrap flex-shrink-0 mt-0.5">
-                    {item.date}
+                    {new Date(item.createdAt).toISOString().split('T')[0]}
                   </span>
                 </div>
               ))}

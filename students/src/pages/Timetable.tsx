@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Flex, Text, Heading, VStack, HStack, Button } from '@chakra-ui/react';
-import { ChevronLeft, ChevronRight, ChevronDown, Loader2 } from 'lucide-react';
 import apiClient from '../services/api';
+import { ChevronLeft, ChevronRight, ChevronDown, Loader2 } from 'lucide-react';
 
 const scheduleColors = ['#E1F7FD', '#FDFBE7', '#F0F1FE', '#FBF2F9'];
 
@@ -34,23 +34,7 @@ const getHour = (time: string) => parseInt(time.split(':')[0], 10);
 
 const daysOfWeek = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
-const announcements = [
-  {
-    id: 1,
-    title: 'About Mth 110 Test',
-    desc: 'The date last announced for 2nd January has been cancelled. A new date will be announced soon.',
-  },
-  {
-    id: 2,
-    title: 'Field Trip Rescheduled',
-    desc: 'The field trip originally scheduled for Friday has been postponed to next Monday.',
-  },
-  {
-    id: 3,
-    title: 'Field Trip Rescheduled',
-    desc: "Check the class schedule page for the updated schedule. Please check back for further announcements.",
-  },
-];
+
 
 const CalendarWidget = () => {
   const today = new Date();
@@ -133,6 +117,7 @@ const Timetable: React.FC = () => {
   const [entries, setEntries] = useState<TimetableEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(() => DAY_NAMES[new Date().getDay()]);
+  const [liveAnnouncements, setLiveAnnouncements] = useState<any[]>([]);
 
   const todayDate = new Date();
   const formattedDate = todayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -143,8 +128,16 @@ const Timetable: React.FC = () => {
         const data = res.data?.data ?? res.data;
         setEntries(Array.isArray(data) ? data : []);
       })
-      .catch((err) => console.error('Failed to fetch timetable:', err))
+      .catch(() => {})
       .finally(() => setLoading(false));
+
+    // Fetch notifications
+    apiClient.get('/notifications')
+      .then((res) => {
+        const data = res.data?.data ?? res.data;
+        setLiveAnnouncements(Array.isArray(data) ? data.slice(0, 3) : []);
+      })
+      .catch(() => {});
   }, []);
 
   // Filter entries for the selected day, sorted by startTime
@@ -296,7 +289,9 @@ const Timetable: React.FC = () => {
               Announcements
             </Heading>
             <VStack align="stretch" gap={3}>
-              {announcements.map((a) => (
+              {liveAnnouncements.length === 0 ? (
+                <Text fontSize="12px" color="gray.400" textAlign="center" py={4}>No announcements</Text>
+              ) : liveAnnouncements.map((a) => (
                 <Box
                   key={a.id}
                   bg="#FEF9C3"
@@ -305,7 +300,7 @@ const Timetable: React.FC = () => {
                 >
                   <Text fontSize="12px" fontWeight="bold" color="slate.800" mb={1}>{a.title}</Text>
                   <Text fontSize="10px" color="gray.500" lineHeight="short" fontWeight="medium">
-                    {a.desc}
+                    {a.body}
                   </Text>
                   <Text fontSize="9px" fontWeight="bold" color="blue.500" mt={2} cursor="pointer" _hover={{ color: 'blue.600' }}>
                     View More
