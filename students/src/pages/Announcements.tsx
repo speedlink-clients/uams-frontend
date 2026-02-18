@@ -123,29 +123,45 @@ const Announcements: React.FC = () => {
       </div>
 
       {/* Announcements List */}
-      <div style={{
-        background: 'white',
-        borderRadius: '12px',
-        border: '1px solid #f1f5f9',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        overflow: 'hidden',
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {loading ? (
-          <div style={{ padding: '60px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            border: '1px solid #f1f5f9',
+            padding: '60px 20px',
+            textAlign: 'center',
+            color: '#94a3b8',
+            fontSize: '14px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
             <Loader2 size={20} className="animate-spin" />
             Loading announcements...
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: '60px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            border: '1px solid #f1f5f9',
+            padding: '60px 20px',
+            textAlign: 'center',
+            color: '#94a3b8',
+            fontSize: '14px',
+          }}>
             No announcements found
           </div>
         ) : (
-          filtered.map((a, idx) => (
+          filtered.map((a) => (
             <div
               key={a.id}
               style={{
+                background: 'white',
+                borderRadius: '12px',
+                border: '1px solid #f1f5f9',
                 padding: '24px 32px',
-                borderBottom: idx < filtered.length - 1 ? '1px solid #f1f5f9' : 'none',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
@@ -153,26 +169,24 @@ const Announcements: React.FC = () => {
                 cursor: 'default',
                 transition: 'background 0.15s',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#fafbfc')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#cadadeff')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h3 style={{
                   fontSize: '14px',
-                  fontWeight: 600,
+                  fontWeight: 900,
                   color: '#1e293b',
-                  marginBottom: '6px',
                   margin: '0 0 6px 0',
                 }}>
                   {a.title}
                 </h3>
                 <p style={{
                   fontSize: '13px',
-                  color: '#94a3b8',
+                  color: '#69717eff',
                   fontWeight: 400,
                   lineHeight: '1.6',
                   margin: 0,
-                  maxWidth: '500px',
                   overflow: 'hidden',
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
