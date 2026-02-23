@@ -5,8 +5,23 @@
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "skipLibCheck": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@components/*":["./components/*"],
+      "@hooks/*":["./hooks/*"],
+      "@pages/*":["./pages/*"],
+      "@stores/*":["./stores/*"],
+      "@utils/*":["./utils/*"],
+      "@routes/*":["./routes/*"],
+      "@services/*":["./services/*"],
+      // "@types/*":["./types/*"],
+      "@type/*":["./types/*"],
+      "@configs/*":["./configs/*"],
+      "@forms/*":["./forms/*"],
+      "@schemas/*":["./schemas/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",

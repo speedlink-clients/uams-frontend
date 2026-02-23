@@ -19,44 +19,44 @@ const config = defineConfig({
                 },
                 accent: {
                     DEFAULT: {
-                        value: "#2926EB", // main brand accent
+                        value: "#1273D4", // main brand blue
                     },
                     50: {
-                        value: "#f8f8ff", // very light tint
+                        value: "#F0F7FF", // very light blue
                     },
                     100: {
-                        value: "#f0f0ff",
+                        value: "#E0F0FF",
                     },
                     200: {
-                        value: "#e1e1ff",
+                        value: "#BBDDFF",
                     },
                     300: {
-                        value: "#d2d2ff",
+                        value: "#88C5FF",
                     },
                     400: {
-                        value: "#c3c3ff",
+                        value: "#55ACFF",
                     },
                     500: {
-                        value: "#2926EB", // base purple
+                        value: "#1273D4", // base blue from Figma
                     },
                     600: {
-                        value: "#2220c8",
+                        value: "#0E5BA8",
                     },
                     700: {
-                        value: "#1b1ba5",
+                        value: "#0B4A88",
                     },
                     800: {
-                        value: "#14167e",
+                        value: "#083968",
                     },
                     900: {
-                        value: "#0d1157",
+                        value: "#052848",
                     },
                 },
             },
 
             fonts: {
-                heading: { value: "Oak Sans, sans-serif" },
-                body: { value: "Oak Sans, sans-serif" },
+                heading: { value: "Inter, sans-serif" },
+                body: { value: "Inter, sans-serif" },
             },
         },
         semanticTokens: {
