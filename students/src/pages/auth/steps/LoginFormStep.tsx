@@ -114,7 +114,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-gray-400 text-white py-4 rounded-xl text-[16px] font-black shadow-xl shadow-blue-200/50 transition-all mt-4"
+            className="w-full bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-xl shadow-blue-200/50 transition-all mt-4 cursor-pointer"
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
@@ -124,7 +124,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
               <button
                 type="button"
                 onClick={onForgotPassword}
-                className="text-[#3b82f6] cursor-pointer hover:underline"
+                className="text-[#3b82f6] cursor-pointer hover:underline disabled:cursor-not-allowed"
               >
                 Click Here
               </button>
@@ -136,7 +136,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
               <button
                 type="button"
                 onClick={() => navigate("/register")}
-                className="text-[#3b82f6] cursor-pointer hover:underline"
+                className="text-[#3b82f6] cursor-pointer hover:underline disabled:cursor-not-allowed"
               >
                 Click Here
               </button>
