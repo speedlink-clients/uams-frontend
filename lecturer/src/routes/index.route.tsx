@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import AuthRoutes from "./auth.route";
 
 const DashboardLayout = lazy(() => import("@pages/layouts/DashboardLayout"));
 const Dashboard = lazy(() => import("@pages/dashboard/Dashboard"));
@@ -19,6 +20,10 @@ const Router = () => {
         <BrowserRouter basename="/lecturer">
             <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
+                    {/* Auth Routes — no sidebar/navbar */}
+                    {AuthRoutes}
+
+                    {/* Dashboard Routes — with sidebar/navbar */}
                     <Route element={<DashboardLayout />}>
                         <Route index element={<Navigate to="/dashboard" replace />} />
                         <Route path="/dashboard" element={<Dashboard />} />

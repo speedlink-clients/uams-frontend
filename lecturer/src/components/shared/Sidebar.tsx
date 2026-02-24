@@ -1,5 +1,6 @@
 import { Box, Flex, Image, Text, Icon } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router";
+import { LogOut } from "lucide-react";
 import sidebarItems from "@configs/sidebar.config";
 
 const Sidebar = () => {
@@ -68,6 +69,29 @@ const Sidebar = () => {
                     );
                 })}
             </Flex>
+
+            {/* Logout Button */}
+            <Box px="3" pb="5">
+                <Flex
+                    align="center"
+                    gap="3"
+                    px="3"
+                    py="2.5"
+                    borderRadius="md"
+                    cursor="pointer"
+                    color="red.500"
+                    fontWeight="500"
+                    transition="all 0.15s ease"
+                    _hover={{
+                        bg: "red.50",
+                        color: "red.600",
+                    }}
+                    onClick={() => navigate("/login")}
+                >
+                    <Icon as={LogOut} boxSize="5" strokeWidth={1.8} />
+                    <Text fontSize="sm">Logout</Text>
+                </Flex>
+            </Box>
         </Flex>
     );
 };
