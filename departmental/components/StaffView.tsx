@@ -114,8 +114,8 @@ export const StaffView: React.FC = () => {
       setUploading(true);
       const formData = new FormData();
       formData.append('file', selectedFile);
-      const departmentId = localStorage.getItem('departmentId') || '';
-      formData.append('departmentId', departmentId);
+      // const departmentId = localStorage.getItem('departmentId') || '';
+      // formData.append('departmentId', departmentId);
 
       await staffApi.bulkUploadLecturers(formData);
 
@@ -184,13 +184,6 @@ export const StaffView: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {/* <button 
-            onClick={handleDownloadTemplate}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#1D7AD9] text-[#1D7AD9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors"
-          >
-            <FileDown size={18} />
-            Download Sample File
-          </button> */}
           <button 
             onClick={() => setShowUploadModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#1D7AD9] text-[#1D7AD9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors"
