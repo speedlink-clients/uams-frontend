@@ -166,7 +166,7 @@ export const TimetableView: React.FC = () => {
     try {
       setUploading(true);
       const formData = new FormData();
-      formData.append("timetable", selectedFile);
+      formData.append("file", selectedFile);
 
       await api.post("/timetable/bulk-upload-timetable", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -363,7 +363,7 @@ export const TimetableView: React.FC = () => {
               </p>
 
               <a
-                href="/documents/TIMETABLE_SAMPLE_FILE.csv"
+                href="/departmental-admin/documents/TIMETABLE_SAMPLE_FILE.csv"
                 download
                 className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 mb-4 transition-colors"
               >
