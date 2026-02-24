@@ -103,6 +103,8 @@ export interface Announcement {
   title: string;
   description: string;
   date: string;
+  isFor?: string;
+  isRead?: boolean;
 }
 
 export interface ChartDataItem {

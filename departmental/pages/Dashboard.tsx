@@ -16,25 +16,10 @@ import StatsContainer from "../components/StatsContainer";
 import { useAuth } from "../context/AuthProvider";
 import api from "../api/axios";
 
-// Placeholder announcements (could be moved to API later)
-const INITIAL_ANNOUNCEMENTS: Announcement[] = [
-  {
-    id: "1",
-    title: "Session Setup Complete",
-    description: "Academic session 2024/2025 has been successfully initialized.",
-    date: "2025-01-02",
-  },
-  {
-    id: "2",
-    title: "New Course Prerequisites",
-    description: "Updated prerequisites for CSC 301. Please review the course catalog.",
-    date: "2025-01-05",
-  },
-];
 
 const Dashboard: React.FC = () => {
   const { authData } = useAuth();
-  const [announcements] = useState<Announcement[]>(INITIAL_ANNOUNCEMENTS);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   
   const [revenueData, setRevenueData] = useState<ChartDataItem[]>([]);
   const [growthData, setGrowthData] = useState<ChartDataItem[]>([]);
@@ -42,7 +27,26 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchChartData();
+    fetchAnnouncements();
   }, []);
+
+  const fetchAnnouncements = async () => {
+    try {
+      const response = await api.get('/notifications');
+      const data = response.data?.data || [];
+      const mapped: Announcement[] = data.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        description: item.body,
+        date: new Date(item.createdAt).toLocaleDateString('en-CA'),
+        isFor: item.isFor,
+        isRead: item.isRead,
+      }));
+      setAnnouncements(mapped);
+    } catch (err) {
+      console.error('Failed to fetch announcements', err);
+    }
+  };
 
   const fetchChartData = async () => {
     try {
