@@ -161,73 +161,234 @@ const CoursesTab = () => {
   );
 };
 
-const ResultsTab = () => {
-  return (
-    <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
-      <Box 
-        bg="white" 
-        rounded={{ base: "24px", lg: "32px" }} 
-        p={{ base: 8, lg: 12 }} 
-        border="1px" 
-        borderColor="gray.100" 
-        shadow="sm"
-        w="full"
-      >
-        <Flex direction="column" align="center" justify="center" py={16} textAlign="center">
-          <Box bg="purple.50" p={5} rounded="full" mb={6}>
-            <Box color="purple.500" w={10} h={10}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-              </svg>
-            </Box>
-          </Box>
-          <Heading fontSize={{ base: "lg", lg: "xl" }} fontWeight="bold" color="slate.800" mb={3}>
-            Coming Soon
-          </Heading>
-          <Text fontSize="sm" color="gray.500" maxW="md">
-            Results and academic performance tracking features are under development. Stay tuned!
-          </Text>
-        </Flex>
-      </Box>
-    </VStack>
-  );
-};
-
-/* ====================================================================
-   COMMENTED OUT ORIGINAL RESULTS TAB IMPLEMENTATION
-   Uncomment and replace the above component when ready to implement
-   ====================================================================
 
 const ResultsTab = () => {
   const results = [
-    { code: 'CSC201', title: 'Computer Science Introduction', unit: 3, ca: 20, exam: 55, total: 75, grade: 'A', remark: 'Distinction' },
-    { code: 'CSC202', title: 'Data Structures', unit: 2, ca: 24, exam: 39, total: 63, grade: 'B', remark: 'Very Good' },
-    { code: 'CSC203', title: 'Algorithms', unit: 3, ca: 7, exam: 50, total: 57, grade: 'C', remark: 'Credit' },
-    { code: 'CSC204', title: 'Computer Architecture', unit: 1, ca: 21, exam: 25, total: 46, grade: 'D', remark: 'Pass' },
-    { code: 'CSC205', title: 'Operating Systems', unit: 3, ca: 10, exam: 30, total: 40, grade: 'F', remark: 'Fail' },
-    { code: 'CSC206', title: 'Database Management Systems', unit: 3, ca: 18, exam: 42, total: 60, grade: 'B', remark: 'Very Good' },
-    { code: 'CSC207', title: 'Software Engineering', unit: 2, ca: 22, exam: 41, total: 63, grade: 'B', remark: 'Very Good' },
-    { code: 'CSC208', title: 'Computer Networks', unit: 3, ca: 15, exam: 48, total: 63, grade: 'B', remark: 'Very Good' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 3, ca: 20, exam: 55, total: 75, grade: 'A', remark: 'Distinction' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 2, ca: 24, exam: 39, total: 63, grade: 'B', remark: 'Very Good' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 3, ca: 7, exam: 50, total: 57, grade: 'C', remark: 'Credit' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 1, ca: 21, exam: 25, total: 46, grade: 'D', remark: 'Pass' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 3, ca: 10, exam: 30, total: 40, grade: 'E', remark: 'Bad' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 3, ca: 20, exam: 55, total: 75, grade: 'A', remark: 'Fail' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 3, ca: 20, exam: 55, total: 75, grade: 'A', remark: 'Distinction' },
+    { code: 'CSC201.1', title: 'Computer Science Introduction', unit: 3, ca: 20, exam: 55, total: 75, grade: 'A', remark: 'Distinction' },
   ];
 
   const getRemarkStyle = (remark: string) => {
     switch (remark) {
-      case 'Distinction': return { bg: 'green.50', color: 'green.600' };
-      case 'Very Good': return { bg: 'teal.50', color: 'teal.600' };
-      case 'Credit': return { bg: 'blue.50', color: 'blue.600' };
-      case 'Pass': return { bg: 'yellow.50', color: 'yellow.700' };
-      case 'Fail': return { bg: 'red.50', color: 'red.600' };
-      default: return { bg: 'gray.100', color: 'gray.500' };
+      case 'Distinction':
+      case 'Very Good':
+        return { bg: 'green.50', color: 'green.500' };
+      case 'Credit':
+      case 'Pass':
+        return { bg: 'blue.50', color: 'blue.500' };
+      case 'Bad':
+      case 'Fail':
+        return { bg: 'red.50', color: 'red.500' };
+      default:
+        return { bg: 'gray.100', color: 'gray.500' };
     }
   };
 
   return (
     <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
-      ... original content ...
+      <Grid templateColumns="repeat(12, 1fr)" gap={{ base: 6, lg: 8 }} w="full">
+        {/* Chart Section */}
+        <GridItem colSpan={{ base: 12, lg: 7 }}>
+          <Box 
+            bg="white" 
+            rounded={{ base: "24px", lg: "32px" }} 
+            p={{ base: 6, lg: 8 }} 
+            border="1px" 
+            borderColor="gray.100" 
+            shadow="sm"
+          >
+            <Flex justify="space-between" align="center" mb={10}>
+              <Heading fontSize={{ base: "md", lg: "lg" }} fontWeight="bold" color="slate.800">Academic Performance</Heading>
+              <Box position="relative">
+                <NativeSelect.Root size="sm" w="auto">
+                  <NativeSelect.Field 
+                    bg="slate.50" 
+                    borderColor="gray.100" 
+                    fontSize="10px" 
+                    fontWeight="bold" 
+                    rounded="lg" 
+                    textTransform="uppercase"
+                  >
+                    <option>All Time</option>
+                  </NativeSelect.Field>
+                </NativeSelect.Root>
+              </Box>
+            </Flex>
+            <Box h={{ base: "60", lg: "64" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={performanceData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} />
+                  <Tooltip cursor={{ stroke: '#f1f5f9' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} />
+                  <Line type="monotone" dataKey="value" stroke="#22c55e" strokeWidth={2} dot={{ r: 0 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          </Box>
+        </GridItem>
+
+        {/* CGPA Section */}
+        <GridItem colSpan={{ base: 12, lg: 5 }}>
+          <Box 
+            bg="white" 
+            rounded={{ base: "24px", lg: "32px" }} 
+            p={{ base: 6, lg: 8 }} 
+            border="1px" 
+            borderColor="gray.100" 
+            shadow="sm" 
+            h="full"
+            display="flex" 
+            flexDirection="column"
+          >
+            <Flex justify="space-between" align="center" mb={{ base: 8, lg: 10 }}>
+              <Heading fontSize={{ base: "md", lg: "lg" }} fontWeight="bold" color="slate.800">CGPA</Heading>
+              <Box position="relative">
+                <NativeSelect.Root size="sm" w="auto">
+                  <NativeSelect.Field 
+                    bg="slate.50" 
+                    borderColor="gray.100" 
+                    fontSize="10px" 
+                    fontWeight="bold" 
+                    rounded="lg" 
+                    textTransform="uppercase"
+                  >
+                    <option>All Time</option>
+                  </NativeSelect.Field>
+                </NativeSelect.Root>
+              </Box>
+            </Flex>
+            <VStack gap={{ base: 4, lg: 5 }} flex="1" align="stretch">
+              <Flex justify="space-between" fontSize="13px">
+                <Text color="gray.400" fontWeight="bold">Total Courses</Text>
+                <Text fontWeight="bold" color="slate.800">15</Text>
+              </Flex>
+              <Flex justify="space-between" fontSize="13px">
+                <Text color="gray.400" fontWeight="bold">Total Grade Point</Text>
+                <Text fontWeight="bold" color="slate.800">150</Text>
+              </Flex>
+              <Flex justify="space-between" fontSize="13px">
+                <Text color="gray.400" fontWeight="bold">Total Credit Unit</Text>
+                <Text fontWeight="bold" color="slate.800">33</Text>
+              </Flex>
+            </VStack>
+            <Flex 
+              mt={{ base: 8, lg: 10 }} 
+              pt={{ base: 8, lg: 10 }} 
+              borderTop="1px" 
+              borderColor="gray.100" 
+              align="flex-end" 
+              justify="space-between"
+            >
+               <Text color="gray.400" fontWeight="bold" fontSize="13px">Your CGPA</Text>
+               <HStack align="baseline" gap={1}>
+                 <Text fontSize={{ base: "4xl", lg: "5xl" }} fontWeight="black" color="blue.500">4.5</Text>
+                 <Text fontSize="sm" fontWeight="bold" color="gray.400">/5.0</Text>
+               </HStack>
+            </Flex>
+          </Box>
+        </GridItem>
+      </Grid>
+
+      {/* Results Table Section */}
+      <Box 
+        bg="white" 
+        rounded={{ base: "24px", lg: "32px" }} 
+        p={{ base: 6, lg: 8 }} 
+        border="1px" 
+        borderColor="gray.100" 
+        shadow="sm"
+        w="full"
+      >
+        <Flex direction={{ base: "column", sm: "row" }} align={{ sm: "center" }} justify="space-between" mb={8} gap={4}>
+          <Heading fontSize={{ base: "md", lg: "lg" }} fontWeight="bold" color="slate.800">Results</Heading>
+          <Stack direction={{ base: "column", sm: "row" }} align="center" gap={4} w={{ base: "full", sm: "auto" }}>
+            <Box position="relative" w={{ base: "full", sm: "64" }}>
+              <Box position="absolute" left={3} top="50%" transform="translateY(-50%)" zIndex={2} pointerEvents="none">
+                <Search size={14} color="#CBD5E0" />
+              </Box>
+              <Input 
+                placeholder="Search by name" 
+                bg="gray.50" 
+                borderColor="gray.100" 
+                fontSize="11px" 
+                rounded="xl" 
+                pl={10}
+                _focus={{ outline: 'none', borderColor: 'blue.200' }}
+              />
+            </Box>
+            <Box position="relative" w={{ base: "full", sm: "auto" }}>
+              <NativeSelect.Root w={{ base: "full", sm: "auto" }}>
+                <NativeSelect.Field 
+                  bg="slate.50" 
+                  borderColor="gray.100" 
+                  fontSize="10px" 
+                  fontWeight="bold" 
+                  rounded="lg" 
+                  textTransform="uppercase"
+                >
+                  <option>All Semesters</option>
+                </NativeSelect.Field>
+              </NativeSelect.Root>
+            </Box>
+          </Stack>
+        </Flex>
+
+        <Box overflowX="auto" mx={{ base: -6, lg: 0 }} px={{ base: 6, lg: 0 }}>
+          <Table.Root variant="outline" minW="900px">
+            <Table.Header>
+              <Table.Row borderBottom="1px" borderColor="gray.50">
+                <Table.ColumnHeader px={4} py={4} w="12"><TableCheckbox /></Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">Code</Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">Course Title</Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">Unit</Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">CA</Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">Exam</Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">Total</Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">Grade</Table.ColumnHeader>
+                <Table.ColumnHeader px={4} py={4} fontWeight="bold" color="gray.500" textTransform="uppercase" fontSize="12px">Remark</Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {results.map((item, idx) => (
+                <Table.Row key={idx} _hover={{ bg: 'slate.50' }} transition="background 0.2s" borderBottom="1px" borderColor="gray.50">
+                  <Table.Cell px={4} py={4}>
+                    <TableCheckbox />
+                  </Table.Cell>
+                  <Table.Cell px={4} py={4} fontWeight="bold" color="gray.500" fontSize="12px">{item.code}</Table.Cell>
+                  <Table.Cell px={4} py={4} fontWeight="bold" color="gray.500" fontSize="12px">{item.title}</Table.Cell>
+                  <Table.Cell px={4} py={4} color="gray.500" fontWeight="bold" fontSize="12px">{item.unit}</Table.Cell>
+                  <Table.Cell px={4} py={4} color="gray.500" fontWeight="bold" fontSize="12px">{item.ca}</Table.Cell>
+                  <Table.Cell px={4} py={4} color="gray.500" fontWeight="bold" fontSize="12px">{item.exam}</Table.Cell>
+                  <Table.Cell px={4} py={4} color="gray.500" fontWeight="bold" fontSize="12px">{item.total}</Table.Cell>
+                  <Table.Cell px={4} py={4} color="gray.500" fontWeight="bold" fontSize="12px">{item.grade}</Table.Cell>
+                  <Table.Cell px={4} py={4}>
+                    <Badge 
+                      px={3} py={1} 
+                      rounded="full" 
+                      fontSize="10px" 
+                      fontWeight="bold" 
+                      {...getRemarkStyle(item.remark)}
+                    >
+                      {item.remark}
+                    </Badge>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Box>
+      </Box>
     </VStack>
   );
 };
-*/
+
 
 const ComplaintsListView = ({ onLogNew, onSelect }: { onLogNew: () => void, onSelect: (id: string) => void }) => {
   const [query, setQuery] = React.useState('');
