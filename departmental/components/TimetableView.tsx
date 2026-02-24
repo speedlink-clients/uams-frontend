@@ -268,7 +268,7 @@ export const TimetableView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Time Table</h2>
+          <h2 className="text-2xl font-bold text-slate-900">TimeTable</h2>
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
