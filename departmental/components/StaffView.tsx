@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, FileUp, Filter, MoreHorizontal, UserCog, Pencil, Trash, Download, FileDown } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Plus, FileUp, Filter, MoreHorizontal, UserCog, Pencil, Trash, Download, FileDown, Upload, X, Loader2 } from 'lucide-react';
 import { AssignCourseModal } from "./AssignCourseModal";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import { staffApi } from "../api/staffapi";
@@ -28,6 +28,12 @@ export const StaffView: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Bulk Upload State
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [staff, setStaff] = useState<any[]>([]); // Replace any with proper type
   const [staffToEdit, setStaffToEdit] = useState<any | null>(null);
@@ -98,6 +104,31 @@ export const StaffView: React.FC = () => {
     link.parentNode?.removeChild(link);
   };
 
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      toast.error('Please select a file first');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      await staffApi.bulkUploadLecturers(formData);
+
+      toast.success('Lecturers uploaded successfully!');
+      setShowUploadModal(false);
+      setSelectedFile(null);
+      fetchStaff();
+    } catch (err: any) {
+      console.error('Upload failed', err);
+      toast.error(err?.response?.data?.message || 'Failed to upload lecturers');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleBulkDownload = async (ids: string[]) => {
     try {
       const toastId = toast.loading("Downloading staff data...");
@@ -158,7 +189,10 @@ export const StaffView: React.FC = () => {
             <FileDown size={18} />
             Download Sample File
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#1D7AD9] text-[#1D7AD9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
+          <button 
+            onClick={() => setShowUploadModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#1D7AD9] text-[#1D7AD9] rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors"
+          >
             <FileUp size={18} />
             Upload CSV
           </button>
@@ -246,6 +280,83 @@ export const StaffView: React.FC = () => {
         description={`Are you sure you want to delete ${idsToDelete.length} selected lecturer(s)? This action cannot be undone.`}
         itemCount={idsToDelete.length}
       />
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100">
+              <h3 className="text-lg font-bold text-slate-900">Upload Lecturers</h3>
+              <button
+                onClick={() => { setShowUploadModal(false); setSelectedFile(null); }}
+                className="p-1 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <p className="text-sm text-slate-500 mb-4">
+                Upload a CSV file containing the lecturers data. Download the sample file below to see the required format.
+              </p>
+
+              <a
+                href="/departmental-admin/documents/Staff_Sample_File.csv"
+                download="Staff_Sample_File.csv"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+              >
+                <FileUp size={16} />
+                Download Sample CSV Template
+              </a>
+
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all"
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,.xlsx,.xls"
+                  className="hidden"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                />
+                {selectedFile ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <FileUp size={28} className="text-blue-500" />
+                    <p className="text-sm font-semibold text-slate-700">{selectedFile.name}</p>
+                    <p className="text-xs text-slate-400">
+                      {(selectedFile.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload size={28} className="text-slate-300" />
+                    <p className="text-sm font-medium text-slate-500">Click to select a file</p>
+                    <p className="text-xs text-slate-400">Supports CSV, XLSX, XLS</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-100">
+              <button
+                onClick={() => { setShowUploadModal(false); setSelectedFile(null); }}
+                className="px-5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpload}
+                disabled={!selectedFile || uploading}
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#1D7AD9] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {uploading && <Loader2 size={16} className="animate-spin" />}
+                {uploading ? 'Uploading...' : 'Upload'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

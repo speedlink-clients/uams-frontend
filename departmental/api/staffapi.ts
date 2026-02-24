@@ -60,20 +60,19 @@ export const staffApi = {
     return response.data;
   },
 
+  bulkUploadLecturers: async (formData: FormData) => {
+    const response = await api.post(
+      "/university-admin/lecturers/bulk-upload",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
+  },
+
   getDepartmentLecturers: async () => {
-     // Retrieve departmentId from local storage or auth utilities
-     // Assuming it's stored as 'departmentId' based on previous context, 
-     // but better to check storage or helper.
-     // Previous files used getCurrentDepartmentId() from utils/auth. 
-     // I should import that if available, but for now I'll try to rely on the pattern used elsewhere 
-     // or just get it from localStorage if strictly following the request which specifies the path param.
-     
-     // Let's use the helper if possible, checking imports
      let departmentId = localStorage.getItem("departmentId");
-     // If the helper is available, that's better, but I don't want to break if I can't find it easily without checking.
-     // `programscourseapi.ts` used `getCurrentDepartmentId`. Let's assume I can use localStorage for now to be safe 
-     // or just update it to accept the ID if the caller handles it.
-     // But `StaffView` calls it without args. Use localStorage as fallback.
      
      if (!departmentId) {
          try {
