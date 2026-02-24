@@ -364,7 +364,7 @@ export const TimetableView: React.FC = () => {
 
               <a
                 href="/departmental-admin/documents/TIMETABLE_SAMPLE_FILE.csv"
-                download
+                download="TIMETABLE_SAMPLE_FILE.csv"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 mb-4 transition-colors"
               >
                 <FileUp size={16} />
