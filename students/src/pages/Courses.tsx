@@ -175,20 +175,23 @@ const ResultsTab = () => {
   ];
 
   const getRemarkStyle = (remark: string) => {
-    switch (remark) {
-      case 'Distinction':
-      case 'Very Good':
-        return { bg: 'green.50', color: 'green.500' };
-      case 'Credit':
-      case 'Pass':
-        return { bg: 'blue.50', color: 'blue.500' };
-      case 'Bad':
-      case 'Fail':
-        return { bg: 'red.50', color: 'red.500' };
-      default:
-        return { bg: 'gray.100', color: 'gray.500' };
-    }
-  };
+  switch (remark) {
+    case 'Excellent':
+      return { bg: 'green.50', color: 'green.600' };
+    case 'Very Good':
+      return { bg: 'green.50', color: 'green.400' };
+    case 'Good':
+      return { bg: 'blue.50', color: 'blue.500' };
+    case 'Fair':
+      return { bg: 'yellow.50', color: 'yellow.600' };
+    case 'Pass':
+      return { bg: 'orange.50', color: 'orange.500' };
+    case 'Fail':
+      return { bg: 'red.50', color: 'red.500' };
+    default:
+      return { bg: 'gray.100', color: 'gray.500' };
+  }
+};
 
   return (
     <VStack gap={{ base: 6, lg: 8 }} w="full" animation="fade-in 0.5s">
