@@ -3,15 +3,14 @@ import { Bell, ClockFading } from "lucide-react";
 import useUserStore from "@stores/user.store";
 
 const Navbar = () => {
-    const { name, email } = useUserStore();
+    const { user } = useUserStore();
 
     // Get initials for avatar fallback
-    const initials = name
-        ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    const initials = user?.fullName
+        ? user.fullName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
         : "U";
 
-    // TODO: pull profileImage from user store when available
-    const profileImage: string | null = null;
+    const profileImage = user?.avatar;
 
     return (
         <Flex
@@ -51,10 +50,10 @@ const Navbar = () => {
                 {/* Name & Email — left of avatar */}
                 <Box textAlign="right">
                     <Text fontSize="sm" fontWeight="600" fontFamily="sans-serif" color="gray.800" lineHeight="1.3">
-                        {name || "User"}
+                        {user?.fullName || "User"}
                     </Text>
                     <Text fontSize="xs" fontFamily="sans-serif" color="gray.500" lineHeight="1.3">
-                        {email || "user@example.com"}
+                        {user?.email || "user@example.com"}
                     </Text>
                 </Box>
 
@@ -63,7 +62,7 @@ const Navbar = () => {
                     {profileImage ? (
                         <Image
                             src={profileImage}
-                            alt={name || "User"}
+                            alt={user?.fullName || "User"}
                             w="38px"
                             h="38px"
                             borderRadius="full"

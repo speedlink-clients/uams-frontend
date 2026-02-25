@@ -7,7 +7,7 @@ import AttendanceChart from "@components/shared/AttendanceChart";
 import TimetablePanel from "@components/shared/TimetablePanel";
 
 const Dashboard = () => {
-    const { name } = useUserStore();
+    const { user } = useUserStore();
 
     // Date filter state for attendance chart
     const today = new Date().toISOString().split("T")[0];
@@ -28,7 +28,7 @@ const Dashboard = () => {
     };
 
     // Extract first name for greeting
-    const firstName = name ? name.split(" ")[0] : "User";
+    const firstName = user?.firstName || "User";
 
     return (
         <Flex gap="10" h="100%">

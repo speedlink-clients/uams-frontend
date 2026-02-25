@@ -5,6 +5,8 @@ import { useNavigate } from "react-router";
 import AuthBackground from "@components/auth/AuthBackground";
 import AuthCard from "@components/auth/AuthCard";
 import { AuthHook } from "@hooks/auth.hook";
+import useAuthStore from "@stores/auth.store";
+import useUserStore from "@stores/user.store";
 
 interface LoginFormStepProps {
     onLoginSuccess: () => void;
@@ -18,8 +20,16 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
+    const { setAuth } = useAuthStore();
+    const { setUser } = useUserStore();
+
     const { mutate: login, isPending } = AuthHook.useLogin({
-        onSuccess: () => {
+        onSuccess: (data) => {
+            // Save auth token
+            setAuth(data.token, data.expiresIn);
+            // Save user profile + permissions
+            setUser(data.user, data.permissions);
+
             navigate("/");
             onLoginSuccess();
         },

@@ -16,7 +16,7 @@ export const axiosClient = axios.create({
 
 // List of public endpoints that don't require auth token
 const PUBLIC_ENDPOINTS = [
-  "/v1/auth/login",
+  "/auth/signin",
   // Add any other public endpoints here
 ];
 

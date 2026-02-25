@@ -2,11 +2,20 @@ import { Box, Flex, Image, Text, Icon } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router";
 import { LogOut } from "lucide-react";
 import sidebarItems from "@configs/sidebar.config";
+import useAuthStore from "@stores/auth.store";
+import useUserStore from "@stores/user.store";
 
 const Sidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { clearAuth } = useAuthStore();
+    const { clearUser } = useUserStore();
 
+    const handleLogout = () => {
+        clearAuth();
+        clearUser();
+        navigate("/login");
+    };
     const isActive = (path: string) => {
         return location.pathname === path || location.pathname.startsWith(path + "/");
     };
@@ -87,7 +96,7 @@ const Sidebar = () => {
                         bg: "red.100",
                         color: "red.600",
                     }}
-                    onClick={() => navigate("/login")}
+                    onClick={handleLogout}
                 >
                     <Icon as={LogOut} boxSize="5" strokeWidth={1.8} />
                     <Text fontSize="sm">Logout</Text>
