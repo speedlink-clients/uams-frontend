@@ -49,55 +49,64 @@ const TimetablePanel = ({ entries, selectedFilter, onFilterChange }: TimetablePa
 
             {/* Entries List */}
             <Box flex="1" overflowY="auto" px="5" py="5">
-                <Flex direction="column" gap="3">
-                    {entries.map((entry) => (
-                        <Box
-                            key={entry.id}
-                            bg={entry.isActive ? "#1273D4" : "#F8FAFC"}
-                            color={entry.isActive ? "white" : "gray.800"}
-                            borderRadius="lg"
-                            px="4.5"
-                            py="4"
-                            borderLeft="4px solid"
-                            borderLeftColor={entry.isActive ? "#0D5BA8" : "#E2E8F0"}
-                            transition="all 0.15s ease"
-                            position="relative"
-                            overflow="hidden"
-                        >
-                            <Text
-                                fontSize="14px"
-                                fontWeight="600"
-                                mb="1.5"
-                                lineHeight="shorter"
+                {entries.length > 0 ? (
+                    <Flex direction="column" gap="3">
+                        {entries.map((entry) => (
+                            <Box
+                                key={entry.id}
+                                bg={entry.isActive ? "#1273D4" : "#F8FAFC"}
+                                color={entry.isActive ? "white" : "gray.800"}
+                                borderRadius="lg"
+                                px="4.5"
+                                py="4"
+                                borderLeft="4px solid"
+                                borderLeftColor={entry.isActive ? "#0D5BA8" : "#E2E8F0"}
+                                transition="all 0.15s ease"
+                                position="relative"
+                                overflow="hidden"
                             >
-                                {entry.title}
-                            </Text>
-                            <Flex align="center" gap="3.5">
                                 <Text
-                                    fontSize="11px"
-                                    opacity={entry.isActive ? 0.9 : 0.6}
-                                    fontWeight="500"
+                                    fontSize="14px"
+                                    fontWeight="600"
+                                    mb="1.5"
+                                    lineHeight="shorter"
                                 >
-                                    {entry.courseCode}
+                                    {entry.title}
                                 </Text>
-                                <Flex align="center" gap="1.5">
-                                    <Icon
-                                        as={Clock}
-                                        boxSize="3"
-                                        opacity={entry.isActive ? 0.9 : 0.5}
-                                    />
+                                <Flex align="center" gap="3.5">
                                     <Text
                                         fontSize="11px"
                                         opacity={entry.isActive ? 0.9 : 0.6}
                                         fontWeight="500"
                                     >
-                                        {entry.startTime} - {entry.endTime}
+                                        {entry.courseCode}
                                     </Text>
+                                    <Flex align="center" gap="1.5">
+                                        <Icon
+                                            as={Clock}
+                                            boxSize="3"
+                                            opacity={entry.isActive ? 0.9 : 0.5}
+                                        />
+                                        <Text
+                                            fontSize="11px"
+                                            opacity={entry.isActive ? 0.9 : 0.6}
+                                            fontWeight="500"
+                                        >
+                                            {entry.startTime} - {entry.endTime}
+                                        </Text>
+                                    </Flex>
                                 </Flex>
-                            </Flex>
-                        </Box>
-                    ))}
-                </Flex>
+                            </Box>
+                        ))}
+                    </Flex>
+                ) : (
+                    <Flex h="full" direction="column" align="center" justify="center" textAlign="center" py="10" opacity={0.6}>
+                        <Icon as={Clock} boxSize="8" color="gray.200" mb="3" />
+                        <Text fontSize="13px" fontWeight="500" color="gray.500">
+                            No classes scheduled for {selectedFilter === "today" ? "today" : selectedFilter === "tomorrow" ? "tomorrow" : "the week"}
+                        </Text>
+                    </Flex>
+                )}
             </Box>
         </Box>
     );

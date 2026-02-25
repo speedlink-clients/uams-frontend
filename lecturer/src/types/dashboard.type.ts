@@ -21,6 +21,18 @@ export interface TimetableData {
     totalSlots: number;
 }
 
+export interface TimetableEntry {
+    id: string;
+    courseCode: string;
+    courseTitle: string;
+    title: string;
+    startTime: string; // e.g., "10:00"
+    endTime: string;   // e.g., "12:00"
+    venue?: string;
+    day: string;       // e.g., "Monday"
+    isActive: boolean;
+}
+
 export interface DashboardResponse {
     success: boolean;
     data: {

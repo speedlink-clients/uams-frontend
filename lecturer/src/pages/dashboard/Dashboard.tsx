@@ -3,16 +3,28 @@ import { Box, Flex, Text, Heading, Spinner, Center } from "@chakra-ui/react";
 import useUserStore from "@stores/user.store";
 import { DashboardHook } from "@hooks/dashboard.hook";
 import StatCard from "@components/shared/StatCard";
+import AttendanceChart from "@components/shared/AttendanceChart";
 import TimetablePanel from "@components/shared/TimetablePanel";
 
 const Dashboard = () => {
     const { user } = useUserStore();
 
+    // Date filter state for attendance chart
+    const today = new Date().toISOString().split("T")[0];
+    const [fromDate, setFromDate] = useState(today);
+    const [toDate, setToDate] = useState(today);
+
     // Timetable filter state: today, tomorrow, week
     const [timetableFilter, setTimetableFilter] = useState("today");
 
-    // Data from hook
+    // Data from hooks
     const { data: dashboardData, isLoading, error } = DashboardHook.useDashboardData();
+    const { data: attendanceData } = DashboardHook.useAttendance(fromDate, toDate);
+
+    const handleClearDateFilter = () => {
+        setFromDate(today);
+        setToDate(today);
+    };
 
     const currentDay = useMemo(() => {
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -102,16 +114,19 @@ const Dashboard = () => {
                     <StatCard
                         label="Total Students"
                         value={summary?.totalStudents ?? 0}
-                        colorScheme="green" // Using green as blue is not allowed
+                        colorScheme="green"
                     />
                 </Flex>
 
-                {/* Placeholder for other content or empty space since Attendance was removed */}
-                <Box mt="10">
-                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
-                        * Summary data reflects your current academic workload and interactions.
-                    </Text>
-                </Box>
+                {/* Attendance Chart */}
+                <AttendanceChart
+                    data={attendanceData ?? []}
+                    fromDate={fromDate}
+                    toDate={toDate}
+                    onFromDateChange={setFromDate}
+                    onToDateChange={setToDate}
+                    onClear={handleClearDateFilter}
+                />
             </Box>
 
             {/* Timetable Panel (Right) — fills available height, scrolls internally */}
