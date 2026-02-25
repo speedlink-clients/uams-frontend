@@ -10,7 +10,7 @@ interface TransactionsListProps {
     programTypeName?: string;
 }
 
-const TransactionsList = ({ onBack, programTypeId, programTypeName }: TransactionsListProps) => {
+const TransactionsList = ({ onBack, programTypeId, programTypeName:_programTypeName  }: TransactionsListProps) => {
     const [activeTab, setActiveTab] = useState<PaymentTab>("Access Fee");
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
