@@ -28,12 +28,17 @@ const Students = () => {
         );
     }, [students, search]);
 
+    const totalCount = students?.length ?? 0;
+
     return (
         <Box>
             {/* Page Header */}
             <Box mb="6">
                 <Heading size="lg" fontStyle="Semi Bold" fontWeight="600" color="#000000" mb="1" fontSize="24px">
-                    Students
+                    Students {" "}
+                    <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
+                        ({totalCount})
+                    </Text>
                 </Heading>
                 <Text fontSize="sm" color="gray.500" maxW="400px">
                     This table contains a list of all students to edit, create ID card
@@ -92,7 +97,7 @@ const Students = () => {
                             style={{
                                 fontSize: "12px",
                                 fontWeight: 500,
-                                // fontFamily: "Inter",
+                                fontFamily: "sans-serif",
                                 fontStyle: "Bold",
                                 color: "black",
                                 backgroundColor: "white",

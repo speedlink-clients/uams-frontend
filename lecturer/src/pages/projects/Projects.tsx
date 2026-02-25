@@ -22,7 +22,7 @@ const Projects = () => {
         <Box>
             {/* Header + Filters */}
             <Flex align="center" justify="space-between" mb="5">
-                <Heading size="lg" fontWeight="600" color="gray.800">
+                <Heading size="lg" fontWeight="600" color="#000000" fontSize="24px">
                     Projects{" "}
                     <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
                         ({totalCount})

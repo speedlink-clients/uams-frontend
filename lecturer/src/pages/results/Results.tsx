@@ -19,7 +19,7 @@ const Results = () => {
     return (
         <Box>
             {/* Header */}
-            <Heading size="lg" fontWeight="600" color="gray.800" mb="5">
+            <Heading size="lg" fontWeight="600" color="#000000" mb="5" fontSize="24px">
                 Results
             </Heading>
 

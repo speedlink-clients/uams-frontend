@@ -15,13 +15,13 @@ const Sidebar = () => {
         <Flex
             as="nav"
             direction="column"
-            width="260px"
+            width="255px"
             minH="100vh"
             bg="white"
             borderRight="1px solid"
             borderColor="gray.200"
             position="fixed"
-            top="0"
+            top="8px"
             left="0"
             zIndex="10"
         >
@@ -30,13 +30,13 @@ const Sidebar = () => {
                 <Image
                     src="/lecturer/assets/sidebar-image.png"
                     alt="University of Port Harcourt"
-                    width="100%"
+                    width="98%"
                     mb="2"
                 />
             </Box>
 
             {/* Navigation Items */}
-            <Flex direction="column" gap="1" px="3" py="4" flex="1">
+            <Flex direction="column" gap="1" px="4" py="4" flex="1">
                 {sidebarItems.map((item) => {
                     const active = isActive(item.path);
 
@@ -49,9 +49,10 @@ const Sidebar = () => {
                             py="2.5"
                             borderRadius="md"
                             cursor="pointer"
-                            bg={active ? "accent.50" : "transparent"}
+                            bg={active ? "#f8fafc" : "transparent"}
                             color={active ? "accent.500" : "gray.600"}
-                            fontWeight={active ? "600" : "400"}
+                            fontWeight={active ? "600" : "500"}
+                            fontFamily={"sans-serif"}
                             transition="all 0.15s ease"
                             _hover={{
                                 bg: active ? "accent.50" : "gray.50",
@@ -71,19 +72,19 @@ const Sidebar = () => {
             </Flex>
 
             {/* Logout Button */}
-            <Box px="3" pb="5">
+            <Box px="4" pb="5">
                 <Flex
                     align="center"
                     gap="3"
-                    px="3"
+                    px="4"
                     py="2.5"
                     borderRadius="md"
                     cursor="pointer"
                     color="red.500"
-                    fontWeight="500"
+                    fontWeight="700"
                     transition="all 0.15s ease"
                     _hover={{
-                        bg: "red.50",
+                        bg: "red.100",
                         color: "red.600",
                     }}
                     onClick={() => navigate("/login")}

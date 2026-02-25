@@ -22,7 +22,7 @@ const CourseStudentDetail = () => {
 
     return (
         <Box>
-            {/* Back Button */}
+            {/* Back Button — pill style */}
             <Flex
                 align="center"
                 gap="2"
@@ -30,11 +30,13 @@ const CourseStudentDetail = () => {
                 cursor="pointer"
                 onClick={() => navigate(`/courses/${courseId}`)}
                 w="fit-content"
-                px="3"
+                px="4"
                 py="1.5"
-                borderRadius="md"
+                borderRadius="xl"
                 border="1px solid"
-                borderColor="gray.200"
+                borderColor="gray.100"
+                bg="white"
+                boxShadow="sm"
                 _hover={{ bg: "gray.50" }}
                 transition="background 0.15s"
             >
@@ -42,50 +44,72 @@ const CourseStudentDetail = () => {
                 <Text fontSize="xs" fontWeight="500">Back</Text>
             </Flex>
 
-            {/* Tabs */}
-            <Flex gap="0" mb="6">
-                <Box
-                    px="5"
-                    py="2"
-                    fontSize="sm"
-                    fontWeight={activeTab === "info" ? "600" : "400"}
-                    color={activeTab === "info" ? "gray.800" : "gray.500"}
-                    borderBottom="2px solid"
-                    borderBottomColor={activeTab === "info" ? "gray.800" : "transparent"}
-                    cursor="pointer"
-                    onClick={() => setActiveTab("info")}
-                    transition="all 0.15s"
+            {/* Tabs — bordered toggle style */}
+            <Flex mb="6">
+                <Flex
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="xl"
+                    overflow="hidden"
+                    bg="gray.100"
+                    p="1"
+                    gap="1"
                 >
-                    Info
-                </Box>
-                <Box
-                    px="5"
-                    py="2"
-                    fontSize="sm"
-                    fontWeight={activeTab === "students" ? "600" : "400"}
-                    color={activeTab === "students" ? "gray.800" : "gray.500"}
-                    borderBottom="2px solid"
-                    borderBottomColor={activeTab === "students" ? "gray.800" : "transparent"}
-                    cursor="pointer"
-                    onClick={() => setActiveTab("students")}
-                    transition="all 0.15s"
-                >
-                    Students
-                </Box>
+                    <Box
+                        px="5"
+                        py="2"
+                        fontSize="sm"
+                        fontWeight={activeTab === "info" ? "600" : "500"}
+                        color={activeTab === "info" ? "gray.800" : "gray.500"}
+                        bg={activeTab === "info" ? "white" : "transparent"}
+                        borderRadius={activeTab === "info" ? "lg" : "none"}
+                        boxShadow={activeTab === "info" ? "sm" : "none"}
+                        cursor="pointer"
+                        onClick={() => setActiveTab("info")}
+                        transition="all 0.15s"
+                    >
+                        Info
+                    </Box>
+                    <Box
+                        px="5"
+                        py="2"
+                        fontSize="sm"
+                        fontWeight={activeTab === "students" ? "600" : "500"}
+                        color={activeTab === "students" ? "gray.800" : "gray.500"}
+                        bg={activeTab === "students" ? "white" : "transparent"}
+                        borderRadius={activeTab === "students" ? "lg" : "none"}
+                        boxShadow={activeTab === "students" ? "sm" : "none"}
+                        cursor="pointer"
+                        onClick={() => setActiveTab("students")}
+                        transition="all 0.15s"
+                    >
+                        Students
+                    </Box>
+                </Flex>
             </Flex>
 
-            {/* Student Header */}
-            <Heading size="lg" fontWeight="600" color="gray.800" mb="0.5">
-                {student.surname} {student.otherNames.split(" ")[0]}
-            </Heading>
-            <Text fontSize="sm" color="gray.500" mb="6">
-                {student.matNo}
-            </Text>
+            {/* White Card wrapper */}
+            <Box
+                bg="white"
+                borderRadius="xl"
+                border="1px solid"
+                borderColor="gray.100"
+                p="8"
+            >
+                {/* Student Header */}
+                <Heading size="lg" fontWeight="600" color="#000000" mb="0.5" fontSize="24px">
+                    {student.surname} {student.otherNames.split(" ")[0]}
+                </Heading>
+                <Text fontSize="sm" color="gray.500" mb="6">
+                    {student.matNo}
+                </Text>
 
-            {/* Student Info */}
-            <StudentInfoPanel student={student} />
+                {/* Student Info */}
+                <StudentInfoPanel student={student} />
+            </Box>
         </Box>
     );
 };
 
 export default CourseStudentDetail;
+

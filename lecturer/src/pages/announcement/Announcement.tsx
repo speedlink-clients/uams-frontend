@@ -25,7 +25,7 @@ const Announcement = () => {
         <Box>
             {/* Header */}
             <Flex align="center" justify="space-between" mb="5">
-                <Heading size="lg" fontWeight="600" color="gray.800">
+                <Heading size="lg" fontWeight="600" color="#000000" fontSize="24px">
                     Announcement
                 </Heading>
 

@@ -57,7 +57,7 @@ const StudentInfoPanel = ({ student }: StudentInfoPanelProps) => {
                 border="1px solid"
                 borderColor="gray.100"
                 p="5"
-                w={{ base: "100%", lg: "320px" }}
+                w={{ base: "100%", lg: "380px" }}
             >
                 <Flex align="center" justify="space-between" mb="2">
                     <Text fontSize="sm" fontWeight="600" color="gray.800">
@@ -75,15 +75,15 @@ const StudentInfoPanel = ({ student }: StudentInfoPanelProps) => {
                     </Flex>
                 </Flex>
 
-                <Box h="220px">
+                <Box h="280px">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
                                 data={attendanceData}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={60}
-                                outerRadius={90}
+                                innerRadius={75}
+                                outerRadius={110}
                                 paddingAngle={2}
                                 dataKey="value"
                                 startAngle={90}

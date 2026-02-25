@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import Sidebar from "@components/shared/Sidebar";
 import Navbar from "@components/shared/Navbar";
 
-const SIDEBAR_WIDTH = "260px";
+const SIDEBAR_WIDTH = "255px";
 
 const DashboardLayout = () => {
     return (
@@ -15,7 +15,7 @@ const DashboardLayout = () => {
             <Box
                 ml={SIDEBAR_WIDTH}
                 flex="1"
-                bg="gray.50"
+                bg="#f8fafc"
                 h="100vh"
                 display="flex"
                 flexDirection="column"

@@ -1,5 +1,5 @@
-import { Flex, Text, Box, Icon } from "@chakra-ui/react";
-import { Bell, Clock } from "lucide-react";
+import { Flex, Text, Box, Icon, Image } from "@chakra-ui/react";
+import { Bell, ClockFading } from "lucide-react";
 import useUserStore from "@stores/user.store";
 
 const Navbar = () => {
@@ -9,6 +9,9 @@ const Navbar = () => {
     const initials = name
         ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
         : "U";
+
+    // TODO: pull profileImage from user store when available
+    const profileImage: string | null = null;
 
     return (
         <Flex
@@ -33,35 +36,66 @@ const Navbar = () => {
 
             {/* History / Clock */}
             <Icon
-                as={Clock}
+                as={ClockFading}
                 boxSize="5"
                 color="gray.500"
                 cursor="pointer"
                 _hover={{ color: "gray.700" }}
             />
 
-            {/* User Avatar + Info */}
-            <Flex align="center" gap="3" ml="2">
-                <Box
-                    w="36px"
-                    h="36px"
-                    borderRadius="full"
-                    bg="gray.200"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Text fontSize="sm" fontWeight="600" color="gray.600">
-                        {initials}
-                    </Text>
-                </Box>
-                <Box>
-                    <Text fontSize="sm" fontWeight="600" color="gray.800" lineHeight="1.3">
+            {/* Divider */}
+            <Box h="38px" w="1px" bg="gray.200" mx="1" />
+
+            {/* User Info + Avatar */}
+            <Flex align="center" gap="3">
+                {/* Name & Email — left of avatar */}
+                <Box textAlign="right">
+                    <Text fontSize="sm" fontWeight="600" fontFamily="sans-serif" color="gray.800" lineHeight="1.3">
                         {name || "User"}
                     </Text>
-                    <Text fontSize="xs" color="gray.500" lineHeight="1.3">
+                    <Text fontSize="xs" fontFamily="sans-serif" color="gray.500" lineHeight="1.3">
                         {email || "user@example.com"}
                     </Text>
+                </Box>
+
+                {/* Avatar with status dot */}
+                <Box position="relative">
+                    {profileImage ? (
+                        <Image
+                            src={profileImage}
+                            alt={name || "User"}
+                            w="38px"
+                            h="38px"
+                            borderRadius="full"
+                            objectFit="cover"
+                        />
+                    ) : (
+                        <Box
+                            w="38px"
+                            h="38px"
+                            borderRadius="full"
+                            bg="gray.200"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            <Text fontSize="sm" fontWeight="600" color="gray.600">
+                                {initials}
+                            </Text>
+                        </Box>
+                    )}
+
+                    {/* Online status dot */}
+                    <Box
+                        position="absolute"
+                        top="0"
+                        right="0"
+                        w="10px"
+                        h="10px"
+                        borderRadius="full"
+                        bg="#22c55e"
+                        border="2px solid white"
+                    />
                 </Box>
             </Flex>
         </Flex>

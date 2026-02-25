@@ -28,7 +28,7 @@ const Lecturers = () => {
     return (
         <Box>
             {/* Page Header */}
-            <Heading size="lg" fontWeight="600" color="gray.800" mb="6">
+            <Heading size="lg" fontWeight="600" color="#000000" mb="6" fontSize="24px">
                 Lecturers{" "}
                 <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
                     ({totalCount})

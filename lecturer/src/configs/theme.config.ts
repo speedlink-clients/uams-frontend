@@ -55,8 +55,8 @@ const config = defineConfig({
             },
 
             fonts: {
-                heading: { value: "Inter, sans-serif" },
-                body: { value: "Inter, sans-serif" },
+                heading: { value: "sans-serif" },
+                body: { value: "sans-serif" },
             },
         },
         semanticTokens: {

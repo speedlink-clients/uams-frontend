@@ -105,49 +105,49 @@ const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
                             transition="background 0.15s"
                         >
                             {/* S/N — sticky left */}
-                            <Table.Cell px="3" py="3" fontSize="xs" color="gray.600" {...stickyLeft}>
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500" {...stickyLeft}>
                                 {index + 1}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.regNo}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.matNo}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontStyle="semi-bold" fontSize="13px" color="gray.700" fontWeight="700">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontStyle="semi-bold" fontSize="13px" color="gray.700" fontWeight="700">
                                 {student.surname}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontStyle="semi-bold" fontSize="13px" color="gray.700" fontWeight="700">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontStyle="semi-bold" fontSize="13px" color="gray.700" fontWeight="700">
                                 {student.otherNames}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.500" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.500" fontStyle="medium" fontWeight="500">
                                 {student.email}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.phoneNo}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.sex}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.admissionMode}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.entryQualification}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.faculty}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.department}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.degreeCourse}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.courseDuration}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="Inter" fontSize="12px" color="gray.700" fontWeight="500">
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.degreeAwardCode}
                             </Table.Cell>
                             {/* Action — sticky right */}

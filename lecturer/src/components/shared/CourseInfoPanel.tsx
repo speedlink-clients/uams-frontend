@@ -31,54 +31,121 @@ const CourseInfoPanel = ({ course, lecturers }: CourseInfoPanelProps) => {
     const [toDate, setToDate] = useState("");
 
     return (
-        <Box>
-            {/* Info Cards + Attendance Chart */}
-            <Flex gap="5" mb="8" direction={{ base: "column", lg: "row" }}>
-                {/* Left: Info Cards */}
-                <Flex gap="4" flex="1" wrap="wrap">
-                    <Box
-                        bg="gray.50"
-                        borderRadius="lg"
-                        px="5"
-                        py="4"
-                        flex="1"
-                        minW="150px"
-                    >
-                        <Text fontSize="xs" color="gray.500" mb="1">Course Title</Text>
-                        <Text fontSize="sm" fontWeight="600" color="gray.800">
-                            {course.title}
-                        </Text>
-                    </Box>
-                    <Box
-                        bg="gray.50"
-                        borderRadius="lg"
-                        px="5"
-                        py="4"
-                        flex="1"
-                        minW="120px"
-                    >
-                        <Text fontSize="xs" color="gray.500" mb="1">Course Code</Text>
-                        <Text fontSize="sm" fontWeight="600" color="gray.800">
-                            {course.code}
-                        </Text>
-                    </Box>
-                    <Box
-                        bg="gray.50"
-                        borderRadius="lg"
-                        px="5"
-                        py="4"
-                        flex="1"
-                        minW="100px"
-                    >
-                        <Text fontSize="xs" color="gray.500" mb="1">Credit Unit</Text>
-                        <Text fontSize="sm" fontWeight="600" color="gray.800">
-                            {course.creditUnit}
-                        </Text>
-                    </Box>
-                </Flex>
+        <Box
+            bg="white"
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="gray.100"
+            p="8"
+        >
+            <Flex gap="6" direction={{ base: "column", lg: "row" }}>
+                {/* Left Column: Info Cards + Lecturers */}
+                <Box flex="1">
+                    {/* Info Cards */}
+                    <Flex gap="4" mb="6" wrap="wrap">
+                        <Box
+                            bg="#f8fafc"
+                            borderRadius="lg"
+                            px="5"
+                            py="4"
+                            flex="1"
+                            minW="130px"
+                        >
+                            <Text fontSize="xs" color="gray.500" mb="1">Course Title</Text>
+                            <Text fontSize="sm" fontWeight="600" color="gray.800">
+                                {course.title}
+                            </Text>
+                        </Box>
+                        <Box
+                            bg="#f8fafc"
+                            borderRadius="lg"
+                            px="5"
+                            py="4"
+                            flex="1"
+                            minW="110px"
+                        >
+                            <Text fontSize="xs" color="gray.500" mb="1">Course Code</Text>
+                            <Text fontSize="sm" fontWeight="600" color="gray.800">
+                                {course.code}
+                            </Text>
+                        </Box>
+                        <Box
+                            bg="#f8fafc"
+                            borderRadius="lg"
+                            px="5"
+                            py="4"
+                            flex="1"
+                            minW="100px"
+                        >
+                            <Text fontSize="xs" color="gray.500" mb="1">Credit Unit</Text>
+                            <Text fontSize="sm" fontWeight="600" color="gray.800">
+                                {course.creditUnit}
+                            </Text>
+                        </Box>
+                    </Flex>
 
-                {/* Right: Attendance Chart */}
-                <Box flex="1.2" minW="300px">
+                    {/* Lecturers Section */}
+                    <Box>
+                        <Text fontSize="md" fontWeight="600" color="gray.800" mb="4">
+                            Lecturers
+                        </Text>
+                        <Grid templateColumns="repeat(auto-fill, minmax(120px, 1fr))" gap="4">
+                            {lecturers.map((lec) => (
+                                <Box
+                                    key={lec.id}
+                                    bg="white"
+                                    border="1px solid"
+                                    borderColor="gray.100"
+                                    borderRadius="lg"
+                                    p="4"
+                                    textAlign="center"
+                                    cursor="pointer"
+                                    transition="all 0.2s ease"
+                                    _hover={{
+                                        boxShadow: "md",
+                                        borderColor: "gray.200",
+                                        transform: "translateY(-2px)",
+                                    }}
+                                >
+                                    <Flex
+                                        justify="center"
+                                        align="center"
+                                        w="12"
+                                        h="12"
+                                        mx="auto"
+                                        mb="2"
+                                        bg="gray.100"
+                                        borderRadius="full"
+                                    >
+                                        <User size={20} color="#718096" />
+                                    </Flex>
+                                    <Text fontSize="xs" fontWeight="600" color="gray.800" mb="2">
+                                        {lec.name}
+                                    </Text>
+                                    <Flex
+                                        justify="center"
+                                        align="center"
+                                        bg="accent.500"
+                                        color="white"
+                                        fontSize="10px"
+                                        fontWeight="500"
+                                        borderRadius="full"
+                                        px="3"
+                                        py="1"
+                                        cursor="pointer"
+                                        _hover={{ bg: "accent.600" }}
+                                        transition="background 0.15s"
+                                    >
+                                        See Info →
+                                    </Flex>
+                                </Box>
+                            ))}
+                        </Grid>
+                    </Box>
+                </Box>
+
+                {/* Right Column: Attendance Chart */}
+                <Box flex="1" minW="300px">
                     <AttendanceChart
                         data={MOCK_ATTENDANCE}
                         fromDate={fromDate}
@@ -89,58 +156,6 @@ const CourseInfoPanel = ({ course, lecturers }: CourseInfoPanelProps) => {
                     />
                 </Box>
             </Flex>
-
-            {/* Lecturers Section */}
-            <Box>
-                <Text fontSize="md" fontWeight="600" color="gray.800" mb="4">
-                    Lecturers
-                </Text>
-                <Grid templateColumns="repeat(auto-fill, minmax(120px, 1fr))" gap="4">
-                    {lecturers.map((lec) => (
-                        <Box
-                            key={lec.id}
-                            bg="white"
-                            border="1px solid"
-                            borderColor="gray.100"
-                            borderRadius="lg"
-                            p="4"
-                            textAlign="center"
-                        >
-                            <Flex
-                                justify="center"
-                                align="center"
-                                w="12"
-                                h="12"
-                                mx="auto"
-                                mb="2"
-                                bg="gray.100"
-                                borderRadius="full"
-                            >
-                                <User size={20} color="#718096" />
-                            </Flex>
-                            <Text fontSize="xs" fontWeight="600" color="gray.800" mb="2">
-                                {lec.name}
-                            </Text>
-                            <Flex
-                                justify="center"
-                                align="center"
-                                bg="accent.500"
-                                color="white"
-                                fontSize="10px"
-                                fontWeight="500"
-                                borderRadius="full"
-                                px="3"
-                                py="1"
-                                cursor="pointer"
-                                _hover={{ bg: "accent.600" }}
-                                transition="background 0.15s"
-                            >
-                                See Info →
-                            </Flex>
-                        </Box>
-                    ))}
-                </Grid>
-            </Box>
         </Box>
     );
 };
