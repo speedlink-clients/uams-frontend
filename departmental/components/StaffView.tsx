@@ -95,14 +95,6 @@ export const StaffView: React.FC = () => {
     }
   };
 
-  const handleDownloadTemplate = () => {
-    const link = document.createElement('a');
-    link.href = '/departmental-admin/documents/Staff_Sample_File.csv';
-    link.setAttribute('download', 'Staff_Sample_File.csv');
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode?.removeChild(link);
-  };
 
   const handleUpload = async () => {
     if (!selectedFile) {
@@ -296,8 +288,8 @@ export const StaffView: React.FC = () => {
               </p>
 
               <a
-                href="/departmental-admin/documents/Staff_Sample_File.csv"
-                download="Staff_Sample_File.csv"
+                href="/departmental-admin/documents/Lecturer_Sample_File.csv"
+                download="Lecturer_Sample_File.csv"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 mb-4 transition-colors"
               >
                 <FileUp size={16} />
