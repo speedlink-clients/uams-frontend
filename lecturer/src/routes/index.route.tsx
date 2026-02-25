@@ -20,7 +20,7 @@ const PlaceholderPage = lazy(() => import("@pages/PlaceholderPage"));
 
 const Router = () => {
     return (
-        <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <BrowserRouter basename="/lecturer">
             <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
                     {/* Public Auth Routes — redirected to dashboard if already logged in */}

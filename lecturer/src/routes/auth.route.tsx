@@ -10,8 +10,8 @@ const ForgotPasswordPage = () => {
 };
 
 const AuthRoutes = [
-    <Route key="login" path="/login" element={<Login />} />,
-    <Route key="forgot-password" path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Route key="login" path="login" element={<Login />} />,
+    <Route key="forgot-password" path="forgot-password" element={<ForgotPasswordPage />} />
 ];
 
 export default AuthRoutes;

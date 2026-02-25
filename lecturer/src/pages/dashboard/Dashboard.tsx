@@ -1,34 +1,77 @@
-import { useState } from "react";
-import { Box, Flex, Text, Heading } from "@chakra-ui/react";
+import { useState, useMemo } from "react";
+import { Box, Flex, Text, Heading, Spinner, Center } from "@chakra-ui/react";
 import useUserStore from "@stores/user.store";
 import { DashboardHook } from "@hooks/dashboard.hook";
 import StatCard from "@components/shared/StatCard";
-import AttendanceChart from "@components/shared/AttendanceChart";
 import TimetablePanel from "@components/shared/TimetablePanel";
 
 const Dashboard = () => {
     const { user } = useUserStore();
 
-    // Date filter state for attendance chart
-    const today = new Date().toISOString().split("T")[0];
-    const [fromDate, setFromDate] = useState(today);
-    const [toDate, setToDate] = useState(today);
-
-    // Timetable filter state
+    // Timetable filter state: today, tomorrow, week
     const [timetableFilter, setTimetableFilter] = useState("today");
 
-    // Data from hooks
-    const { data: stats } = DashboardHook.useStats();
-    const { data: attendance } = DashboardHook.useAttendance(fromDate, toDate);
-    const { data: timetable } = DashboardHook.useTimetable(timetableFilter);
+    // Data from hook
+    const { data: dashboardData, isLoading, error } = DashboardHook.useDashboardData();
 
-    const handleClearDateFilter = () => {
-        setFromDate(today);
-        setToDate(today);
-    };
+    const currentDay = useMemo(() => {
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        return days[new Date().getDay()];
+    }, []);
+
+    const tomorrowDay = useMemo(() => {
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return days[tomorrow.getDay()];
+    }, []);
+
+    // Filtered timetable entries
+    const timetableEntries = useMemo(() => {
+        if (!dashboardData?.timetable?.byDay) return [];
+
+        if (timetableFilter === "today") {
+            return dashboardData.timetable.byDay[currentDay] || [];
+        }
+        if (timetableFilter === "tomorrow") {
+            return dashboardData.timetable.byDay[tomorrowDay] || [];
+        }
+        if (timetableFilter === "week") {
+            // Flatten all days
+            return Object.values(dashboardData.timetable.byDay).flat();
+        }
+        return [];
+    }, [dashboardData, timetableFilter, currentDay, tomorrowDay]);
+
+    // Map TimetableSlot to what TimetablePanel expects (it expects .title, we have .courseTitle)
+    const normalizedEntries = useMemo(() => {
+        return timetableEntries.map(slot => ({
+            ...slot,
+            title: slot.courseTitle || "No Title",
+            isActive: timetableFilter === "today" // Simple heuristic for active
+        }));
+    }, [timetableEntries, timetableFilter]);
 
     // Extract first name for greeting
     const firstName = user?.firstName || "User";
+
+    if (isLoading) {
+        return (
+            <Center h="100%">
+                <Spinner size="xl" color="accent.500" borderWidth="4px" />
+            </Center>
+        );
+    }
+
+    if (error) {
+        return (
+            <Center h="100%">
+                <Text color="red.500">Failed to load dashboard data. Please try again later.</Text>
+            </Center>
+        );
+    }
+
+    const summary = dashboardData?.summary;
 
     return (
         <Flex gap="10" h="100%">
@@ -48,31 +91,33 @@ const Dashboard = () => {
                 <Flex gap="5" mb="8">
                     <StatCard
                         label="Assigned courses"
-                        value={stats?.assignedCourses ?? 0}
+                        value={summary?.totalCourses ?? 0}
                         colorScheme="pink"
                     />
                     <StatCard
                         label="Ongoing projects"
-                        value={stats?.ongoingProjects ?? 0}
+                        value={summary?.totalProjects ?? 0}
                         colorScheme="green"
+                    />
+                    <StatCard
+                        label="Total Students"
+                        value={summary?.totalStudents ?? 0}
+                        colorScheme="green" // Using green as blue is not allowed
                     />
                 </Flex>
 
-                {/* Attendance Chart */}
-                <AttendanceChart
-                    data={attendance ?? []}
-                    fromDate={fromDate}
-                    toDate={toDate}
-                    onFromDateChange={setFromDate}
-                    onToDateChange={setToDate}
-                    onClear={handleClearDateFilter}
-                />
+                {/* Placeholder for other content or empty space since Attendance was removed */}
+                <Box mt="10">
+                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                        * Summary data reflects your current academic workload and interactions.
+                    </Text>
+                </Box>
             </Box>
 
             {/* Timetable Panel (Right) — fills available height, scrolls internally */}
             <Box w="320px" flexShrink={0} h="100%" maxH="calc(100vh - 120px)">
                 <TimetablePanel
-                    entries={timetable ?? []}
+                    entries={normalizedEntries as any}
                     selectedFilter={timetableFilter}
                     onFilterChange={setTimetableFilter}
                 />
