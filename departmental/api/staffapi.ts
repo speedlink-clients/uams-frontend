@@ -72,25 +72,7 @@ export const staffApi = {
   },
 
   getDepartmentLecturers: async () => {
-     let departmentId = localStorage.getItem("departmentId");
-     
-     if (!departmentId) {
-         try {
-             const userStr = localStorage.getItem("user");
-             if (userStr) {
-                 const user = JSON.parse(userStr);
-                 departmentId = user.departmentId;
-             }
-         } catch (e) {
-             console.error("Error parsing user from local storage", e);
-         }
-     }
-
-     if (!departmentId) {
-         throw new Error("Department ID not found");
-     }
-
-     const response = await api.get(`/university-admin/lecturers/${departmentId}`);
+     const response = await api.get("/university-admin/lecturers");
      return response.data;
   }
 };
