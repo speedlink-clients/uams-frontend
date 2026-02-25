@@ -16,7 +16,6 @@
       "@utils/*":["./utils/*"],
       "@routes/*":["./routes/*"],
       "@services/*":["./services/*"],
-      // "@types/*":["./types/*"],
       "@type/*":["./types/*"],
       "@configs/*":["./configs/*"],
       "@forms/*":["./forms/*"],
