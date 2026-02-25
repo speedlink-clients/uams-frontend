@@ -1,28 +1,16 @@
-import { useState } from "react";
+import { useNavigate } from "react-router";
 import LoginFormStep from "./LoginFormStep";
-import ForgotPasswordFlow from "./ForgotPasswordFlow";
-
-type AuthView = "login" | "forgot-password";
 
 const Login = () => {
-    const [view, setView] = useState<AuthView>("login");
+    const navigate = useNavigate();
 
     return (
-        <>
-            {view === "login" && (
-                <LoginFormStep
-                    onLoginSuccess={() => {
-                        // Navigation is handled inside LoginFormStep
-                    }}
-                    onForgotPassword={() => setView("forgot-password")}
-                />
-            )}
-            {view === "forgot-password" && (
-                <ForgotPasswordFlow
-                    onBackToLogin={() => setView("login")}
-                />
-            )}
-        </>
+        <LoginFormStep
+            onLoginSuccess={() => {
+                // Navigation is handled inside LoginFormStep
+            }}
+            onForgotPassword={() => navigate("/forgot-password")}
+        />
     );
 };
 
