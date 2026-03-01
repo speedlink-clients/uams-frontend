@@ -13,6 +13,7 @@ import { NotificationsView } from "./components/NotificationsView";
 import { RolesView } from "./components/RolesView";
 import { ProfileView } from "./components/ProfileView";
 import { TimetableView } from "./components/TimetableView";
+import TimeTable from "./pages/timetable/page";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -59,7 +60,7 @@ const router = createBrowserRouter([
           },
           {
             path: "timetable",
-            element: <TimetableView />,
+            element: <TimeTable />,
           },
           {
             path: "announcements",

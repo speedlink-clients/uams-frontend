@@ -6,11 +6,24 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
+
+const publicRoutes = [
+  "/auth/signin",
+  "/auth/register",
+  "/auth/verify-email",
+  "/auth/reset-password",
+  "/auth/change-password",
+];
 
 // Add auth token to requests
 api.interceptors.request.use(
   (config) => {
+    const isPublicRoute = publicRoutes.some((route) => config.url?.includes(route));
+    if (isPublicRoute) {
+      return config;
+    }
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

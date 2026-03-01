@@ -1,7 +1,11 @@
-import { Badge, Box, Button, CloseButton, createListCollection, Drawer, Heading, HStack, Portal, Select, Stack, Table, Text, Wrap } from "@chakra-ui/react";
-import { TimetableHook } from "@hooks/timetable.hooks";
-import type { TimetableItem } from "@type/timetable.type";
-import { memo, useMemo, useState } from "react";
+import { Badge, Box, Button, CloseButton, createListCollection, Dialog, DownloadTrigger, Drawer, Field, FileUpload, Flex, Heading, HStack, Input, Portal, Select, Stack, Table, Text, Wrap } from "@chakra-ui/react";
+import { TimetableHook } from "./timetable.hooks";
+import type { TimetableItem, TimetableParams } from "./timetable.type";
+import { memo, useCallback, useMemo, useState } from "react";
+import { Toaster, toaster } from "@/src/components/ui/toaster";
+import { Download, FileSpreadsheet, UploadCloud } from "lucide-react";
+import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 const TimeTable = () => {
     const { data: timetables, isLoading, error } = TimetableHook.useTimetable();
@@ -18,7 +22,11 @@ const TimeTable = () => {
 
     return (
         <Stack gap="6">
-            <Heading>Timetable</Heading>
+            <Flex justify={"space-between"}>
+                <Heading>Timetable</Heading>
+
+                <TimetableUploadDialog />
+            </Flex>
 
             <Box
                 bg="bg"
@@ -78,7 +86,7 @@ const TimeTable = () => {
                 </Table.ScrollArea>
             </Box>
 
-
+            <Toaster />
         </Stack>
     )
 }
@@ -266,4 +274,264 @@ const ScheduleDrawer = memo(({ item }: { item: TimetableItem }) => {
         </Drawer.Root>
     );
 });
+
+
+
+const TimetableUploadDialog = () => {
+    const { mutate: uploadTimetable, isPending } = TimetableHook.useUploadTimetable();
+    const { data: params } = TimetableHook.useTimetableParams();
+    const [file, setFile] = useState<File | null>(null);
+    const [selectedSession, setSelectedSession] = useState<string | null>(null);
+    const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+    const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
+    const [selectedProgramme, setSelectedProgramme] = useState<string | null>(null);
+    const [title, setTitle] = useState<string | null>(null);
+    const qc = useQueryClient();
+
+    const handleSessionChange = useCallback((value: string | null) => {
+        setSelectedSession(value);
+    }, []);
+
+    const handleLevelChange = useCallback((value: string | null) => {
+        setSelectedLevel(value);
+    }, []);
+
+    const handleSemesterChange = useCallback((value: string | null) => {
+        setSelectedSemester(value);
+    }, []);
+
+    const handleProgrammeChange = useCallback((value: string | null) => {
+        setSelectedProgramme(value);
+    }, []);
+
+    const isValid = useMemo(() => {
+        return selectedSession && selectedLevel && selectedSemester && selectedProgramme && file && title;
+    }, [selectedSession, selectedLevel, selectedSemester, selectedProgramme, file, title]);
+
+    const handleUpload = useCallback(async () => {
+        if (!isValid) return;
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("sessionId", selectedSession || "");
+        formData.append("semesterId", selectedSemester || "");
+        formData.append("programmeId", selectedProgramme || "");
+        formData.append("levelId", selectedLevel || "");
+        formData.append("title", title || "");
+
+        uploadTimetable(formData, {
+            onSuccess() {
+                toaster.success({ description: "Timetable uploaded successfully" });
+                qc.invalidateQueries({ queryKey: ["timetables"] });
+            },
+            onError() {
+                toaster.error({ description: "Failed to upload timetable" });
+            }
+        });
+    }, [file, uploadTimetable, isValid, qc]);
+
+    const handleDownloadTemplateFile = useCallback(async () => {
+        const response = await axios.get("/departmental-admin/timetable-template.xlsx", {
+            responseType: "blob"
+        });
+        return response.data; // This returns the blob
+    }, []);
+
+    const sessions = useMemo(() => createListCollection({
+        items: params?.sessions?.map((session) => ({
+            label: session.name,
+            value: session.id,
+        })) || []
+    }), [params]);
+
+    const levels = useMemo(() => createListCollection({
+        items: params?.levels?.map((level) => ({
+            label: level.name,
+            value: level.id,
+        })) || []
+    }), [params]);
+
+
+    const semesters = useMemo(() => createListCollection({
+        items: params?.semesters?.map((semester) => ({
+            label: semester.name,
+            value: semester.id,
+        })) || []
+    }), [params]);
+
+    const programmes = useMemo(() => createListCollection({
+        items: params?.programs?.map((programme) => ({
+            label: programme.name,
+            value: programme.id,
+        })) || []
+    }), [params]);
+
+
+    return (
+        <Dialog.Root size="xl">
+            <Dialog.Trigger asChild>
+                <Button size="xs" variant="surface">
+                    <UploadCloud /> Upload Timetable
+                </Button>
+            </Dialog.Trigger>
+            <Portal>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                    <Dialog.Content>
+                        <Dialog.Header>
+                            <Dialog.Title>Upload Timetable</Dialog.Title>
+                        </Dialog.Header>
+                        <Dialog.Body spaceY="4">
+                            <DownloadTrigger
+                                data={() => handleDownloadTemplateFile()}
+                                fileName={`timetable-template.xlsx`}
+                                mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                asChild
+                            >
+                                <Button variant="outline">
+                                    <Download /> Download Sample File
+                                </Button>
+                            </DownloadTrigger>
+
+
+                            <Box spaceY="4" rounded="md" p="4" border="xs" borderColor="border">
+                                <Field.Root>
+                                    <Field.Label>Title</Field.Label>
+                                    <Input onChange={(e) => setTitle(e.target.value)} placeholder="Enter a brief title here" />
+                                </Field.Root>
+
+                                <Wrap justify="start" gap="2">
+                                    {/* sessions */}
+                                    <Select.Root onSelect={(d) => d.value && handleSessionChange(d.value)} collection={sessions} size="sm" width="40">
+                                        <Select.HiddenSelect />
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Select session" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
+                                        <Portal>
+                                            <Select.Positioner>
+                                                <Select.Content>
+                                                    {sessions.items.map((session: { label: string; value: string; }) => (
+                                                        <Select.Item item={session} key={session.value}>
+                                                            {session.label}
+                                                            <Select.ItemIndicator />
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Content>
+                                            </Select.Positioner>
+                                        </Portal>
+                                    </Select.Root>
+
+
+                                    {/* level */}
+                                    <Select.Root onSelect={(d) => d.value && handleLevelChange(d.value)} collection={levels} size="sm" width="32">
+                                        <Select.HiddenSelect />
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Select level" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
+                                        <Portal>
+                                            <Select.Positioner>
+                                                <Select.Content>
+                                                    {levels.items.map((level: { label: string; value: string; }) => (
+                                                        <Select.Item item={level} key={level.value}>
+                                                            {level.label}
+                                                            <Select.ItemIndicator />
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Content>
+                                            </Select.Positioner>
+                                        </Portal>
+                                    </Select.Root>
+
+
+
+                                    {/* semesters */}
+                                    <Select.Root onSelect={(d) => d.value && handleSemesterChange(d.value)} collection={semesters} size="sm" width="40">
+                                        <Select.HiddenSelect />
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Select semester" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
+                                        <Portal>
+                                            <Select.Positioner>
+                                                <Select.Content>
+                                                    {semesters.items.map((semester: { label: string; value: string; }) => (
+                                                        <Select.Item item={semester} key={semester.value}>
+                                                            {semester.label}
+                                                            <Select.ItemIndicator />
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Content>
+                                            </Select.Positioner>
+                                        </Portal>
+                                    </Select.Root>
+
+                                    {/* programme */}
+                                    <Select.Root onSelect={(d) => d.value && handleProgrammeChange(d.value)} collection={programmes} size="sm" width="44">
+                                        <Select.HiddenSelect />
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Select programme" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
+                                        <Portal>
+                                            <Select.Positioner>
+                                                <Select.Content>
+                                                    {programmes.items.map((programme: { label: string; value: string; }) => (
+                                                        <Select.Item item={programme} key={programme.value}>
+                                                            {programme.label}
+                                                            <Select.ItemIndicator />
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Content>
+                                            </Select.Positioner>
+                                        </Portal>
+                                    </Select.Root>
+                                </Wrap>
+
+
+                                <FileUpload.Root onFileAccept={async (file) => {
+                                    setFile(file.files[0]);
+                                }}>
+                                    <FileUpload.HiddenInput />
+                                    <FileUpload.Trigger asChild>
+                                        <Button w="full" variant="outline" justifyContent={"start"} size="sm">
+                                            <FileSpreadsheet /> Select file
+                                        </Button>
+                                    </FileUpload.Trigger>
+                                    <FileUpload.List showSize clearable />
+                                </FileUpload.Root>
+                            </Box>
+
+
+                        </Dialog.Body>
+                        <Dialog.Footer w="sm" justifyContent={"start"}>
+                            <Dialog.ActionTrigger asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </Dialog.ActionTrigger>
+                            <Button flex="1" onClick={handleUpload} disabled={isPending || !isValid} loading={isPending} loadingText="Uploading...">Upload</Button>
+                        </Dialog.Footer>
+                        <Dialog.CloseTrigger asChild>
+                            <CloseButton size="sm" />
+                        </Dialog.CloseTrigger>
+                    </Dialog.Content>
+                </Dialog.Positioner>
+            </Portal>
+        </Dialog.Root>)
+}
 

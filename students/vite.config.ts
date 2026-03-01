@@ -6,13 +6,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
       base: '/students/',
-      server: {
-        allowedHosts: ['computerscience.uniport.edu.ng', 'localhost'],
-        port: 3000,
-        host: '0.0.0.0',
-      },
       plugins: [react()],
-      define: {},
       resolve: {
         alias: {
           '@': path.resolve(__dirname, './src'),
