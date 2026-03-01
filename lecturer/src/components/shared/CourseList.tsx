@@ -55,7 +55,7 @@ const CourseList = ({ courses, isLoading }: CourseListProps) => {
                     cursor="pointer"
                     _hover={{ bg: "gray.50" }}
                     transition="background 0.15s"
-                    onClick={() => navigate(`/courses/${course.id}`)}
+                    onClick={() => navigate(`/courses/${course.id}`, { state: { course } })}
                 >
                     <Text fontSize="xs" color="gray.600" w="60px">{index + 1}</Text>
                     <Text fontSize="xs" color="gray.700" w="120px">{course.code}</Text>

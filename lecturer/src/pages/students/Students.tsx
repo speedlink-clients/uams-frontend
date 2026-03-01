@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Box, Flex, Text, Heading, Icon } from "@chakra-ui/react";
-import { Funnel, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { StudentHook } from "@hooks/student.hook";
 import StudentsTable from "@components/shared/StudentsTable";
 
@@ -8,25 +8,25 @@ const LEVEL_OPTIONS = ["All", "100", "200", "300", "400", "500"];
 
 const Students = () => {
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [level, setLevel] = useState("All");
 
-    const { data: students, isLoading } = StudentHook.useStudents({ search, level });
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 500);
 
-    // Client-side search filter (until API handles it)
-    const filteredStudents = useMemo(() => {
-        if (!students) return [];
-        if (!search.trim()) return students;
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [search]);
 
-        const query = search.toLowerCase();
-        return students.filter(
-            (s) =>
-                s.surname.toLowerCase().includes(query) ||
-                s.otherNames.toLowerCase().includes(query) ||
-                s.email.toLowerCase().includes(query) ||
-                s.regNo.toLowerCase().includes(query) ||
-                s.matNo.toLowerCase().includes(query)
-        );
-    }, [students, search]);
+    const { data: students, isLoading } = StudentHook.useStudents({
+        level,
+        page: 1,
+        limit: 100,
+        search: debouncedSearch || undefined,
+    });
 
     const totalCount = students?.length ?? 0;
 
@@ -81,8 +81,6 @@ const Students = () => {
                     style={{
                         fontSize: "12px",
                         fontWeight: 500,
-                        color: "white",
-                        backgroundColor: "#1273D4",
                         border: "none",
                         borderRadius: "6px",
                         padding: "8px 16px",
@@ -91,8 +89,8 @@ const Students = () => {
                     }}
                 >
                     {LEVEL_OPTIONS.map((opt) => (
-                        <option 
-                            key={opt} 
+                        <option
+                            key={opt}
                             value={opt}
                             style={{
                                 fontSize: "12px",
@@ -112,30 +110,10 @@ const Students = () => {
                         </option>
                     ))}
                 </select>
-
-                {/* Filter Button */}
-                <Flex
-                    align="center"
-                    gap="2"
-                    bg="white"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="md"
-                    px="4"
-                    py="2"
-                    cursor="pointer"
-                    _hover={{ bg: "gray.50" }}
-                    transition="background 0.15s"
-                >
-                    <Icon as={Funnel} boxSize="3.5" color="gray.600" />
-                    <Text fontSize="xs" fontWeight="500" color="gray.700">
-                        Filter
-                    </Text>
-                </Flex>
             </Flex>
 
             {/* Students Table */}
-            <StudentsTable students={filteredStudents} isLoading={isLoading} />
+            <StudentsTable students={students ?? []} isLoading={isLoading} />
         </Box>
     );
 };

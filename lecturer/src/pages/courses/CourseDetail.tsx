@@ -1,40 +1,37 @@
-import { useState, useMemo } from "react";
-import { Box, Flex, Text, Heading } from "@chakra-ui/react";
+import { useMemo } from "react";
+import { Box, Flex, Text, Heading, Grid, Stack, Tabs, GridItem, Avatar } from "@chakra-ui/react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { CourseHook } from "@hooks/course.hook";
-import CourseInfoPanel from "@components/shared/CourseInfoPanel";
 import CourseStudentsTable from "@components/shared/CourseStudentsTable";
 
 const CourseDetail = () => {
     const { courseId } = useParams();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<"info" | "students">("info");
-    const [studentSearch, setStudentSearch] = useState("");
+    // const { course } = useLocation().state;
 
-    const { data: courseData } = CourseHook.useCourse(courseId!);
-    const { data: students, isLoading: studentsLoading } = CourseHook.useCourseStudents(
-        courseId!,
-        studentSearch
-    );
+    const { data: course, isLoading: courseLoading } = CourseHook.useCourse(courseId!);
 
-    const course = courseData?.course;
-    const lecturers = courseData?.lecturers ?? [];
+    const lecturers = course?.lecturers;
 
-    // Client-side student search
-    const filteredStudents = useMemo(() => {
-        if (!students) return [];
-        if (!studentSearch.trim()) return students;
-        const q = studentSearch.toLowerCase();
-        return students.filter(
-            (s) =>
-                s.surname.toLowerCase().includes(q) ||
-                s.otherNames.toLowerCase().includes(q) ||
-                s.email.toLowerCase().includes(q)
-        );
-    }, [students, studentSearch]);
+    const stats = useMemo(() => {
+        return [
+            {
+                label: "Course title",
+                value: course?.title || "No title available.",
+            },
+            {
+                label: "Course code",
+                value: course?.code || "No code available.",
+            },
+            {
+                label: "Credit unit",
+                value: course?.creditUnits || "No credit unit available.",
+            },
+        ]
+    }, [course])
 
-    if (!course) {
+    if (courseLoading) {
         return (
             <Flex justify="center" py="12">
                 <Text color="gray.500">Loading course...</Text>
@@ -68,67 +65,67 @@ const CourseDetail = () => {
 
             {/* Title & Description */}
             <Heading size="lg" fontWeight="600" color="#000000" mb="3" fontSize="24px">
-                {course.title} ({course.code})
+                {course?.title} ({course?.code})
             </Heading>
             <Text fontSize="sm" color="gray.600" mb="6" maxW="700px" lineHeight="tall">
-                {course.description}
+                {course?.description || "No description available."}
             </Text>
 
-            {/* Tab Switcher */}
-            <Flex mb="6">
-                <Flex
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="xl"
-                    overflow="hidden"
-                    bg="gray.100"
-                    p="1"
-                    gap="1"
-                >
-                    <Box
-                        px="5"
-                        py="2"
-                        fontSize="sm"
-                        fontWeight={activeTab === "info" ? "600" : "500"}
-                        color={activeTab === "info" ? "gray.800" : "gray.500"}
-                        bg={activeTab === "info" ? "white" : "transparent"}
-                        borderRadius={activeTab === "info" ? "lg" : "none"}
-                        boxShadow={activeTab === "info" ? "sm" : "none"}
-                        cursor="pointer"
-                        onClick={() => setActiveTab("info")}
-                        transition="all 0.15s"
-                    >
-                        Info
-                    </Box>
-                    <Box
-                        px="5"
-                        py="2"
-                        fontSize="sm"
-                        fontWeight={activeTab === "students" ? "600" : "500"}
-                        color={activeTab === "students" ? "gray.800" : "gray.500"}
-                        bg={activeTab === "students" ? "white" : "transparent"}
-                        borderRadius={activeTab === "students" ? "lg" : "none"}
-                        boxShadow={activeTab === "students" ? "sm" : "none"}
-                        cursor="pointer"
-                        onClick={() => setActiveTab("students")}
-                        transition="all 0.15s"
-                    >
-                        Students
-                    </Box>
-                </Flex>
-            </Flex>
 
-            {/* Tab Content */}
-            {activeTab === "info" ? (
-                <CourseInfoPanel course={course} lecturers={lecturers} />
-            ) : (
-                <CourseStudentsTable
-                    students={filteredStudents}
-                    isLoading={studentsLoading}
-                    search={studentSearch}
-                    onSearchChange={setStudentSearch}
-                />
-            )}
+
+            <Tabs.Root variant={"enclosed"} defaultValue="info">
+                <Tabs.List w="fit">
+                    <Tabs.Trigger value="info">
+                        Info
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value="students">
+                        Students
+                    </Tabs.Trigger>
+                </Tabs.List>
+                <Tabs.Content value="info">
+                    <Grid templateColumns="repeat(3, 1fr)" gap="4">
+                        <GridItem colSpan={2}>
+                            {/* stats */}
+                            <Grid templateColumns="repeat(3, 1fr)" gap="4" mb="6">
+                                {stats.map((item) => (
+                                    <Stack key={item.label} p="4" rounded="md" bg="bg" gap="2">
+                                        <Text fontWeight="500" color="fg.subtle">{item.label}</Text>
+                                        <Text fontWeight="600" color="fg.muted">{item.value}</Text>
+                                    </Stack>
+                                ))}
+                            </Grid>
+
+                            {/* lecturers */}
+                            <Stack gap="2">
+                                <Heading size="sm" color="fg.muted">Lecturers</Heading>
+                                <Flex gap="2" flexWrap="wrap">
+                                    {lecturers?.map((l, i) => (
+                                        <Stack key={i} align="center" p="4" rounded="md" bg="bg" maxW="40">
+                                            <Avatar.Root shape={"square"} rounded="md">
+                                                <Avatar.Fallback rounded="md" name={l.name} />
+                                                <Avatar.Image src={undefined} />
+                                            </Avatar.Root>
+                                            <Text w="full" textAlign="center" fontWeight="600" color="fg.muted">{l.name}</Text>
+                                            <Text w="full" textWrap="break-all" fontWeight="400" color="fg.subtle">{l.email}</Text>
+                                        </Stack>
+                                    ))}
+                                </Flex>
+                            </Stack>
+
+                            {/* attendacne chart */}
+                        </GridItem>
+                        <GridItem colSpan={1}>
+                            {/* attendacne chart */}
+                        </GridItem>
+                    </Grid>
+
+                </Tabs.Content>
+
+
+                <Tabs.Content value="students">
+                    <CourseStudentsTable/>
+                </Tabs.Content>
+            </Tabs.Root>
         </Box>
     );
 };

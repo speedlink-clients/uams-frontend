@@ -1,5 +1,4 @@
-import { Box, Table, Text, Flex, Icon } from "@chakra-ui/react";
-import { MoreHorizontal } from "lucide-react";
+import { Box, Table, Text, Flex } from "@chakra-ui/react";
 import type { Student } from "@type/student.type";
 
 interface StudentsTableProps {
@@ -11,8 +10,7 @@ const COLUMNS = [
     { key: "sn", label: "S/N", width: "50px" },
     { key: "regNo", label: "Reg No.", width: "140px" },
     { key: "matNo", label: "Mat. No.", width: "130px" },
-    { key: "surname", label: "Surname", width: "100px" },
-    { key: "otherNames", label: "Other Names", width: "130px" },
+    { key: "fullName", label: "Full Name", width: "100px" },
     { key: "email", label: "Email", width: "180px" },
     { key: "phoneNo", label: "Phone No", width: "140px" },
     { key: "sex", label: "Sex", width: "60px" },
@@ -20,10 +18,10 @@ const COLUMNS = [
     { key: "entryQualification", label: "Entry Qualification", width: "130px" },
     { key: "faculty", label: "Faculty", width: "110px" },
     { key: "department", label: "Department", width: "140px" },
+    { key: "level", label: "Level", width: "100px" },
     { key: "degreeCourse", label: "Degree Course", width: "140px" },
     { key: "courseDuration", label: "Course Duration", width: "110px" },
     { key: "degreeAwardCode", label: "Degree Award Code", width: "130px" },
-    { key: "action", label: "Action", width: "60px" },
 ] as const;
 
 /* Shared sticky cell styles */
@@ -49,6 +47,7 @@ const stickyLeftHeader = { ...stickyLeft, bg: "gray.50", zIndex: 3 };
 const stickyRightHeader = { ...stickyRight, bg: "gray.50", zIndex: 3 };
 
 const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
+    console.log(students);
     if (isLoading) {
         return (
             <Flex justify="center" py="12">
@@ -98,7 +97,7 @@ const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
                 </Table.Header>
 
                 <Table.Body>
-                    {students.map((student, index) => (
+                    {students?.map((student, index) => (
                         <Table.Row
                             key={student.id}
                             _hover={{ bg: "gray.50" }}
@@ -109,25 +108,23 @@ const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
                                 {index + 1}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.regNo}
+                                {student.registrationNo}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.matNo}
+                                {student.matricNumber}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontStyle="semi-bold" fontSize="13px" color="gray.700" fontWeight="700">
-                                {student.surname}
+                                {student.fullName}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontStyle="semi-bold" fontSize="13px" color="gray.700" fontWeight="700">
-                                {student.otherNames}
-                            </Table.Cell>
+                           
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.500" fontStyle="medium" fontWeight="500">
                                 {student.email}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.phoneNo}
+                                {student.phone}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.sex}
+                                {student.gender}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
                                 {student.admissionMode}
@@ -136,30 +133,24 @@ const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
                                 {student.entryQualification}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.faculty}
+                                {student.department.faculty?.name}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.department}
+                                {student.department.name}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.degreeCourse}
+                                {student.level.name}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.courseDuration}
+                                {student.program.name}
                             </Table.Cell>
                             <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
-                                {student.degreeAwardCode}
+                                {student.program?.duration}
                             </Table.Cell>
-                            {/* Action — sticky right */}
-                            <Table.Cell px="3" py="3" {...stickyRight}>
-                                <Icon
-                                    as={MoreHorizontal}
-                                    boxSize="4"
-                                    color="gray.500"
-                                    cursor="pointer"
-                                    _hover={{ color: "gray.700" }}
-                                />
+                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                                {student.academicStanding}
                             </Table.Cell>
+                            
                         </Table.Row>
                     ))}
                 </Table.Body>

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import AuthRoutes from "@routes/auth.route";
 import ProtectedRoute from "@components/shared/ProtectedRoute";
 import PublicRoute from "@components/shared/PublicRoute";
+import TimeTable from "@pages/timetable/page";
 
 const DashboardLayout = lazy(() => import("@pages/layouts/DashboardLayout"));
 const Dashboard = lazy(() => import("@pages/dashboard/Dashboard"));
@@ -15,8 +16,7 @@ const Results = lazy(() => import("@pages/results/Results"));
 const ResultDetail = lazy(() => import("@pages/results/ResultDetail"));
 const Projects = lazy(() => import("@pages/projects/Projects"));
 const Announcement = lazy(() => import("@pages/announcement/Announcement"));
-const Payments = lazy(() => import("@pages/payments/Payments"));
-const PlaceholderPage = lazy(() => import("@pages/PlaceholderPage"));
+// const Payments = lazy(() => import("@pages/payments/Payments"));
 
 const Router = () => {
     return (
@@ -41,8 +41,8 @@ const Router = () => {
                             <Route path="/results" element={<Results />} />
                             <Route path="/results/:courseId" element={<ResultDetail />} />
                             <Route path="/projects" element={<Projects />} />
-                            <Route path="/timetable" element={<PlaceholderPage title="Timetable" />} />
-                            <Route path="/payments" element={<Payments />} />
+                            <Route path="/timetable" element={<TimeTable />} />
+                            {/* <Route path="/payments" element={<Paymens />} /> */}
                             <Route path="/announcement" element={<Announcement />} />
                         </Route>
                     </Route>

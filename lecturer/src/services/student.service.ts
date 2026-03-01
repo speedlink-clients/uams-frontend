@@ -3,9 +3,13 @@ import type { Student, StudentFilters } from "@type/student.type";
 
 export const StudentService = {
     getStudents: async (filters?: StudentFilters): Promise<Student[]> => {
-        const { data } = await axiosClient.get<Student[]>("/lecturer/students", {
+        const { data } = await axiosClient.get<{
+            data: {
+                students: Student[]
+            }
+        }>("/hod/students", {
             params: filters,
         });
-        return data;
+        return data.data.students;
     },
 };

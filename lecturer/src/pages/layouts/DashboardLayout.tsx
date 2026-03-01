@@ -2,6 +2,7 @@ import { Box, Flex } from "@chakra-ui/react";
 import { Outlet } from "react-router";
 import Sidebar from "@components/shared/Sidebar";
 import Navbar from "@components/shared/Navbar";
+import ToasterReseter from "@components/shared/ToasterReseter";
 
 const SIDEBAR_WIDTH = "255px";
 
@@ -35,6 +36,7 @@ const DashboardLayout = () => {
                 {/* Page Content */}
                 <Box flex="1" px="10" py="8" overflow="auto" minW="0">
                     <Outlet />
+                    <ToasterReseter />
                 </Box>
             </Box>
         </Flex>

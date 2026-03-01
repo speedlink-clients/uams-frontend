@@ -1,117 +1,100 @@
-import { Box, Table, Text, Flex, Icon } from "@chakra-ui/react";
-import { Search } from "lucide-react";
-import { useNavigate, useParams } from "react-router";
-import type { CourseStudent } from "@type/course.type";
+import { Box, CloseButton, Icon, Input, InputGroup, Table, Text } from "@chakra-ui/react";
+import { CourseHook } from "@hooks/course.hook";
+import { SearchIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useParams } from "react-router";
 
-interface CourseStudentsTableProps {
-    students: CourseStudent[];
-    isLoading?: boolean;
-    search: string;
-    onSearchChange: (value: string) => void;
-}
 
-const COLUMNS = [
-    { key: "sn", label: "S/N", width: "50px" },
-    { key: "regNo", label: "Reg No.", width: "130px" },
-    { key: "matNo", label: "Mat. No.", width: "120px" },
-    { key: "surname", label: "Surname", width: "100px" },
-    { key: "otherNames", label: "Other Names", width: "120px" },
-    { key: "email", label: "Email", width: "180px" },
-    { key: "phoneNo", label: "Phone No", width: "140px" },
-    { key: "sex", label: "Sex", width: "60px" },
-    { key: "admissionMode", label: "Admission Mode", width: "110px" },
-    { key: "entryQualification", label: "Entry Qualification", width: "120px" },
-] as const;
-
-const CourseStudentsTable = ({ students, isLoading, search, onSearchChange }: CourseStudentsTableProps) => {
-    const navigate = useNavigate();
+const CourseStudentsTable = () => {
     const { courseId } = useParams();
+    const { data: students, isLoading: studentsLoading } = CourseHook.useCourseStudents(
+        courseId!,
+    );
+    const [search, setSearch] = useState("");
+
+    const filteredStudents = useMemo(() => {
+        return students?.filter((student) => {
+            const fullname = `${student.firstName} ${student.lastName}`;
+            const regNo = student.registrationNo || "";
+            const matNo = student.studentId || "";
+            const email = student.email || "";
+            const phoneNo = student.phone|| "";
+            return fullname.toLowerCase().includes(search.toLowerCase()) ||
+                regNo.toLowerCase().includes(search.toLowerCase()) ||
+                matNo.toLowerCase().includes(search.toLowerCase()) ||
+                email.toLowerCase().includes(search.toLowerCase()) ||
+                phoneNo.toLowerCase().includes(search.toLowerCase());
+        });
+    }, [students, search]);
+
+    if (studentsLoading) return <Text>Loading students...</Text>
+
 
     return (
-        <Box>
-            {/* Search */}
-            <Flex
-                align="center"
-                bg="white"
-                border="1px solid"
-                borderColor="gray.200"
-                borderRadius="md"
-                px="3"
-                py="1.5"
-                w="260px"
-                mb="5"
-            >
-                <input
-                    placeholder="Search Student"
+        <Box
+            bg="bg"
+            rounded="md"
+            p="4"
+            spaceY="6"
+        >
+
+            <InputGroup
+                w="1/2"
+                endElement={
+                    search && <CloseButton size="xs" onClick={() => setSearch("")} />
+                }
+                startElement={<Icon size="sm" as={SearchIcon} />}>
+                <Input
+                    placeholder="Search students"
+                    variant="outline"
+                    size="sm"
                     value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    style={{
-                        border: "none",
-                        outline: "none",
-                        fontSize: "12px",
-                        width: "100%",
-                        background: "transparent",
+                    onChange={(e) => {
+                        setSearch(e.target.value);
                     }}
                 />
-                <Icon as={Search} boxSize="4" color="gray.400" ml="2" />
-            </Flex>
+            </InputGroup>
 
-            {isLoading ? (
-                <Flex justify="center" py="12">
-                    <Text color="gray.500" fontSize="sm">Loading students...</Text>
-                </Flex>
-            ) : students.length === 0 ? (
-                <Flex justify="center" py="12">
-                    <Text color="gray.500" fontSize="sm">No students found.</Text>
-                </Flex>
-            ) : (
-                <Box overflowX="auto" borderRadius="lg" border="1px solid" borderColor="gray.100" bg="white">
-                    <Table.Root size="sm" variant="line">
-                        <Table.Header>
-                            <Table.Row bg="gray.50">
-                                {COLUMNS.map((col) => (
-                                    <Table.ColumnHeader
-                                        key={col.key}
-                                        fontSize="xs"
-                                        fontWeight="600"
-                                        color="gray.600"
-                                        textTransform="none"
-                                        minW={col.width}
-                                        px="3"
-                                        py="3"
-                                        whiteSpace="nowrap"
-                                    >
-                                        {col.label}
-                                    </Table.ColumnHeader>
-                                ))}
+            <Table.ScrollArea rounded="md" w="full">
+                <Table.Root size="sm" variant="outline">
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.ColumnHeader minW="4px">S/N</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="150px">Reg No.</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="150px">Mat. No.</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="200px">Fullname</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="200px">Email</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="150px">Phone No</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="20px">Gender</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="20px">Level</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="200px">Department</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="40px">Current GPA</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="20px">Total Credits Earned</Table.ColumnHeader>
+                            <Table.ColumnHeader minW="200px">Academic Standing</Table.ColumnHeader>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {filteredStudents?.map((student, index) => (
+                            <Table.Row key={student.id}>
+                                <Table.Cell>{index + 1}</Table.Cell>
+                                <Table.Cell>{student?.registrationNo}</Table.Cell>
+                                <Table.Cell>{student?.studentId}</Table.Cell>
+                                <Table.Cell>{student?.fullName}</Table.Cell>
+                                <Table.Cell>{student?.email}</Table.Cell>
+                                <Table.Cell>{student?.phone}</Table.Cell>
+                                <Table.Cell>{student?.gender}</Table.Cell>
+                                <Table.Cell>{student?.level}</Table.Cell>
+                                <Table.Cell>{student?.department}</Table.Cell>
+                                <Table.Cell>{student?.currentGPA}</Table.Cell>
+                                <Table.Cell>{student?.totalCreditsEarned}</Table.Cell>
+                                <Table.Cell>{student?.academicStanding}</Table.Cell>
                             </Table.Row>
-                        </Table.Header>
+                        ))}
+                    </Table.Body>
+                </Table.Root>
+            </Table.ScrollArea>
 
-                        <Table.Body>
-                            {students.map((student, index) => (
-                                <Table.Row
-                                    key={student.id}
-                                    _hover={{ bg: "gray.50" }}
-                                    cursor="pointer"
-                                    transition="background 0.15s"
-                                    onClick={() => navigate(`/courses/${courseId}/students/${student.id}`)}
-                                >
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.600">{index + 1}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700">{student.regNo}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700">{student.matNo}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700" fontWeight="600">{student.surname}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700" fontWeight="500">{student.otherNames}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.500">{student.email}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700">{student.phoneNo}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700">{student.sex}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700">{student.admissionMode}</Table.Cell>
-                                    <Table.Cell px="3" py="3" fontSize="xs" color="gray.700">{student.entryQualification}</Table.Cell>
-                                </Table.Row>
-                            ))}
-                        </Table.Body>
-                    </Table.Root>
-                </Box>
-            )}
+
         </Box>
     );
 };

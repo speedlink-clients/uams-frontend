@@ -1,22 +1,33 @@
 import axiosClient from "@configs/axios.config";
-import type { Course, CourseStudent, CourseLecturer } from "@type/course.type";
+import type { Course, CourseStudent } from "@type/course.type";
 
 export const CourseService = {
     getCourses: async (params?: Record<string, string>): Promise<Course[]> => {
-        const { data } = await axiosClient.get<Course[]>("/lecturer/courses", { params });
-        return data;
+        const { data } = await axiosClient.get<{ data: Course[] }>("/lecturers/courses", { params });
+        return data.data;
+    },
+    checkCourseOwnership: async (courseId: string): Promise<{
+        "isAssigned": false
+    }> => {
+        const { data } = await axiosClient.get<{
+            data: {
+                "isAssigned": false
+            }
+        }>(`/lecturers/courses/${courseId}/isMine`);
+
+        return data.data;
     },
 
-    getCourseById: async (id: string): Promise<{ course: Course; lecturers: CourseLecturer[] }> => {
-        const { data } = await axiosClient.get(`/lecturer/courses/${id}`);
-        return data;
+    getCourseById: async (id: string): Promise<Course> => {
+        const { data } = await axiosClient.get<{ data: Course }>(`/lecturers/courses/${id}`);
+        return data.data;
     },
 
     getCourseStudents: async (courseId: string, search?: string): Promise<CourseStudent[]> => {
-        const { data } = await axiosClient.get<CourseStudent[]>(`/lecturer/courses/${courseId}/students`, {
+        const { data } = await axiosClient.get<{ data: CourseStudent[] }>(`/lecturers/courses/${courseId}/students`, {
             params: search ? { search } : undefined,
         });
-        return data;
+        return data.data;
     },
 
     getCourseStudentById: async (courseId: string, studentId: string): Promise<CourseStudent> => {

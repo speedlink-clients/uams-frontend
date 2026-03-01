@@ -1,4 +1,4 @@
-import { Box, Table, Text, Flex, Icon } from "@chakra-ui/react";
+import { Box, Table, Text, Flex, Menu, Button, Portal, Drawer, CloseButton, For, Heading } from "@chakra-ui/react";
 import { MoreHorizontal } from "lucide-react";
 import type { Lecturer } from "@type/lecturer.type";
 
@@ -13,8 +13,8 @@ const COLUMNS = [
     { key: "name", label: "Name", width: "160px" },
     { key: "email", label: "Email", width: "200px" },
     { key: "phoneNo", label: "Phone No", width: "160px" },
-    { key: "category", label: "Category", width: "160px" },
     { key: "role", label: "Role", width: "100px" },
+    { key: "AssignedCourse", label: "Assigned Course", width: "160px" },
     { key: "action", label: "Action", width: "70px" },
 ] as const;
 
@@ -75,31 +75,40 @@ const LecturersTable = ({ lecturers, isLoading }: LecturersTableProps) => {
                                 {index + 1}
                             </Table.Cell>
                             <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.staffId}
+                                {lecturer.staffNumber}
                             </Table.Cell>
                             <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" fontWeight="600">
-                                {lecturer.name}
+                                {lecturer.User.fullName}
                             </Table.Cell>
                             <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.500">
-                                {lecturer.email}
+                                {lecturer.User.email}
                             </Table.Cell>
                             <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.phoneNo}
+                                {lecturer.User.phone}
                             </Table.Cell>
                             <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.category}
+                                {lecturer.currentAdminRole}
                             </Table.Cell>
                             <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.role}
+                                {lecturer.courseAssignments.length}
                             </Table.Cell>
                             <Table.Cell px="4" py="3.5">
-                                <Icon
-                                    as={MoreHorizontal}
-                                    boxSize="4"
-                                    color="gray.500"
-                                    cursor="pointer"
-                                    _hover={{ color: "gray.700" }}
-                                />
+                                <Menu.Root>
+                                    <Menu.Trigger asChild>
+                                        <Button variant="ghost" size="xs">
+                                            <MoreHorizontal />
+                                        </Button>
+                                    </Menu.Trigger>
+                                    <Portal>
+                                        <Menu.Positioner>
+                                            <Menu.Content>
+                                                <Menu.Item value="courses" asChild>
+                                                    <CourseDrawer courses={lecturer.courseAssignments} lecturer={lecturer.User.fullName} />
+                                                </Menu.Item>
+                                            </Menu.Content>
+                                        </Menu.Positioner>
+                                    </Portal>
+                                </Menu.Root>
                             </Table.Cell>
                         </Table.Row>
                     ))}
@@ -110,3 +119,48 @@ const LecturersTable = ({ lecturers, isLoading }: LecturersTableProps) => {
 };
 
 export default LecturersTable;
+
+
+const CourseDrawer = ({ courses, lecturer }: { courses: Lecturer["courseAssignments"], lecturer: Lecturer["User"]["fullName"] }) => {
+    return (
+        <Drawer.Root>
+            <Drawer.Trigger asChild>
+                <Button variant="ghost" size="xs" w="full" justifyContent={"start"}>
+                    Courses
+                </Button>
+            </Drawer.Trigger>
+            <Portal>
+                <Drawer.Backdrop />
+                <Drawer.Positioner>
+                    <Drawer.Content>
+                        <Drawer.Header>
+                            <Drawer.Title>{lecturer}</Drawer.Title>
+                        </Drawer.Header>
+                        <Drawer.Body spaceY="4">
+                            <Heading size="md" color="fg.muted">Courses</Heading>
+                            <For each={courses}
+                                fallback={<Text fontSize="xs" color="gray.500">No courses assigned</Text>}>
+                                {({ course }) => (
+                                    <Box key={course.id}
+                                        border="sm"
+                                        borderColor="border"
+                                        rounded="md"
+                                        p="4"
+                                    >
+                                        <Text color="fg.subtle">{course.code}</Text>
+                                        <Heading size="sm">{course.title}</Heading>
+                                    </Box>
+                                )}
+                            </For>
+                        </Drawer.Body>
+
+                        <Drawer.CloseTrigger asChild>
+                            <CloseButton size="sm" />
+                        </Drawer.CloseTrigger>
+                    </Drawer.Content>
+                </Drawer.Positioner>
+            </Portal>
+        </Drawer.Root>
+    )
+
+}

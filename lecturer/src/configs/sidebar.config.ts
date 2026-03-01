@@ -6,7 +6,7 @@ import {
     ClipboardList,
     Ship,
     CalendarDays,
-    CreditCard,
+    // CreditCard,
     Megaphone,
     type LucideIcon,
 } from "lucide-react";
@@ -15,18 +15,20 @@ export interface SidebarItem {
     label: string;
     icon: LucideIcon;
     path: string;
+    accessLevel: ("ALL" | "LECTURER" | "ERO" | "HOD") | string[];
 }
 
+
 const sidebarItems: SidebarItem[] = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { label: "Students", icon: GraduationCap, path: "/students" },
-    { label: "Lecturers", icon: Users, path: "/lecturers" },
-    { label: "Courses", icon: BookOpen, path: "/courses" },
-    { label: "Results", icon: ClipboardList, path: "/results" },
-    { label: "Projects", icon: Ship, path: "/projects" },
-    { label: "Timetable", icon: CalendarDays, path: "/timetable" },
-    { label: "Payments", icon: CreditCard, path: "/payments" },
-    { label: "Announcement", icon: Megaphone, path: "/announcement" },
+    { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", accessLevel: "ALL" },
+    { label: "Students", icon: GraduationCap, path: "/students", accessLevel: ["HOD"] },
+    { label: "Lecturers", icon: Users, path: "/lecturers", accessLevel: "HOD" },
+    { label: "Courses", icon: BookOpen, path: "/courses", accessLevel: "ALL" },
+    { label: "Results", icon: ClipboardList, path: "/results", accessLevel: "ALL" },
+    { label: "Projects", icon: Ship, path: "/projects", accessLevel: ["HOD", "LECTURER", "ERO"] },
+    { label: "Timetable", icon: CalendarDays, path: "/timetable", accessLevel: "ALL" },
+    // { label: "Payments", icon: CreditCard, path: "/payments" },
+    { label: "Announcement", icon: Megaphone, path: "/announcement", accessLevel: "ALL" },
 ];
 
 export default sidebarItems;

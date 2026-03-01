@@ -1,16 +1,17 @@
 import axiosClient from "@configs/axios.config";
-import type { ResultCourse, StudentResult } from "@type/result.type";
+import type { ResultResponse } from "@type/result.type";
 
 export const ResultService = {
-    getResultCourses: async (params?: Record<string, string>): Promise<ResultCourse[]> => {
-        const { data } = await axiosClient.get<ResultCourse[]>("/lecturer/results/courses", { params });
-        return data;
+    getResults: async (courseId: string): Promise<ResultResponse[]> => {
+        const { data } = await axiosClient.get<{ data: ResultResponse[] }>(`/results/?courseId=${courseId}`)
+        return data.data;
     },
 
-    getResults: async (courseId: string, tab: "lecturer" | "ero"): Promise<StudentResult[]> => {
-        const { data } = await axiosClient.get<StudentResult[]>(`/lecturer/results/${courseId}`, {
-            params: { tab },
+    uploadResult: async (formData: FormData): Promise<void> => {
+        await axiosClient.put(`/results`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
         });
-        return data;
     },
 };

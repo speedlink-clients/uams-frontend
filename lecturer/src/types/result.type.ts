@@ -1,15 +1,32 @@
-export interface ResultCourse {
-    id: string;
-    code: string;
-    title: string;
+export interface ResultFile {
+    filename: string;
+    fileSize: number;
+    mimeType: string;
+    downloadUrl: string;
+}
+export interface FinalResult {
+    id:string;
+    filename: string;
+    mimeType: string;
+    fileSize: number;
+    downloadUrl: string;
 }
 
-export interface StudentResult {
+export interface ResultResponse {
     id: string;
-    studentName: string;
-    matricNo: string;
-    ca: number | null;
-    examScore: number | null;
-    total: number | null;
-    grade: string;
+    isApproved: boolean;
+    semester: {
+        id: string;
+        name: string;
+    };
+    level: {
+        id: string;
+        name: string;
+    };
+    session: {
+        id: string;
+        name: string;
+    };
+    file: ResultFile;
+    finalResult: FinalResult;
 }

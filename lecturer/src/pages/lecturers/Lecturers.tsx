@@ -7,7 +7,7 @@ import LecturersTable from "@components/shared/LecturersTable";
 const Lecturers = () => {
     const [search, setSearch] = useState("");
 
-    const { data: lecturers, isLoading } = LecturerHook.useLecturers(search);
+    const { data: lecturers, isLoading } = LecturerHook.useLecturers();
 
     // Client-side search filter
     const filteredLecturers = useMemo(() => {
@@ -17,9 +17,12 @@ const Lecturers = () => {
         const query = search.toLowerCase();
         return lecturers.filter(
             (l) =>
-                l.name.toLowerCase().includes(query) ||
-                l.email.toLowerCase().includes(query) ||
-                l.staffId.toLowerCase().includes(query)
+                l.staffNumber?.toLowerCase()?.includes(query) ||
+                l.User?.fullName?.toLowerCase()?.includes(query) ||
+                l.User?.email?.toLowerCase()?.includes(query) ||
+                l.User?.phone?.toLowerCase()?.includes(query) ||
+                l.specialization?.toLowerCase()?.includes(query) ||
+                l.additionalRoles?.join(", ")?.toLowerCase().includes(query)
         );
     }, [lecturers, search]);
 

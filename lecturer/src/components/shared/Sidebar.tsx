@@ -4,12 +4,26 @@ import { LogOut } from "lucide-react";
 import sidebarItems from "@configs/sidebar.config";
 import useAuthStore from "@stores/auth.store";
 import useUserStore from "@stores/user.store";
+import { useMemo } from "react";
 
 const Sidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { clearAuth } = useAuthStore();
-    const { clearUser } = useUserStore();
+    const { clearAuth, } = useAuthStore();
+    const { clearUser, user } = useUserStore();
+
+    const userRole = useMemo(() => user?.role, [user]);
+
+    const filteredItems = useMemo(() => {
+        if (userRole === "LECTURER") {
+            return sidebarItems.filter((item) => item.accessLevel.includes("LECTURER") || item.accessLevel === "ALL");
+        } else if (userRole === "ERO") {
+            return sidebarItems.filter((item) => item.accessLevel.includes("ERO") || item.accessLevel === "ALL");
+        } else if (userRole === "HOD") {
+            return sidebarItems.filter((item) => item.accessLevel.includes("HOD") || item.accessLevel === "ALL");
+        }
+        return sidebarItems;
+    }, [userRole]);
 
     const handleLogout = () => {
         clearAuth();
@@ -35,18 +49,19 @@ const Sidebar = () => {
             zIndex="10"
         >
             {/* University Logo / Branding */}
-            <Box px="5" py="5" borderBottom="1px solid" borderColor="gray.100">
+            <Flex justify="center" align="center" px="5" py="2" h="14" borderBottom="1px solid" borderColor="gray.100">
                 <Image
                     src="/lecturer/assets/sidebar-image.png"
                     alt="University of Port Harcourt"
-                    width="98%"
+                    w="full"
                     mb="2"
+                    h="fit"
                 />
-            </Box>
+            </Flex>
 
             {/* Navigation Items */}
             <Flex direction="column" gap="1" px="4" py="4" flex="1">
-                {sidebarItems.map((item) => {
+                {filteredItems.map((item) => {
                     const active = isActive(item.path);
 
                     return (
