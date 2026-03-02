@@ -2,7 +2,6 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import Registration from "./pages/Registration";
-import Timetable from "./pages/Timetable";
 import Payments from "./pages/Payments";
 import PaymentsNew from "./pages/PaymentsNew";
 import Login from "./pages/Login";
@@ -14,6 +13,7 @@ import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import PaymentVerificationPage from "./pages/PaymentVerification";
 import Announcements from "./pages/Announcements";
+import TimeTable from "./pages/timetable/page";
 
 const router = createBrowserRouter([
   {
@@ -83,7 +83,7 @@ const router = createBrowserRouter([
           },
           {
             path: "timetable",
-            element: <Timetable />,
+            element: <TimeTable />,
           },
           {
             path: "payments",

@@ -5,7 +5,7 @@ export interface ResultFile {
     downloadUrl: string;
 }
 export interface FinalResult {
-    id:string;
+    id: string;
     filename: string;
     mimeType: string;
     fileSize: number;
@@ -26,6 +26,7 @@ export interface ResultResponse {
     session: {
         id: string;
         name: string;
+        isActive: boolean;
     };
     file: ResultFile;
     finalResult: FinalResult;

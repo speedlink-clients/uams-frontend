@@ -17,7 +17,7 @@ import {
 import Dashboard from './pages/Dashboard';
 import Courses from './pages/Courses';
 import Registration from './pages/Registration';
-import Timetable from './pages/Timetable';
+import Timetable from './pages/_Timetable';
 import Payments from './pages/Payments';
 import PaymentsNew from './pages/PaymentsNew';
 import Announcements from './pages/Announcements';

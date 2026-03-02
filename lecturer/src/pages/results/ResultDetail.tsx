@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Box, Text, Heading, Button, Stack, Table, DownloadTrigger, FileUpload, Dialog, Portal, CloseButton, Badge, For } from "@chakra-ui/react";
+import { Box, Text, Heading, Button, Stack, Table, DownloadTrigger, FileUpload, Dialog, Portal, CloseButton, Badge, For, Flex } from "@chakra-ui/react";
 import { Download, ArrowLeft, UploadCloud, FileUp, } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { ResultHook } from "@hooks/result.hook";
@@ -17,6 +17,10 @@ const ResultDetail = () => {
     const { data: results, isLoading } = ResultHook.useResults(courseId || "");
     const { data: courseData } = CourseHook.useCourse(courseId!);
     const { data: courseOwnership } = CourseHook.useCheckCourseOwnership(courseId!);
+
+    const isResultUploadedForActiveSession = useMemo(() => {
+        return courseOwnership?.isAssigned && results?.find(r => r.session?.isActive) !== undefined
+    }, [courseOwnership, results])
 
     const handleResultDownload = useCallback(async (fileUrl: string, type: string) => {
         const response = await axiosClient.get(fileUrl, {
@@ -57,10 +61,13 @@ const ResultDetail = () => {
                 </Button>
             </Link>
 
-            <Heading>{courseData?.title}</Heading>
+            <Heading>{courseData?.title} ({courseData?.code})</Heading>
 
             <Box p="4" bg="bg" rounded="md" spaceY="4">
-                <Heading>Results</Heading>
+                <Flex justify="space-between">
+                    <Heading>Results</Heading>
+                    {(courseOwnership?.isAssigned && !isResultUploadedForActiveSession) && <ResultUploadDialog type={"RESULT"} courseId={courseId!} />}
+                </Flex>
 
                 <Table.ScrollArea w="full">
                     <Table.Root size="sm" variant="outline">
@@ -204,8 +211,8 @@ const ResultUploadDialog = ({ courseId, type }: { type: string, courseId: string
     return (
         <Dialog.Root>
             <Dialog.Trigger asChild>
-                <Button size="xs" variant="surface"> 
-                    <UploadCloud /> Upload {type === "result" ? "Result" : "Final Result"}
+                <Button size="xs" variant="surface">
+                    <UploadCloud /> Upload {type === "RESULT" ? "Result" : "Final Result"}
                 </Button>
             </Dialog.Trigger>
             <Portal>
@@ -213,7 +220,7 @@ const ResultUploadDialog = ({ courseId, type }: { type: string, courseId: string
                 <Dialog.Positioner>
                     <Dialog.Content>
                         <Dialog.Header>
-                            <Dialog.Title>Upload {type === "result" ? "Result" : "Final Result"}</Dialog.Title>
+                            <Dialog.Title>Upload {type === "RESULT" ? "Result" : "Final Result"}</Dialog.Title>
                         </Dialog.Header>
                         <Dialog.Body spaceY="4">
                             <DownloadTrigger

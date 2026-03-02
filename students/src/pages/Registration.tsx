@@ -41,7 +41,6 @@ import type {
 } from "../services/types";
 import type { CoursesRegViewProps } from "../types";
 import { toaster } from "../components/ui/toaster";
-import { profile } from "node:console";
 import apiClient from "../services/api";
 import { useAsync } from "react-use"
 
