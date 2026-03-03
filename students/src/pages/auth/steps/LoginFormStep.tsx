@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Eye, EyeOff } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import AuthBackground from '../components/AuthBackground';
 import AuthCard from '../components/AuthCard';
 import authService from '../../../services/authService';

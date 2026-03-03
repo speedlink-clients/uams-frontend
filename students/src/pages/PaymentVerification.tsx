@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router";
 import { Toaster, toaster } from "../components/ui/toaster";
 import apiClient from "../services/api";
 import { useEffect, useMemo, useState } from "react";

@@ -5,9 +5,12 @@ import tsconfigPaths from "vite-tsconfig-paths"
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      base: '/students/',
-      plugins: [tailwindcss(), tsconfigPaths(), react()],
-    };
+  const env = loadEnv(mode, '.', '');
+  return {
+    base: '/students/',
+    plugins: [tailwindcss(), tsconfigPaths(), react()],
+    server: {
+      port: 5174
+    }
+  };
 });

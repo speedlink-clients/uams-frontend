@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Flex, Text, Button, Stack, Input, Grid, GridItem, VStack, Icon } from '@chakra-ui/react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { CreditCard, ArrowRightLeft, Building, Hash, AlignJustify } from 'lucide-react';
 import { initCourseRegistrationPayment } from '../services/registrationService';
 

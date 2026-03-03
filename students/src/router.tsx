@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import Registration from "./pages/Registration";
@@ -14,6 +14,8 @@ import Profile from "./pages/Profile";
 import PaymentVerificationPage from "./pages/PaymentVerification";
 import Announcements from "./pages/Announcements";
 import TimeTable from "./pages/timetable/page";
+import CoursesNResults from "./pages/Courses";
+import Projects from "./pages/projects/page";
 
 const router = createBrowserRouter([
   {
@@ -67,7 +69,7 @@ const router = createBrowserRouter([
           },
           {
             path: "courses",
-            element: <Navigate to="/courses/results" replace />,
+            element: <CoursesNResults />,
           },
           {
             path: "courses/*",
@@ -80,6 +82,10 @@ const router = createBrowserRouter([
           {
             path: "registration/*",
             element: <Registration />,
+          },
+          {
+            path: "projects",
+            element: <Projects />,
           },
           {
             path: "timetable",

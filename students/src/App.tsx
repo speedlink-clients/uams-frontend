@@ -23,7 +23,7 @@ import PaymentsNew from './pages/PaymentsNew';
 import Announcements from './pages/Announcements';
 import Login from './pages/Login';
 import authService from './services/authService';
-import { Routes, Route, useLocation, useNavigate, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate, Navigate, Outlet } from 'react-router';
 import { NavigationItem } from './types';
 
 const Logo = ({ collapsed }: { collapsed?: boolean }) => (

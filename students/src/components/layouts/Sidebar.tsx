@@ -3,7 +3,7 @@ import { Flex, Heading, Icon, IconButton, Stack, Text } from "@chakra-ui/react";
 import { CiGrid31 } from "react-icons/ci";
 import { LuSettings, LuWallet } from "react-icons/lu";
 import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse } from "react-icons/tb";
-import { Link, useLocation } from "react-router";
+import { useLocation, Link } from "react-router";
 import { Tooltip } from "../ui/tooltip";
 import { useEffect, useState } from "react";
 

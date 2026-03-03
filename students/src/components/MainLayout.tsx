@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
-import { 
-  Box, Flex, Text, Image, Button, Input, 
-  IconButton, HStack 
+import {
+  Box, Flex, Text, Image, Button, Input,
+  IconButton, HStack
 } from '@chakra-ui/react';
-import { 
+import {
   Search,
   Bell,
   History,
@@ -12,18 +12,19 @@ import {
   X,
   User,
   LogOut,
-  Megaphone
+  Megaphone,
+  Activity
 } from 'lucide-react';
 import authService from '../services/authService';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { useLocation, useNavigate, Outlet } from 'react-router';
 import { NavigationItem } from '../types';
 import { getAssetPath } from '../utils/assetPath';
 
 const Logo = ({ collapsed }: { collapsed?: boolean }) => (
   <Flex align="center" justify={collapsed ? "center" : "start"} w={collapsed ? "full" : "auto"}>
-    <Image 
-      src={getAssetPath('assets/uphcscLG.png')} 
-      alt="UniEdu Logo" 
+    <Image
+      src={getAssetPath('assets/uphcscLG.png')}
+      alt="UniEdu Logo"
       h={{ base: '10', lg: '12' }}
       w={collapsed ? '10' : 'auto'}
       objectFit="contain"
@@ -35,18 +36,18 @@ const Logo = ({ collapsed }: { collapsed?: boolean }) => (
   </Flex>
 );
 
-const SidebarItem = ({ 
-  iconSrc, 
+const SidebarItem = ({
+  iconSrc,
   icon,
-  label, 
-  active, 
+  label,
+  active,
   onClick,
   collapsed = false,
-}: { 
-  iconSrc?: string, 
+}: {
+  iconSrc?: string,
   icon?: React.ReactNode,
-  label: string, 
-  active: boolean, 
+  label: string,
+  active: boolean,
   onClick: () => void,
   collapsed?: boolean,
 }) => {
@@ -76,11 +77,11 @@ const SidebarItem = ({
           {icon}
         </Box>
       ) : (
-        <Image 
-          src={iconSrc} 
-          alt={label} 
-          boxSize={collapsed ? '20px' : '22px'} 
-          objectFit="contain" 
+        <Image
+          src={iconSrc}
+          alt={label}
+          boxSize={collapsed ? '20px' : '22px'}
+          objectFit="contain"
         />
       )}
 
@@ -121,7 +122,7 @@ const MainLayout: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem('sidebarCollapsed', isSidebarCollapsed ? 'true' : 'false');
-    } catch {}
+    } catch { }
   }, [isSidebarCollapsed]);
 
   const location = useLocation();
@@ -132,6 +133,7 @@ const MainLayout: React.FC = () => {
     if (pathname.startsWith('/registration')) return 'registration';
     if (pathname.startsWith('/payments')) return 'payments';
     if (pathname.startsWith('/announcements')) return 'announcements';
+    if (pathname.startsWith('/projects')) return 'projects';
     if (pathname.startsWith('/timetable')) return 'timetable';
     if (pathname.startsWith('/profile')) return 'profile';
     if (pathname.startsWith('/settings')) return 'settings';
@@ -150,14 +152,14 @@ const MainLayout: React.FC = () => {
           setNotifCount(data.filter((n: any) => !n.isRead).length);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Logout handler
   const handleLogout = () => {
     authService.logout();
   };
-  
+
   // Build user object from local storage (matches LoginUser type)
   const user = authService.getStoredUser();
   const userName = user?.fullName || 'Student';
@@ -167,8 +169,8 @@ const MainLayout: React.FC = () => {
     <Flex h="100vh" bg="#fcfdfe" overflow="hidden">
       {/* Sidebar Overlay - Mobile */}
       {isMobileMenuOpen && (
-        <Box 
-          pos="fixed" inset={0} bg="blackAlpha.500" zIndex={40} 
+        <Box
+          pos="fixed" inset={0} bg="blackAlpha.500" zIndex={40}
           display={{ base: 'block', lg: 'none' }}
           backdropFilter="blur(4px)"
           transition="opacity 0.2s"
@@ -186,16 +188,16 @@ const MainLayout: React.FC = () => {
         transition="transform 0.3s, width 200ms ease"
         overflow="hidden"
       >
-        <Flex 
-          p={{ base: 6, lg: isSidebarCollapsed ? 4 : 8 }} 
-          mb={4} 
-          align="center" 
-          justify={isSidebarCollapsed ? 'center' : 'space-between'} 
+        <Flex
+          p={{ base: 6, lg: isSidebarCollapsed ? 4 : 8 }}
+          mb={4}
+          align="center"
+          justify={isSidebarCollapsed ? 'center' : 'space-between'}
           direction={isSidebarCollapsed ? 'column' : 'row'}
           gap={isSidebarCollapsed ? 4 : 0}
         >
           <Logo collapsed={isSidebarCollapsed} />
-          
+
           <IconButton
             aria-label="Toggle sidebar"
             display={{ base: 'none', lg: 'flex' }}
@@ -207,7 +209,7 @@ const MainLayout: React.FC = () => {
             <Menu size={20} />
           </IconButton>
 
-          <IconButton 
+          <IconButton
             aria-label="Close menu"
             display={{ base: 'flex', lg: 'none' }}
             variant="ghost"
@@ -228,6 +230,7 @@ const MainLayout: React.FC = () => {
           <SidebarItem iconSrc={getAssetPath('assets/House (1).png')} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/BookOpen (1).png')} label="Courses" active={activeTab === 'courses'} onClick={() => { navigate('/courses/courses'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Books (1).png')} label="Registration" active={activeTab === 'registration'} onClick={() => { navigate('/registration'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
+          <SidebarItem icon={<Activity />} label="Projects" active={activeTab === 'projects'} onClick={() => { navigate('/projects'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/CalendarDots (1).png')} label="Timetable" active={activeTab === 'timetable'} onClick={() => { navigate('/timetable'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem iconSrc={getAssetPath('assets/Money (1).png')} label="Payments" active={activeTab === 'payments'} onClick={() => { navigate('/payments'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
           <SidebarItem icon={<Megaphone size={20} />} label="Announcements" active={activeTab === 'announcements'} onClick={() => { navigate('/announcements'); setIsMobileMenuOpen(false); }} collapsed={isSidebarCollapsed} />
@@ -235,10 +238,10 @@ const MainLayout: React.FC = () => {
         </Box>
 
         <Box p={isSidebarCollapsed ? 4 : 6} borderTop="1px" borderColor="gray.100">
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            w="full" 
+          <Button
+            size="sm"
+            variant="ghost"
+            w="full"
             onClick={handleLogout}
             display="flex"
             alignItems="center"
@@ -266,12 +269,12 @@ const MainLayout: React.FC = () => {
       {/* Main Content Area */}
       <Flex flex={1} direction="column" minW={0} overflow="hidden">
         {/* Header */}
-        <Flex 
-          h={{ base: 20, lg: 24 }} bg="white" borderBottom="1px" borderColor="gray.50" 
+        <Flex
+          h={{ base: 20, lg: 24 }} bg="white" borderBottom="1px" borderColor="gray.50"
           align="center" justify="space-between" px={{ base: 4, lg: 8 }} shrink={0}
         >
           <Flex align="center" gap={{ base: 2, lg: 4 }} flex={1}>
-            <IconButton 
+            <IconButton
               aria-label="Open menu"
               hideFrom="lg"
               variant="ghost"
@@ -314,7 +317,7 @@ const MainLayout: React.FC = () => {
                 <History size={20} />
               </Box>
             </HStack>
-            
+
             <Flex align="center" gap={{ base: 2, lg: 3 }}>
               <Flex w={{ base: 9, lg: 10 }} h={{ base: 9, lg: 10 }} rounded="full" bg="#0891b2" align="center" justify="center" color="white" shadow="sm" overflow="hidden" shrink={0}>
                 {user?.avatar ? (

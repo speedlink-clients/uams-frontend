@@ -3,7 +3,7 @@ import { CreditCard, Loader2, AlertCircle } from "lucide-react";
 import AuthBackground from "../components/AuthBackground";
 import AuthCard from "../components/AuthCard";
 import authService from "../../../services/authService";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import apiClient from "../../../services/api";
 import { toaster } from "../../../components/ui/toaster";
 

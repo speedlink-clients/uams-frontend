@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { confirmIdCardPayment } from '../services/authService';
 

@@ -5,7 +5,7 @@ import {
   useBreakpointValue, Stack
 } from '@chakra-ui/react';
 import { Search, Plus, ChevronLeft, ChevronRight, ChevronDown, X, CreditCard, IdCard, FileText, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import apiClient from '../services/api';
 import { toaster } from '../components/ui/toaster';
 
