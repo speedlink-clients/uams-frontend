@@ -118,7 +118,7 @@ const Dashboard = () => {
                     />
                 </Flex>
 
-                {/* Attendance Chart */}
+                {/* Attendance Chart
                 <AttendanceChart
                     data={attendanceData ?? []}
                     fromDate={fromDate}
@@ -126,7 +126,7 @@ const Dashboard = () => {
                     onFromDateChange={setFromDate}
                     onToDateChange={setToDate}
                     onClear={handleClearDateFilter}
-                />
+                /> */}
             </Box>
 
             {/* Timetable Panel (Right) — fills available height, scrolls internally */}

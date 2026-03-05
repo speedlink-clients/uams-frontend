@@ -1,34 +1,26 @@
-import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
-import type { Project } from "@type/project.type";
-
-// ── Mock Data ────────────────────────────────────────────────────────
-
-const MOCK_PROJECTS: Project[] = [
-    { id: "1", topic: "Online quiz Application", projectType: "Individual", studentNames: ["Hope thompson"], status: "Pending" },
-    { id: "2", topic: "Attendance management system", projectType: "Individual", studentNames: ["Vicky Gree"], status: "Pending" },
-    { id: "3", topic: "Simple chat Application", projectType: "Individual", studentNames: ["Monalis Cage"], status: "Approved" },
-    { id: "4", topic: "Online voting system", projectType: "Individual", studentNames: ["Monalisa Love"], status: "Pending" },
-    { id: "5", topic: "Online voting system", projectType: "Individual", studentNames: ["Matthew James"], status: "Approved" },
-    { id: "6", topic: "Online voting system", projectType: "Individual", studentNames: ["Berlin Kio"], status: "Pending" },
-    { id: "7", topic: "Online quiz Application", projectType: "Individual", studentNames: ["Hope thompson"], status: "Approved" },
-    { id: "8", topic: "Attendance management system", projectType: "Group", studentNames: ["Vicky Gree", "Jame joe"], status: "Approved" },
-    { id: "9", topic: "Simple chat Application", projectType: "Individual", studentNames: ["Monalis Cage"], status: "Approved" },
-    { id: "10", topic: "Online voting system", projectType: "Group", studentNames: ["Monalisa Love", "Mirrian hope"], status: "Pending" },
-    { id: "11", topic: "Online voting system", projectType: "Individual", studentNames: ["Matthew James"], status: "Pending" },
-];
-
-// ── Hooks ────────────────────────────────────────────────────────────
+import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
+import { ProjectService } from "@services/project.service";
+import type { ProjectsResponse, ProjectTopic } from "@type/project.type";
 
 export const ProjectHook = {
     useProjects: (
         filters?: Record<string, string>,
-        options?: Partial<UseQueryOptions<Project[]>>
+        options?: Partial<UseQueryOptions<ProjectsResponse>>
     ) =>
-        useQuery<Project[]>({
+        useQuery<ProjectsResponse>({
             queryKey: ["projects", filters],
-            // TODO: swap with ProjectService.getProjects(filters)
-            queryFn: async () => MOCK_PROJECTS,
+            queryFn: async () => ProjectService.getProjects(filters),
             staleTime: 5 * 60 * 1000,
             ...options,
         }),
+
+    useUpdateProject: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: ({ id, payload }: { id: string; payload: Partial<ProjectTopic> }) => ProjectService.updateProject(id, payload),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["projects"] });
+            }
+        });
+    }
 };

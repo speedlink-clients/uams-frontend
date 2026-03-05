@@ -1,15 +1,13 @@
-import { useState, useRef, useEffect } from "react";
-import { Box, Table, Text, Flex, Icon } from "@chakra-ui/react";
-import { MoreHorizontal, Eye, Pencil, ChevronDown } from "lucide-react";
-import type { Project } from "@type/project.type";
+import { useState } from "react";
+import { Box, Table, Text, Flex, Button, CloseButton, Dialog, Drawer, Portal, Card, Input, Textarea, Stack, Field, Select, createListCollection, useDisclosure } from "@chakra-ui/react";
+import type { ProjectTopic } from "@type/project.type";
+import { ProjectHook } from "@hooks/project.hook";
+import { toaster } from "@components/ui/toaster";
+import ProjectWriter from "./ProjectWriter";
+import type { StudentProjects } from "@pages/projects/Projects";
 
-interface ProjectsTableProps {
-    projects: Project[];
-    isLoading?: boolean;
-}
-
-const StatusBadge = ({ status }: { status: "Pending" | "Approved" }) => {
-    const isPending = status === "Pending";
+const StatusBadge = ({ status }: { status: "pending" | "approved" | string }) => {
+    const isPending = status === "pending" || status === "Pending";
     return (
         <Flex
             align="center"
@@ -17,95 +15,189 @@ const StatusBadge = ({ status }: { status: "Pending" | "Approved" }) => {
             px="3"
             py="1"
             borderRadius="full"
-            bg={isPending ? "red.50" : "green.50"}
-            color={isPending ? "red.500" : "green.500"}
+            bg={isPending ? "orange.50" : "green.50"}
+            color={isPending ? "orange.500" : "green.500"}
             fontSize="11px"
-            fontWeight="500"
+            fontWeight="600"
             w="fit-content"
-            cursor="pointer"
+            textTransform="capitalize"
         >
             {status}
-            <ChevronDown size={12} />
         </Flex>
     );
 };
 
-const ActionMenu = () => {
-    const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
+const statusCollection = createListCollection({
+    items: [
+        { label: "Pending", value: "pending" },
+        { label: "Approved", value: "approved" },
+    ],
+});
 
-    useEffect(() => {
-        const handleClick = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-        };
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
-    }, []);
+const TopicDialog = ({ topic }: { topic: ProjectTopic }) => {
+    const [title, setTitle] = useState(topic.title);
+    const [status, setStatus] = useState(topic.status);
+    const [description, setDescription] = useState(topic.description);
+    const { mutate: updateProject, isPending } = ProjectHook.useUpdateProject();
+    const { open, onClose, setOpen } = useDisclosure();
+
+    const handleSave = () => {
+        updateProject({
+            id: topic.id,
+            payload: { title, status, description },
+        }, {
+            onSuccess() {
+                toaster.success({ description: "Changes saved!", closable: true })
+                onClose();
+            }
+        });
+    };
 
     return (
-        <Box position="relative" ref={ref}>
-            <Icon
-                as={MoreHorizontal}
-                boxSize="4"
-                color="gray.500"
-                cursor="pointer"
-                _hover={{ color: "gray.700" }}
-                onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-            />
-            {open && (
-                <Box
-                    position="absolute"
-                    right="0"
-                    top="6"
-                    bg="white"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="md"
-                    boxShadow="md"
-                    py="1"
-                    zIndex="10"
-                    minW="140px"
-                >
-                    <Flex
-                        align="center"
-                        gap="2"
-                        px="3"
-                        py="2"
-                        cursor="pointer"
-                        _hover={{ bg: "gray.50" }}
-                        onClick={() => setOpen(false)}
-                    >
-                        <Eye size={14} color="#718096" />
-                        <Text fontSize="xs" color="gray.700">View Project</Text>
-                    </Flex>
-                    <Flex
-                        align="center"
-                        gap="2"
-                        px="3"
-                        py="2"
-                        cursor="pointer"
-                        _hover={{ bg: "gray.50" }}
-                        onClick={() => setOpen(false)}
-                    >
-                        <Pencil size={14} color="#718096" />
-                        <Text fontSize="xs" color="gray.700">Edit</Text>
-                    </Flex>
-                </Box>
-            )}
-        </Box>
-    );
-};
+        <Dialog.Root role="alertdialog" open={open} onOpenChange={(d) => setOpen(d.open)}>
+            <Dialog.Trigger asChild>
+                <Button size="sm">Update Options</Button>
+            </Dialog.Trigger>
+            <Portal>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                    <Dialog.Content>
+                        <Dialog.Header>
+                            <Dialog.Title>Update Project Topic</Dialog.Title>
+                        </Dialog.Header>
+                        <Dialog.Body>
+                            <Stack gap="4" align="stretch">
+                                <Field.Root>
+                                    <Field.Label>Title</Field.Label>
+                                    <Input
+                                        type="text"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                    />
+                                </Field.Root>
+
+                                <Field.Root>
+                                    <Field.Label>Status</Field.Label>
+                                    <Select.Root
+                                        collection={statusCollection}
+                                        size="sm"
+                                        value={[status]}
+                                        onValueChange={(e) => setStatus(e.value[0] as any)}
+                                    >
+                                        <Select.HiddenSelect />
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Select status" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
+                                        <Portal>
+                                            <Select.Positioner>
+                                                <Select.Content>
+                                                    {statusCollection.items.map((item: any) => (
+                                                        <Select.Item item={item} key={item.value}>
+                                                            {item.label}
+                                                            <Select.ItemIndicator />
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Content>
+                                            </Select.Positioner>
+                                        </Portal>
+                                    </Select.Root>
+                                </Field.Root>
+
+                                <Field.Root>
+                                    <Field.Label>Description</Field.Label>
+                                    <Textarea
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        rows={4}
+                                    />
+                                </Field.Root>
+                            </Stack>
+                        </Dialog.Body>
+                        <Dialog.Footer>
+                            <Dialog.ActionTrigger asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </Dialog.ActionTrigger>
+                            <Button w="40" loading={isPending} loadingText="Saving..." onClick={handleSave} disabled={isPending}>Save</Button>
+                        </Dialog.Footer>
+                        <Dialog.CloseTrigger asChild>
+                            <CloseButton size="sm" />
+                        </Dialog.CloseTrigger>
+                    </Dialog.Content>
+                </Dialog.Positioner>
+            </Portal>
+        </Dialog.Root>
+    )
+}
+
+const TopicsDrawer = ({ studentProjects }: { studentProjects: StudentProjects }) => {
+    return (
+        <Drawer.Root>
+            <Drawer.Trigger asChild>
+                <Button size="sm" variant="outline">View Topics</Button>
+            </Drawer.Trigger>
+            <Portal>
+                <Drawer.Backdrop />
+                <Drawer.Positioner>
+                    <Drawer.Content style={{ maxWidth: "450px" }}>
+                        <Drawer.Header>
+                            <Drawer.Title>Topics for {studentProjects.student.name}</Drawer.Title>
+                        </Drawer.Header>
+                        <Drawer.Body>
+                            <Flex direction="column" gap="4">
+                                {studentProjects.projects.map(topic => (
+                                    <Card.Root key={topic.id} width="100%">
+                                        <Card.Body gap="2">
+                                            <Flex justify="space-between" align="start">
+                                                <Card.Title mt="2" fontSize="md">{topic.title}</Card.Title>
+                                                <StatusBadge status={topic.status} />
+                                            </Flex>
+                                            <Card.Description fontSize="sm" mt="2" color="gray.600">
+                                                {topic.description}
+                                            </Card.Description>
+                                            <Flex mt="3" gap="4" fontSize="xs" color="gray.500">
+                                                <Text>Created: {new Date(topic.createdAt).toLocaleDateString()}</Text>
+                                                <Text>Updated: {new Date(topic.updatedAt).toLocaleDateString()}</Text>
+                                            </Flex>
+                                        </Card.Body>
+                                        <Card.Footer justifyContent="flex-end">
+                                            <TopicDialog topic={topic} />
+                                        </Card.Footer>
+                                    </Card.Root>
+                                ))}
+                                {studentProjects.projects.length === 0 && (
+                                    <Text fontSize="sm" color="gray.500">No topics found.</Text>
+                                )}
+                            </Flex>
+                        </Drawer.Body>
+
+                        <Drawer.CloseTrigger asChild>
+                            <CloseButton size="sm" />
+                        </Drawer.CloseTrigger>
+                    </Drawer.Content>
+                </Drawer.Positioner>
+            </Portal>
+        </Drawer.Root>
+    )
+}
+
+interface ProjectsTableProps {
+    studentProjects: StudentProjects[];
+    isLoading?: boolean;
+}
 
 const COLUMNS = [
     { key: "sn", label: "S/N", width: "50px" },
-    { key: "topic", label: "Project Topic", width: "200px" },
-    { key: "projectType", label: "Project Type", width: "120px" },
-    { key: "studentName", label: "Student name", width: "160px" },
-    { key: "status", label: "Status", width: "120px" },
-    { key: "action", label: "Action", width: "70px" },
+    { key: "studentName", label: "Student", width: "200px" },
+    { key: "matricNumber", label: "Matric number", width: "160px" },
+    { key: "action", label: "Action", width: "120px" },
 ] as const;
 
-const ProjectsTable = ({ projects, isLoading }: ProjectsTableProps) => {
+const ProjectsTable = ({ studentProjects, isLoading }: ProjectsTableProps) => {
     if (isLoading) {
         return (
             <Flex justify="center" py="12">
@@ -114,10 +206,10 @@ const ProjectsTable = ({ projects, isLoading }: ProjectsTableProps) => {
         );
     }
 
-    if (projects.length === 0) {
+    if (studentProjects.length === 0) {
         return (
             <Flex justify="center" py="12">
-                <Text color="gray.500" fontSize="sm">No projects found.</Text>
+                <Text color="gray.500" fontSize="sm">No students found.</Text>
             </Flex>
         );
     }
@@ -146,36 +238,33 @@ const ProjectsTable = ({ projects, isLoading }: ProjectsTableProps) => {
                 </Table.Header>
 
                 <Table.Body>
-                    {projects.map((project, index) => (
-                        <Table.Row
-                            key={project.id}
-                            _hover={{ bg: "gray.50" }}
-                            transition="background 0.15s"
-                        >
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.600">
-                                {index + 1}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {project.topic}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {project.projectType}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {project.studentNames.map((name, i) => (
-                                    <Text key={i} fontSize="xs" lineHeight="tall">
-                                        {name}
-                                    </Text>
-                                ))}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5">
-                                <StatusBadge status={project.status} />
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5">
-                                <ActionMenu />
-                            </Table.Cell>
-                        </Table.Row>
-                    ))}
+                    {studentProjects.map((record, index) => {
+                        const approvedProject = record.projects.find(p => p.status === "approved");
+                        return (
+                            <Table.Row
+                                key={record.student.id}
+                                _hover={{ bg: "gray.50" }}
+                                transition="background 0.15s"
+                            >
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.600">
+                                    {index + 1}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
+                                    {record.student.name}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
+                                    {record.student.matricNumber}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5">
+                                    {approvedProject ? (
+                                        <ProjectWriter project={approvedProject} />
+                                    ) : (
+                                        <TopicsDrawer studentProjects={record} />
+                                    )}
+                                </Table.Cell>
+                            </Table.Row>
+                        );
+                    })}
                 </Table.Body>
             </Table.Root>
         </Box>
