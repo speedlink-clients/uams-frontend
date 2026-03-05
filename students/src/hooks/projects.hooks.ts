@@ -9,10 +9,28 @@ const ProjectHooks = {
             queryFn: () => projectService.getProjectTopics(),
         });
     },
+    useDeleteProjectTopic: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (id: string) => projectService.deleteProjectTopic(id),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["projectTopics"] });
+            },
+        });
+    },
+
+    useUpdateProjectTopic: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: ({ id, data }: { id: string, data: CreateProjectTopicDto }) => projectService.updateProjectTopic(id, data),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["projectTopics"] });
+            },
+        });
+    },
 
     useCreateProjectTopic: () => {
         const queryClient = useQueryClient();
-        
         return useMutation({
             mutationFn: (data: CreateProjectTopicDto) => projectService.createProjectTopic(data),
             onSuccess: () => {
@@ -21,10 +39,20 @@ const ProjectHooks = {
         });
     },
 
-    useMySupervisor: () => {
+    useSupervisor: () => {
         return useQuery({
-            queryKey: ["mySupervisor"],
-            queryFn: () => projectService.getMySupervisor(),
+            queryKey: ["supervisor"],
+            queryFn: () => projectService.getSupervisor(),
+        });
+    },
+
+    useStartProject: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (topicId: string) => projectService.startProject(topicId),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["projectTopics"] });
+            },
         });
     }
 };

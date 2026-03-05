@@ -1,13 +1,18 @@
 import { Button, CloseButton, Dialog, Field, Input, Portal, Stack, Textarea } from "@chakra-ui/react"
-import { Plus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useProjectTopicForm } from "@/forms/projects.forms";
 import ProjectHooks from "@/hooks/projects.hooks";
-import { useState } from "react";
+import { useEffect } from "react";
 import { toaster } from "@/components/ui/toaster";
+import { ProjectTopic } from "@/types/projects.types";
 
+interface UpdateProjectTopicDialogProps {
+    project: ProjectTopic;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
 
-const CreateProjectTopicDialog = ({ isShown }: { isShown: boolean }) => {
-    const [open, setOpen] = useState(false);
+const UpdateProjectTopicDialog = ({ project, open, onOpenChange }: UpdateProjectTopicDialogProps) => {
     const {
         register,
         handleSubmit,
@@ -15,16 +20,25 @@ const CreateProjectTopicDialog = ({ isShown }: { isShown: boolean }) => {
         formState: { errors },
     } = useProjectTopicForm();
 
-    const { mutate: createTopic, isPending } = ProjectHooks.useCreateProjectTopic();
+    const { mutate: updateTopic, isPending } = ProjectHooks.useUpdateProjectTopic();
+
+    useEffect(() => {
+        if (open) {
+            reset({
+                title: project.title,
+                description: project.description,
+            });
+        }
+    }, [open, project, reset]);
 
     const onSubmit = handleSubmit((data) => {
-        createTopic(data, {
+        console.log(data);
+        updateTopic({ id: project.id, data }, {
             onSuccess: () => {
                 toaster.success({
-                    title: "Project topic created successfully",
+                    title: "Project topic updated successfully",
                 });
-                reset();
-                setOpen(false);
+                onOpenChange(false);
             },
             onError: (error: any) => {
                 toaster.error({
@@ -32,22 +46,17 @@ const CreateProjectTopicDialog = ({ isShown }: { isShown: boolean }) => {
                 });
             }
         });
-    });
+    }, (error) => console.error(error));
 
     return (
-        <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
-            <Dialog.Trigger asChild>
-                {isShown && <Button size="sm">
-                    <Plus /> Create Project Topic
-                </Button>}
-            </Dialog.Trigger>
+        <Dialog.Root open={open} onOpenChange={(e) => onOpenChange(e.open)}>
             <Portal>
                 <Dialog.Backdrop />
                 <Dialog.Positioner>
                     <Dialog.Content asChild>
-                        <form id="create-project-topic-form" onSubmit={onSubmit}>
+                        <form id="update-project-topic-form" onSubmit={onSubmit}>
                             <Dialog.Header>
-                                <Dialog.Title>Create Project Topic</Dialog.Title>
+                                <Dialog.Title>Update Project Topic</Dialog.Title>
                             </Dialog.Header>
                             <Dialog.Body>
                                 <Stack gap="4">
@@ -78,9 +87,9 @@ const CreateProjectTopicDialog = ({ isShown }: { isShown: boolean }) => {
                                     w="40"
                                     type="submit"
                                     loading={isPending}
-                                    loadingText="Creating..."
+                                    loadingText="Updating..."
                                 >
-                                    Create
+                                    Update
                                 </Button>
                             </Dialog.Footer>
                             <Dialog.CloseTrigger asChild>
@@ -94,4 +103,4 @@ const CreateProjectTopicDialog = ({ isShown }: { isShown: boolean }) => {
     )
 }
 
-export default CreateProjectTopicDialog;
+export default UpdateProjectTopicDialog;

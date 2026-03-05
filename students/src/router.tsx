@@ -16,6 +16,7 @@ import Announcements from "./pages/Announcements";
 import TimeTable from "./pages/timetable/page";
 import CoursesNResults from "./pages/Courses";
 import Projects from "./pages/projects/page";
+import ProjectWriter from "./pages/projects/_components/ProjectWriter";
 
 const router = createBrowserRouter([
   {
@@ -86,6 +87,10 @@ const router = createBrowserRouter([
           {
             path: "projects",
             element: <Projects />,
+          },
+          {
+            path: "projects/:id",
+            element: <ProjectWriter />,
           },
           {
             path: "timetable",

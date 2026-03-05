@@ -9,7 +9,14 @@ import { Provider } from './components/ui/provider';
 import './index.css'; 
 
 // Create a client
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+})
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
