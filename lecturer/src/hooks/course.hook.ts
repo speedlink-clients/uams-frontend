@@ -19,11 +19,11 @@ export const CourseHook = {
     useCheckCourseOwnership: (
         courseId: string,
         options?: Partial<UseQueryOptions<{
-            "isAssigned": false
+            "isAssigned": boolean
         }>>
     ) =>
         useQuery<{
-            "isAssigned": false
+            "isAssigned": boolean
         }>({
             queryKey: ["checkCourseOwnership", courseId],
             // TODO: swap with CourseService.getCourses()

@@ -7,11 +7,11 @@ export const CourseService = {
         return data.data;
     },
     checkCourseOwnership: async (courseId: string): Promise<{
-        "isAssigned": false
+        "isAssigned": boolean
     }> => {
         const { data } = await axiosClient.get<{
             data: {
-                "isAssigned": false
+                "isAssigned": boolean
             }
         }>(`/lecturers/courses/${courseId}/isMine`);
 

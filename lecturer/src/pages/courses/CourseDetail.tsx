@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { CourseHook } from "@hooks/course.hook";
 import CourseStudentsTable from "@components/shared/CourseStudentsTable";
+import CourseAttendanceTab from "@components/shared/CourseAttendanceTab";
 
 const CourseDetail = () => {
     const { courseId } = useParams();
@@ -11,6 +12,9 @@ const CourseDetail = () => {
     // const { course } = useLocation().state;
 
     const { data: course, isLoading: courseLoading } = CourseHook.useCourse(courseId!);
+    const { data: ownership } = CourseHook.useCheckCourseOwnership(courseId!);
+
+    const isLecturerTeaching = ownership?.isAssigned;
 
     const lecturers = course?.lecturers;
 
@@ -79,8 +83,13 @@ const CourseDetail = () => {
                         Info
                     </Tabs.Trigger>
                     <Tabs.Trigger value="students">
-                        Students
+                       Registered Students
                     </Tabs.Trigger>
+                    {isLecturerTeaching && (
+                        <Tabs.Trigger value="attendance">
+                            Attendance
+                        </Tabs.Trigger>
+                    )}
                 </Tabs.List>
                 <Tabs.Content value="info">
                     <Grid templateColumns="repeat(3, 1fr)" gap="4">
@@ -125,6 +134,11 @@ const CourseDetail = () => {
                 <Tabs.Content value="students">
                     <CourseStudentsTable/>
                 </Tabs.Content>
+                {isLecturerTeaching && (
+                    <Tabs.Content value="attendance">
+                        <CourseAttendanceTab/>
+                    </Tabs.Content>
+                )}
             </Tabs.Root>
         </Box>
     );
