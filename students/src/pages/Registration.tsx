@@ -112,9 +112,12 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
   const [feeData, setFeeData] = useState<TranscriptFeeData | null>(null);
   const [feeLoading, setFeeLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState('');
-  const [institution, setInstitution] = useState('');
-  const [recipientAddress, setRecipientAddress] = useState('');
-  const [recipientEmail, setRecipientEmail] = useState('');
+  const [institution_name, setInstitution_name] = useState('');
+  const [recipient_name, setRecipient_name] = useState('');
+  const [delivery_method, setDelivery_method] = useState('');
+  const [purpose, setPurpose] = useState('');
+  const [recipient_address, setRecipient_address] = useState('');
+  const [recipient_email, setRecipient_email] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -142,7 +145,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
     `₦${amount.toLocaleString('en-NG')}`;
 
   const handleProceed = () => {
-    if (!selectedMethod || !institution.trim()) {
+    if (!selectedMethod || !institution_name.trim()) {
       toaster.create({ title: 'Please fill in the required fields', type: 'warning' });
       return;
     }
@@ -152,11 +155,27 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
   const handleConfirmPayment = async () => {
     setSubmitting(true);
     try {
-      // Future: wire to POST endpoint for transcript payment
-      toaster.create({ title: 'Transcript payment flow coming soon', type: 'info' });
-      setShowConfirmModal(false);
-    } catch {
-      toaster.create({ title: 'Failed to process request', type: 'error' });
+      const payload = {
+        callbackUrl: import.meta.env.VITE_TRANSCRIPT_CALLBACK_URL,
+        recipient_name: recipient_name,
+        recipient_email: recipient_email,
+        recipient_address: recipient_address,
+        purpose: purpose,
+        delivery_method: delivery_method || selectedMethod,
+        institution_name: institution_name,
+      };
+      const res = await apiClient.post('/annual-access-fee/transcript-payment', payload);
+      const data = res.data?.data ?? res.data;
+      if (data?.authorizationUrl) {
+        toaster.create({ title: 'Redirecting to payment...', type: 'info' });
+        window.location.href = data.authorizationUrl;
+      } else {
+        toaster.create({ title: 'Payment initialized but no redirect URL received', type: 'warning' });
+        setShowConfirmModal(false);
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Failed to initialize payment';
+      toaster.create({ title: msg, type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -190,9 +209,22 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 Name of receiving institution or organization
               </label>
               <input
-                value={institution}
-                onChange={(e) => setInstitution(e.target.value)}
+                value={institution_name}
+                onChange={(e) => setInstitution_name(e.target.value)}
                 placeholder="University of Port..."
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+              />
+            </div>
+
+            {/* Recipient Name */}
+            <div className="space-y-2">
+              <label className="block text-[13px] font-bold text-[#1e293b]">
+                Recipient Name
+              </label>
+              <input
+                value={recipient_name}
+                onChange={(e) => setRecipient_name(e.target.value)}
+                placeholder="Input recipient name"
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
               />
             </div>
@@ -204,8 +236,8 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
               </label>
               <div className="relative">
                 <select
-                  value={selectedMethod}
-                  onChange={(e) => setSelectedMethod(e.target.value)}
+                  value={delivery_method}
+                  onChange={(e) => setDelivery_method(e.target.value)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium appearance-none cursor-pointer focus:outline-none focus:border-blue-300 transition-colors"
                 >
                   {feeData?.available_delivery_methods.map((method) => {
@@ -224,11 +256,11 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
             {/* Recipient Address */}
             <div className="space-y-2">
               <label className="block text-[13px] font-bold text-[#1e293b]">
-                Recipient address
+                Recipient/Institution address
               </label>
               <input
-                value={recipientAddress}
-                onChange={(e) => setRecipientAddress(e.target.value)}
+                value={recipient_address}
+                onChange={(e) => setRecipient_address(e.target.value)}
                 placeholder="Enter address"
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
               />
@@ -240,9 +272,22 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 Contact email/phone of recipient
               </label>
               <input
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
+                value={recipient_email}
+                onChange={(e) => setRecipient_email(e.target.value)}
                 placeholder="Input contact information"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+              />
+            </div>
+
+            {/* Purpose */}
+            <div className="space-y-2">
+              <label className="block text-[13px] font-bold text-[#1e293b]">
+                Purpose of Application
+              </label>
+              <input
+                value={purpose}
+                onChange={(e) => setPurpose(e.target.value)}
+                placeholder="Admission purpose"
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
               />
             </div>
@@ -255,7 +300,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
               <div className="space-y-2 text-[12px] text-gray-600 font-medium">
                 <div className="flex justify-between">
                   <span>Delivery Method</span>
-                  <span className="font-bold text-slate-700">{formatDeliveryLabel(selectedMethod)}</span>
+                  <span className="font-bold text-slate-700">{formatDeliveryLabel(delivery_method)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Base Fee</span>
@@ -336,26 +381,26 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
               <div className="space-y-3 text-[13px]">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Institution</span>
-                  <span className="font-bold text-slate-700 text-right max-w-[200px] truncate">{institution}</span>
+                  <span className="font-bold text-slate-700 text-right max-w-[200px] truncate">{institution_name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Delivery Method</span>
-                  <span className="font-bold text-slate-700">{formatDeliveryLabel(selectedMethod)}</span>
+                  <span className="font-bold text-slate-700">{formatDeliveryLabel(delivery_method)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Description</span>
                   <span className="font-medium text-slate-600">{selectedOption.description}</span>
                 </div>
-                {recipientAddress && (
+                {recipient_address && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Address</span>
-                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipientAddress}</span>
+                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipient_address}</span>
                   </div>
                 )}
-                {recipientEmail && (
+                {recipient_email && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Contact</span>
-                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipientEmail}</span>
+                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipient_email}</span>
                   </div>
                 )}
               </div>
