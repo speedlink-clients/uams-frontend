@@ -111,7 +111,6 @@ const formatDeliveryLabel = (key: string) => {
 const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
   const [feeData, setFeeData] = useState<TranscriptFeeData | null>(null);
   const [feeLoading, setFeeLoading] = useState(true);
-  const [selectedMethod, setSelectedMethod] = useState('');
   const [institution_name, setInstitution_name] = useState('');
   const [recipient_name, setRecipient_name] = useState('');
   const [delivery_method, setDelivery_method] = useState('');
@@ -126,10 +125,6 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
       .then((res) => {
         const data = res.data?.data ?? res.data;
         setFeeData(data);
-        // Default to first available method
-        if (data?.available_delivery_methods?.length > 0) {
-          setSelectedMethod(data.available_delivery_methods[0]);
-        }
       })
       .catch((err) => {
         console.error('Failed to fetch transcript fee:', err);
@@ -138,14 +133,14 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
       .finally(() => setFeeLoading(false));
   }, []);
 
-  const selectedOption = feeData?.transcript_delivery_options?.[selectedMethod];
+  const selectedOption = feeData?.transcript_delivery_options?.[delivery_method];
   const totalFee = selectedOption ? selectedOption.base_amount + selectedOption.merchant_fee : 0;
 
   const formatCurrency = (amount: number) =>
     `₦${amount.toLocaleString('en-NG')}`;
 
   const handleProceed = () => {
-    if (!selectedMethod || !institution_name.trim()) {
+    if (!delivery_method || !institution_name.trim()) {
       toaster.create({ title: 'Please fill in the required fields', type: 'warning' });
       return;
     }
@@ -161,7 +156,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
         recipient_email: recipient_email,
         recipient_address: recipient_address,
         purpose: purpose,
-        delivery_method: delivery_method || selectedMethod,
+        delivery_method: delivery_method,
         institution_name: institution_name,
       };
       const res = await apiClient.post('/annual-access-fee/transcript-payment', payload);
@@ -240,6 +235,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                   onChange={(e) => setDelivery_method(e.target.value)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium appearance-none cursor-pointer focus:outline-none focus:border-blue-300 transition-colors"
                 >
+                  <option value="" disabled>Select delivery method</option>
                   {feeData?.available_delivery_methods.map((method) => {
                     const opt = feeData.transcript_delivery_options[method];
                     return (
@@ -336,7 +332,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
           <div className="mt-10 lg:mt-12 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
             <button
               onClick={handleProceed}
-              disabled={!selectedMethod}
+              disabled={!delivery_method}
               className="bg-[#22c55e] hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg text-[13px] font-bold transition-all shadow-md shadow-green-100 flex items-center justify-center gap-2"
             >
               Proceed to make payment — {selectedOption ? formatCurrency(totalFee) : ''}
