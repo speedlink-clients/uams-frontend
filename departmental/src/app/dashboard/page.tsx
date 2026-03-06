@@ -1,0 +1,177 @@
+import { useState, useEffect } from "react";
+import { TrendingUp } from "lucide-react";
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+} from "recharts";
+import type { Announcement, ChartDataItem } from "@type/common.type";
+import { AnnouncementList } from "@components/dashboard/AnnouncementList";
+import { AnnouncementServices } from "@services/announcement.service";
+import StatsContainer from "@components/dashboard/StatsContainer";
+import useAuthStore from "@stores/auth.store";
+import { DashboardServices } from "@services/dashboard.service";
+import { Box, Flex, Grid, Text } from "@chakra-ui/react";
+
+const DashboardPage = () => {
+    const { email, role } = useAuthStore();
+    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [revenueData, setRevenueData] = useState<ChartDataItem[]>([]);
+    const [growthData, setGrowthData] = useState<ChartDataItem[]>([]);
+
+    useEffect(() => {
+        fetchChartData();
+        fetchAnnouncements();
+    }, []);
+
+    const fetchAnnouncements = async () => {
+        try {
+            const response = await AnnouncementServices.getAnnouncements();
+            const data = response?.data || [];
+            const mapped: Announcement[] = data.map((item: any) => ({
+                id: item.id,
+                title: item.title,
+                description: item.body,
+                date: new Date(item.createdAt).toLocaleDateString("en-CA"),
+                isFor: item.isFor,
+                isRead: item.isRead,
+            }));
+            setAnnouncements(mapped);
+        } catch (err) {
+            console.error("Failed to fetch announcements", err);
+        }
+    };
+
+    const fetchChartData = async () => {
+        try {
+            const [usersRes, transactionsRes] = await Promise.all([
+                DashboardServices.getUsers(),
+                DashboardServices.getAllTransactions(),
+            ]);
+
+            const transactions = transactionsRes.success ? transactionsRes.data : [];
+            const revenueByYear: Record<string, number> = {};
+
+            transactions.forEach((t: any) => {
+                if (t.status === "success") {
+                    const year = new Date(t.createdAt).getFullYear().toString();
+                    revenueByYear[year] = (revenueByYear[year] || 0) + t.amount;
+                }
+            });
+
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear - 2; i <= currentYear + 1; i++) {
+                const y = i.toString();
+                if (!revenueByYear[y]) revenueByYear[y] = 0;
+            }
+
+            setRevenueData(
+                Object.keys(revenueByYear).sort().map((year) => ({ year, value: revenueByYear[year] }))
+            );
+
+            const users = usersRes.users || [];
+            const growthByYear: Record<string, number> = {};
+
+            users.forEach((u: any) => {
+                if (u.role === "STUDENT") {
+                    const year = new Date(u.createdAt).getFullYear().toString();
+                    growthByYear[year] = (growthByYear[year] || 0) + 1;
+                }
+            });
+
+            for (let i = currentYear - 2; i <= currentYear + 1; i++) {
+                const y = i.toString();
+                if (!growthByYear[y]) growthByYear[y] = 0;
+            }
+
+            setGrowthData(
+                Object.keys(growthByYear).sort().map((year) => ({ year, value: growthByYear[year] }))
+            );
+        } catch (error) {
+            console.error("Failed to fetch dashboard chart data", error);
+        }
+    };
+
+    const currentUser = email ? email.split("@")[0] : role === "UNIVERSITYADMIN" ? "Admin" : "User";
+
+    return (
+        <Flex direction="column" gap="8">
+            {/* Welcome banner */}
+            <Box bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                <Text fontSize="xl" fontWeight="bold" color="slate.800">
+                    Welcome Back, {currentUser}
+                </Text>
+                <Text color="slate.500" mt="1">
+                    Logged in as{" "}
+                    <Text as="span" fontWeight="semibold" color="#1d76d2">
+                        DEPARTMENTAL ADMIN
+                    </Text>
+                </Text>
+            </Box>
+
+            <StatsContainer />
+
+            {/* Charts + Announcements Row */}
+            <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap="8">
+                {/* Revenue Chart */}
+                <Box bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                    <Flex alignItems="center" justifyContent="space-between" mb="8">
+                        <Box>
+                            <Flex alignItems="center" gap="2" fontWeight="bold" color="slate.800">
+                                <TrendingUp size={20} color="#22c55e" />
+                                <Text>Department Performance</Text>
+                            </Flex>
+                            <Text fontSize="xs" color="slate.400" mt="1">
+                                Fee collection (Annual)
+                            </Text>
+                        </Box>
+                    </Flex>
+                    <Box h="300px" w="full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={revenueData.length > 0 ? revenueData : [{ year: "2024", value: 0 }]}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(val) => `₦${val / 1000}k`} />
+                                <Tooltip
+                                    formatter={(value: number | undefined) => [`₦${(value ?? 0).toLocaleString()}`, "Revenue"]}
+                                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                                />
+                                <Line type="monotone" dataKey="value" stroke="#22c55e" strokeWidth={2.5} dot={{ r: 4, fill: "#22c55e", strokeWidth: 2, stroke: "#fff" }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </Box>
+                </Box>
+
+                {/* Announcements */}
+                <AnnouncementList announcements={announcements} />
+            </Grid>
+
+            {/* Enrollment Growth */}
+            <Box bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                <Flex alignItems="center" justifyContent="space-between" mb="8">
+                    <Box>
+                        <Text fontWeight="bold" color="slate.800">Enrollment Growth</Text>
+                        <Text fontSize="xs" color="slate.400" mt="1">Student registration trends</Text>
+                    </Box>
+                </Flex>
+                <Box h="250px" w="full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={growthData.length > 0 ? growthData : [{ year: "2024", value: 0 }]}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} allowDecimals={false} />
+                            <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
+                            <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </Box>
+            </Box>
+        </Flex>
+    );
+};
+
+export default DashboardPage;
