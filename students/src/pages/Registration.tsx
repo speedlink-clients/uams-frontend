@@ -85,73 +85,322 @@ const InputField = ({
   </div>
 );
 
-const TranscriptFormView = ({ onBack }: { onBack: () => void }) => (
-  <div className="bg-white rounded-3xl lg:rounded-4xl p-6 lg:p-12 border border-gray-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <div className="flex items-center justify-between mb-8 lg:mb-10">
-      <h2 className="text-xl font-bold text-[#1e293b]">
-        Transcript Registration
-      </h2>
-      <button
-        onClick={onBack}
-        className="text-gray-400 hover:text-gray-600 text-[13px] font-bold transition-colors"
-      >
-        ← Back to list
-      </button>
-    </div>
+interface TranscriptDeliveryOption {
+  base_amount: number;
+  description: string;
+  merchant_fee: number;
+}
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
-      <InputField
-        label="Name of receiving institution or organization"
-        placeholder="University of Port..."
-      />
-      <InputField
-        label="Mode of Transcript Delivery"
-        placeholder="Select mode of delivery"
-        isSelect
-      />
-      <InputField label="Recipient address" placeholder="Enter address" />
-      <InputField label="Recipient address" placeholder="Enter address" />
+interface TranscriptFeeData {
+  requires_delivery_method: boolean;
+  available_delivery_methods: string[];
+  transcript_delivery_options: Record<string, TranscriptDeliveryOption>;
+  config_info: {
+    split_code: string;
+    split_type: string;
+    platform_fee_value: string;
+    currency: string;
+    is_active: boolean;
+  };
+}
 
-      <div className="lg:col-span-2">
-        <InputField
-          label="Contact email/phone of recipient (if requested)"
-          placeholder="Input contact information"
-        />
+const formatDeliveryLabel = (key: string) => {
+  return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
+  const [feeData, setFeeData] = useState<TranscriptFeeData | null>(null);
+  const [feeLoading, setFeeLoading] = useState(true);
+  const [selectedMethod, setSelectedMethod] = useState('');
+  const [institution, setInstitution] = useState('');
+  const [recipientAddress, setRecipientAddress] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  useEffect(() => {
+    apiClient.get('/annual-access-fee/transcript-fee')
+      .then((res) => {
+        const data = res.data?.data ?? res.data;
+        setFeeData(data);
+        // Default to first available method
+        if (data?.available_delivery_methods?.length > 0) {
+          setSelectedMethod(data.available_delivery_methods[0]);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to fetch transcript fee:', err);
+        toaster.create({ title: 'Failed to load transcript fee options', type: 'error' });
+      })
+      .finally(() => setFeeLoading(false));
+  }, []);
+
+  const selectedOption = feeData?.transcript_delivery_options?.[selectedMethod];
+  const totalFee = selectedOption ? selectedOption.base_amount + selectedOption.merchant_fee : 0;
+
+  const formatCurrency = (amount: number) =>
+    `₦${amount.toLocaleString('en-NG')}`;
+
+  const handleProceed = () => {
+    if (!selectedMethod || !institution.trim()) {
+      toaster.create({ title: 'Please fill in the required fields', type: 'warning' });
+      return;
+    }
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmPayment = async () => {
+    setSubmitting(true);
+    try {
+      // Future: wire to POST endpoint for transcript payment
+      toaster.create({ title: 'Transcript payment flow coming soon', type: 'info' });
+      setShowConfirmModal(false);
+    } catch {
+      toaster.create({ title: 'Failed to process request', type: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-3xl lg:rounded-4xl p-6 lg:p-12 border border-gray-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between mb-8 lg:mb-10">
+        <h2 className="text-xl font-bold text-[#1e293b]">
+          Transcript Registration
+        </h2>
+        <button
+          onClick={onBack}
+          className="text-gray-400 hover:text-gray-600 text-[13px] font-bold transition-colors"
+        >
+          ← Back to list
+        </button>
       </div>
-    </div>
 
-    <div className="mt-8 text-[12px] text-gray-400 leading-relaxed font-medium">
-      <p>
-        Applicants are required to pay the prescribed transcript processing fee
-        through the university's online portal. The fee varies depending on the
-        destination and mode of delivery and may range between{" "}
-        <span className="font-bold text-gray-600">₦5,000</span> and{" "}
-        <span className="font-bold text-gray-600">₦30,000</span>.
-        <span className="font-bold text-gray-600">
-          {" "}
-          Additional courier or postage charges may apply for hard-copy
-          deliveries.
-        </span>
-      </p>
-      <p className="mt-2">
-        All payments must be made online, and a payment receipt will be
-        generated automatically upon successful transaction.
-      </p>
-    </div>
+      {feeLoading ? (
+        <div className="flex items-center justify-center py-16 text-gray-400 text-[13px] gap-2">
+          <Loader2 size={18} className="animate-spin" />
+          Loading delivery options...
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
+            {/* Institution */}
+            <div className="space-y-2">
+              <label className="block text-[13px] font-bold text-[#1e293b]">
+                Name of receiving institution or organization
+              </label>
+              <input
+                value={institution}
+                onChange={(e) => setInstitution(e.target.value)}
+                placeholder="University of Port..."
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+              />
+            </div>
 
-    <div className="mt-10 lg:mt-12 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-      <button className="bg-[#22c55e] hover:bg-green-600 text-white px-8 py-3 rounded-lg text-[13px] font-bold transition-all shadow-md shadow-green-100">
-        Proceed to make payment
-      </button>
-      <button
-        onClick={onBack}
-        className="bg-white border border-gray-200 text-gray-500 px-8 py-3 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all"
-      >
-        Cancel
-      </button>
+            {/* Delivery Mode - dynamic from API */}
+            <div className="space-y-2">
+              <label className="block text-[13px] font-bold text-[#1e293b]">
+                Mode of Transcript Delivery
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedMethod}
+                  onChange={(e) => setSelectedMethod(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium appearance-none cursor-pointer focus:outline-none focus:border-blue-300 transition-colors"
+                >
+                  {feeData?.available_delivery_methods.map((method) => {
+                    const opt = feeData.transcript_delivery_options[method];
+                    return (
+                      <option key={method} value={method}>
+                        {formatDeliveryLabel(method)} — {opt?.description}
+                      </option>
+                    );
+                  })}
+                </select>
+                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
+              </div>
+            </div>
+
+            {/* Recipient Address */}
+            <div className="space-y-2">
+              <label className="block text-[13px] font-bold text-[#1e293b]">
+                Recipient address
+              </label>
+              <input
+                value={recipientAddress}
+                onChange={(e) => setRecipientAddress(e.target.value)}
+                placeholder="Enter address"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+              />
+            </div>
+
+            {/* Contact Email */}
+            <div className="space-y-2">
+              <label className="block text-[13px] font-bold text-[#1e293b]">
+                Contact email/phone of recipient
+              </label>
+              <input
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                placeholder="Input contact information"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Fee breakdown */}
+          {selectedOption && (
+            <div className="mt-8 bg-blue-50/60 border border-blue-100 rounded-xl p-5">
+              <h3 className="text-[13px] font-bold text-[#1e293b] mb-3">Fee Breakdown</h3>
+              <div className="space-y-2 text-[12px] text-gray-600 font-medium">
+                <div className="flex justify-between">
+                  <span>Delivery Method</span>
+                  <span className="font-bold text-slate-700">{formatDeliveryLabel(selectedMethod)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Base Fee</span>
+                  <span className="font-bold text-slate-700">{formatCurrency(selectedOption.base_amount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Processing Fee</span>
+                  <span className="font-bold text-slate-700">{formatCurrency(selectedOption.merchant_fee)}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-blue-200">
+                  <span className="font-bold text-[#1e293b]">Total</span>
+                  <span className="font-bold text-[#1e293b] text-[14px]">{formatCurrency(totalFee)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 text-[12px] text-gray-400 leading-relaxed font-medium">
+            <p>
+              Applicants are required to pay the prescribed transcript processing fee
+              through the university's online portal. The fee varies depending on the
+              mode of delivery.
+              <span className="font-bold text-gray-600">
+                {" "}Additional courier or postage charges may apply for hard-copy deliveries.
+              </span>
+            </p>
+            <p className="mt-2">
+              All payments must be made online, and a payment receipt will be
+              generated automatically upon successful transaction.
+            </p>
+          </div>
+
+          <div className="mt-10 lg:mt-12 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+            <button
+              onClick={handleProceed}
+              disabled={!selectedMethod}
+              className="bg-[#22c55e] hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg text-[13px] font-bold transition-all shadow-md shadow-green-100 flex items-center justify-center gap-2"
+            >
+              Proceed to make payment — {selectedOption ? formatCurrency(totalFee) : ''}
+            </button>
+            <button
+              onClick={onBack}
+              className="bg-white border border-gray-200 text-gray-500 px-8 py-3 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && selectedOption && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+          onClick={() => !submitting && setShowConfirmModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-[16px] font-bold text-[#1e293b]">Confirm Payment</h3>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                disabled={submitting}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Summary */}
+            <div className="px-6 py-5 space-y-4">
+              <p className="text-[12px] text-gray-400 font-medium">Review your transcript request details before proceeding.</p>
+
+              <div className="space-y-3 text-[13px]">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Institution</span>
+                  <span className="font-bold text-slate-700 text-right max-w-[200px] truncate">{institution}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Delivery Method</span>
+                  <span className="font-bold text-slate-700">{formatDeliveryLabel(selectedMethod)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Description</span>
+                  <span className="font-medium text-slate-600">{selectedOption.description}</span>
+                </div>
+                {recipientAddress && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Address</span>
+                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipientAddress}</span>
+                  </div>
+                )}
+                {recipientEmail && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Contact</span>
+                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipientEmail}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Fee */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-[12px]">
+                <div className="flex justify-between text-gray-500">
+                  <span>Base Fee</span>
+                  <span className="font-bold text-slate-700">{formatCurrency(selectedOption.base_amount)}</span>
+                </div>
+                <div className="flex justify-between text-gray-500">
+                  <span>Processing Fee</span>
+                  <span className="font-bold text-slate-700">{formatCurrency(selectedOption.merchant_fee)}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-gray-200">
+                  <span className="font-bold text-[#1e293b]">Total Amount</span>
+                  <span className="font-bold text-[#1e293b] text-[15px]">{formatCurrency(totalFee)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                disabled={submitting}
+                className="flex-1 bg-white border border-gray-200 text-gray-500 py-3 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={handleConfirmPayment}
+                disabled={submitting}
+                className="flex-1 bg-[#22c55e] hover:bg-green-600 disabled:opacity-50 text-white py-3 rounded-lg text-[13px] font-bold transition-all shadow-md shadow-green-100 flex items-center justify-center gap-2"
+              >
+                {submitting && <Loader2 size={14} className="animate-spin" />}
+                Confirm & Pay {formatCurrency(totalFee)}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const transcriptApplications = [
   { sn: 1, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '13/02/2026', status: 'In Progress', color: 'blue' },
