@@ -14,5 +14,10 @@ export const PaymentServices = {
     patchPaymentConfig: async (payload: any) => {
         const { data } = await axiosClient.patch("/university-admin/payment-config", payload);
         return data;
+    },
+
+    getPaymentReceipt: async (paymentId: string) => {
+        const { data } = await axiosClient.get(`/university-admin/payments/${paymentId}/receipt`, { responseType: "blob" });
+        return data;
     }
 }

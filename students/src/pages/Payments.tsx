@@ -4,12 +4,14 @@ import {
   Badge, Spacer,
   useBreakpointValue, Stack
 } from '@chakra-ui/react';
-import { Search, Plus, ChevronLeft, ChevronRight, ChevronDown, X, CreditCard, IdCard, FileText, Loader2 } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, ChevronDown, X, CreditCard, IdCard, FileText, Loader2, Download } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import apiClient from '../services/api';
+import { paymentService } from '../services/paymentService';
 import { toaster } from '../components/ui/toaster';
 
 type ApiPayment = {
+  id: string;
   transactionId: string;
   reference: string;
   payerName: string;
@@ -188,6 +190,7 @@ const Payments: React.FC = () => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [makeModalOpen, setMakeModalOpen] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     apiClient.get('/student/payments')
@@ -219,6 +222,28 @@ const Payments: React.FC = () => {
   const clearDateFilter = () => {
     setDateFrom('');
     setDateTo('');
+  };
+
+  const handleDownload = async (paymentId: string) => {
+    setDownloadingId(paymentId);
+    try {
+      await paymentService.downloadReceipt(paymentId);
+      toaster.create({
+        title: 'Success',
+        description: 'Receipt downloaded successfully',
+        type: 'success',
+        closable:true
+      });
+    } catch (err) {
+      toaster.create({
+        title: 'Error',
+        description: 'Failed to download receipt',
+        type: 'error',
+        closable:true
+      });
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   const selectStyle = {
@@ -394,12 +419,13 @@ const Payments: React.FC = () => {
               <th style={{ padding: '16px 20px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Amount</th>
               <th style={{ padding: '16px 20px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Date</th>
               <th style={{ padding: '16px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Status</th>
+              <th style={{ padding: '16px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Action</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} style={{ padding: '48px 20px', textAlign: 'center' }}>
+                <td colSpan={8} style={{ padding: '48px 20px', textAlign: 'center' }}>
                   <Flex justify="center" align="center" gap={3}>
                     <Loader2 size={20} className="animate-spin" style={{ color: '#3b82f6' }} />
                     <Text fontSize="sm" color="gray.400" fontWeight="medium">Loading payments...</Text>
@@ -408,7 +434,7 @@ const Payments: React.FC = () => {
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                <td colSpan={8} style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
                   No payments found
                 </td>
               </tr>
@@ -428,6 +454,26 @@ const Payments: React.FC = () => {
                   <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{formatDate(p.date)}</td>
                   <td style={{ padding: '16px 20px', textAlign: 'center' }}>
                     <StatusBadge status={p.status} />
+                  </td>
+                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                    <IconButton
+                      aria-label="Download Receipt"
+                      variant="ghost"
+                      size="sm"
+                      colorScheme="blue"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(p.transactionId);
+                      }}
+                      disabled={downloadingId === p.transactionId}
+                      loading={downloadingId === p.transactionId}
+                    >
+                      {downloadingId === p.transactionId ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Download size={16} />
+                      )}
+                    </IconButton>
                   </td>
                 </tr>
               ))

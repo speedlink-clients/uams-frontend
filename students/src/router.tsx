@@ -88,10 +88,10 @@ const router = createBrowserRouter([
             path: "projects",
             element: <Projects />,
           },
-          {
-            path: "projects/:id",
-            element: <ProjectWriter />,
-          },
+          // {
+          //   path: "projects/:id",
+          //   element: <ProjectWriter />,
+          // },
           {
             path: "timetable",
             element: <TimeTable />,

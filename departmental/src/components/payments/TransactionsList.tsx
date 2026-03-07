@@ -45,7 +45,7 @@ interface ProgramTypeSummary {
     transcriptFee: { amount: number };
 }
 
-const TransactionsList = ({ onBack, programTypeId, programTypeName: _programTypeName }: TransactionsListProps) => {
+const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
     const [activeTab, setActiveTab] = useState<PaymentTab>("Access Fee");
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -167,6 +167,23 @@ const TransactionsList = ({ onBack, programTypeId, programTypeName: _programType
     const truncateRef = (ref: string) => {
         if (ref.length <= 20) return ref;
         return ref.substring(0, 8) + "…." + ref.substring(ref.length - 4);
+    };
+
+    const handleDownloadReceipt = async (paymentId: string) => {
+        try {
+            const blob = await PaymentServices.getPaymentReceipt(paymentId);
+            const url = URL.createObjectURL(new Blob([blob], { type: blob.type || "application/octet-stream" }));
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `receipt-${paymentId}${blob.type === "application/pdf" ? ".pdf" : ""}`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            toaster.success({ title: "Receipt download started", closable: true });
+        } catch {
+            toaster.error({ title: "Failed to download receipt", closable: true });
+        }
     };
 
     const tabLabel = activeTab === "Access Fee" ? "Access Fee" : activeTab === "ID Card" ? "ID Card" : "Transcript";
@@ -302,12 +319,13 @@ const TransactionsList = ({ onBack, programTypeId, programTypeName: _programType
                                     <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>Amount</th>
                                     <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>Date</th>
                                     <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Status</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Receipt</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={7} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
+                                        <td colSpan={8} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
                                             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
                                                 <div style={{ width: "16px", height: "16px", border: "2px solid #94a3b8", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
                                                 Loading transactions...
@@ -316,7 +334,7 @@ const TransactionsList = ({ onBack, programTypeId, programTypeName: _programType
                                     </tr>
                                 ) : filteredTransactions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
+                                        <td colSpan={8} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
                                             No transactions found.
                                         </td>
                                     </tr>
@@ -343,6 +361,15 @@ const TransactionsList = ({ onBack, programTypeId, programTypeName: _programType
                                                 <span style={{ ...getStatusStyle(t.status), display: "inline-block", padding: "4px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 700 }}>
                                                     {getStatusLabel(t.status)}
                                                 </span>
+                                            </td>
+                                            <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                                                <button
+                                                    onClick={() => handleDownloadReceipt(t.transactionId)}
+                                                    style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#1D7AD9", color: "white", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer" }}
+                                                >
+                                                    <Download size={16} />
+                                                    Receipt
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
