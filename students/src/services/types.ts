@@ -242,16 +242,17 @@ export interface TranscriptRequestResponse {
 
 export interface TranscriptApplication {
   id: string;
-  institution_name: string;
-  recipient_email: string;
-  recipient_address: string;
-  delivery_method: string;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  payment_status: string;
+  recipient_name: string;
+  delivery_method: string;
+  purpose: string;
+  fee_amount: string;
+  created_at: string;
+  paid_at: string | null;
 }
 
 export interface TranscriptsResponse {
-  status: string;
+  success: boolean;
   data: TranscriptApplication[];
 }

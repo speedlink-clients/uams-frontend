@@ -411,27 +411,16 @@ export const submitTranscriptRequest = async (
 export const getTranscripts = async (): Promise<TranscriptApplication[]> => {
   try {
     const response = await apiClient.get<TranscriptsResponse>('/student/transcripts');
-    // If response is { status: 'success', data: [...] }
-    if (response.data?.status === 'success' && Array.isArray(response.data.data)) {
+    if (response.data?.success && Array.isArray(response.data.data)) {
       return response.data.data;
     }
-    // Handle case where response.data is the array directly
-    if (Array.isArray(response.data)) {
-      return response.data;
-    }
-    // Handle case where it's { data: [...] }
-    if (Array.isArray((response.data as any)?.data)) {
-      return (response.data as any).data;
-    }
-    
-    console.warn('Unexpected transcripts response structure:', response.data);
     return [];
   } catch (error) {
     console.error('Failed to fetch transcript applications:', error);
     return [];
   }
 };
-
+  
 /**
  * Calculate transcript fee
  * @param deliveryMode - Delivery mode ID

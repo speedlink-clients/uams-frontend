@@ -462,8 +462,9 @@ const TranscriptRegView = () => {
     return transcripts.filter((app) => {
       const q = searchQuery.toLowerCase();
       const matchesSearch =
-        app.institution_name.toLowerCase().includes(q) ||
-        app.status.toLowerCase().includes(q);
+        app.recipient_name.toLowerCase().includes(q) ||
+        app.status.toLowerCase().includes(q) ||
+        app.purpose.toLowerCase().includes(q);
 
       const matchesStatus =
         statusFilter === "All Application" ||
@@ -528,9 +529,9 @@ const TranscriptRegView = () => {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3">S/N</th>
-                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3">Receiving Institution</th>
-                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden md:table-cell">Email</th>
-                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden lg:table-cell">Address</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3">Recipient Name</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden md:table-cell">Purpose</th>
+                <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden lg:table-cell">Fee</th>
                 <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3 hidden md:table-cell">Delivery Mode</th>
                 <th className="text-left text-[11px] font-bold text-gray-400 py-3 px-3">Date</th>
                 <th className="text-center text-[11px] font-bold text-gray-400 py-3 px-3">Status</th>
@@ -556,18 +557,18 @@ const TranscriptRegView = () => {
                 filteredTranscripts.map((app, idx) => (
                   <tr key={app.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="py-4 px-3 text-[12px] font-bold text-slate-700">{idx + 1}</td>
-                    <td className="py-4 px-3 text-[12px] font-medium text-slate-700">{app.institution_name}</td>
-                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.recipient_email}</td>
-                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden lg:table-cell">{app.recipient_address}</td>
-                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.delivery_method}</td>
+                    <td className="py-4 px-3 text-[12px] font-medium text-slate-700">{app.recipient_name}</td>
+                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.purpose}</td>
+                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden lg:table-cell">₦{parseFloat(app.fee_amount).toLocaleString()}</td>
+                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.delivery_method.replace(/_/g, ' ')}</td>
                     <td className="py-4 px-3 text-[11px] text-gray-400 font-medium">
-                      {new Date(app.createdAt).toLocaleDateString('en-GB')}
+                      {new Date(app.created_at).toLocaleDateString('en-GB')}
                     </td>
                     <td className="py-4 px-3 text-center">
-                      <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-bold ${
-                        app.status.toLowerCase() === 'completed'
+                      <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-bold uppercase ${
+                        app.status === 'PAID'
                           ? 'bg-green-50 text-green-600'
-                          : app.status.toLowerCase() === 'pending'
+                          : app.status === 'PENDING'
                             ? 'bg-yellow-50 text-yellow-600'
                             : 'bg-blue-50 text-blue-500'
                       }`}>
