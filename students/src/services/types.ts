@@ -239,3 +239,19 @@ export interface TranscriptRequestResponse {
   paymentUrl: string;
   createdAt: string;
 }
+
+export interface TranscriptApplication {
+  id: string;
+  institution_name: string;
+  recipient_email: string;
+  recipient_address: string;
+  delivery_method: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TranscriptsResponse {
+  status: string;
+  data: TranscriptApplication[];
+}

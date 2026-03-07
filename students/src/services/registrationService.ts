@@ -12,6 +12,8 @@ import type {
   DeliveryMode,
   TranscriptRequest,
   TranscriptRequestResponse,
+  TranscriptApplication,
+  TranscriptsResponse,
   AddCourseToCartRequest,
   DepartmentCourse,
   DepartmentCoursesResponse,
@@ -161,7 +163,7 @@ export const getRegistrations = async (): Promise<RegistrationData | null> => {
         if (status === 'confirmed') return 'registered';
         if (status === 'pending') return 'pending';
         return 'dropped';
-      };
+      };  
       
       const courses: RegisteredCourse[] = registrations.map(reg => ({
         id: reg.id,
@@ -404,6 +406,33 @@ export const submitTranscriptRequest = async (
 };
 
 /**
+ * Get all transcript applications for the current student
+ */
+export const getTranscripts = async (): Promise<TranscriptApplication[]> => {
+  try {
+    const response = await apiClient.get<TranscriptsResponse>('/student/transcripts');
+    // If response is { status: 'success', data: [...] }
+    if (response.data?.status === 'success' && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    // Handle case where response.data is the array directly
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    // Handle case where it's { data: [...] }
+    if (Array.isArray((response.data as any)?.data)) {
+      return (response.data as any).data;
+    }
+    
+    console.warn('Unexpected transcripts response structure:', response.data);
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch transcript applications:', error);
+    return [];
+  }
+};
+
+/**
  * Calculate transcript fee
  * @param deliveryMode - Delivery mode ID
  * @param destinationType - Local or international
@@ -446,6 +475,7 @@ const registrationService = {
   dropCourse,
   // Transcripts
   getDeliveryModes,
+  getTranscripts,
   submitTranscriptRequest,
   calculateTranscriptFee,
 };

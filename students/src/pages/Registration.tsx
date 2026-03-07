@@ -29,6 +29,7 @@ import {
   addCourseToCart,
   bulkRegisterCourses,
   getStudentPayments,
+  getTranscripts,
 } from "../services/registrationService";
 import type {
   Level,
@@ -38,6 +39,7 @@ import type {
   RegistrationData,
   RegisteredCourse,
   DepartmentCourse,
+  TranscriptApplication,
 } from "../services/types";
 import type { CoursesRegViewProps } from "../types";
 import { toaster } from "../components/ui/toaster";
@@ -443,15 +445,33 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const transcriptApplications = [
-  { sn: 1, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '13/02/2026', status: 'In Progress', color: 'blue' },
-  { sn: 2, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '12/01/2026', status: 'Completed', color: 'green' },
-  { sn: 2, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '12/01/2026', status: 'Completed', color: 'green' },
-  { sn: 2, institution: 'University of Nevada', email: 'admin@nevuni.com', address: 'NT 2. ENGLD', mode: 'Express', date: '12/01/2026', status: 'Completed', color: 'green' },
-];
-
 const TranscriptRegView = () => {
   const [showForm, setShowForm] = React.useState(false);
+  const [transcripts, setTranscripts] = useState<TranscriptApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Application");
+
+  useEffect(() => {
+    getTranscripts()
+      .then(setTranscripts)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredTranscripts = useMemo(() => {
+    return transcripts.filter((app) => {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch =
+        app.institution_name.toLowerCase().includes(q) ||
+        app.status.toLowerCase().includes(q);
+
+      const matchesStatus =
+        statusFilter === "All Application" ||
+        app.status.toLowerCase() === statusFilter.toLowerCase();
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [transcripts, searchQuery, statusFilter]);
 
   if (showForm) {
     return <TranscriptFormView onBack={() => setShowForm(false)} />;
@@ -482,15 +502,21 @@ const TranscriptRegView = () => {
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
               <input
                 placeholder="Search by institution, status"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-2 text-[12px] font-medium text-slate-700 placeholder:text-gray-300 focus:outline-none focus:border-blue-300 w-full md:w-[220px] h-[36px]"
               />
             </div>
             {/* Filter */}
             <div className="relative">
-              <select className="bg-[#f8fafc] border border-gray-100 rounded-lg px-3 pr-7 py-2 text-[11px] font-bold text-gray-500 appearance-none cursor-pointer h-[36px]">
-                <option>All Application</option>
-                <option>In Progress</option>
-                <option>Completed</option>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-[#f8fafc] border border-gray-100 rounded-lg px-3 pr-7 py-2 text-[11px] font-bold text-gray-500 appearance-none cursor-pointer h-[36px]"
+              >
+                <option value="All Application">All Application</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
               </select>
               <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
             </div>
@@ -511,25 +537,46 @@ const TranscriptRegView = () => {
               </tr>
             </thead>
             <tbody>
-              {transcriptApplications.map((app, idx) => (
-                <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="py-4 px-3 text-[12px] font-bold text-slate-700">{app.sn}</td>
-                  <td className="py-4 px-3 text-[12px] font-medium text-slate-700">{app.institution}</td>
-                  <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.email}</td>
-                  <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden lg:table-cell">{app.address}</td>
-                  <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.mode}</td>
-                  <td className="py-4 px-3 text-[11px] text-gray-400 font-medium">{app.date}</td>
-                  <td className="py-4 px-3 text-center">
-                    <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-bold ${
-                      app.color === 'blue'
-                        ? 'bg-blue-50 text-blue-500'
-                        : 'bg-green-50 text-green-600'
-                    }`}>
-                      {app.status}
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="py-10 text-center text-gray-400 text-[13px]">
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 size={16} className="animate-spin" />
+                      Loading applications...
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : filteredTranscripts.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-10 text-center text-gray-400 text-[13px]">
+                    No transcript applications found.
+                  </td>
+                </tr>
+              ) : (
+                filteredTranscripts.map((app, idx) => (
+                  <tr key={app.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <td className="py-4 px-3 text-[12px] font-bold text-slate-700">{idx + 1}</td>
+                    <td className="py-4 px-3 text-[12px] font-medium text-slate-700">{app.institution_name}</td>
+                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.recipient_email}</td>
+                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden lg:table-cell">{app.recipient_address}</td>
+                    <td className="py-4 px-3 text-[12px] text-gray-400 font-medium hidden md:table-cell">{app.delivery_method}</td>
+                    <td className="py-4 px-3 text-[11px] text-gray-400 font-medium">
+                      {new Date(app.createdAt).toLocaleDateString('en-GB')}
+                    </td>
+                    <td className="py-4 px-3 text-center">
+                      <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-bold ${
+                        app.status.toLowerCase() === 'completed'
+                          ? 'bg-green-50 text-green-600'
+                          : app.status.toLowerCase() === 'pending'
+                            ? 'bg-yellow-50 text-yellow-600'
+                            : 'bg-blue-50 text-blue-500'
+                      }`}>
+                        {app.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
