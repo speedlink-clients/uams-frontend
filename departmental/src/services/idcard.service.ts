@@ -2,7 +2,7 @@ import axiosClient from "@configs/axios.config"
 
 export const IDCardServices = {
     getDefaultIDCard: async () => {
-        const { data } = await axiosClient.get("/university-admin/id-card/default");
+        const { data } = await axiosClient.get("/university-admin/id-card");
         return data;
     },
 
