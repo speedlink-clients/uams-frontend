@@ -223,7 +223,17 @@ const IDCardSettingsTab = () => {
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
                 <Flex justifyContent="space-between" alignItems="center" mb="6">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Available Templates</Text>
-                    <Button colorScheme="blue" size="sm" onClick={handleCreateNew}>
+                    <Button
+                        bg="#1D7AD9"
+                        color="white"
+                        fontWeight="700"
+                        borderRadius="8px"
+                        fontSize="14px"
+                        border="none"
+                        boxShadow="0 4px 12px rgba(29,122,217,0.2)"
+                        size="sm"
+                        onClick={handleCreateNew}
+                    >
                         + Create New Template
                     </Button>
                 </Flex>

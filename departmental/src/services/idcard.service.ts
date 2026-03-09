@@ -16,7 +16,7 @@ export const IDCardServices = {
 
     // create ID-Card Template
     createIDCard: async (payload: Record<string, unknown>) => {
-        const { data } = await axiosClient.post("/university-admin/id-card/", payload);
+        const { data } = await axiosClient.post("/university-admin/id-card", payload);
         return data;
     },
 
