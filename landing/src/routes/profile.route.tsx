@@ -1,12 +1,6 @@
-import { Routes, Route } from "react-router"
-
-const ProfileRoutes = () => {
-    return (
-        <Routes>
-            <Route path="/profile" element={<p>Profile</p>} />
-            <Route path="/profile/:id/edit" element={<p>Edit Profile</p>} />
-        </Routes>
-    )
-}
+const ProfileRoutes = [
+    { path: "/profile", element: <p>Profile</p> },
+    { path: "/profile/:id/edit", element: <p>Edit Profile</p> },
+];
 
 export default ProfileRoutes;
