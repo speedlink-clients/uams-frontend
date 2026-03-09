@@ -12,7 +12,7 @@ export const IDCardServices = {
     },
 
     updateSettings: async (payload: Record<string, unknown>) => {
-        const { data } = await axiosClient.put("/university-admin/id-card/settings", payload);
+        const { data } = await axiosClient.post("/university-admin/id-card", payload);
         return data;
     },
 

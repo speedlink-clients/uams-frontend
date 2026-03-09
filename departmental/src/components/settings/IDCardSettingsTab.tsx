@@ -31,7 +31,7 @@ const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: str
 const IDCardSettingsTab = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [templateId, setTemplateId] = useState("");
+    // const [templateId, setTemplateId] = useState("");
     const [previews, setPreviews] = useState<Record<string, string>>({});
     const [files, setFiles] = useState<Record<string, File>>({});
 
@@ -123,10 +123,6 @@ const IDCardSettingsTab = () => {
     };
 
     const handleSave = async () => {
-        if (!templateId) {
-            toaster.error({ title: "Template ID not found" });
-            return;
-        }
         setIsSaving(true);
         try {
             const payload: any = {};
@@ -145,7 +141,7 @@ const IDCardSettingsTab = () => {
             if (files.frontTemplate) payload.frontTemplate = await convertFileToBase64(files.frontTemplate);
             if (files.backTemplate) payload.backTemplate = await convertFileToBase64(files.backTemplate);
 
-            await IDCardServices.updateIDCard(templateId, payload);
+            await IDCardServices.updateSettings(payload);
             toaster.success({ title: "ID Card settings updated" });
             setFiles({});
             setPreviews({});
