@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Edit2, Trash2, CheckCircle } from "lucide-react";
 import { IDCardServices } from "@services/idcard.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Image, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, Image, Spinner, Table, Button, Badge } from "@chakra-ui/react";
 
 const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: string; type: string; preview: string; fileRef: React.RefObject<HTMLInputElement | null>; onFileChange: (e: React.ChangeEvent<HTMLInputElement>, type: string) => void }) => {
     return (
@@ -32,6 +32,7 @@ const IDCardSettingsTab = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [templateId, setTemplateId] = useState("");
+    const [templates, setTemplates] = useState<any[]>([]);
     const [previews, setPreviews] = useState<Record<string, string>>({});
     const [files, setFiles] = useState<Record<string, File>>({});
 
@@ -70,33 +71,76 @@ const IDCardSettingsTab = () => {
     const fetchSettings = async () => {
         try {
             setIsLoading(true);
-            const data = await IDCardServices.getDefaultIDCard();
-            if (data?.success && data.template) {
-                const t = data.template;
-                setTemplateId(t.id || "");
-                const fd = {
-                    schoolName: t.institutionName || "",
-                    faculty: t.faculties?.[0]?.name || "",
-                    department: t.departments?.[0]?.name || "",
-                    schoolAddress: t.institutionAddress || "",
-                    backDescription: t.backDescription || "",
-                    backDisclaimer: t.backDisclaimer || "",
-                };
-                setFormData(fd);
-                setInitialFormData(fd);
-                setExistingUrls({
-                    logo: t.logo || "",
-                    signature: t.hodSignature || t.signature || "",
-                    frontTemplate: t.frontTemplate || t.frontCardTemplate || "",
-                    backTemplate: t.backTemplate || t.backCardTemplate || "",
-                });
+            const data = await IDCardServices.getAllIDCard();
+            if (data?.success && data.templates) {
+                setTemplates(data.templates);
             }
         } catch (err) {
-            console.error("Failed to fetch ID card settings", err);
-            toaster.error({ title: "Failed to load ID card settings" });
+            console.error("Failed to fetch ID card templates", err);
+            toaster.error({ title: "Failed to load ID card templates" });
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleEdit = (t: any) => {
+        setTemplateId(t.id || "");
+        const fd = {
+            schoolName: t.institutionName || "",
+            faculty: t.faculties?.[0]?.name || "",
+            department: t.departments?.[0]?.name || "",
+            schoolAddress: t.institutionAddress || "",
+            backDescription: t.backDescription || "",
+            backDisclaimer: t.backDisclaimer || "",
+        };
+        setFormData(fd);
+        setInitialFormData(fd);
+        setExistingUrls({
+            logo: t.logo || "",
+            signature: t.hodSignature || t.signature || "",
+            frontTemplate: t.frontTemplate || t.frontCardTemplate || "",
+            backTemplate: t.backTemplate || t.backCardTemplate || "",
+        });
+        setPreviews({});
+        setFiles({});
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this template?")) return;
+        try {
+            await IDCardServices.deleteIDCard(id, {});
+            toaster.success({ title: "Template deleted safely" });
+            if (templateId === id) handleCreateNew();
+            await fetchSettings();
+        } catch (err: any) {
+            toaster.error({ title: err.response?.data?.message || "Failed to delete template" });
+        }
+    };
+
+    const handleActivate = async (id: string) => {
+        try {
+            await IDCardServices.activateIDCard(id, {});
+            toaster.success({ title: "Template set as default" });
+            await fetchSettings();
+        } catch (err: any) {
+            toaster.error({ title: err.response?.data?.message || "Failed to set template as default" });
+        }
+    };
+
+    const handleCreateNew = () => {
+        setTemplateId("");
+        setFormData({
+            schoolName: "",
+            faculty: "",
+            department: "",
+            schoolAddress: "",
+            backDescription: "",
+            backDisclaimer: "",
+        });
+        setExistingUrls({});
+        setPreviews({});
+        setFiles({});
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
@@ -125,7 +169,12 @@ const IDCardSettingsTab = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const payload: any = {};
+            const currentTemplate = templateId ? templates.find(t => t.id === templateId) : null;
+            const payload: any = {
+                name: currentTemplate?.name || `Template ${templates.length + 1}`,
+                isDefault: currentTemplate?.isDefault ?? false,
+                status: currentTemplate?.status || "ACTIVE",
+            };
 
             // Only send changed text fields
             if (formData.schoolName !== initialFormData.schoolName) payload.institutionName = formData.schoolName;
@@ -141,7 +190,11 @@ const IDCardSettingsTab = () => {
             if (files.frontTemplate) payload.frontTemplate = await convertFileToBase64(files.frontTemplate);
             if (files.backTemplate) payload.backTemplate = await convertFileToBase64(files.backTemplate);
 
-            await IDCardServices.updateSettings(payload);
+            if (templateId) {
+                await IDCardServices.updateIDCard(templateId, payload);
+            } else {
+                await IDCardServices.createIDCard(payload);
+            }
             toaster.success({ title: "ID Card settings updated" });
             setFiles({});
             setPreviews({});
@@ -166,9 +219,72 @@ const IDCardSettingsTab = () => {
 
     return (
         <Flex direction="column" gap="8">
-            {/* Institution Details */}
+            {/* Templates Table Section */}
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
-                <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Institution Details</Text>
+                <Flex justifyContent="space-between" alignItems="center" mb="6">
+                    <Text fontSize="lg" fontWeight="bold" color="slate.800">Available Templates</Text>
+                    <Button colorScheme="blue" size="sm" onClick={handleCreateNew}>
+                        + Create New Template
+                    </Button>
+                </Flex>
+                <Box overflowX="auto">
+                    <Table.Root variant="line">
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.ColumnHeader>School Name</Table.ColumnHeader>
+                                <Table.ColumnHeader>Faculty</Table.ColumnHeader>
+                                <Table.ColumnHeader>Department</Table.ColumnHeader>
+                                <Table.ColumnHeader>Status</Table.ColumnHeader>
+                                <Table.ColumnHeader textAlign="right">Actions</Table.ColumnHeader>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            {templates.map((t) => (
+                                <Table.Row key={t.id}>
+                                    <Table.Cell>{t.institutionName || "-"}</Table.Cell>
+                                    <Table.Cell>{t.faculties?.[0]?.name || "-"}</Table.Cell>
+                                    <Table.Cell>{t.departments?.[0]?.name || "-"}</Table.Cell>
+                                    <Table.Cell>
+                                        {t.isDefault ? (
+                                            <Badge colorScheme="green">Default</Badge>
+                                        ) : (
+                                            <Badge colorScheme="gray">Inactive</Badge>
+                                        )}
+                                    </Table.Cell>
+                                    <Table.Cell textAlign="right">
+                                        <Flex gap="2" justifyContent="flex-end">
+                                            {!t.isDefault && (
+                                                <Button size="xs" colorScheme="green" variant="ghost" title="Set as Default" onClick={() => handleActivate(t.id)}>
+                                                    <CheckCircle size={16} />
+                                                </Button>
+                                            )}
+                                            <Button size="xs" colorScheme="blue" variant="ghost" title="Edit" onClick={() => handleEdit(t)}>
+                                                <Edit2 size={16} />
+                                            </Button>
+                                            <Button size="xs" colorScheme="red" variant="ghost" title="Delete" onClick={() => handleDelete(t.id)}>
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        </Flex>
+                                    </Table.Cell>
+                                </Table.Row>
+                            ))}
+                            {templates.length === 0 && (
+                                <Table.Row>
+                                    <Table.Cell colSpan={5} textAlign="center" py="4" color="gray.500">
+                                        No templates found
+                                    </Table.Cell>
+                                </Table.Row>
+                            )}
+                        </Table.Body>
+                    </Table.Root>
+                </Box>
+            </Box>
+
+            {/* Form Section */}
+            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
+                <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">
+                    {templateId ? "Edit Template Details" : "Create New Template"}
+                </Text>
                 <Flex direction="column" gap="5">
                     <Flex gap="6" direction={{ base: "column", md: "row" }}>
                         <Box flex="1">
