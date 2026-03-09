@@ -31,7 +31,7 @@ const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: str
 const IDCardSettingsTab = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    // const [templateId, setTemplateId] = useState("");
+    const [templateId, setTemplateId] = useState("");
     const [previews, setPreviews] = useState<Record<string, string>>({});
     const [files, setFiles] = useState<Record<string, File>>({});
 
