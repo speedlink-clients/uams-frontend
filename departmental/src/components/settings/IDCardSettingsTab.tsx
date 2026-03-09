@@ -263,9 +263,9 @@ const IDCardSettingsTab = () => {
                                     <Table.Cell>{t.departments?.[0]?.name || "-"}</Table.Cell>
                                     <Table.Cell>
                                         {t.isDefault ? (
-                                            <Badge color="#10b645ff">Default</Badge>
+                                            <Badge color="white" bg="#10b645ff">Default</Badge>
                                         ) : (
-                                            <Badge color="#87898bff">Inactive</Badge>
+                                            <Badge color="white" bg="#87898bff">Inactive</Badge>
                                         )}
                                     </Table.Cell>
                                     <Table.Cell textAlign="right">
