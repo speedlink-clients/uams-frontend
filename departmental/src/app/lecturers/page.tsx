@@ -50,7 +50,7 @@ const StaffPage = () => {
                 phone: item.phone || item.user?.phone || "N/A",
                 department: item.department?.name || "N/A",
                 level: item.academicRank || "N/A",
-                courses: item.courses?.map((course: any) => course.name).join(", ") || "N/A",
+                courses: item.courses?.map((course: any) => course.code).join(", ") || "N/A",
             }));
             setStaffList(mapped);
         } catch (err) {
