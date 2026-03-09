@@ -232,9 +232,13 @@ const StaffPage = () => {
                                         <Box as="td" px="6" py="5" fontSize="xs" color="slate.500">{s.department}</Box>
                                         <Box as="td" px="6" py="5" fontSize="xs" color="slate.500">{s.level}</Box>
                                         <Box as="td" px="6" py="5">
-                                            <Text as="span" bg="#2ECC71" color="white" px="5" py="1.5" borderRadius="lg" fontSize="10px" fontWeight="bold" boxShadow="sm" display="inline-block" minW="90px" textAlign="center">
-                                                {s.courses}
-                                            </Text>
+                                            <Flex gap="1.5" wrap="wrap" maxW="160px">
+                                                {s.courses?.split(", ").map((course, idx) => (
+                                                    <Text key={idx} as="span" bg="#2ECC71" color="white" px="3" py="1" borderRadius="md" fontSize="10px" fontWeight="bold" boxShadow="sm" display="inline-block" textAlign="center" minW={course === "N/A" ? "60px" : "auto"}>
+                                                        {course}
+                                                    </Text>
+                                                ))}
+                                            </Flex>
                                         </Box>
                                         <Box as="td" px="6" py="5" textAlign="center" position="relative" ref={dropdownRef}>
                                             <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.staffNumber, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
