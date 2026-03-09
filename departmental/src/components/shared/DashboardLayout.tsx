@@ -61,7 +61,8 @@ const DashboardLayout = () => {
 
     const handleLogout = () => {
         clearAuth();
-        localStorage.clear();
+        localStorage.removeItem("departmental-auth-store");
+        localStorage.removeItem("departmental-user-profile-store");
         sessionStorage.clear();
         window.location.href = "/departmental-admin/login";
     };
@@ -79,7 +80,6 @@ const DashboardLayout = () => {
                     onViewChange={handleViewChange}
                     currentUser={currentUser}
                     email={email}
-                    onLogout={handleLogout}
                 />
                 <Box p="8" maxW="1600px" mx="auto">
                     <Outlet />

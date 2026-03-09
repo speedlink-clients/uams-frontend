@@ -11,7 +11,7 @@ const useAuthStore = create<AuthState>()(
             clearAuth: () => set({ token: "", expiresIn: "" }),
         }),
         {
-            name: "auth-store",
+            name: "lecturer-auth-store",
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 token: state.token,

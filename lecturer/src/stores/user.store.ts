@@ -23,7 +23,7 @@ const useUserStore = create<UserStoreType>()(
             clearUser: () => set({ user: null, permissions: null }),
         }),
         {
-            name: "user-store",
+            name: "lecturer-user-store",
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 user: state.user,

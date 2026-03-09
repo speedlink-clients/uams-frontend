@@ -22,7 +22,7 @@ const useUserStore = create<UserStoreType>()(
             clearUser: () => set({ name: "", email: "" }),
         }),
         {
-            name: "user-profile-store",
+            name: "departmental-user-profile-store",
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 name: state.name,

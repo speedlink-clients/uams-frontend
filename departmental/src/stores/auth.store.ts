@@ -61,7 +61,7 @@ const useAuthStore = create<AuthState>()(
             },
         }),
         {
-            name: "auth-store",
+            name: "departmental-auth-store",
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 token: state.token,

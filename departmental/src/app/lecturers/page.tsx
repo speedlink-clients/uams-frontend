@@ -50,7 +50,7 @@ const StaffPage = () => {
                 phone: item.phone || item.user?.phone || "N/A",
                 department: item.department?.name || "N/A",
                 level: item.academicRank || "N/A",
-                program: item.specialization || "N/A",
+                // program: item.specialization || "N/A",
             }));
             setStaffList(mapped);
         } catch (err) {
@@ -215,7 +215,7 @@ const StaffPage = () => {
                                     <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Phone No</Box>
                                     <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Department</Box>
                                     <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Level</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Program</Box>
+                                    {/* <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Program</Box> */}
                                     <Box as="th" textAlign="center" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Action</Box>
                                 </Box>
                             </Box>

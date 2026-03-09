@@ -28,6 +28,8 @@ const Sidebar = () => {
     const handleLogout = () => {
         clearAuth();
         clearUser();
+        localStorage.removeItem("lecturer-auth-store");
+        localStorage.removeItem("lecturer-user-store");
         navigate("/login");
     };
     const isActive = (path: string) => {

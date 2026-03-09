@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, useParams } from "react-router";
 import { Download, Edit, X } from "lucide-react";
 import { AcademicServices } from "@services/academic.service";
 import { toaster } from "@components/ui/toaster";
@@ -14,6 +14,7 @@ interface StructureTabProps {
 const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { id } = useParams();
     const [sessions, setSessions] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -43,6 +44,21 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
         };
         fetchData();
     }, [location.pathname]);
+
+    useEffect(() => {
+        if (isEditingRoute && id && sessions.length > 0) {
+            const sessionToEdit = sessions.find((s) => s.id === id);
+            if (sessionToEdit) {
+                setFormData({
+                    name: sessionToEdit.name || "",
+                    semesters: sessionToEdit.semesterCount?.toString() || "2",
+                    duration: sessionToEdit.duration?.toString() || "12 Months",
+                    startDate: sessionToEdit.startDate ? new Date(sessionToEdit.startDate).toISOString().split('T')[0] : "",
+                    description: sessionToEdit.description || "",
+                });
+            }
+        }
+    }, [isEditingRoute, id, sessions]);
 
     const handleFormChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -74,8 +90,13 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                 isActive: true,
             };
 
-            await AcademicServices.createSession(payload);
-            toaster.success({ title: "Session created successfully" });
+            if (isEditingRoute && id) {
+                await AcademicServices.updateSession(id, payload);
+                toaster.success({ title: "Session updated successfully" });
+            } else {
+                await AcademicServices.createSession(payload);
+                toaster.success({ title: "Session created successfully" });
+            }
 
             const updated = await AcademicServices.getSessions();
             setSessions(Array.isArray(updated) ? updated : []);
