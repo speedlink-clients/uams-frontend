@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Upload, Loader2, Edit2, Trash2, CheckCircle } from "lucide-react";
 import { IDCardServices } from "@services/idcard.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Image, Spinner, Table, Button, Badge } from "@chakra-ui/react";
+import { Box, Flex, Text, Image, Spinner, Table, Button, Badge, Dialog, Portal, CloseButton } from "@chakra-ui/react";
 
 const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: string; type: string; preview: string; fileRef: React.RefObject<HTMLInputElement | null>; onFileChange: (e: React.ChangeEvent<HTMLInputElement>, type: string) => void }) => {
     return (
@@ -36,6 +36,7 @@ const IDCardSettingsTab = () => {
     const [templates, setTemplates] = useState<any[]>([]);
     const [previews, setPreviews] = useState<Record<string, string>>({});
     const [files, setFiles] = useState<Record<string, File>>({});
+    const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         schoolName: "",
@@ -109,7 +110,6 @@ const IDCardSettingsTab = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (!window.confirm("Are you sure you want to delete this template?")) return;
         try {
             await IDCardServices.deleteIDCard(id, {});
             toaster.success({ title: "Template deleted safely" });
@@ -117,6 +117,8 @@ const IDCardSettingsTab = () => {
             await fetchSettings();
         } catch (err: any) {
             toaster.error({ title: err.response?.data?.message || "Failed to delete template" });
+        } finally {
+            setTemplateToDelete(null);
         }
     };
 
@@ -275,9 +277,44 @@ const IDCardSettingsTab = () => {
                                             <Button size="xs" colorScheme="blue" variant="ghost" title="Edit" onClick={() => handleEdit(t)}>
                                                 <Edit2 size={16} />
                                             </Button>
-                                            <Button size="xs" colorScheme="red" variant="ghost" title="Delete" onClick={() => handleDelete(t.id)}>
-                                                <Trash2 size={16} />
-                                            </Button>
+
+                                            <Dialog.Root 
+                                                open={templateToDelete === t.id} 
+                                                onOpenChange={(e) => setTemplateToDelete(e.open ? t.id : null)}
+                                            >
+                                                <Dialog.Trigger asChild>
+                                                    <Button size="xs" colorScheme="red" variant="ghost" title="Delete">
+                                                        <Trash2 size={16} />
+                                                    </Button>
+                                                </Dialog.Trigger>
+                                                <Portal>
+                                                    <Dialog.Backdrop />
+                                                    <Dialog.Positioner>
+                                                        <Dialog.Content>
+                                                            <Dialog.Header>
+                                                                <Dialog.Title>Confirm Deletion</Dialog.Title>
+                                                            </Dialog.Header>
+                                                            <Dialog.Body>
+                                                                <Text>
+                                                                    Are you sure you want to delete <b>{t.name || "this template"}</b>? 
+                                                                    This action cannot be undone.
+                                                                </Text>
+                                                            </Dialog.Body>
+                                                            <Dialog.Footer w="full" justifyContent="flex-end">
+                                                                <Dialog.ActionTrigger asChild>
+                                                                    <Button variant="outline">Cancel</Button>
+                                                                </Dialog.ActionTrigger>
+                                                                <Button colorScheme="red" bg="red.600" color="white" onClick={() => handleDelete(t.id)}>
+                                                                    Delete Template
+                                                                </Button>
+                                                            </Dialog.Footer>
+                                                            <Dialog.CloseTrigger asChild>
+                                                                <CloseButton size="sm" />
+                                                            </Dialog.CloseTrigger>
+                                                        </Dialog.Content>
+                                                    </Dialog.Positioner>
+                                                </Portal>
+                                            </Dialog.Root>
                                         </Flex>
                                     </Table.Cell>
                                 </Table.Row>
@@ -301,7 +338,14 @@ const IDCardSettingsTab = () => {
                         <Text fontSize="lg" fontWeight="bold" color="slate.800">
                             {templateId ? "Edit Template Details" : "Create New Template"}
                         </Text>
-                        <Button variant="ghost" size="sm" onClick={() => setIsFormVisible(false)}>
+                        <Button 
+                            bg="white"
+                            color="#1D7AD9"
+                            _hover={{ bg: "#6ca9e6ff" }}
+                            borderRadius="1px"
+                            borderColor="#1D7AD9"
+                            size="sm" 
+                            onClick={() => setIsFormVisible(false)}>
                             Cancel
                         </Button>
                     </Flex>
