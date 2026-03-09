@@ -29,7 +29,7 @@ const router = createBrowserRouter([
             {
                 element: <DashboardLayout />,
                 children: [
-                    { index: true, element: <Navigate to="/dashboard" replace /> },
+                    { index: true, element: <Navigate to="dashboard" replace /> },
                     { path: "dashboard", element: <Dashboard /> },
                     { path: "students", element: <Students /> },
                     { path: "lecturers", element: <Lecturers /> },
@@ -50,7 +50,7 @@ const router = createBrowserRouter([
         element: <Navigate to="/dashboard" replace />,
     },
 ], {
-    basename: "/lecturer",
+    basename: "/lecturer/",
 });
 
 export default router;

@@ -5,7 +5,7 @@ on:
     branches:
       - main   # or your deploy branch
     paths:
-      - 'super-admin/**'   # only run when student app changes
+      - 'super-admin/**'   # only run when super-admin app changes
 
 jobs:
   deploy:

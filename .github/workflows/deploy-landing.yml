@@ -5,7 +5,7 @@ on:
     branches:
       - main   # or your deploy branch
     paths:
-      - 'landing/**'   # only run when student app changes
+      - 'landing/**'   # only run when landing app changes
 
 jobs:
   deploy:
@@ -40,4 +40,4 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing/dist/
-          server-dir: ./   # adjust if needed
+          server-dir: /   # adjust if needed

@@ -12,11 +12,11 @@ const ForgotPasswordPage = () => {
 
 const AuthRoutes: RouteObject[] = [
     {
-        path: "/login",
+        path: "login",
         element: <Login />,
     },
     {
-        path: "/forgot-password",
+        path: "forgot-password",
         element: <ForgotPasswordPage />,
     },
 ];

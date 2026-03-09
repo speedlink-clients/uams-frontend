@@ -5,7 +5,7 @@ on:
     branches:
       - main   # or your deploy branch
     paths:
-      - 'departmental/**'   # only run when student app changes
+      - 'departmental/**'   # only run when departmental app changes
 
 jobs:
   deploy:

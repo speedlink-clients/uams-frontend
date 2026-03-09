@@ -4,6 +4,30 @@ import { IDCardServices } from "@services/idcard.service";
 import { toaster } from "@components/ui/toaster";
 import { Box, Flex, Text, Image, Spinner } from "@chakra-ui/react";
 
+const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: string; type: string; preview: string; fileRef: React.RefObject<HTMLInputElement | null>; onFileChange: (e: React.ChangeEvent<HTMLInputElement>, type: string) => void }) => {
+    return (
+        <Box>
+            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">{label}</Text>
+            <Flex
+                border="2px dashed" borderColor="gray.200" borderRadius="xl" p="4"
+                alignItems="center" justifyContent="center" minH="120px" bg="slate.50"
+                cursor="pointer" _hover={{ borderColor: "blue.300", bg: "blue.50" }}
+                transition="all 0.2s" onClick={() => fileRef?.current?.click()} position="relative"
+            >
+                <input type="file" accept="image/*" ref={fileRef} onChange={(e) => onFileChange(e, type)} style={{ display: "none" }} />
+                {preview ? (
+                    <Image src={preview} alt={label} maxH="100px" maxW="200px" objectFit="contain" borderRadius="md" />
+                ) : (
+                    <Flex direction="column" alignItems="center" gap="2">
+                        <Upload size={24} color="#94a3b8" />
+                        <Text fontSize="xs" color="slate.400">Click to upload (max 70KB)</Text>
+                    </Flex>
+                )}
+            </Flex>
+        </Box>
+    );
+};
+
 const IDCardSettingsTab = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -142,31 +166,7 @@ const IDCardSettingsTab = () => {
         borderRadius: "8px", fontSize: "14px", color: "#334155", outline: "none",
     };
 
-    const UploadBox = ({ label, type }: { label: string; type: string }) => {
-        const preview = previews[type] || existingUrls[type];
-        const ref = fileInputRefs[type as keyof typeof fileInputRefs];
-        return (
-            <Box>
-                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">{label}</Text>
-                <Flex
-                    border="2px dashed" borderColor="gray.200" borderRadius="xl" p="4"
-                    alignItems="center" justifyContent="center" minH="120px" bg="slate.50"
-                    cursor="pointer" _hover={{ borderColor: "blue.300", bg: "blue.50" }}
-                    transition="all 0.2s" onClick={() => ref?.current?.click()} position="relative"
-                >
-                    <input type="file" accept="image/*" ref={ref} onChange={(e) => handleFileChange(e, type)} style={{ display: "none" }} />
-                    {preview ? (
-                        <Image src={preview} alt={label} maxH="100px" maxW="200px" objectFit="contain" borderRadius="md" />
-                    ) : (
-                        <Flex direction="column" alignItems="center" gap="2">
-                            <Upload size={24} color="#94a3b8" />
-                            <Text fontSize="xs" color="slate.400">Click to upload (max 70KB)</Text>
-                        </Flex>
-                    )}
-                </Flex>
-            </Box>
-        );
-    };
+
 
     return (
         <Flex direction="column" gap="8">
@@ -221,8 +221,8 @@ const IDCardSettingsTab = () => {
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
                 <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Card Templates</Text>
                 <Flex direction={{ base: "column", md: "row" }} gap="6">
-                    <Box flex="1"><UploadBox label="Front Template" type="frontTemplate" /></Box>
-                    <Box flex="1"><UploadBox label="Back Template" type="backTemplate" /></Box>
+                    <Box flex="1"><UploadBox label="Front Template" type="frontTemplate" preview={previews.frontTemplate || existingUrls.frontTemplate} fileRef={fileInputRefs.frontTemplate} onFileChange={handleFileChange} /></Box>
+                    <Box flex="1"><UploadBox label="Back Template" type="backTemplate" preview={previews.backTemplate || existingUrls.backTemplate} fileRef={fileInputRefs.backTemplate} onFileChange={handleFileChange} /></Box>
                 </Flex>
             </Box>
 
@@ -230,8 +230,8 @@ const IDCardSettingsTab = () => {
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
                 <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Branding</Text>
                 <Flex direction={{ base: "column", md: "row" }} gap="6">
-                    <Box flex="1"><UploadBox label="University Logo" type="logo" /></Box>
-                    <Box flex="1"><UploadBox label="HOD Signature" type="signature" /></Box>
+                    <Box flex="1"><UploadBox label="University Logo" type="logo" preview={previews.logo || existingUrls.logo} fileRef={fileInputRefs.logo} onFileChange={handleFileChange} /></Box>
+                    <Box flex="1"><UploadBox label="HOD Signature" type="signature" preview={previews.signature || existingUrls.signature} fileRef={fileInputRefs.signature} onFileChange={handleFileChange} /></Box>
                 </Flex>
             </Box>
 
