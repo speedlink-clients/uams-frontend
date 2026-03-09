@@ -31,6 +31,7 @@ const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: str
 const IDCardSettingsTab = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isFormVisible, setIsFormVisible] = useState(false);
     const [templateId, setTemplateId] = useState("");
     const [templates, setTemplates] = useState<any[]>([]);
     const [previews, setPreviews] = useState<Record<string, string>>({});
@@ -103,7 +104,8 @@ const IDCardSettingsTab = () => {
         });
         setPreviews({});
         setFiles({});
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        setIsFormVisible(true);
+        setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
     };
 
     const handleDelete = async (id: string) => {
@@ -141,6 +143,7 @@ const IDCardSettingsTab = () => {
         setExistingUrls({});
         setPreviews({});
         setFiles({});
+        setIsFormVisible(true);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
@@ -198,6 +201,7 @@ const IDCardSettingsTab = () => {
             toaster.success({ title: "ID Card settings updated" });
             setFiles({});
             setPreviews({});
+            setIsFormVisible(false);
             await fetchSettings();
         } catch (err: any) {
             toaster.error({ title: err.response?.data?.message || "Failed to update settings" });
@@ -291,11 +295,17 @@ const IDCardSettingsTab = () => {
             </Box>
 
             {/* Form Section */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
-                <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">
-                    {templateId ? "Edit Template Details" : "Create New Template"}
-                </Text>
-                <Flex direction="column" gap="5">
+            {isFormVisible && (
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
+                    <Flex justifyContent="space-between" alignItems="center" mb="6">
+                        <Text fontSize="lg" fontWeight="bold" color="slate.800">
+                            {templateId ? "Edit Template Details" : "Create New Template"}
+                        </Text>
+                        <Button variant="ghost" size="sm" onClick={() => setIsFormVisible(false)}>
+                            Cancel
+                        </Button>
+                    </Flex>
+                    <Flex direction="column" gap="5">
                     <Flex gap="6" direction={{ base: "column", md: "row" }}>
                         <Box flex="1">
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">School Name</Text>
@@ -335,9 +345,7 @@ const IDCardSettingsTab = () => {
                                 className="idcard-settings-input" style={inputStyle}
                             />
                         </Box>
-                    </Flex>
                 </Flex>
-            </Box>
 
             {/* Templates */}
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
@@ -408,13 +416,16 @@ const IDCardSettingsTab = () => {
                     {isSaving ? "Saving..." : "Save Changes"}
                 </button>
             </Flex>
+            </Flex>
+        </Box>
+        )}
 
-            <style>{`
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                .idcard-settings-input:focus { box-shadow: 0 0 0 3px rgba(29, 122, 217, 0.2) !important; border-color: #1D7AD9 !important; }
-            `}</style>
-        </Flex>
-    );
+        <style>{`
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            .idcard-settings-input:focus { box-shadow: 0 0 0 3px rgba(29, 122, 217, 0.2) !important; border-color: #1D7AD9 !important; }
+        `}</style>
+    </Flex>
+);
 };
 
 export default IDCardSettingsTab;
