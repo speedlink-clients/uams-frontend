@@ -235,6 +235,7 @@ const IDCardSettingsTab = () => {
                         fontWeight="700"
                         borderRadius="8px"
                         fontSize="14px"
+                        _hover={{ bg: "#0655a3ff" }}
                         border="none"
                         boxShadow="0 4px 12px rgba(29,122,217,0.2)"
                         size="sm"
@@ -262,9 +263,9 @@ const IDCardSettingsTab = () => {
                                     <Table.Cell>{t.departments?.[0]?.name || "-"}</Table.Cell>
                                     <Table.Cell>
                                         {t.isDefault ? (
-                                            <Badge colorScheme="green">Default</Badge>
+                                            <Badge color="#10b645ff">Default</Badge>
                                         ) : (
-                                            <Badge colorScheme="gray">Inactive</Badge>
+                                            <Badge color="#87898bff">Inactive</Badge>
                                         )}
                                     </Table.Cell>
                                     <Table.Cell textAlign="right">
@@ -341,8 +342,8 @@ const IDCardSettingsTab = () => {
                         <Button 
                             bg="white"
                             color="#1D7AD9"
-                            _hover={{ bg: "#6ca9e6ff" }}
-                            borderRadius="1px"
+                            _hover={{ bg: "#e3f0fbff" }}
+                            borderRadius="8px"
                             borderColor="#1D7AD9"
                             size="sm" 
                             onClick={() => setIsFormVisible(false)}>
