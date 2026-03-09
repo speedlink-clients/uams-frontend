@@ -16,7 +16,7 @@ interface Staff {
     phone?: string | null;
     department?: string;
     level?: string;
-    program?: string;
+    courses?: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -50,7 +50,7 @@ const StaffPage = () => {
                 phone: item.phone || item.user?.phone || "N/A",
                 department: item.department?.name || "N/A",
                 level: item.academicRank || "N/A",
-                // program: item.specialization || "N/A",
+                courses: item.courses?.map((course: any) => course.name).join(", ") || "N/A",
             }));
             setStaffList(mapped);
         } catch (err) {
@@ -214,8 +214,8 @@ const StaffPage = () => {
                                     <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Email</Box>
                                     <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Phone No</Box>
                                     <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Department</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Level</Box>
-                                    {/* <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Program</Box> */}
+                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Rank</Box>
+                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Course(s)</Box>
                                     <Box as="th" textAlign="center" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Action</Box>
                                 </Box>
                             </Box>
@@ -233,7 +233,7 @@ const StaffPage = () => {
                                         <Box as="td" px="6" py="5" fontSize="xs" color="slate.500">{s.level}</Box>
                                         <Box as="td" px="6" py="5">
                                             <Text as="span" bg="#2ECC71" color="white" px="5" py="1.5" borderRadius="lg" fontSize="10px" fontWeight="bold" boxShadow="sm" display="inline-block" minW="90px" textAlign="center">
-                                                {s.program}
+                                                {s.courses}
                                             </Text>
                                         </Box>
                                         <Box as="td" px="6" py="5" textAlign="center" position="relative" ref={dropdownRef}>
@@ -287,7 +287,7 @@ const StaffPage = () => {
                 <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.staffNumber)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Program: s.program })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
+                    <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.staffNumber)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Courses: s.courses })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
                         <Download size={16} /> Bulk Download
                     </Box>
                     <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
