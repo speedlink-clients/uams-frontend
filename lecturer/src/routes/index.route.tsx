@@ -1,5 +1,5 @@
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { lazy } from "react";
+import { createBrowserRouter, Navigate } from "react-router";
 import AuthRoutes from "@routes/auth.route";
 import ProtectedRoute from "@components/shared/ProtectedRoute";
 import PublicRoute from "@components/shared/PublicRoute";
@@ -16,43 +16,40 @@ const Results = lazy(() => import("@pages/results/Results"));
 const ResultDetail = lazy(() => import("@pages/results/ResultDetail"));
 const Projects = lazy(() => import("@pages/projects/Projects"));
 const Announcement = lazy(() => import("@pages/announcement/Announcement"));
-// const Payments = lazy(() => import("@pages/payments/Payments"));
 
-const Router = () => {
-    return (
-        <BrowserRouter basename="/lecturer">
-            <Suspense fallback={<div>Loading...</div>}>
-                <Routes>
-                    {/* Public Auth Routes — redirected to dashboard if already logged in */}
-                    <Route element={<PublicRoute />}>
-                        {AuthRoutes}
-                    </Route>
+const router = createBrowserRouter([
+    {
+        element: <PublicRoute />,
+        children: AuthRoutes,
+    },
+    {
+        element: <ProtectedRoute />,
+        children: [
+            {
+                element: <DashboardLayout />,
+                children: [
+                    { index: true, element: <Navigate to="/dashboard" replace /> },
+                    { path: "dashboard", element: <Dashboard /> },
+                    { path: "students", element: <Students /> },
+                    { path: "lecturers", element: <Lecturers /> },
+                    { path: "courses", element: <Courses /> },
+                    { path: "courses/:courseId", element: <CourseDetail /> },
+                    { path: "courses/:courseId/students/:studentId", element: <CourseStudentDetail /> },
+                    { path: "results", element: <Results /> },
+                    { path: "results/:courseId", element: <ResultDetail /> },
+                    { path: "projects", element: <Projects /> },
+                    { path: "timetable", element: <TimeTable /> },
+                    { path: "announcement", element: <Announcement /> },
+                ],
+            },
+        ],
+    },
+    {
+        path: "*",
+        element: <Navigate to="/dashboard" replace />,
+    },
+], {
+    basename: "/lecturer",
+});
 
-                    {/* Protected Dashboard Routes — redirected to login if not authenticated */}
-                    <Route element={<ProtectedRoute />}>
-                        <Route element={<DashboardLayout />}>
-                            <Route index element={<Navigate to="/dashboard" replace />} />
-                            <Route path="/dashboard" element={<Dashboard />} />
-                            <Route path="/students" element={<Students />} />
-                            <Route path="/lecturers" element={<Lecturers />} />
-                            <Route path="/courses" element={<Courses />} />
-                            <Route path="/courses/:courseId" element={<CourseDetail />} />
-                            <Route path="/courses/:courseId/students/:studentId" element={<CourseStudentDetail />} />
-                            <Route path="/results" element={<Results />} />
-                            <Route path="/results/:courseId" element={<ResultDetail />} />
-                            <Route path="/projects" element={<Projects />} />
-                            <Route path="/timetable" element={<TimeTable />} />
-                            {/* <Route path="/payments" element={<Paymens />} /> */}
-                            <Route path="/announcement" element={<Announcement />} />
-                        </Route>
-                    </Route>
-
-                    {/* Catch all — redirect to dashboard (which will then redirect to login if needed) */}
-                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                </Routes>
-            </Suspense>
-        </BrowserRouter>
-    );
-};
-
-export default Router;
+export default router;
