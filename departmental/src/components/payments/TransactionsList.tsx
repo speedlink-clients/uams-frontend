@@ -230,8 +230,8 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
                 </div>
 
                 {/* Summary Card + Export */}
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px" }}>
-                    <div style={{ background: "linear-gradient(to right, #e8f5e9, #f1f8e9)", borderRadius: "12px", padding: "24px 32px", display: "flex", alignItems: "center", gap: "16px", minWidth: "400px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
+                    <div style={{ background: "linear-gradient(to right, #e8f5e9, #f1f8e9)", borderRadius: "12px", padding: "24px 32px", display: "flex", alignItems: "center", gap: "16px", minWidth: "min(100%, 400px)", flex: "1 1 auto" }}>
                         <div style={{ height: "48px", width: "48px", borderRadius: "8px", background: "rgba(76,175,80,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <Upload size={22} color="#4caf50" />
                         </div>
@@ -307,7 +307,7 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
                 </div>
 
                 {/* Transactions Table */}
-                <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+                <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", overflowX: "auto" }}>
                     <div style={{ overflowX: "auto" }}>
                         <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
                             <thead>

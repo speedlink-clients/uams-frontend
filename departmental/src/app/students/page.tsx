@@ -215,14 +215,14 @@ const StudentsPage = () => {
     return (
         <Box>
             {/* Header */}
-            <Flex justifyContent="space-between" alignItems="flex-start" mb="10">
+            <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="10" gap="4">
                 <Box maxW="xl">
                     <Text fontSize="3xl" fontWeight="bold" color="slate.900">Students</Text>
                     <Text color="slate.500" mt="2">
                         {students.length} total students • {filteredStudents.length} filtered
                     </Text>
                 </Box>
-                <Flex alignItems="center" gap="3">
+                <Flex alignItems="center" gap="3" flexWrap="wrap">
                     <Box as="button" onClick={handleDownloadTemplate} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="1px solid" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
                         <FileDown size={18} /> Download Sample File
                     </Box>
@@ -291,7 +291,7 @@ const StudentsPage = () => {
                     <Text color="slate.400" fontSize="sm">Try changing your search or filter criteria</Text>
                 </Box>
             ) : (
-                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW="calc(100vw - 340px)">
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
                     <Box overflowX="auto">
                         <Box as="table" w="full" textAlign="left">
                             <Box as="thead">
@@ -420,7 +420,7 @@ const StudentsPage = () => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
                     <Box as="button" onClick={handleBulkDownload} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">

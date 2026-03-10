@@ -221,7 +221,7 @@ const PaymentSettingsTab = () => {
 
   return (
     <Box bg="white" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.200" p="10">
-      <Flex justifyContent="space-between" alignItems="flex-start" mb="6">
+      <Flex wrap="wrap" gap="4" justifyContent="space-between" alignItems="flex-start" mb="6">
         <Text fontSize="xl" fontWeight="bold">Payment Settings</Text>
         <button 
           onClick={() => setIsEditing(!isEditing)} 

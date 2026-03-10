@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router";
 import { Sidebar } from "@components/shared/Sidebar";
 import { Header } from "@components/shared/Header";
@@ -10,6 +11,7 @@ const DashboardLayout = () => {
     const { email, role, clearAuth } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Get user display name
     const currentUser = email
@@ -73,15 +75,18 @@ const DashboardLayout = () => {
                 activeView={activeView}
                 onViewChange={handleViewChange}
                 onLogout={handleLogout}
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
             />
-            <Box as="main" flex="1" ml="64" bg="#F8FAFC">
+            <Box as="main" flex="1" ml={{ base: "0", lg: "64" }} bg="#F8FAFC" transition="margin-left 0.2s">
                 <Toaster />
                 <Header
                     onViewChange={handleViewChange}
                     currentUser={currentUser}
                     email={email}
+                    onMenuClick={() => setIsSidebarOpen(true)}
                 />
-                <Box p="8" maxW="1600px" mx="auto">
+                <Box p={{ base: "4", md: "8" }} maxW="1600px" mx="auto">
                     <Outlet />
                 </Box>
             </Box>
