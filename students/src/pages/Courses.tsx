@@ -87,7 +87,7 @@ const CoursesTabContent = ({ levels, courses, semesters }: {
   }>, courses: any, semesters: Semester[] | undefined
 }) => {
   const [selectedLevel, setSelectedLevel] = React.useState<string[]>(
-    levels.items[0] ? [levels.items[0].value] : []
+    levels?.items[0] ? [levels.items[0].value] : []
   );
   const [selectedSemester, setSelectedSemester] = React.useState<string>(
     semesters?.[0]?.name || ""
@@ -187,7 +187,7 @@ const CoursesTabContent = ({ levels, courses, semesters }: {
         </Tabs.List>
       </Tabs.Root>
 
-      <Table.ScrollArea rounded="md" overflow="hidden">
+      <Table.ScrollArea rounded="md" overflow="auto" minW="calc(100vw_-_140px)">
         <Table.Root size="sm">
           <Table.Header bg="gray.50">
             <Table.Row>
@@ -233,7 +233,7 @@ const ResultsTabContent = ({ levels, results, semesters }: {
   }>, results: any, semesters: Semester[] | undefined
 }) => {
   const [selectedLevel, setSelectedLevel] = React.useState<string[]>(
-    levels.items[0] ? [levels.items[0].value] : []
+    levels?.items[0] ? [levels.items[0].value] : []
   );
   const [selectedSemester, setSelectedSemester] = React.useState<string>(
     semesters?.[0]?.name || ""
