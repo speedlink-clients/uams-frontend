@@ -61,20 +61,19 @@ const Dashboard: React.FC = () => {
     apiClient.get('/timetable/my-level')
       .then((res) => {
         const data = res.data?.data ?? res.data;
+        console.log("DASHBOARD TIMETABLE DATA:", data);
         
-        let flattened: any[] = [];
-        
-        // Handle new timetable format (array of TimetableItem or single item with `schedule`)
+        let flattened: TimetableEntry[] = [];
         const items = Array.isArray(data) ? data : (data?.schedule ? [data] : []);
-        
-        if (items.length > 0 && items[0]?.schedule) {
+
+        if (items.length > 0) {
             items.forEach((item: any) => {
                 if (item.schedule) {
                     Object.entries(item.schedule).forEach(([day, slots]: [string, any]) => {
                         if (Array.isArray(slots)) {
                             slots.forEach((slot: any) => {
                                 flattened.push({
-                                    id: Math.random().toString(),
+                                    id: slot.courseId || Math.random().toString(),
                                     dayOfWeek: day.toUpperCase(),
                                     startTime: slot.startTime,
                                     endTime: slot.endTime,
@@ -93,10 +92,15 @@ const Dashboard: React.FC = () => {
                     });
                 }
             });
-            setTimetableData(flattened);
+        }
+        
+        if (flattened.length > 0) {
+           setTimetableData(flattened);
+        } else if (Array.isArray(data) && !data.some(d => d.schedule)) {
+           // Fallback to old flat format if returned
+           setTimetableData(data);
         } else {
-            // Fallback to old format
-            setTimetableData(Array.isArray(data) ? data : []);
+           setTimetableData([]);
         }
       })
       .catch((err) => console.error('Failed to fetch timetable:', err))
@@ -149,9 +153,11 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const todayClasses = useMemo(() => {
-    return timetableData
-      .filter((e) => e.dayOfWeek === selectedDay && e.isPublished)
+    const classes = timetableData
+      .filter((e) => e.dayOfWeek === selectedDay)
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    console.log(`Classes for ${selectedDay}:`, classes);
+    return classes;
   }, [timetableData, selectedDay]);
 
   return (
