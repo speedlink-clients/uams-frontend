@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     // Fetch timetable
-    apiClient.get('/timetable/my-level')
+    apiClient.get('/timetables')
       .then((res) => {
         const data = res.data?.data ?? res.data;
         console.log("DASHBOARD TIMETABLE DATA:", data);
