@@ -1207,8 +1207,15 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
 
   // Filter registered courses by selected session, or show all if no session selected
   const allCourses = registrationData?.courses || [];
-  const registeredCourses = selectedSession
-    ? allCourses.filter((course) => course.sessionId === selectedSession)
+  
+  // The API returns the registered session name in `registrationData.session`
+  // so we need to match it with the name of the `selectedSession` (which is an ID).
+  const selectedSessionName = selectedSession 
+    ? sessions.find(s => s.id === selectedSession)?.name 
+    : null;
+
+  const registeredCourses = selectedSessionName
+    ? (registrationData?.session === selectedSessionName ? allCourses : [])
     : allCourses;
 
 
