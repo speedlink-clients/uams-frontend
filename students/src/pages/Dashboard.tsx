@@ -61,7 +61,43 @@ const Dashboard: React.FC = () => {
     apiClient.get('/timetable/my-level')
       .then((res) => {
         const data = res.data?.data ?? res.data;
-        setTimetableData(Array.isArray(data) ? data : []);
+        
+        let flattened: any[] = [];
+        
+        // Handle new timetable format (array of TimetableItem or single item with `schedule`)
+        const items = Array.isArray(data) ? data : (data?.schedule ? [data] : []);
+        
+        if (items.length > 0 && items[0]?.schedule) {
+            items.forEach((item: any) => {
+                if (item.schedule) {
+                    Object.entries(item.schedule).forEach(([day, slots]: [string, any]) => {
+                        if (Array.isArray(slots)) {
+                            slots.forEach((slot: any) => {
+                                flattened.push({
+                                    id: Math.random().toString(),
+                                    dayOfWeek: day.toUpperCase(),
+                                    startTime: slot.startTime,
+                                    endTime: slot.endTime,
+                                    isPublished: true, 
+                                    Course: {
+                                        code: slot.courseCode,
+                                        title: slot.originalText || slot.courseCode
+                                    },
+                                    Lecturer: {
+                                        User: { fullName: '' } 
+                                    },
+                                    room: '' 
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+            setTimetableData(flattened);
+        } else {
+            // Fallback to old format
+            setTimetableData(Array.isArray(data) ? data : []);
+        }
       })
       .catch((err) => console.error('Failed to fetch timetable:', err))
       .finally(() => setTimetableLoading(false));
@@ -75,13 +111,28 @@ const Dashboard: React.FC = () => {
       .catch(() => {});
 
     // Fetch course registration status
-    apiClient.get('/students/registrations')
+    apiClient.get('/students/courses')
       .then((res) => {
-        const regs = res.data?.registrations ?? res.data?.data?.registrations ?? [];
-        const hasConfirmed = Array.isArray(regs) && regs.some(
-          (r: any) => r.status === 'confirmed' || r.status === 'registered'
-        );
-        setCourseRegStatus(hasConfirmed ? 'registered' : (regs.length > 0 ? 'registered' : 'pending'));
+        const yearData = res.data?.data;
+        if (!yearData) {
+            setCourseRegStatus('pending');
+            return;
+        }
+        
+        let isAnyCourseRegistered = false;
+        
+        // Traverse through AcademicYear -> Level -> Semester -> Courses
+        Object.values(yearData).forEach((levelData: any) => {
+            Object.values(levelData).forEach((semesterData: any) => {
+                Object.values(semesterData).forEach((courses: any) => {
+                    if (Array.isArray(courses) && courses.some((c: any) => c.isRegistered)) {
+                        isAnyCourseRegistered = true;
+                    }
+                });
+            });
+        });
+        
+        setCourseRegStatus(isAnyCourseRegistered ? 'registered' : 'pending');
       })
       .catch(() => setCourseRegStatus('pending'));
 

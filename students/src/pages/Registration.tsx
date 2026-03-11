@@ -1686,7 +1686,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                   Course Title
                 </th>
                 <th className="px-4 py-4 font-bold text-gray-400 uppercase text-[10px] tracking-wider">
-                  Type
+                  Semester
                 </th>
                 <th className="px-4 py-4 font-bold text-gray-400 uppercase text-[10px] tracking-wider">
                   Unit
@@ -1731,7 +1731,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
                       {course.title}
                     </td>
                     <td className="px-4 py-4 text-gray-400 font-medium text-[11px]">
-                      {course.type}
+                      {course.semester}
                     </td>
                     <td className="px-4 py-4 text-gray-400 font-bold text-[11px]">
                       {course.creditUnits}
@@ -1813,13 +1813,6 @@ const Registration: React.FC = () => {
           getRegistrations(),
         ]);
 
-        // Debug logging
-        // console.log("Fetched levels:", levelsData);
-        // console.log("Fetched semesters:", semestersData);
-        // console.log("Fetched sessions:", sessionsData);
-        // console.log("Fetched profileData:", profileData);
-        // console.log("Fetched profileData.id:", profileData?.id);
-
         setLevels(levelsData);
         setSemesters(semestersData);
         setSessions(sessionsData);
@@ -1848,19 +1841,27 @@ const Registration: React.FC = () => {
       return;
     }
 
-    console.log("Payment check - CALLING getStudentPayments with id:", studentProfile.id);
-    getStudentPayments(studentProfile.id)
-      .then((payments) => {
+    console.log("Payment check - CALLING /student/payments");
+    apiClient.get('/student/payments')
+      .then((res) => {
+        const payments = res.data?.data?.payments ?? res.data?.payments ?? res.data?.data ?? [];
         console.log("Payment check - Payments received:", payments);
-        // Check for id_card_fee payment using meta.payment_type (payment_for contains "ID Card Fee Payment")
+        
+        // Check for id_card_fee payment using paymentType or meta.payment_type
         const idCardPayment = payments?.find(
-          (payment: any) => payment.meta?.payment_type === "id_card_fee",
+          (p: any) => 
+            (p.paymentType?.toUpperCase() === "ID CARD FEE" && p.status?.toLowerCase() === "success") || 
+            (p.meta?.payment_type === "id_card_fee" && p.status?.toLowerCase() === "success")
         );
+        
         console.log("Payment check - ID Card Payment found:", idCardPayment);
-        if (idCardPayment && idCardPayment.status === "success") {
+        if (idCardPayment) {
           console.log("Payment check - Setting hasPaidID to true");
           setHasPaidID(true);
           localStorage.setItem("idcard_paid", "true");
+        } else {
+          setHasPaidID(false);
+          localStorage.removeItem("idcard_paid");
         }
       })
       .catch((err) => {
