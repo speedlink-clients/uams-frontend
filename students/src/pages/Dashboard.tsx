@@ -56,7 +56,28 @@ const Dashboard: React.FC = () => {
   const [idCardStatus, setIdCardStatus] = useState<'loading' | 'paid' | 'not_paid'>('loading');
   const [notifAnnouncements, setNotifAnnouncements] = useState<any[]>([]);
 
+  // State for Academic Performance chart
+  const [perfData, setPerfData] = useState<{name: string, gpa: number, cgpa: number}[]>([]);
+  const [perfLoading, setPerfLoading] = useState(true);
+
   useEffect(() => {
+    // Fetch academic performance
+    apiClient.get('/senate-approved-results/academic-performance')
+      .then((res) => {
+        const data = res.data?.data || [];
+        if (Array.isArray(data)) {
+          const formattedData = data.map((item) => ({
+             // Use only the year part of session e.g. "2025/2026"
+             name: item.sessionName?.split(' ')[0] || item.sessionName || 'Unknown', 
+             gpa: parseFloat(item.sessionGPA) || 0,
+             cgpa: parseFloat(item.cgpaAtEndOfSession) || 0
+          }));
+          setPerfData(formattedData);
+        }
+      })
+      .catch((err) => console.error('Failed to fetch academic performance:', err))
+      .finally(() => setPerfLoading(false));
+
     // Fetch timetable
     apiClient.get('/timetables')
       .then((res) => {
@@ -219,56 +240,68 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="h-60 lg:h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis
-                    dataKey="name"
-                    axisLine={{ stroke: '#e2e8f0' }}
-                    tickLine={false}
-                    tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
-                    dy={10}
-                    padding={{ left: 10, right: 10 }}
-                  />
-                  <YAxis
-                    axisLine={{ stroke: '#e2e8f0' }}
-                    tickLine={false}
-                    tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
-                    domain={[0, 5]}
-                    ticks={[0, 1.0, 2.0, 3.0, 4.0, 5.0]}
-                    tickFormatter={(value: number) => value.toFixed(1)}
-                    width={35}
-                  />
-                  <Tooltip
-                    cursor={{ stroke: '#f1f5f9' }}
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: 'none',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="gpa"
-                    stroke="#22c55e"
-                    strokeWidth={2.5}
-                    dot={{ r: 0 }}
-                    activeDot={{ r: 5, fill: '#22c55e', stroke: '#fff', strokeWidth: 2.5 }}
-                    name="GPA"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="cgpa"
-                    stroke="#ef4444"
-                    strokeWidth={2.5}
-                    dot={{ r: 0 }}
-                    activeDot={{ r: 5, fill: '#ef4444', stroke: '#fff', strokeWidth: 2.5 }}
-                    name="CGPA"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {perfLoading ? (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                  <Loader2 size={24} className="animate-spin text-blue-500" />
+                  <span className="text-sm text-gray-400 font-medium">Loading performance...</span>
+                </div>
+              ) : perfData.length === 0 ? (
+                <div className="w-full h-full flex flex-col items-center justify-center text-center">
+                  <p className="text-sm font-bold text-gray-400">No performance data</p>
+                  <p className="text-[11px] text-gray-300 mt-1">There are no approved results available yet.</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={perfData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={{ stroke: '#e2e8f0' }}
+                      tickLine={false}
+                      tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
+                      dy={10}
+                      padding={{ left: 10, right: 10 }}
+                    />
+                    <YAxis
+                      axisLine={{ stroke: '#e2e8f0' }}
+                      tickLine={false}
+                      tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
+                      domain={[0, 5]}
+                      ticks={[0, 1.0, 2.0, 3.0, 4.0, 5.0]}
+                      tickFormatter={(value: number) => value.toFixed(1)}
+                      width={35}
+                    />
+                    <Tooltip
+                      cursor={{ stroke: '#f1f5f9' }}
+                      contentStyle={{
+                        borderRadius: '12px',
+                        border: 'none',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="gpa"
+                      stroke="#22c55e"
+                      strokeWidth={2.5}
+                      dot={{ r: 0 }}
+                      activeDot={{ r: 5, fill: '#22c55e', stroke: '#fff', strokeWidth: 2.5 }}
+                      name="GPA"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="cgpa"
+                      stroke="#ef4444"
+                      strokeWidth={2.5}
+                      dot={{ r: 0 }}
+                      activeDot={{ r: 5, fill: '#ef4444', stroke: '#fff', strokeWidth: 2.5 }}
+                      name="CGPA"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
 
