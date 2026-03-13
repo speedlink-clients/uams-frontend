@@ -39,7 +39,7 @@ const StaffPage = () => {
     const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
     const [staffToEdit, setStaffToEdit] = useState<any>(null);
 
-    // ORIGINAL WORKING fetchStaff function
+    
     const fetchStaff = async () => {
         try {
             setLoading(true);
@@ -142,24 +142,21 @@ const StaffPage = () => {
         }
     };
 
-   const handleAssignStudent = async (data: { studentId: string; level?: string }) => {
-    if (!selectedStaff) return;
-    try {
-    
-        const payload = {
-            studentAssignments: [{ 
-                studentId: data.studentId, 
-                ...(data.level && { level: data.level }) 
-            }],
-        };
-        await StaffServices.assignStudent(selectedStaff.id, payload);
-        toaster.success({ title: "Student assigned successfully" });
-    } catch (err: any) {
-        console.error("Failed to assign student:", err);
-        toaster.error({ title: err.response?.data?.message || "Failed to assign student" });
-        throw err;
-    }
-};
+
+    const handleAssignStudent = async (data: { studentId: string; level?: string }) => {
+        if (!selectedStaff) return;
+        try {
+            await StaffServices.assignStudent(selectedStaff.id, {
+                studentId: data.studentId,
+                ...(data.level && { level: data.level })
+            });
+            toaster.success({ title: "Student assigned successfully" });
+        } catch (err: any) {
+            console.error("Failed to assign student:", err);
+            toaster.error({ title: err.response?.data?.message || "Failed to assign student" });
+            throw err;
+        }
+    };
 
     const handleAddEditSubmit = async (payload: any) => {
         try {
