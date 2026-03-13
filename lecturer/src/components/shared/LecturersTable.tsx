@@ -137,7 +137,7 @@ const CourseDrawer = ({ courses, lecturer }: { courses: Lecturer["courseAssignme
     return (
         <Drawer.Root>
             <Drawer.Trigger asChild>
-                <Button variant="ghost" size="xs" w="full" justifyContent={"start"} fontWeight="500">
+                <Button variant="ghost" size="xs" w="full" justifyContent={"start"} fontWeight="500" _focus={{ ring: "none" }}>
                     Courses
                 </Button>
             </Drawer.Trigger>
@@ -182,6 +182,7 @@ const CourseDrawer = ({ courses, lecturer }: { courses: Lecturer["courseAssignme
 }
 
 const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer: Lecturer["User"]["fullName"] }) => {
+    const [open, setOpen] = useState(false);
     const { data: activeSession, isLoading: isSessionLoading } = AcademicHook.useActiveSession();
     const { data: students, isLoading, refetch } = StudentHook.useUnassignedStudents();
     const { mutate: assignStudents, isPending: isAssigning } = StudentHook.useAssignStudents({
@@ -192,6 +193,7 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
             });
             setSelectedStudents(new Set());
             refetch();
+            setOpen(false);
         },
         onError: (error) => {
             toaster.create({
@@ -235,9 +237,9 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
     };
 
     return (
-        <Drawer.Root size="md">
+        <Drawer.Root size="md" open={open} onOpenChange={(e) => setOpen(e.open)}>
             <Drawer.Trigger asChild>
-                <Button variant="ghost" size="xs" w="full" justifyContent={"start"} fontWeight="500">
+                <Button variant="ghost" size="xs" w="full" justifyContent={"start"} fontWeight="500" _focus={{ ring: "none" }}>
                     Students
                 </Button>
             </Drawer.Trigger>
