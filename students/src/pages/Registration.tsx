@@ -30,6 +30,7 @@ import {
   bulkRegisterCourses,
   getStudentPayments,
   getTranscripts,
+  getDefaultIDCard,
 } from "../services/registrationService";
 import type {
   Level,
@@ -603,11 +604,22 @@ const FormRow = ({
 
 // --- ID Card Components ---
 
+// --- ID Card Components ---
+
+interface IDCardSettings {
+  backTemplate?: string;
+  frontTemplate?: string;
+  backDescription?: string;
+  backDisclaimer?: string;
+  signature?: string;
+}
+
 interface IDCardProps {
   isWatermarked?: boolean;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
   isPhotoUploaded?: boolean;
+  idCardSettings?: IDCardSettings | null;
 }
 
 const IDCardGraphic = ({
@@ -615,6 +627,7 @@ const IDCardGraphic = ({
   studentProfile,
   studentPhoto,
   isPhotoUploaded = false,
+  idCardSettings,
 }: IDCardProps) => {
   const getInitials = (name?: string) => {
     if (!name) return "?";
@@ -628,11 +641,11 @@ const IDCardGraphic = ({
   return (
     <div className="space-y-4 max-w-lg mx-auto">
       {/* FRONT OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={`${import.meta.env.BASE_URL}assets/image 1.png`}
+          src={idCardSettings?.frontTemplate || `${import.meta.env.BASE_URL}assets/image 1.png`}
           alt="ID Card Front"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-fill"
         />
 
         {/* Student Photo - Placed in the exact position on the card */}
@@ -657,11 +670,11 @@ const IDCardGraphic = ({
       </div>
 
       {/* BACK OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={`${import.meta.env.BASE_URL}assets/image 2.png`}
+          src={idCardSettings?.backTemplate || `${import.meta.env.BASE_URL}assets/image 2.png`}
           alt="ID Card Back"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-fill"
         />
 
         {/* Watermark Overlay */}
@@ -683,6 +696,7 @@ interface IDCardViewProps {
   onBack: () => void;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
+  idCardSettings?: IDCardSettings | null;
 }
 
 const IDCardView = ({
@@ -691,6 +705,7 @@ const IDCardView = ({
   onBack,
   studentProfile,
   studentPhoto,
+  idCardSettings,
 }: IDCardViewProps) => (
   <div className="bg-white rounded-4xl p-8 lg:p-14 border border-gray-100 shadow-sm animate-in zoom-in-95 duration-500 max-w-4xl mx-auto">
     <div className="flex items-center space-x-4 mb-10">
@@ -743,6 +758,7 @@ const IDCardView = ({
         studentProfile={studentProfile}
         studentPhoto={studentPhoto}
         isPhotoUploaded={isPhotoUploaded && isPaid}
+        idCardSettings={idCardSettings}
       />
     </div>
 
@@ -1784,6 +1800,9 @@ const Registration: React.FC = () => {
     useState<RegistrationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [idCardSettings, setIdCardSettings] = useState<IDCardSettings | null>(
+    null,
+  );
 
   // State for ID Card application in Other tab
   const [isViewingID, setIsViewingID] = useState(false);
@@ -1812,12 +1831,14 @@ const Registration: React.FC = () => {
           sessionsData,
           profileData,
           registrationsData,
+          idCardData,
         ] = await Promise.all([
           getLevels(programId),
           getSemesters(),
           getSessions(),
           getStudentProfile(),
           getRegistrations(),
+          getDefaultIDCard(),
         ]);
 
         setLevels(levelsData);
@@ -1825,6 +1846,7 @@ const Registration: React.FC = () => {
         setSessions(sessionsData);
         setStudentProfile(profileData);
         setRegistrationData(registrationsData);
+        setIdCardSettings(idCardData?.data || idCardData);
       } catch (err) {
         console.error("Error fetching registration data:", err);
         setError("Failed to load registration data. Please try again.");
@@ -1951,6 +1973,7 @@ const Registration: React.FC = () => {
               onBack={() => setIsViewingID(false)}
               studentProfile={studentProfile}
               studentPhoto={studentPhoto}
+              idCardSettings={idCardSettings}
             />
           ) : (
             <OtherServicesView

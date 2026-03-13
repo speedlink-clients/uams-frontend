@@ -454,6 +454,19 @@ export const calculateTranscriptFee = async (
   return response.data.data;
 };
 
+/**
+ * Get the Active Default ID-Card Template
+ */
+export const getDefaultIDCard = async () => {
+  try {
+    const response = await apiClient.get("/university-admin/id-card/default");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch ID card template", error);
+    return null;
+  }
+};
+
 // Export all functions as a service object for convenience
 const registrationService = {
   // Academic
@@ -472,6 +485,7 @@ const registrationService = {
   getTranscripts,
   submitTranscriptRequest,
   calculateTranscriptFee,
+  getDefaultIDCard,
 };
 
 export default registrationService;
