@@ -291,11 +291,7 @@ const StudentsPage = () => {
                     <Text color="slate.400" fontSize="sm">Try changing your search or filter criteria</Text>
                 </Box>
             ) : (
-<<<<<<< HEAD
-                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden">
-=======
                 <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
->>>>>>> 219b01b94776f10d2f4fbe39be03e3f7af033126
                     <Box overflowX="auto">
                         <Box as="table" w="full" textAlign="left">
                             <Box as="thead">
