@@ -71,5 +71,5 @@ const ResourcesSection = () => {
 */
 
 // Export a placeholder so the app doesn't break if this component is imported
-// const ResourcesSection = () => null;
-// export default ResourcesSection;
+const ResourcesSection = () => null;
+export default ResourcesSection;
