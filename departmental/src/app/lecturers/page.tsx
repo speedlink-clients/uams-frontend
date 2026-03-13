@@ -7,6 +7,7 @@ import BulkUploadStaffModal from "@components/lecturers/BulkUploadStaffModal";
 import AssignCourseModal from "@components/lecturers/AssignCourseModal";
 import AddStaffForm from "@components/lecturers/AddStaffForm";
 import { StaffServices } from "@services/staff.service";
+import AssignStudentModal from "@components/lecturers/AssignStudentsModal";
 
 interface Staff {
     id: string;
@@ -33,10 +34,12 @@ const StaffPage = () => {
 
     // Action modals state
     const [showAssignCourse, setShowAssignCourse] = useState(false);
+    const [showAssignStudent, setShowAssignStudent] = useState(false);
     const [showAddEditForm, setShowAddEditForm] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
     const [staffToEdit, setStaffToEdit] = useState<any>(null);
 
+    
     const fetchStaff = async () => {
         try {
             setLoading(true);
@@ -135,6 +138,22 @@ const StaffPage = () => {
         } catch (err: any) {
             console.error("Failed to assign course:", err);
             toaster.error({ title: err.response?.data?.message || "Failed to assign course" });
+            throw err;
+        }
+    };
+
+
+    const handleAssignStudent = async (data: { studentId: string; level?: string }) => {
+        if (!selectedStaff) return;
+        try {
+            await StaffServices.assignStudent(selectedStaff.id, {
+                studentId: data.studentId,
+                ...(data.level && { level: data.level })
+            });
+            toaster.success({ title: "Student assigned successfully" });
+        } catch (err: any) {
+            console.error("Failed to assign student:", err);
+            toaster.error({ title: err.response?.data?.message || "Failed to assign student" });
             throw err;
         }
     };
@@ -251,6 +270,9 @@ const StaffPage = () => {
                                                         <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignCourse(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
                                                             <UserCog size={16} /> Assign Course
                                                         </Box>
+                                                        <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignStudent(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="purple.600" _hover={{ bg: "purple.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
+                                                            <UserCog size={16} /> Assign Student
+                                                        </Box>
                                                         <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setStaffToEdit(s); setShowAddEditForm(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="amber.600" _hover={{ bg: "blackAlpha.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
                                                             <Pencil size={16} /> Edit details
                                                         </Box>
@@ -317,6 +339,13 @@ const StaffPage = () => {
                 isOpen={showAssignCourse}
                 onClose={() => { setShowAssignCourse(false); setSelectedStaff(null); }}
                 onAssign={handleAssignCourse}
+                staffName={selectedStaff?.fullName}
+            />
+
+            <AssignStudentModal
+                isOpen={showAssignStudent}
+                onClose={() => { setShowAssignStudent(false); setSelectedStaff(null); }}
+                onAssign={handleAssignStudent}
                 staffName={selectedStaff?.fullName}
             />
 

@@ -244,7 +244,7 @@ const Dashboard: React.FC = () => {
                     <Calendar size={20} className="text-white" />
                   </div>
                   <div>
-                    <p className="font-bold text-sm">View Full Timetable</p>
+                    <p className="font-bold text-sm">View Full Timetable.</p>
                     
                   </div>
                 </div>

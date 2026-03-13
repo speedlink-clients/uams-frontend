@@ -21,6 +21,15 @@ export const StaffServices = {
         return data;
     },
 
+    
+    assignStudent: async (lecturerId: string, payload: { studentId: string; level?: string }) => {
+        const { data } = await axiosClient.post(
+            `/university-admin/lecturers/${lecturerId}/students`,
+            payload
+        );
+        return data;
+    },
+
     getDepartmentLecturers: async () => {
         const { data } = await axiosClient.get("/university-admin/lecturers");
         return data;
