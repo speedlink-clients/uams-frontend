@@ -251,6 +251,40 @@ const IDCardPage = () => {
             if (backTemplate) {
                 doc.addPage([cardWidth, cardHeight], "landscape");
                 doc.addImage(backTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+
+                // Add Back Text
+                const backDescription = idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt";
+                const backDisclaimer = idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt";
+
+                doc.setTextColor(15, 23, 42); // slate-900 equivalent
+                
+                // Description
+                doc.setFontSize(3.5);
+                doc.setFont("helvetica", "bold");
+                const descLines = doc.splitTextToSize(backDescription, cardWidth - 20);
+                doc.text(descLines, cardWidth / 2, 20, { align: "center" });
+
+                // Disclaimer
+                doc.setFontSize(3);
+                const discLines = doc.splitTextToSize(backDisclaimer, cardWidth - 20);
+                doc.text(discLines, cardWidth / 2, 30, { align: "center" });
+
+                // Signature
+                const sigSrc = idCardSettings?.signature;
+                if (sigSrc) {
+                    const signatureImg = await loadImage(sigSrc);
+                    if (signatureImg) {
+                        doc.addImage(signatureImg, "PNG", (cardWidth / 2) - 15, cardHeight - 18, 30, 6, undefined, 'FAST');
+                    }
+                }
+
+                // Signature Line and Label
+                doc.setDrawColor(15, 23, 42);
+                doc.setLineWidth(0.2);
+                doc.line((cardWidth / 2) - 15, cardHeight - 11, (cardWidth / 2) + 15, cardHeight - 11);
+                
+                doc.setFontSize(2.5);
+                doc.text("Department Admin's Signature", cardWidth / 2, cardHeight - 8, { align: "center" });
             }
 
             doc.save(`${currentStudent.name.replace(/\s+/g, "_")}_ID_Card.pdf`);
