@@ -152,38 +152,43 @@ interface StudentRegistrationsResponse {
  */
 export const getRegistrations = async (): Promise<RegistrationData | null> => {
   try {
-    const response = await apiClient.get<StudentRegistrationsResponse>('/students/registrations');
+    const response = await apiClient.get<any>('/students/registrations');
     
-    if (response.data?.status === 'success' && response.data.registrations) {
-      // Transform API response to RegistrationData format
-      const registrations = response.data.registrations;
-      
-      // Map status: "confirmed" -> "registered"
-      const formatStatus = (status: string): 'registered' | 'pending' | 'dropped' => {
-        if (status === 'confirmed') return 'registered';
-        if (status === 'pending') return 'pending';
-        return 'dropped';
-      };  
-      
-      const courses: RegisteredCourse[] = registrations.map(reg => ({
-        id: reg.id,
-        courseId: reg.courseId,
-        code: reg.Course.code,
-        title: reg.Course.title,
-        creditUnits: reg.Course.creditUnits,
-        type: 'Departmental', // Default type since API doesn't return this
-        lecturer: 'Not Assigned', // API doesn't return lecturer info
-        status: formatStatus(reg.status),
-        registeredAt: reg.createdAt,
-        sessionId: reg.sessionId, 
-      }));
+    if (response.data?.status === 'success' && response.data.data) {
+      const yearData = response.data.data;
+      const courses: RegisteredCourse[] = [];
+      let foundSession = '';
+
+      Object.entries(yearData).forEach(([sessionName, levelData]: [string, any]) => {
+        foundSession = sessionName;
+        Object.values(levelData).forEach((semesterData: any) => {
+          Object.entries(semesterData).forEach(([semesterName, coursesArray]: [string, any]) => {
+            if (Array.isArray(coursesArray)) {
+              coursesArray.forEach((course) => {
+                courses.push({
+                  id: course.id,
+                  courseId: course.id, // Using course id as courseId since the new API structure returns the course directly
+                  code: course.code,
+                  title: course.title,
+                  creditUnits: course.creditUnits,
+                  semester: semesterName,
+                  lecturer: 'Not Assigned', // API doesn't return lecturer info here
+                  status: 'registered', // Assuming all returned courses are registered
+                  registeredAt: new Date().toISOString(), // Fallback if createdAt is not available
+                  sessionId: undefined, 
+                });
+              });
+            }
+          });
+        });
+      });
 
       // Calculate total units
       const totalUnits = courses.reduce((sum, c) => sum + c.creditUnits, 0);
       
       return {
-        session: registrations[0]?.Session?.name || '',
-        semester: registrations[0]?.Semester?.name || '',
+        session: foundSession,
+        semester: courses.length > 0 ? courses[0].semester : '',
         totalUnits,
         maxAllowedUnits: 24, // Default max units
         registrationStatus: 'open',
