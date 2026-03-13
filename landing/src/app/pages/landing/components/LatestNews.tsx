@@ -61,7 +61,7 @@ const newsItems = [
 
 const MotionBox = motion(Box);
 
-const LatestNews = () => {
+const LatestNews = ({ id }: { id?: string }) => {
     const handleComingSoon = () => {
         toaster.create({
             title: "Coming Soon",
@@ -70,7 +70,7 @@ const LatestNews = () => {
         });
     };
     return (
-        <Box py={20} bg="#F7FAFC">
+        <Box id={id} py={20} bg="#F7FAFC">
             <Container maxW="container.xl">
                 <Box mb={12}>
                     <Heading as="h3" size="2xl" color="#154A99" mb={2}>
@@ -116,19 +116,27 @@ const LatestNews = () => {
                                 <Text fontSize="sm" color="#000000" lineClamp={3} mb={4}>
                                     {item.excerpt}
                                 </Text>
-                                <Button size="sm" bg="#2AB0E8" color="white" _hover={{ bg: "#2AB0E8" }} borderRadius="none" onClick={handleComingSoon}>
+                                {/* <Button size="sm" bg="#2AB0E8" color="white" _hover={{ bg: "#2AB0E8" }} borderRadius="none" onClick={handleComingSoon}>
                                     Read More
-                                </Button>
+                                </Button> */}
                             </Box>
                         </MotionBox>
                     ))}
                 </SimpleGrid>
 
-                <Center>
-                    <Button bg="#2AB0E8" color="white" px={8} borderRadius="none" _hover={{ bg: "#2AB0E8", transform: "scale(1.05)" }} onClick={handleComingSoon}>
-                        Read More News
-                    </Button>
-                </Center>
+              <Center>
+  <a href="https://www.uniport.edu.ng/" target="_blank" rel="noopener noreferrer">
+    <Button 
+      bg="#2AB0E8" 
+      color="white" 
+      px={8} 
+      borderRadius="none" 
+      _hover={{ bg: "#2AB0E8", transform: "scale(1.05)" }}
+    >
+      Read More News
+    </Button>
+  </a>
+</Center>
             </Container>
         </Box>
     );

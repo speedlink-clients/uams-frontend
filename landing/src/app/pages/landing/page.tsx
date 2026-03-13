@@ -13,12 +13,12 @@ const LandingPage = () => {
   
   return (
     <Box bg="white">
-      <Hero />
+      <Hero id="home" />
       <Stats />
-      <About />
+      <About id="about" />
       <SecureFuture />
       <Programmes />
-      <LatestNews />
+      <LatestNews id="research" />
       <LibrarySection />
       <ResourcesSection />
       <NewsletterSection />
