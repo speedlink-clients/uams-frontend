@@ -30,6 +30,7 @@ import {
   bulkRegisterCourses,
   getStudentPayments,
   getTranscripts,
+  getDefaultIDCard,
 } from "../services/registrationService";
 import type {
   Level,
@@ -603,11 +604,21 @@ const FormRow = ({
 
 // --- ID Card Components ---
 
+interface IDCardSettings {
+  backTemplate?: string;
+  frontTemplate?: string;
+  backDescription?: string;
+  backDisclaimer?: string;
+  signature?: string;
+}
+
 interface IDCardProps {
   isWatermarked?: boolean;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
   isPhotoUploaded?: boolean;
+  idCardSettings?: IDCardSettings | null;
+  studentName?: string;
 }
 
 const IDCardGraphic = ({
@@ -615,6 +626,8 @@ const IDCardGraphic = ({
   studentProfile,
   studentPhoto,
   isPhotoUploaded = false,
+  idCardSettings,
+  studentName = "N/A",
 }: IDCardProps) => {
   const getInitials = (name?: string) => {
     if (!name) return "?";
@@ -628,23 +641,32 @@ const IDCardGraphic = ({
   return (
     <div className="space-y-4 max-w-lg mx-auto">
       {/* FRONT OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={`${import.meta.env.BASE_URL}assets/image 1.png`}
+          src={idCardSettings?.frontTemplate || `${import.meta.env.BASE_URL}assets/image 1.png`}
           alt="ID Card Front"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-fill"
         />
 
         {/* Student Photo - Placed in the exact position on the card */}
         {studentPhoto && isPhotoUploaded && (
-          <div className="absolute top-6 right-6 w-20 h-24 rounded-lg overflow-hidden shadow-md">
-            <img
-              src={studentPhoto}
-              alt="Student Photo"
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <img
+            src={studentPhoto}
+            alt="Student Photo"
+            className="absolute top-[38%] left-[6.5%] w-[23%] h-[43%] object-cover border-[1px] border-white"
+          />
         )}
+
+        {/* Student Details */}
+        <div className="absolute left-[32%] top-[42.5%] w-[45%] text-[7px] font-bold text-black uppercase">
+          <div className="flex flex-col gap-[8px] leading-none">
+            <div>NAME: {studentName}</div>
+            <div>MATRIC NO.: {studentProfile?.studentId || 'N/A'}</div>
+            <div>FACULTY: {studentProfile?.Department?.type || 'N/A'}</div>
+            <div>DEPT: {studentProfile?.Department?.name || 'N/A'}</div>
+            <div>EXPIRY DATE: {studentProfile?.courseDuration ? new Date(new Date(studentProfile?.createdAt).setFullYear(new Date(studentProfile?.createdAt).getFullYear() + studentProfile.courseDuration)).toLocaleDateString() : 'N/A'}</div>
+          </div>
+        </div>
 
         {/* Watermark Overlay */}
         {isWatermarked && (
@@ -657,12 +679,29 @@ const IDCardGraphic = ({
       </div>
 
       {/* BACK OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={`${import.meta.env.BASE_URL}assets/image 2.png`}
+          src={idCardSettings?.backTemplate || `${import.meta.env.BASE_URL}assets/image 2.png`}
           alt="ID Card Back"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-fill"
         />
+
+        <div className="absolute inset-0 flex flex-col items-center pt-[40px] text-center px-[24px]">
+          <p className="text-[9px] font-bold text-[#0f172a] mb-[8px] leading-tight max-w-[95%]">
+            {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+          </p>
+          <p className="text-[8px] font-bold text-[#0f172a] leading-tight max-w-[95%]">
+            {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+          </p>
+
+          <div className="mt-auto mb-[32px] flex flex-col items-center">
+            {idCardSettings?.signature && (
+              <img src={idCardSettings.signature} alt="Signature" className="w-[120px] h-[24px] object-contain mb-0" />
+            )}
+            <div className="w-[140px] h-[1px] bg-[#0f172a] mb-[4px]" />
+            <p className="text-[7px] font-bold text-[#0f172a] m-0">Department Admin's Signature</p>
+          </div>
+        </div>
 
         {/* Watermark Overlay */}
         {isWatermarked && (
@@ -683,6 +722,8 @@ interface IDCardViewProps {
   onBack: () => void;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
+  idCardSettings?: IDCardSettings | null;
+  studentName?: string;
 }
 
 const IDCardView = ({
@@ -691,6 +732,8 @@ const IDCardView = ({
   onBack,
   studentProfile,
   studentPhoto,
+  idCardSettings,
+  studentName,
 }: IDCardViewProps) => (
   <div className="bg-white rounded-4xl p-8 lg:p-14 border border-gray-100 shadow-sm animate-in zoom-in-95 duration-500 max-w-4xl mx-auto">
     <div className="flex items-center space-x-4 mb-10">
@@ -743,6 +786,8 @@ const IDCardView = ({
         studentProfile={studentProfile}
         studentPhoto={studentPhoto}
         isPhotoUploaded={isPhotoUploaded && isPaid}
+        idCardSettings={idCardSettings}
+        studentName={studentName}
       />
     </div>
 
@@ -1784,6 +1829,9 @@ const Registration: React.FC = () => {
     useState<RegistrationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [idCardSettings, setIdCardSettings] = useState<IDCardSettings | null>(
+    null,
+  );
 
   // State for ID Card application in Other tab
   const [isViewingID, setIsViewingID] = useState(false);
@@ -1812,12 +1860,14 @@ const Registration: React.FC = () => {
           sessionsData,
           profileData,
           registrationsData,
+          idCardData,
         ] = await Promise.all([
           getLevels(programId),
           getSemesters(),
           getSessions(),
           getStudentProfile(),
           getRegistrations(),
+          getDefaultIDCard(),
         ]);
 
         setLevels(levelsData);
@@ -1825,6 +1875,7 @@ const Registration: React.FC = () => {
         setSessions(sessionsData);
         setStudentProfile(profileData);
         setRegistrationData(registrationsData);
+        setIdCardSettings(idCardData?.data || idCardData);
       } catch (err) {
         console.error("Error fetching registration data:", err);
         setError("Failed to load registration data. Please try again.");
@@ -1951,6 +2002,8 @@ const Registration: React.FC = () => {
               onBack={() => setIsViewingID(false)}
               studentProfile={studentProfile}
               studentPhoto={studentPhoto}
+              idCardSettings={idCardSettings}
+              studentName={getStoredUser()?.fullName}
             />
           ) : (
             <OtherServicesView
