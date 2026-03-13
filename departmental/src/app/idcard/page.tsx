@@ -21,6 +21,7 @@ interface Student {
 
 interface IDCardSettings {
     backTemplate?: string;
+    frontTemplate?: string;
     backDescription?: string;
     backDisclaimer?: string;
     signature?: string;
@@ -57,6 +58,7 @@ const IDCardPage = () => {
                 const response = await IDCardServices.getDefaultIDCard();
                 if (response?.template) {
                     setIdCardSettings({
+                        frontTemplate: response.template.frontCardTemplate || response.template.frontTemplate,
                         backTemplate: response.template.backCardTemplate || response.template.backTemplate,
                         backDescription: response.template.backDescription,
                         backDisclaimer: response.template.backDisclaimer,
@@ -282,31 +284,35 @@ const IDCardPage = () => {
                     <Text fontSize="2xl" fontWeight="bold" color="slate.900">Student ID Issuance</Text>
                     <Text fontSize="sm" color="slate.500">Capture photos and generate official department ID cards.</Text>
                 </Box>
-                <Flex gap="3" alignItems="center" flexWrap="wrap">
-                    <select value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)} className="idcard-filter-input" style={selectStyle}>
-                        <option value="all">All Levels</option>
-                        {uniqueLevels.map((l) => <option key={l} value={l}>{l}</option>)}
-                    </select>
-                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)} className="idcard-filter-input" style={selectStyle}>
-                        <option value="all">All Status</option>
-                        <option value="paid">Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                    </select>
-                    <div style={{ position: "relative" }}>
+                <Flex gap="3" alignItems="center" flexWrap="wrap" w={{ base: "100%", lg: "auto" }}>
+                    <Box flex={{ base: "1 1 45%", lg: "none" }}>
+                        <select value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)} className="idcard-filter-input" style={{ ...selectStyle, width: "100%" }}>
+                            <option value="all">All Levels</option>
+                            {uniqueLevels.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </select>
+                    </Box>
+                    <Box flex={{ base: "1 1 45%", lg: "none" }}>
+                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)} className="idcard-filter-input" style={{ ...selectStyle, width: "100%" }}>
+                            <option value="all">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                        </select>
+                    </Box>
+                    <Box flex={{ base: "1 1 100%", lg: "none" }} position="relative" w={{ base: "100%", lg: "320px" }}>
                         <input
                             type="text" placeholder="Search by name or matric number..." value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="idcard-filter-input"
-                            style={{ width: "320px", padding: "10px 16px 10px 40px", border: "1px solid #e2e8f0", background: "white", borderRadius: "12px", fontSize: "14px", outline: "none", color: "#334155" }}
+                            style={{ width: "100%", padding: "10px 16px 10px 40px", border: "1px solid #e2e8f0", background: "white", borderRadius: "12px", fontSize: "14px", outline: "none", color: "#334155" }}
                         />
                         <Search size={18} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
-                    </div>
+                    </Box>
                 </Flex>
             </Flex>
 
             {/* Table */}
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="slate.100" boxShadow="sm" overflow="hidden">
-                <Flex p="6" alignItems="center" justifyContent="space-between" borderBottom="1px solid" borderColor="slate.100">
+                <Flex p={{ base: "4", md: "6" }} alignItems="center" justifyContent="space-between" borderBottom="1px solid" borderColor="slate.100" flexWrap="wrap" gap="4">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({allFiltered.length})</Text>
                     <Button onClick={handleExportStudents} 
                         display="flex" alignItems="center" gap="6px" padding="6px 10px" background="white" border="1px solid #e2e8f0" borderRadius="12px" fontSize="12px" fontWeight="600" color="#475569" cursor="pointer" _hover={{ background: "#f8f9faff" }}>
@@ -433,8 +439,8 @@ const IDCardPage = () => {
                 <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
                     <div style={{ background: "white", borderRadius: "24px", width: "100%", maxWidth: "672px", boxShadow: "0 24px 48px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
                         {/* Modal Header */}
-                        <div style={{ padding: "24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "18px", margin: 0 }}>
+                        <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", margin: 0, wordBreak: "break-word" }}>
                                 Capture & Issue: {currentStudent.name}
                             </h3>
                             <button onClick={() => { setShowModal(false); stopCamera(); setCapturedPhoto(null); }} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", borderRadius: "50%", color: "#64748b" }}>
@@ -455,7 +461,7 @@ const IDCardPage = () => {
                                 </div>
 
                                 {!capturedPhoto ? (
-                                    <div style={{ display: "flex", gap: "12px", width: "100%" }}>
+                                    <Flex gap="12px" w="100%" direction={{ base: "column", sm: "row" }}>
                                         <button onClick={captureImage} style={{ flex: 1, background: "#2563eb", color: "white", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "none", cursor: "pointer", opacity: !cameraActive ? 0.5 : 1 }}>
                                             <Camera size={18} /> Capture Photo
                                         </button>
@@ -463,7 +469,7 @@ const IDCardPage = () => {
                                             <Upload size={18} /> Upload Image (≤ 5MB)
                                             <input type="file" accept="image/*" onChange={handleImageUpload} ref={fileInputRef} style={{ display: "none" }} />
                                         </label>
-                                    </div>
+                                    </Flex>
                                 ) : (
                                     <button onClick={() => { setCapturedPhoto(null); startCamera(); }} style={{ width: "100%", background: "#f1f5f9", color: "#475569", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", border: "none", cursor: "pointer" }}>
                                         Retake Photo
@@ -477,10 +483,10 @@ const IDCardPage = () => {
                                     <h4 style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px" }}>
                                         ID Card Preview
                                     </h4>
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                                    <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="16px">
                                         {/* Front View */}
                                         <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src="/departmental-admin/idcard-front.png" style={{ width: "100%", height: "100%" }} alt="Front Template" />
+                                            <img src={idCardSettings?.frontTemplate || "nil"} />
                                             <img src={capturedPhoto} style={{ position: "absolute", top: "38%", left: "6.5%", width: "23%", height: "43%", objectFit: "cover", border: "1px solid white" }} alt="Student" />
                                             <div style={{ position: "absolute", left: "32%", top: "42.5%", width: "45%", fontSize: "7px", fontWeight: 700, color: "black", textTransform: "uppercase" }}>
                                                 <div style={{ display: "flex", flexDirection: "column", gap: "8.5px", lineHeight: 1 }}>
@@ -495,13 +501,13 @@ const IDCardPage = () => {
 
                                         {/* Back View */}
                                         <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src={idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png"} style={{ width: "100%", height: "100%" }} alt="Back Template" />
+                                            <img src={idCardSettings?.backTemplate || "nil"} />
                                             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px", textAlign: "center", padding: "40px 24px 0" }}>
                                                 <p style={{ fontSize: "9px", fontWeight: 700, color: "#0f172a", marginBottom: "8px", lineHeight: 1.2, maxWidth: "95%", margin: "0 0 8px" }}>
-                                                    {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+                                                    {idCardSettings?.backDescription || "nil"}
                                                 </p>
                                                 <p style={{ fontSize: "8px", fontWeight: 700, color: "#0f172a", lineHeight: 1.2, maxWidth: "95%", margin: 0 }}>
-                                                    {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+                                                    {idCardSettings?.backDisclaimer || "nil"}
                                                 </p>
 
                                                 <div style={{ marginTop: "auto", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -513,7 +519,7 @@ const IDCardPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </Box>
                                 </div>
                             )}
                         </div>
@@ -546,14 +552,14 @@ const IDCardPage = () => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
-                    <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
-                    <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={handleBulkDownloadBanner} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none">
-                        <Download size={16} /> Bulk Download Banner
+                <Flex position="fixed" bottom={{ base: "4", md: "8" }} left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py={{ base: "3", md: "3" }} borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" w={{ base: "calc(100% - 32px)", md: "auto" }} flexWrap={{ base: "wrap", md: "nowrap" }} justifyContent="center">
+                    <Text fontSize="sm" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{selectedIds.length} items</Text>
+                    <Box w="px" h="6" bg="slate.200" display={{ base: "none", md: "block" }} />
+                    <Box as="button" onClick={handleBulkDownloadBanner} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
+                        <Download size={16} /> <Text as="span" display={{ base: "none", sm: "inline" }}>Bulk Download Banner</Text><Text as="span" display={{ base: "inline", sm: "none" }}>Banners</Text>
                     </Box>
-                    <Box as="button" onClick={handleBulkDownloadIDCards} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none">
-                        <Download size={16} /> Bulk Download ID-Cards
+                    <Box as="button" onClick={handleBulkDownloadIDCards} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
+                        <Download size={16} /> <Text as="span" display={{ base: "none", sm: "inline" }}>Bulk Download ID-Cards</Text><Text as="span" display={{ base: "inline", sm: "none" }}>IDs</Text>
                     </Box>
                 </Flex>
             )}

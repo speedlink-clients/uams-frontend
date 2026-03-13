@@ -10,13 +10,13 @@ export const IDCardServices = {
 
     // get all ID-Card Templates
     getAllIDCard: async () => {
-        const { data } = await axiosClient.get("/university-admin/id-card");
+        const { data } = await axiosClient.get("/university-admin/id-card-all");
         return data;
     },
 
     // create ID-Card Template
     createIDCard: async (payload: Record<string, unknown>) => {
-        const { data } = await axiosClient.put("/university-admin/id-card", payload);
+        const { data } = await axiosClient.post("/university-admin/id-card", payload);
         return data;
     },
 

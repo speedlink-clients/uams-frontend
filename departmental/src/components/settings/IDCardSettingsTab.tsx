@@ -226,8 +226,8 @@ const IDCardSettingsTab = () => {
     return (
         <Flex direction="column" gap="8">
             {/* Templates Table Section */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
-                <Flex justifyContent="space-between" alignItems="center" mb="6">
+            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
+                <Flex justifyContent="space-between" alignItems={{ base: "flex-start", sm: "center" }} direction={{ base: "column", sm: "row" }} mb="6" gap="4">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Available Templates</Text>
                     <Button
                         bg="#1D7AD9"
@@ -334,8 +334,8 @@ const IDCardSettingsTab = () => {
 
             {/* Form Section */}
             {isFormVisible && (
-                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
-                    <Flex justifyContent="space-between" alignItems="center" mb="6">
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
+                    <Flex justifyContent="space-between" alignItems={{ base: "flex-start", sm: "center" }} direction={{ base: "column", sm: "row" }} mb="6" gap="4">
                         <Text fontSize="lg" fontWeight="bold" color="slate.800">
                             {templateId ? "Edit Template Details" : "Create New Template"}
                         </Text>
@@ -393,7 +393,7 @@ const IDCardSettingsTab = () => {
                 </Flex>
 
             {/* Templates */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
+            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
                 <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Card Templates</Text>
                 <Flex direction={{ base: "column", md: "row" }} gap="6">
                     <Box flex="1"><UploadBox label="Front Template" type="frontTemplate" preview={previews.frontTemplate || existingUrls.frontTemplate} fileRef={fileInputRefs.frontTemplate} onFileChange={handleFileChange} /></Box>
@@ -402,7 +402,7 @@ const IDCardSettingsTab = () => {
             </Box>
 
             {/* Branding */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
+            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
                 <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Branding</Text>
                 <Flex direction={{ base: "column", md: "row" }} gap="6">
                     <Box flex="1"><UploadBox label="University Logo" type="logo" preview={previews.logo || existingUrls.logo} fileRef={fileInputRefs.logo} onFileChange={handleFileChange} /></Box>
@@ -411,7 +411,7 @@ const IDCardSettingsTab = () => {
             </Box>
 
             {/* Back Card Text */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="8">
+            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
                 <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Back Card Content</Text>
                 <Flex direction="column" gap="6">
                     <Box>
@@ -457,10 +457,10 @@ const IDCardSettingsTab = () => {
                         boxShadow: "0 4px 12px rgba(29,122,217,0.2)",
                     }}
                 >
-                    {isSaving && <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />}
-                    {isSaving ? "Saving..." : "Save Changes"}
-                </button>
-            </Flex>
+                        {isSaving && <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />}
+                        {isSaving ? "Saving..." : "Save Changes"}
+                    </button>
+                </Flex>
             </Flex>
         </Box>
         )}

@@ -1,4 +1,4 @@
-import { Bell, History } from 'lucide-react';
+import { Bell, History, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import type { ViewType } from '@type/common.type';
 import { Box, Flex, Text, Image } from '@chakra-ui/react';
@@ -7,9 +7,10 @@ interface HeaderProps {
     onViewChange: (view: ViewType) => void;
     currentUser?: string;
     email?: string;
+    onMenuClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dept. Admin', email }) => {
+export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dept. Admin', email, onMenuClick }) => {
     const navigate = useNavigate();
 
     return (
@@ -21,12 +22,25 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
             borderColor="gray.200"
             alignItems="center"
             justifyContent="space-between"
-            px="8"
+            px={{ base: "4", md: "8" }}
             position="sticky"
             top="0"
             zIndex="40"
+            gap="4"
         >
-            <Box flex="1" maxW="lg" />
+            <Flex alignItems="center" gap="4" flex="1">
+                <Box
+                    as="button"
+                    onClick={onMenuClick}
+                    display={{ base: "block", lg: "none" }}
+                    p="2"
+                    borderRadius="md"
+                    _hover={{ bg: "slate.100" }}
+                >
+                    <Menu size={24} color="#64748b" />
+                </Box>
+                <Box maxW="lg" w="full" />
+            </Flex>
 
             <Flex alignItems="center" gap="6">
                 <Flex

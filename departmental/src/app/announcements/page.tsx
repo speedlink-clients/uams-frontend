@@ -72,7 +72,7 @@ const AnnouncementsPage = () => {
     return (
         <Box maxW="1400px" mx="auto" pb="20">
             {/* Header */}
-            <Flex justifyContent="space-between" alignItems="center" mb="6">
+            <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="6" gap="4">
                 <Text fontSize="2xl" fontWeight="bold" color="slate.900">Announcement</Text>
                 <Flex
                     as="button"
@@ -98,7 +98,7 @@ const AnnouncementsPage = () => {
             </Flex>
 
             {/* Date Filters */}
-            <Flex justifyContent="flex-end" alignItems="center" mb="8" gap="3">
+            <Flex justifyContent={{ base: "flex-start", md: "flex-end" }} alignItems="center" mb="8" gap="3" flexWrap="wrap">
                 <Text fontSize="sm" fontWeight="medium" color="slate.700">From</Text>
                 <Box bg="#eff3f6" borderRadius="xl" px="4" py="2.5">
                     <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} bg="transparent" fontSize="sm" fontWeight="medium" color="slate.700" border="none" outline="none" cursor="pointer" p="0" />

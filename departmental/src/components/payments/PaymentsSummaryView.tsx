@@ -69,7 +69,7 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
             <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "8px 8px" }}>
 
                 {/* Header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
                     <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#0f172a", margin: 0 }}>Payments History</h1>
                     <button style={{ display: "flex", alignItems: "center", gap: "8px", background: "#1D7AD9", color: "white", padding: "10px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(29,122,217,0.2)" }}>
                         <Download size={18} />
@@ -78,7 +78,7 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
                 </div>
 
                 {/* Table */}
-                <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", overflow: "hidden" }}>
+                <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", overflowX: "auto" }}>
                     <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
                         <thead>
                             <tr style={{ background: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>

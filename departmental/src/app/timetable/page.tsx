@@ -22,7 +22,7 @@ const TimeTable = () => {
 
     return (
         <Stack gap="6">
-            <Flex justify={"space-between"}>
+            <Flex justify={"space-between"} wrap="wrap" gap="4">
                 <Heading>Timetable</Heading>
 
                 <TimetableUploadDialog />

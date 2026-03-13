@@ -162,7 +162,7 @@ export interface RegisteredCourse {
   code: string;
   title: string;
   creditUnits: number;
-  type: string;
+  semester: string;
   lecturer: string;
   status: 'registered' | 'pending' | 'dropped';
   registeredAt: string;

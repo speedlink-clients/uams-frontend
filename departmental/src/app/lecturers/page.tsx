@@ -179,12 +179,12 @@ const StaffPage = () => {
 
     return (
         <Box>
-            <Flex justifyContent="space-between" alignItems="flex-start" mb="2">
+            <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="2" gap="4">
                 <Box>
                     <Text fontSize="2xl" fontWeight="bold" color="slate.800">Lecturers</Text>
                     <Text fontSize="sm" color="slate.500">Manage department lecturers and their roles</Text>
                 </Box>
-                <Flex gap="3">
+                <Flex gap="3" flexWrap="wrap">
                     <Box as="button" onClick={() => setShowUploadModal(true)} bg="white" border="1px solid" borderColor="blue.200" px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="semibold" color="blue.600" cursor="pointer" _hover={{ bg: "blue.50" }} display="flex" alignItems="center" gap="2">
                         <FileUp size={16} /> Upload CSV
                     </Box>
@@ -195,7 +195,7 @@ const StaffPage = () => {
             </Flex>
 
             {/* Search & Filter */}
-            <Flex justifyContent="flex-end" gap="3" mb="6" mt="4">
+            <Flex justifyContent={{ base: "flex-start", md: "flex-end" }} gap="3" mb="6" mt="4" flexWrap="wrap">
                 <Input placeholder="Search by name, email or code" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} bg="white" border="1px solid" borderColor="gray.200" borderRadius="xl" px="4" py="2.5" fontSize="xs" maxW="72" />
                 <Box as="button" display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="1px solid" borderColor="slate.200" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>
                     <Filter size={16} color="#94a3b8" /> Filter
@@ -310,7 +310,7 @@ const StaffPage = () => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
                     <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.staffNumber)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Courses: s.courses })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">

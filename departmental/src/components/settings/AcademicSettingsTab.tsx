@@ -64,7 +64,7 @@ const AcademicSettingsTab = () => {
                         </Flex>
                     </Flex>
 
-                    <Flex justifyContent="flex-end" gap="3" mt="8">
+                    <Flex wrap="wrap" justifyContent="flex-end" gap="3" mt="8">
                         <Box as="button" onClick={handleCancel} px="8" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="medium" border="1px solid" borderColor="slate.300" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>Clear</Box>
                         <Flex as="button" onClick={handleSave} px="8" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#00B01D" color="white" cursor="pointer" border="none" _hover={{ bg: "green.700" }} display="flex" alignItems="center" gap="2" opacity={isSaving ? 0.5 : 1}>
                             {isSaving ? "Creating..." : <><Plus size={16} /> Create Program Type</>}

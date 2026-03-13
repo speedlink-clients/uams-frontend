@@ -10,14 +10,17 @@ import {
     Settings,
     User,
     LogOut,
+    X,
 } from "lucide-react";
 import type { ViewType } from "@type/common.type";
-import { Box, Flex, Text, Image } from "@chakra-ui/react";
+import { Box, Flex, Text, Image, Portal } from "@chakra-ui/react";
 
 interface SidebarProps {
     activeView: ViewType;
     onViewChange: (view: ViewType) => void;
     onLogout?: () => void;
+    isOpen?: boolean;
+    onClose?: () => void;
 }
 
 const menuItems = [
@@ -33,11 +36,31 @@ const menuItems = [
     { icon: User, label: 'Profile' as ViewType },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLogout }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLogout, isOpen = false, onClose }) => {
+    const handleNavigation = (view: ViewType) => {
+        onViewChange(view);
+        if (onClose) onClose();
+    };
+
     return (
-        <Box
-            as="aside"
-            w="64"
+        <>
+            {/* Mobile Backdrop overlay */}
+            {isOpen && (
+                <Portal>
+                    <Box
+                        position="fixed"
+                        inset="0"
+                        bg="blackAlpha.600"
+                        zIndex="40"
+                        display={{ base: "block", lg: "none" }}
+                        onClick={onClose}
+                    />
+                </Portal>
+            )}
+
+            <Box
+                as="aside"
+                w="64"
             bg="white"
             h="100vh"
             borderRight="1px solid"
@@ -48,8 +71,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
             left="0"
             top="0"
             zIndex="50"
+            transform={{ base: isOpen ? "translateX(0)" : "translateX(-100%)", lg: "translateX(0)" }}
+            transition="transform 0.3s ease-in-out"
         >
-            <Flex p="3" alignItems="center" gap="3">
+            <Flex p="3" alignItems="center" justifyContent="space-between" gap="3" borderBottom={{ base: "1px solid", lg: "none" }} borderColor="gray.100">
                 <Image
                     src="/departmental-admin/assets/uphcscLG.png"
                     alt="UNIPORT Computer Science"
@@ -57,6 +82,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                     w="auto"
                     objectFit="contain"
                 />
+                <Box
+                    as="button"
+                    display={{ base: "block", lg: "none" }}
+                    onClick={onClose}
+                    p="2"
+                    color="slate.500"
+                    _hover={{ bg: "slate.100", borderRadius: "md" }}
+                >
+                    <X size={20} />
+                </Box>
             </Flex>
 
             <Box as="nav" flex="1" px="4" py="4">
@@ -65,7 +100,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                         <Box
                             as="button"
                             key={item.label}
-                            onClick={() => onViewChange(item.label)}
+                            onClick={() => handleNavigation(item.label)}
                             w="full"
                             display="flex"
                             alignItems="center"
@@ -114,6 +149,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                 </Box>
             )}
         </Box>
+        </>
     );
 };
 
