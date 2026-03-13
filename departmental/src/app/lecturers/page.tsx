@@ -7,6 +7,7 @@ import BulkUploadStaffModal from "@components/lecturers/BulkUploadStaffModal";
 import AssignCourseModal from "@components/lecturers/AssignCourseModal";
 import AddStaffForm from "@components/lecturers/AddStaffForm";
 import { StaffServices } from "@services/staff.service";
+import AssignStudentModal from "@components/lecturers/AssignStudentsModal";
 
 interface Staff {
     id: string;
@@ -326,6 +327,8 @@ const StaffPage = () => {
                 onSubmit={handleAddEditSubmit}
                 initialData={staffToEdit}
             />
+
+            
         </Box>
     );
 };
