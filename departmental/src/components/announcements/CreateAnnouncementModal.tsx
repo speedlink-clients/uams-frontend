@@ -92,7 +92,7 @@ const CreateAnnouncementModal = ({ isOpen, onClose, onCreated }: Props) => {
                 background: "white", borderRadius: "24px", width: "100%", maxWidth: "672px",
                 maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 48px rgba(0,0,0,0.12)",
             }}>
-                {/* Header */}
+                {/* Header Section */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "24px 32px", borderBottom: "1px solid #f1f5f9" }}>
                     <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#1D7AD9", margin: 0 }}>Create New Announcement</h2>
                     <button onClick={onClose} style={{ padding: "8px", color: "#94a3b8", background: "none", border: "none", cursor: "pointer", borderRadius: "50%" }}>
