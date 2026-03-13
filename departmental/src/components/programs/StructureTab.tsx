@@ -177,7 +177,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                                     checked={formData.isActive}
                                     onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
                                 />
-                                <Text fontSize="sm" fontWeight="medium" color="slate.700" as="label" htmlFor="isActive">
+                                <Text fontSize="sm" fontWeight="medium" color="slate.700" as="label">
                                     Activate Session
                                 </Text>
                             </Flex>
