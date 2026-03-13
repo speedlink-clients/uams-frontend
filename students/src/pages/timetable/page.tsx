@@ -65,7 +65,7 @@ const TimeTable = () => {
                             <Table.Row>
                                 <Table.ColumnHeader minW="100px">Session</Table.ColumnHeader>
                                 <Table.ColumnHeader minW="100px">Level</Table.ColumnHeader>
-                                <Table.ColumnHeader minW="100px">Semeter</Table.ColumnHeader>
+                                <Table.ColumnHeader minW="100px">Semester</Table.ColumnHeader>
                                 <Table.ColumnHeader minW="100px"></Table.ColumnHeader>
 
                             </Table.Row>

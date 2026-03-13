@@ -26,7 +26,7 @@ const Projects = () => {
                 <CreateProjectTopicDialog isShown={!hasApprovedTopic} />
             </Flex>
 
-            <Grid templateColumns="repeat(3, 1fr)" gap="6">
+            <Grid templateColumns={{ base:"1fr", md:"repeat(3, 1fr)"}} gap="6">
                 <GridItem colSpan={2}>
                     <For each={projects} fallback={
                         <EmptyState.Root>
