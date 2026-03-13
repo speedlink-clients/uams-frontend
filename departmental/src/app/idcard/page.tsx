@@ -193,39 +193,71 @@ const IDCardPage = () => {
             const cardWidth = 85.6, cardHeight = 54;
             const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [cardWidth, cardHeight] });
 
-            const frontTemplate = document.createElement("img");
-            frontTemplate.src = "/departmental-admin/idcard-front.png";
-            const backTemplate = document.createElement("img");
-            backTemplate.src = "/departmental-admin/idcard-back.png";
-
-            await new Promise<void>((resolve) => {
-                frontTemplate.onload = () => {
-                    doc.addImage(frontTemplate, "PNG", 0, 0, cardWidth, cardHeight);
-                    doc.addImage(capturedPhoto!, "JPEG", 5.5, 20.5, 19.7, 23.1);
-
-                    doc.setFontSize(3.5);
-                    doc.setFont("helvetica", "bold");
-                    doc.setTextColor(0, 0, 0);
-                    const textX = 27; let textY = 23; const lineHeight = 3.8;
-                    const infoLines = [
-                        `NAME: ${currentStudent!.name}`, `MATRIC NO.: ${currentStudent!.matric}`,
-                        `FACULTY: ${currentStudent!.faculty}`, `DEPT: ${currentStudent!.department}`,
-                        `EXPIRY DATE: ${currentStudent!.graduationDate}`,
-                    ];
-                    infoLines.forEach((line, i) => { doc.text(line, textX, textY + i * lineHeight); });
-
-                    doc.addPage([cardWidth, cardHeight], "landscape");
-                    backTemplate.onload = () => {
-                        doc.addImage(backTemplate, "PNG", 0, 0, cardWidth, cardHeight);
-                        resolve();
+            const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.onload = () => resolve(img);
+                    img.onerror = () => {
+                        console.error(`Failed to load image: ${src}`);
+                        resolve(null);
                     };
-                };
+                    img.src = src;
+                    setTimeout(() => resolve(null), 10000); // 10s timeout
+                });
+            };
+
+            const frontSrc = idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png";
+            const backSrc = idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png";
+
+            const [frontTemplate, backTemplate] = await Promise.all([
+                loadImage(frontSrc),
+                loadImage(backSrc)
+            ]);
+
+            if (!frontTemplate) {
+                toaster.error({ title: "Failed to load ID card template" });
+                setGeneratingPDF(false);
+                return;
+            }
+
+            // Front
+            doc.addImage(frontTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+            doc.addImage(capturedPhoto!, "JPEG", 5.5, 20.5, 19.7, 23.1);
+
+            doc.setFontSize(3.5);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            const textX = 27; let textY = 23; const lineHeight = 3.8;
+            const infoLines = [
+                `NAME: ${currentStudent.name}`, `MATRIC NO.: ${currentStudent.matric}`,
+                `FACULTY: ${currentStudent.faculty}`, `DEPT: ${currentStudent.department}`,
+                `EXPIRY DATE: ${currentStudent.graduationDate}`,
+            ];
+            
+            infoLines.forEach((line, i) => {
+                const maxWidth = cardWidth - textX - 5;
+                const lines = doc.splitTextToSize(line, maxWidth);
+                if (lines.length > 1) {
+                    lines.forEach((lineText: string, lineIndex: number) => {
+                        doc.text(lineText, textX, (textY + i * lineHeight) + (lineIndex * 1.5));
+                    });
+                } else {
+                    doc.text(line, textX, textY + i * lineHeight);
+                }
             });
+
+            // Back
+            if (backTemplate) {
+                doc.addPage([cardWidth, cardHeight], "landscape");
+                doc.addImage(backTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+            }
 
             doc.save(`${currentStudent.name.replace(/\s+/g, "_")}_ID_Card.pdf`);
             toaster.success({ title: "ID Card PDF generated!" });
             setTimeout(() => { setShowModal(false); setCapturedPhoto(null); stopCamera(); }, 1000);
         } catch (err) {
+            console.error("PDF generation error:", err);
             toaster.error({ title: "Failed to generate PDF" });
         } finally {
             setGeneratingPDF(false);
@@ -486,7 +518,7 @@ const IDCardPage = () => {
                                     <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="16px">
                                         {/* Front View */}
                                         <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src={idCardSettings?.frontTemplate || "nil"} />
+                                            <img src={idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png"} style={{ width: "100%", height: "100%" }} alt="Front template" />
                                             <img src={capturedPhoto} style={{ position: "absolute", top: "38%", left: "6.5%", width: "23%", height: "43%", objectFit: "cover", border: "1px solid white" }} alt="Student" />
                                             <div style={{ position: "absolute", left: "32%", top: "42.5%", width: "45%", fontSize: "7px", fontWeight: 700, color: "black", textTransform: "uppercase" }}>
                                                 <div style={{ display: "flex", flexDirection: "column", gap: "8.5px", lineHeight: 1 }}>
@@ -501,13 +533,13 @@ const IDCardPage = () => {
 
                                         {/* Back View */}
                                         <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src={idCardSettings?.backTemplate || "nil"} />
+                                            <img src={idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png"} style={{ width: "100%", height: "100%" }} alt="Back template" />
                                             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px", textAlign: "center", padding: "40px 24px 0" }}>
                                                 <p style={{ fontSize: "9px", fontWeight: 700, color: "#0f172a", marginBottom: "8px", lineHeight: 1.2, maxWidth: "95%", margin: "0 0 8px" }}>
-                                                    {idCardSettings?.backDescription || "nil"}
+                                                    {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
                                                 </p>
                                                 <p style={{ fontSize: "8px", fontWeight: 700, color: "#0f172a", lineHeight: 1.2, maxWidth: "95%", margin: 0 }}>
-                                                    {idCardSettings?.backDisclaimer || "nil"}
+                                                    {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
                                                 </p>
 
                                                 <div style={{ marginTop: "auto", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
