@@ -30,7 +30,6 @@ import {
   bulkRegisterCourses,
   getStudentPayments,
   getTranscripts,
-  getDefaultIDCard,
 } from "../services/registrationService";
 import type {
   Level,
@@ -380,7 +379,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
               <div className="space-y-3 text-[13px]">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Institution</span>
-                  <span className="font-bold text-slate-700 text-right max-w-[200px] truncate">{institution_name}</span>
+                  <span className="font-bold text-slate-700 text-right max-w-50 truncate">{institution_name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Delivery Method</span>
@@ -393,13 +392,13 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 {recipient_address && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Address</span>
-                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipient_address}</span>
+                    <span className="font-medium text-slate-600 text-right max-w-50 truncate">{recipient_address}</span>
                   </div>
                 )}
                 {recipient_email && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Contact</span>
-                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipient_email}</span>
+                    <span className="font-medium text-slate-600 text-right max-w-50 truncate">{recipient_email}</span>
                   </div>
                 )}
               </div>
@@ -506,7 +505,7 @@ const TranscriptRegView = () => {
                 placeholder="Search by institution, status"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-2 text-[12px] font-medium text-slate-700 placeholder:text-gray-300 focus:outline-none focus:border-blue-300 w-full md:w-[220px] h-[36px]"
+                className="bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-2 text-[12px] font-medium text-slate-700 placeholder:text-gray-300 focus:outline-none focus:border-blue-300 w-full md:w-55 h-9"
               />
             </div>
             {/* Filter */}
@@ -514,7 +513,7 @@ const TranscriptRegView = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-[#f8fafc] border border-gray-100 rounded-lg px-3 pr-7 py-2 text-[11px] font-bold text-gray-500 appearance-none cursor-pointer h-[36px]"
+                className="bg-[#f8fafc] border border-gray-100 rounded-lg px-3 pr-7 py-2 text-[11px] font-bold text-gray-500 appearance-none cursor-pointer h-9"
               >
                 <option value="All Application">All Application</option>
                 <option value="In Progress">In Progress</option>
@@ -604,22 +603,11 @@ const FormRow = ({
 
 // --- ID Card Components ---
 
-// --- ID Card Components ---
-
-interface IDCardSettings {
-  backTemplate?: string;
-  frontTemplate?: string;
-  backDescription?: string;
-  backDisclaimer?: string;
-  signature?: string;
-}
-
 interface IDCardProps {
   isWatermarked?: boolean;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
   isPhotoUploaded?: boolean;
-  idCardSettings?: IDCardSettings | null;
 }
 
 const IDCardGraphic = ({
@@ -627,7 +615,6 @@ const IDCardGraphic = ({
   studentProfile,
   studentPhoto,
   isPhotoUploaded = false,
-  idCardSettings,
 }: IDCardProps) => {
   const getInitials = (name?: string) => {
     if (!name) return "?";
@@ -641,11 +628,11 @@ const IDCardGraphic = ({
   return (
     <div className="space-y-4 max-w-lg mx-auto">
       {/* FRONT OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
         <img
-          src={idCardSettings?.frontTemplate || `${import.meta.env.BASE_URL}assets/image 1.png`}
+          src={`${import.meta.env.BASE_URL}assets/image 1.png`}
           alt="ID Card Front"
-          className="w-full h-full object-fill"
+          className="w-full h-full object-cover"
         />
 
         {/* Student Photo - Placed in the exact position on the card */}
@@ -670,11 +657,11 @@ const IDCardGraphic = ({
       </div>
 
       {/* BACK OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
         <img
-          src={idCardSettings?.backTemplate || `${import.meta.env.BASE_URL}assets/image 2.png`}
+          src={`${import.meta.env.BASE_URL}assets/image 2.png`}
           alt="ID Card Back"
-          className="w-full h-full object-fill"
+          className="w-full h-full object-cover"
         />
 
         {/* Watermark Overlay */}
@@ -696,7 +683,6 @@ interface IDCardViewProps {
   onBack: () => void;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
-  idCardSettings?: IDCardSettings | null;
 }
 
 const IDCardView = ({
@@ -705,7 +691,6 @@ const IDCardView = ({
   onBack,
   studentProfile,
   studentPhoto,
-  idCardSettings,
 }: IDCardViewProps) => (
   <div className="bg-white rounded-4xl p-8 lg:p-14 border border-gray-100 shadow-sm animate-in zoom-in-95 duration-500 max-w-4xl mx-auto">
     <div className="flex items-center space-x-4 mb-10">
@@ -758,7 +743,6 @@ const IDCardView = ({
         studentProfile={studentProfile}
         studentPhoto={studentPhoto}
         isPhotoUploaded={isPhotoUploaded && isPaid}
-        idCardSettings={idCardSettings}
       />
     </div>
 
@@ -1800,9 +1784,6 @@ const Registration: React.FC = () => {
     useState<RegistrationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [idCardSettings, setIdCardSettings] = useState<IDCardSettings | null>(
-    null,
-  );
 
   // State for ID Card application in Other tab
   const [isViewingID, setIsViewingID] = useState(false);
@@ -1831,14 +1812,12 @@ const Registration: React.FC = () => {
           sessionsData,
           profileData,
           registrationsData,
-          idCardData,
         ] = await Promise.all([
           getLevels(programId),
           getSemesters(),
           getSessions(),
           getStudentProfile(),
           getRegistrations(),
-          getDefaultIDCard(),
         ]);
 
         setLevels(levelsData);
@@ -1846,7 +1825,6 @@ const Registration: React.FC = () => {
         setSessions(sessionsData);
         setStudentProfile(profileData);
         setRegistrationData(registrationsData);
-        setIdCardSettings(idCardData?.data || idCardData);
       } catch (err) {
         console.error("Error fetching registration data:", err);
         setError("Failed to load registration data. Please try again.");
@@ -1973,7 +1951,6 @@ const Registration: React.FC = () => {
               onBack={() => setIsViewingID(false)}
               studentProfile={studentProfile}
               studentPhoto={studentPhoto}
-              idCardSettings={idCardSettings}
             />
           ) : (
             <OtherServicesView
