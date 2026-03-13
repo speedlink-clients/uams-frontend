@@ -291,7 +291,7 @@ const StudentsPage = () => {
                     <Text color="slate.400" fontSize="sm">Try changing your search or filter criteria</Text>
                 </Box>
             ) : (
-                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW="calc(100vw - 340px)">
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden">
                     <Box overflowX="auto">
                         <Box as="table" w="full" textAlign="left">
                             <Box as="thead">
