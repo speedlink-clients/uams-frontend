@@ -301,31 +301,47 @@ const IDCardPage = () => {
     // Bulk downloads
     const handleBulkDownloadIDCards = async () => {
         if (selectedIds.length === 0) return;
+        let toastId;
         try {
-            toaster.create({ title: "Downloading ID Cards...", type: "loading" });
+            toastId = toaster.create({ title: "Downloading ID Cards...", type: "loading" });
             const templateResponse = await IDCardServices.getDefaultIDCard();
             const templateId = templateResponse?.template?.id;
-            if (!templateId) { toaster.error({ title: "No default template found" }); return; }
+            if (!templateId) { 
+                if (toastId) toaster.dismiss(toastId);
+                toaster.error({ title: "No default template found" }); 
+                return; 
+            }
             const blob = await IDCardServices.bulkDownloadIDCards(selectedIds, templateId);
             const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
             const link = document.createElement("a"); link.href = url; link.download = "ID_Cards.pdf";
             document.body.appendChild(link); link.click(); link.remove();
+            
+            if (toastId) toaster.dismiss(toastId);
             toaster.success({ title: "Download started" });
             setSelectedIds([]);
-        } catch { toaster.error({ title: "Failed to download" }); }
+        } catch (err) { 
+            if (toastId) toaster.dismiss(toastId);
+            toaster.error({ title: "Failed to download" }); 
+        }
     };
 
     const handleBulkDownloadBanner = async () => {
         if (selectedIds.length === 0) return;
+        let toastId;
         try {
-            toaster.create({ title: "Downloading Banner...", type: "loading" });
+            toastId = toaster.create({ title: "Downloading Banner...", type: "loading" });
             const blob = await IDCardServices.bulkDownloadBanner(selectedIds);
             const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
             const link = document.createElement("a"); link.href = url; link.download = "Banners.pdf";
             document.body.appendChild(link); link.click(); link.remove();
+            
+            if (toastId) toaster.dismiss(toastId);
             toaster.success({ title: "Download started" });
             setSelectedIds([]);
-        } catch { toaster.error({ title: "Failed to download" }); }
+        } catch (err) { 
+            if (toastId) toaster.dismiss(toastId);
+            toaster.error({ title: "Failed to download" }); 
+        }
     };
 
     // Export
