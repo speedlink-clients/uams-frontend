@@ -117,7 +117,6 @@ const Dashboard: React.FC = () => {
         if (flattened.length > 0) {
            setTimetableData(flattened);
         } else if (Array.isArray(data) && !data.some(d => d.schedule)) {
-           // Fallback to old flat format if returned
            setTimetableData(data);
         } else {
            setTimetableData([]);
@@ -186,11 +185,11 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-4 lg:p-8 max-w-[1600px] mx-auto space-y-6 lg:space-y-8">
+    <div className="p-4 lg:p-8 max-w-400 mx-auto space-y-6 lg:space-y-8">
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
 
-        {/* ===== Left Column ===== */}
-        <div className="col-span-12 lg:col-span-8 space-y-6 lg:space-y-8">
+        {/* ===== Left Column (Full Width) ===== */}
+        <div className="col-span-12 space-y-6 lg:space-y-8">
 
           {/* Greeting */}
           <div>
@@ -200,8 +199,8 @@ const Dashboard: React.FC = () => {
             <p className="text-gray-400 text-sm lg:text-base mt-1">Welcome back</p>
           </div>
 
-          {/* Status Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+          {/* Status Cards Row - Now includes Timetable */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
             {/* Courses Registration Status */}
             <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
               <p className="text-sm lg:text-[15px] font-bold text-[#1e293b] mb-4">
@@ -229,29 +228,28 @@ const Dashboard: React.FC = () => {
                 <span className="inline-block px-4 py-1.5 rounded-lg text-xs font-bold bg-[#fef9c3] text-[#ca8a04]">Not Paid</span>
               )}
             </div>
-          </div>
 
-<<<<<<< HEAD
-          {/* Timetable  */}
-          <div className="bg-white rounded-2xl lg:rounded-3xl p-5 border border-gray-100 shadow-sm">
-            <h2 className="text-xs lg:text-sm font-bold text-[#1e293b] mb-3">
-              Timetable
-            </h2>
-            
-            {/* Navigation Box to Timetable Page*/}
-            <button
-              onClick={handleNavigateToTimetable}
-              className="block w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl p-4 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer text-left"
-            >
-              <div className="flex items-center justify-between">
+            {/* Timetable Card */}
+            <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
+              <p className="text-sm lg:text-[15px] font-bold text-[#1e293b] mb-4">
+                Timetable
+              </p>
+              <button
+                onClick={handleNavigateToTimetable}
+                className="w-full bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl p-4 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer text-left"
+              >
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 rounded-lg p-2">
                     <Calendar size={20} className="text-white" />
                   </div>
                   <div>
-                    <p className="font-bold text-sm">View Full Timetable.</p>
-                    
-=======
+                    <p className="font-bold text-sm">View Full Timetable</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
           {/* Academic Performance Chart */}
           <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
             <div className="flex justify-between items-center mb-6 lg:mb-8">
@@ -348,88 +346,17 @@ const Dashboard: React.FC = () => {
                   className="flex items-start justify-between gap-4 p-4 rounded-xl bg-[#f8fafc] border border-gray-50 hover:bg-[#f1f5f9] transition-colors cursor-pointer"
                 >
                   <div className="flex gap-3 min-w-0">
-                    <div className="w-1 flex-shrink-0 rounded-full bg-[#3b82f6] self-stretch" />
+                    <div className="w-1 shrink-0 rounded-full bg-[#3b82f6] self-stretch" />
                     <div className="min-w-0">
                       <p className="text-[13px] font-bold text-[#1e293b] truncate">{item.title}</p>
                       <p className="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">{item.body}</p>
                     </div>
->>>>>>> 9106f60e1f341f5525fe31acc96a08e5abc38420
                   </div>
-                  <span className="text-[10px] font-bold text-gray-300 whitespace-nowrap flex-shrink-0 mt-0.5">
+                  <span className="text-[10px] font-bold text-gray-300 shrink-0 mt-0.5">
                     {new Date(item.createdAt).toISOString().split('T')[0]}
                   </span>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ===== Right Column — Timetable ===== */}
-        <div className="col-span-12 lg:col-span-4">
-          <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm lg:sticky lg:top-8">
-            <div className="flex justify-between items-center mb-6 lg:mb-8">
-              <h2 className="text-base lg:text-lg font-bold text-[#1e293b]">Timetable</h2>
-              <div className="relative">
-                <select
-                  value={selectedDay}
-                  onChange={(e) => setSelectedDay(e.target.value as typeof DAY_NAMES[number])}
-                  className="bg-[#f8fafc] border border-gray-100 text-[11px] font-bold rounded-lg px-4 py-2 text-gray-500 appearance-none pr-8 cursor-pointer"
-                >
-                  {DAY_NAMES.map((day, idx) => (
-                    <option key={day} value={day} style={{ background: 'white', color: '#1e293b' }}>{DAY_LABELS[idx]}</option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
-              </div>
-            </div>
-
-            <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto pr-1 scrollbar-thin">
-              {timetableLoading ? (
-                <div className="flex items-center justify-center py-12 gap-2">
-                  <Loader2 size={18} className="animate-spin text-blue-500" />
-                  <span className="text-sm text-gray-400 font-medium">Loading...</span>
-                </div>
-              ) : todayClasses.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-sm font-bold text-gray-400">No classes</p>
-                  <p className="text-[11px] text-gray-300 mt-1">No classes scheduled for {DAY_LABELS[DAY_NAMES.indexOf(selectedDay)]}</p>
-                </div>
-              ) : (
-                todayClasses.map((entry, idx) => (
-                  <div
-                    key={entry.id}
-                    className={`p-4 lg:p-5 rounded-2xl transition-all ${
-                      idx === 0
-                        ? 'bg-[#3b82f6] text-white shadow-lg shadow-blue-200/40'
-                        : 'bg-[#f8fafc] border border-gray-50 hover:bg-[#f1f5f9]'
-                    }`}
-                  >
-                    <h3
-                      className={`font-bold text-[13px] lg:text-[14px] mb-1.5 ${
-                        idx === 0 ? 'text-white' : 'text-[#1e293b]'
-                      }`}
-                    >
-                      {entry.Course.title}
-                    </h3>
-                    <div
-                      className={`flex items-center text-[10px] lg:text-[11px] font-bold gap-2 ${
-                        idx === 0 ? 'text-blue-100' : 'text-gray-400'
-                      }`}
-                    >
-                      <span>{entry.Course.code}</span>
-                      <Clock size={11} />
-                      <span>{formatTime(entry.startTime)} - {formatTime(entry.endTime)}</span>
-                    </div>
-                    <p
-                      className={`text-[10px] mt-1 font-medium ${
-                        idx === 0 ? 'text-blue-200' : 'text-gray-300'
-                      }`}
-                    >
-                      {entry.room} • {entry.Lecturer.User.fullName}
-                    </p>
-                  </div>
-                ))
-              )}
             </div>
           </div>
         </div>
