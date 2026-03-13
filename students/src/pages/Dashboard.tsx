@@ -231,27 +231,6 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-<<<<<<< HEAD
-          {/* Timetable  */}
-          <div className="bg-white rounded-2xl lg:rounded-3xl p-5 border border-gray-100 shadow-sm">
-            <h2 className="text-xs lg:text-sm font-bold text-[#1e293b] mb-3">
-              Timetable
-            </h2>
-            
-            {/* Navigation Box to Timetable Page*/}
-            <button
-              onClick={handleNavigateToTimetable}
-              className="block w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl p-4 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer text-left"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 rounded-lg p-2">
-                    <Calendar size={20} className="text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm">View Full Timetable.</p>
-                    
-=======
           {/* Academic Performance Chart */}
           <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
             <div className="flex justify-between items-center mb-6 lg:mb-8">
@@ -353,7 +332,6 @@ const Dashboard: React.FC = () => {
                       <p className="text-[13px] font-bold text-[#1e293b] truncate">{item.title}</p>
                       <p className="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">{item.body}</p>
                     </div>
->>>>>>> 9106f60e1f341f5525fe31acc96a08e5abc38420
                   </div>
                   <span className="text-[10px] font-bold text-gray-300 whitespace-nowrap flex-shrink-0 mt-0.5">
                     {new Date(item.createdAt).toISOString().split('T')[0]}
