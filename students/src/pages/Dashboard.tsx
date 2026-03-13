@@ -227,7 +227,6 @@ const Dashboard: React.FC = () => {
             )}
           </div>
 
-<<<<<<< HEAD
           {/* Timetable  */}
           <div className="bg-white rounded-2xl lg:rounded-3xl p-5 border border-gray-100 shadow-sm">
             <h2 className="text-xs lg:text-sm font-bold text-[#1e293b] mb-3">
@@ -247,110 +246,6 @@ const Dashboard: React.FC = () => {
                   <div>
                     <p className="font-bold text-sm">View Full Timetable</p>
                     
-=======
-          {/* Academic Performance Chart */}
-          <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-6 lg:mb-8">
-              <h2 className="text-base lg:text-lg font-bold text-[#1e293b]">Academic Performance</h2>
-              <div className="relative">
-                <select className="bg-[#f8fafc] border border-gray-100 text-[11px] font-bold rounded-lg px-4 py-2 text-gray-500 appearance-none pr-8 cursor-pointer">
-                  <option>All Time</option>
-                </select>
-                <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
-              </div>
-            </div>
-
-            <div className="h-60 lg:h-72 w-full">
-              {perfLoading ? (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                  <Loader2 size={24} className="animate-spin text-blue-500" />
-                  <span className="text-sm text-gray-400 font-medium">Loading performance...</span>
-                </div>
-              ) : perfData.length === 0 ? (
-                <div className="w-full h-full flex flex-col items-center justify-center text-center">
-                  <p className="text-sm font-bold text-gray-400">No performance data</p>
-                  <p className="text-[11px] text-gray-300 mt-1">There are no approved results available yet.</p>
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={perfData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis
-                      dataKey="name"
-                      axisLine={{ stroke: '#e2e8f0' }}
-                      tickLine={false}
-                      tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
-                      dy={10}
-                      padding={{ left: 10, right: 10 }}
-                    />
-                    <YAxis
-                      axisLine={{ stroke: '#e2e8f0' }}
-                      tickLine={false}
-                      tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 600 }}
-                      domain={[0, 5]}
-                      ticks={[0, 1.0, 2.0, 3.0, 4.0, 5.0]}
-                      tickFormatter={(value: number) => value.toFixed(1)}
-                      width={35}
-                    />
-                    <Tooltip
-                      cursor={{ stroke: '#f1f5f9' }}
-                      contentStyle={{
-                        borderRadius: '12px',
-                        border: 'none',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="gpa"
-                      stroke="#22c55e"
-                      strokeWidth={2.5}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 5, fill: '#22c55e', stroke: '#fff', strokeWidth: 2.5 }}
-                      name="GPA"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="cgpa"
-                      stroke="#ef4444"
-                      strokeWidth={2.5}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 5, fill: '#ef4444', stroke: '#fff', strokeWidth: 2.5 }}
-                      name="CGPA"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-
-          {/* Announcements */}
-          <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-base lg:text-lg font-bold text-[#1e293b]">Announcements</h2>
-              <button className="bg-[#3b82f6] text-white text-[11px] font-bold px-4 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
-                See All
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              {notifAnnouncements.length === 0 ? (
-                <p className="text-[12px] text-gray-400 text-center py-4">No announcements</p>
-              ) : notifAnnouncements.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start justify-between gap-4 p-4 rounded-xl bg-[#f8fafc] border border-gray-50 hover:bg-[#f1f5f9] transition-colors cursor-pointer"
-                >
-                  <div className="flex gap-3 min-w-0">
-                    {/* Blue left accent bar */}
-                    <div className="w-1 flex-shrink-0 rounded-full bg-[#3b82f6] self-stretch" />
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-bold text-[#1e293b] truncate">{item.title}</p>
-                      <p className="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">{item.body}</p>
-                    </div>
->>>>>>> 079eb6887eb31868b4fff73f3b6cdfc68610c0eb
                   </div>
                 </div>
                 <div className="bg-white/20 rounded-full p-1.5">
