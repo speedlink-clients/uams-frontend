@@ -27,6 +27,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
         duration: "12 Months",
         startDate: "",
         description: "",
+        isActive: true,
     });
 
     useEffect(() => {
@@ -55,6 +56,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                     duration: sessionToEdit.duration?.toString() || "12 Months",
                     startDate: sessionToEdit.startDate ? new Date(sessionToEdit.startDate).toISOString().split('T')[0] : "",
                     description: sessionToEdit.description || "",
+                    isActive: sessionToEdit.isActive === undefined ? true : sessionToEdit.isActive,
                 });
             }
         }
@@ -87,7 +89,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                 endDate: endDateObj.toISOString().split("T")[0],
                 semesterCount: Number(formData.semesters),
                 description: formData.description,
-                isActive: true,
+                isActive: formData.isActive,
             };
 
             if (isEditingRoute && id) {
@@ -167,6 +169,19 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                                 <option value="3">3</option>
                             </select>
                         </Box>
+                        <Box>
+                            <Flex alignItems="center" gap="2">
+                                <input 
+                                    type="checkbox"
+                                    id="isActive"
+                                    checked={formData.isActive}
+                                    onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                                />
+                                <Text fontSize="sm" fontWeight="medium" color="slate.700" as="label" htmlFor="isActive">
+                                    Activate Session
+                                </Text>
+                            </Flex>
+                        </Box>
                     </Flex>
                     <Flex direction="column" gap="6" flex="1">
                         <Box>
@@ -243,7 +258,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                         </Box>
                         <Box as="tbody">
                             {filteredSessions.length === 0 ? (
-                                <Box as="tr"><td colSpan={6} style={{ padding: "48px 0 48px 24px", textAlign: "center", color: "#94a3b8" }}>No sessions found</td></Box>
+                                <Box as="tr"><td colSpan={6} style={{ padding: "48px 0 0 24px", textAlign: "center", color: "#94a3b8" }}>No sessions found</td></Box>
                             ) : filteredSessions.map((session) => (
                                 <Box as="tr" key={session.id} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" fontSize="sm" color="slate.600">
                                     <Box as="td" px="6" py="4" textAlign="center">
