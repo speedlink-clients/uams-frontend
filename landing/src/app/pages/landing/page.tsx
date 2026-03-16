@@ -7,21 +7,19 @@ import Programmes from "./components/Programmes";
 import LatestNews from "./components/LatestNews";
 import LibrarySection from "./components/LibrarySection";
 import ResourcesSection from "./components/ResourcesSection";
-import NewsletterSection from "./components/NewsletterSection";
 
 const LandingPage = () => {
   
   return (
     <Box bg="white">
-      <Hero />
+      <Hero id="home" />
       <Stats />
-      <About />
+      <About id="about" />
       <SecureFuture />
       <Programmes />
-      <LatestNews />
+      <LatestNews id="research" />
       <LibrarySection />
       <ResourcesSection />
-      <NewsletterSection />
     </Box>
   );
 };
