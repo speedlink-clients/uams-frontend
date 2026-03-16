@@ -29,6 +29,7 @@ const Announcement = () => {
                     Announcement
                 </Heading>
 
+                {/* Create New Announcement Button - Commented out
                 <Flex
                     align="center"
                     gap="2"
@@ -45,6 +46,7 @@ const Announcement = () => {
                     <Icon as={Plus} boxSize="4" />
                     <Text fontSize="sm" fontWeight="500">Create New Announcement</Text>
                 </Flex>
+                */}
             </Flex>
 
             {/* Date Range Filter */}
@@ -114,12 +116,13 @@ const Announcement = () => {
                 isLoading={isLoading}
             />
 
-            {/* Create Modal */}
+            {/* Create Modal - Commented out since button is commented
             <CreateAnnouncementModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={(payload) => createMutation.mutate(payload)}
             />
+            */}
         </Box>
     );
 };
