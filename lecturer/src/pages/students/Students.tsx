@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Box, Flex, Text, Heading, Icon } from "@chakra-ui/react";
 import { Search } from "lucide-react";
 import { StudentHook } from "@hooks/student.hook";
 import StudentsTable from "@components/shared/StudentsTable";
+import type { Student } from "@type/student.type"; 
 
 const LEVEL_OPTIONS = ["All", "100", "200", "300", "400", "500"];
 
@@ -10,6 +11,7 @@ const Students = () => {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [level, setLevel] = useState("All");
+
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -21,20 +23,34 @@ const Students = () => {
         };
     }, [search]);
 
-    const { data: students, isLoading } = StudentHook.useStudents({
-        level,
-        page: 1,
-        limit: 100,
-        search: debouncedSearch || undefined,
-    });
+    // Fetch all students
+    const { data: students = [], isLoading } = StudentHook.useStudents();
 
-    const totalCount = students?.length ?? 0;
+    
+    const filteredStudents = useMemo(() => {
+        if (!students.length) return [];
+
+        return students.filter((student: Student) => {
+            
+            const matchesLevel = level === "All" || student.level === level;
+            
+        
+            const matchesSearch = !debouncedSearch || 
+                student.fullName?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                student.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                student.matricNumber?.toLowerCase().includes(debouncedSearch.toLowerCase());
+            
+            return matchesLevel && matchesSearch;
+        });
+    }, [students, level, debouncedSearch]);
+
+    const totalCount = filteredStudents.length;
 
     return (
         <Box>
             {/* Page Header */}
             <Box mb="6">
-                <Heading size="lg" fontStyle="Semi Bold" fontWeight="600" color="#000000" mb="1" fontSize="24px">
+                <Heading size="lg" fontWeight="600" color="#000000" mb="1" fontSize="24px">
                     Students {" "}
                     <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
                         ({totalCount})
@@ -81,39 +97,24 @@ const Students = () => {
                     style={{
                         fontSize: "12px",
                         fontWeight: 500,
-                        border: "none",
+                        border: "1px solid #e2e8f0",
                         borderRadius: "6px",
                         padding: "8px 16px",
                         cursor: "pointer",
                         outline: "none",
+                        backgroundColor: "white",
                     }}
                 >
                     {LEVEL_OPTIONS.map((opt) => (
-                        <option
-                            key={opt}
-                            value={opt}
-                            style={{
-                                fontSize: "12px",
-                                fontWeight: 500,
-                                fontFamily: "sans-serif",
-                                fontStyle: "Bold",
-                                color: "black",
-                                backgroundColor: "white",
-                                border: "none",
-                                borderRadius: "6px",
-                                padding: "8px 16px",
-                                cursor: "pointer",
-                                outline: "none",
-                            }}
-                        >
-                            {opt === "All" ? "Level" : `${opt} Level`}
+                        <option key={opt} value={opt}>
+                            {opt === "All" ? "All Levels" : `${opt} Level`}
                         </option>
                     ))}
                 </select>
             </Flex>
 
-            {/* Students Table */}
-            <StudentsTable students={students ?? []} isLoading={isLoading} />
+            {/* Students Table - Pass filtered students */}
+            <StudentsTable students={filteredStudents} isLoading={isLoading} />
         </Box>
     );
 };
