@@ -3,7 +3,6 @@ import { Box, Flex, Text, Heading, Spinner, Center, Button } from "@chakra-ui/re
 import useUserStore from "@stores/user.store";
 import { DashboardHook } from "@hooks/dashboard.hook";
 import StatCard from "@components/shared/StatCard";
-import AttendanceChart from "@components/shared/AttendanceChart";
 import TimetablePanel from "@components/shared/TimetablePanel";
 import { useNavigate } from "react-router";
 
@@ -11,22 +10,13 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const { user } = useUserStore();
 
-    // Date filter state for attendance chart
-    const today = new Date().toISOString().split("T")[0];
-    const [fromDate, setFromDate] = useState(today);
-    const [toDate, setToDate] = useState(today);
+
 
     // Timetable filter state: today, tomorrow, week
     const [timetableFilter, setTimetableFilter] = useState("today");
 
     // Data from hooks
     const { data: dashboardData, isLoading, error } = DashboardHook.useDashboardData();
-    const { data: attendanceData } = DashboardHook.useAttendance(fromDate, toDate);
-
-    const handleClearDateFilter = () => {
-        setFromDate(today);
-        setToDate(today);
-    };
 
     const currentDay = useMemo(() => {
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

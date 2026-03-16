@@ -1,20 +1,17 @@
 import { useState } from "react";
-import { Box, Flex, Text, Heading, Icon } from "@chakra-ui/react";
-import { Plus, X } from "lucide-react";
+import { Box, Flex, Text, Heading} from "@chakra-ui/react";
+import { X } from "lucide-react";
 import { AnnouncementHook } from "@hooks/announcement.hook";
 import AnnouncementList from "@components/shared/AnnouncementList";
-import CreateAnnouncementModal from "@components/shared/CreateAnnouncementModal";
 
 const Announcement = () => {
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { data: announcements, isLoading } = AnnouncementHook.useAnnouncements(
         fromDate || undefined,
         toDate || undefined
     );
-    const createMutation = AnnouncementHook.useCreateAnnouncement();
 
     const clearDates = () => {
         setFromDate("");
