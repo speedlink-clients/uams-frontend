@@ -7,6 +7,7 @@ import Programmes from "./components/Programmes";
 import LatestNews from "./components/LatestNews";
 import LibrarySection from "./components/LibrarySection";
 import ResourcesSection from "./components/ResourcesSection";
+import NewsletterSection from "./components/NewsletterSection";
 
 const LandingPage = () => {
   
@@ -20,6 +21,7 @@ const LandingPage = () => {
       <LatestNews id="research" />
       <LibrarySection />
       <ResourcesSection />
+      <NewsletterSection />
     </Box>
   );
 };
