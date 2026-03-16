@@ -12,6 +12,7 @@ const HERO_IMAGES = [
 
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
+const MotionText = motion(Text);
 
 const Hero = ({ id }: { id?: string }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -106,7 +107,7 @@ const Hero = ({ id }: { id?: string }) => {
                         </Heading>
                     </MotionBox>
 
-                    <Text
+                    <MotionText
                         color="white"
                         fontSize={{ base: "md", md: "lg" }}
                         fontWeight="medium"
@@ -117,7 +118,7 @@ const Hero = ({ id }: { id?: string }) => {
                         transition={{ delay: 0.6, duration: 0.8 }}
                     >
                         Become part of a dynamic institution recognized for its high-impact research and commitment to shaping the future.
-                    </Text>
+                    </MotionText>
                 </MotionVStack>
             </Container>
         </Box>

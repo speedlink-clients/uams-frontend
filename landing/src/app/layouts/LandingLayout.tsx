@@ -1,7 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import { Outlet } from "react-router";
 import Navbar from "../pages/landing/components/Navbar";
-import Footer from "../pages/landing/components/Footer";
+import Footer from "../pages/landing/Footer";
 
 const LandingLayout = () => {
     return (
