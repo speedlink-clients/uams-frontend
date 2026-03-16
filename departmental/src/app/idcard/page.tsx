@@ -359,7 +359,7 @@ const IDCardPage = () => {
     };
 
     return (
-        <Box maxW="1400px" mx="auto">
+        <Box maxW="1400px" mx="auto" overflowX="hidden"> {/* Prevent page from scrolling horizontally */}
             {/* Header */}
             <Flex justifyContent="space-between" alignItems="center" mb="8" flexWrap="wrap" gap="4">
                 <Box>
@@ -392,8 +392,9 @@ const IDCardPage = () => {
                 </Flex>
             </Flex>
 
-            {/* Table */}
+            {/* Table Container */}
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="slate.100" boxShadow="sm" overflow="hidden">
+                {/* Table Header (Fixed - Not Scrolling) */}
                 <Flex p={{ base: "4", md: "6" }} alignItems="center" justifyContent="space-between" borderBottom="1px solid" borderColor="slate.100" flexWrap="wrap" gap="4">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({allFiltered.length})</Text>
                     <Button onClick={handleExportStudents} 
@@ -402,17 +403,18 @@ const IDCardPage = () => {
                     </Button>
                 </Flex>
 
-                <Box overflowX="auto">
-                    <Box as="table" w="full" textAlign="left" minW="800px">
+                {/* Scrollable Table Area - Only the table scrolls horizontally */}
+                <Box overflowX="auto" overflowY="visible" w="100%">
+                    <Box as="table" w="full" textAlign="left" minW="800px" style={{ borderCollapse: 'collapse' }}>
                         <Box as="thead" bg="slate.50" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">
                             <Box as="tr">
-                                <Box as="th" px="6" py="4" w="12" textAlign="center"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Box>
-                                <Box as="th" px="6" py="4">Student Name</Box>
-                                <Box as="th" px="6" py="4">Matric No</Box>
-                                <Box as="th" px="6" py="4">Department</Box>
-                                <Box as="th" px="6" py="4">Level</Box>
-                                <Box as="th" px="6" py="4" textAlign="center">Status</Box>
-                                <Box as="th" px="6" py="4" textAlign="center">Action</Box>
+                                <Box as="th" px="6" py="4" w="12" textAlign="center" whiteSpace="nowrap"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Student Name</Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Matric No</Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Department</Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Level</Box>
+                                <Box as="th" px="6" py="4" textAlign="center" whiteSpace="nowrap">Status</Box>
+                                <Box as="th" px="6" py="4" textAlign="center" whiteSpace="nowrap">Action</Box>
                             </Box>
                         </Box>
                         <Box as="tbody" fontSize="sm">
@@ -436,14 +438,14 @@ const IDCardPage = () => {
                                     cursor="pointer"
                                     onClick={() => toggleSelection(s.id)}
                                 >
-                                    <Box as="td" px="6" py="4" textAlign="center" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} />
                                     </Box>
-                                    <Box as="td" px="6" py="4" fontWeight="bold" color="slate.700">{s.name}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500">{s.matric}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500">{s.department}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500">{s.level}</Box>
-                                    <Box as="td" px="6" py="4" textAlign="center">
+                                    <Box as="td" px="6" py="4" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{s.name}</Box>
+                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.matric}</Box>
+                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.department}</Box>
+                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.level}</Box>
+                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap">
                                         <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold"
                                             bg={s.hasPaidIDCardFee ? "green.100" : "red.100"}
                                             color={s.hasPaidIDCardFee ? "green.700" : "red.700"}
@@ -451,7 +453,7 @@ const IDCardPage = () => {
                                             {s.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
                                         </Text>
                                     </Box>
-                                    <Box as="td" px="6" py="4" textAlign="center" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         <button
                                             onClick={() => handleIssueCard(s)}
                                             disabled={!s.hasPaidIDCardFee}
@@ -657,19 +659,3 @@ const IDCardPage = () => {
 };
 
 export default IDCardPage;
-
-
-// const payload = {
-//     transcript:{
-//         email:{
-//             splitKey:"dkjfjklsjkhfsdf",
-//             amount:57575,
-//             merdjjfjf:47575
-//         },
-//         phone:{
-//             splitKey:"dkjfjklsjkhfsdf",
-//             amount:57575,
-//             merdjjfjf:47575
-//          }
-//     }
-// }

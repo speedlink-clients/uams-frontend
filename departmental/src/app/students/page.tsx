@@ -1,280 +1,395 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { Plus, FileDown, FileUp, MoreHorizontal, UserCog, Pencil, Trash2, Download, X, Search } from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { Search, Camera, Download, X, Upload, Loader2 } from "lucide-react";
+import axiosClient from "@configs/axios.config";
+import { IDCardServices } from "@services/idcard.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
-import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
-import BulkUploadStudentsModal from "@components/students/BulkUploadStudentsModal";
-import StudentDetailsSidebar from "@components/students/StudentDetailsSidebar";
-import AddStudentForm from "@components/students/AddStudentForm";
-import DeleteConfirmationModal from "@components/students/DeleteConfirmationModal";
-import { StudentServices } from "@services/student.service";
+import { Box, Flex, Text, Button, Spinner } from "@chakra-ui/react";
 
 interface Student {
     id: string;
-    regNo: string;
-    matNo: string;
-    surname: string;
-    otherNames: string;
-    fullName: string;
-    email: string;
-    phoneNo: string;
-    sex: string;
-    admissionMode: string;
-    entryQualification: string;
+    idNo: string;
+    name: string;
+    matric: string;
     faculty: string;
     department: string;
     level: string;
-    degreeCourse: string;
-    programDuration: string;
-    degreeAwardCode: string;
-    isActive: boolean;
-    createdAt: string;
+    graduationDate: string;
+    hasPaidIDCardFee: boolean;
+    avatar: string;
 }
 
-const ITEMS_PER_PAGE = 10;
+interface IDCardSettings {
+    backTemplate?: string;
+    frontTemplate?: string;
+    backDescription?: string;
+    backDisclaimer?: string;
+    signature?: string;
+}
 
-const StudentsPage = () => {
+const ITEMS_PER_PAGE = 20;
+
+const IDCardPage = () => {
     const [students, setStudents] = useState<Student[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [showUpload, setShowUpload] = useState(false);
+    const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "unpaid">("all");
+    const [levelFilter, setLevelFilter] = useState("all");
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
-    const [selectedLevel, setSelectedLevel] = useState("all");
-    const [selectedProgram, setSelectedProgram] = useState("all");
-    const [selectedSession, setSelectedSession] = useState("all");
-    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-    const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const fetchStudents = async () => {
-        try {
-            setLoading(true);
-            const apiStudents = await StudentServices.getDepartmentStudents();
-            const studentArray = Array.isArray(apiStudents) ? apiStudents : (apiStudents?.data || apiStudents?.users || []);
-            const mapped: Student[] = studentArray.map((s: any) => ({
-                id: s.id || s.userId,
-                regNo: s.registrationNo || "N/A",
-                matNo: s.studentId || "N/A",
-                surname: s.user?.fullName?.split(" ")[0] || "N/A",
-                otherNames: s.user?.fullName?.split(" ").slice(1).join(" ") || "N/A",
-                fullName: s.user?.fullName || s.fullName || "N/A",
-                email: s.user?.email || s.email || "N/A",
-                phoneNo: s.user?.phone || s.phone || "N/A",
-                sex: s.gender || "N/A",
-                admissionMode: s.admissionMode || "N/A",
-                entryQualification: s.entryQualification || "N/A",
-                faculty: s.Department?.Faculty?.name || "N/A",
-                department: s.Department?.name || "N/A",
-                level: s.Level?.name || s.level || "N/A",
-                degreeCourse: s.degreeCourse || "N/A",
-                programDuration: s.courseDuration || "N/A",
-                degreeAwardCode: s.degreeAwarded || "N/A",
-                isActive: s.isActive ?? true,
-                createdAt: s.createdAt ? new Date(s.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "N/A",
-            }));
-            setStudents(mapped);
-        } catch (err) {
-            console.error("Failed to fetch students", err);
-            toaster.error({ title: "Failed to load students" });
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Modal state
+    const [showModal, setShowModal] = useState(false);
+    const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
+    const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+    const [cameraActive, setCameraActive] = useState(false);
+    const [generatingPDF, setGeneratingPDF] = useState(false);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [idCardSettings, setIdCardSettings] = useState<IDCardSettings | null>(null);
 
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Fetch ID card settings
     useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await IDCardServices.getDefaultIDCard();
+                if (response?.template) {
+                    setIdCardSettings({
+                        frontTemplate: response.template.frontCardTemplate || response.template.frontTemplate,
+                        backTemplate: response.template.backCardTemplate || response.template.backTemplate,
+                        backDescription: response.template.backDescription,
+                        backDisclaimer: response.template.backDisclaimer,
+                        signature: response.template.hodSignature || response.template.signature,
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to fetch ID card settings", error);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    // Fetch students
+    useEffect(() => {
+        const fetchStudents = async () => {
+            try {
+                setLoading(true);
+                const response = await axiosClient.get("/university-admin/students", { params: { limit: 1000 } });
+                const transformed: Student[] = (response.data.students || []).map((s: any) => ({
+                    id: s.id,
+                    idNo: s.studentId,
+                    name: s.user?.fullName || "N/A",
+                    matric: s.studentId,
+                    faculty: s.Department?.Faculty?.name || "N/A",
+                    department: s.Department?.name || "N/A",
+                    level: s.level || "N/A",
+                    graduationDate: "2026-06-15",
+                    hasPaidIDCardFee: s.PaymentTransactions?.some((t: any) => t.payment_for === "ID Card Fee Payment" && t.status === "success") || false,
+                    avatar: s.user?.avatar || "",
+                }));
+                setStudents(transformed);
+            } catch (err) {
+                console.error("Failed to fetch students", err);
+                toaster.error({ title: "Failed to load students" });
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchStudents();
     }, []);
 
-    useEffect(() => {
-        const handleClickOutside = () => setActiveDropdownId(null);
-        document.addEventListener("click", handleClickOutside);
-        return () => document.removeEventListener("click", handleClickOutside);
-    }, []);
+    // Filters
+    const uniqueLevels = useMemo(() => Array.from(new Set(students.map((s) => s.level).filter((l) => l && l !== "N/A"))).sort(), [students]);
 
-    const filteredStudents = useMemo(() => {
-        let filtered = students;
-
-        if (searchQuery) {
+    const allFiltered = useMemo(() => {
+        return students.filter((s) => {
+            const matchesStatus = statusFilter === "all" || (statusFilter === "paid" && s.hasPaidIDCardFee) || (statusFilter === "unpaid" && !s.hasPaidIDCardFee);
+            const matchesLevel = levelFilter === "all" || s.level === levelFilter;
             const q = searchQuery.toLowerCase();
-            filtered = filtered.filter(
-                (s) =>
-                    s.fullName.toLowerCase().includes(q) ||
-                    s.surname.toLowerCase().includes(q) ||
-                    s.otherNames.toLowerCase().includes(q) ||
-                    s.email.toLowerCase().includes(q) ||
-                    s.regNo.toLowerCase().includes(q) ||
-                    s.matNo.toLowerCase().includes(q) ||
-                    s.phoneNo.toLowerCase().includes(q)
-            );
-        }
+            const matchesSearch = !q || s.name.toLowerCase().includes(q) || s.matric.toLowerCase().includes(q) || s.department.toLowerCase().includes(q) || s.faculty.toLowerCase().includes(q);
+            return matchesStatus && matchesLevel && matchesSearch;
+        });
+    }, [students, statusFilter, levelFilter, searchQuery]);
 
-        if (selectedLevel !== "all") {
-            filtered = filtered.filter((s) => s.level === selectedLevel);
-        }
+    const totalPages = Math.ceil(allFiltered.length / ITEMS_PER_PAGE) || 1;
+    const paginatedStudents = allFiltered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-        return filtered;
-    }, [students, searchQuery, selectedLevel, selectedProgram, selectedSession]);
+    useEffect(() => { setCurrentPage(1); }, [searchQuery, statusFilter, levelFilter]);
 
-    const levels = useMemo(() => {
-        const uniqueLevels = Array.from(new Set(students.map((s) => s.level))).filter(Boolean);
-        return ["all", ...uniqueLevels].sort();
-    }, [students]);
+    // Selection
+    const toggleSelection = (id: string) => setSelectedIds((p) => p.includes(id) ? p.filter((i) => i !== id) : [...p, id]);
+    const toggleSelectAll = () => setSelectedIds(selectedIds.length === paginatedStudents.length && paginatedStudents.length > 0 ? [] : paginatedStudents.map((s) => s.id));
 
-    const clearFilters = () => {
-        setSearchQuery("");
-        setSelectedLevel("all");
-        setSelectedProgram("all");
-        setSelectedSession("all");
-        setCurrentPage(1);
-    };
-
-    const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
-    const paginatedStudents = filteredStudents.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchQuery, selectedLevel, selectedProgram, selectedSession]);
-
-    const toggleSelection = (id: string) => {
-        setSelectedIds((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
-    };
-
-    const toggleSelectAll = () => {
-        const allIds = filteredStudents.map((s) => s.id);
-        const allSelected = allIds.every((id) => selectedIds.includes(id));
-        setSelectedIds(allSelected ? [] : allIds);
-    };
-
-    const toggleDropdown = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setActiveDropdownId(activeDropdownId === id ? null : id);
-    };
-
-    const handleExport = () => {
-        const exportData = filteredStudents.map((s) => ({
-            "Reg No": s.regNo, "Mat No": s.matNo, Surname: s.surname, "Other Names": s.otherNames,
-            Email: s.email, Phone: s.phoneNo, Sex: s.sex, Department: s.department,
-            Faculty: s.faculty, Level: s.level, "Admission Mode": s.admissionMode,
-            "Entry Qualification": s.entryQualification, "Degree Course": s.degreeCourse,
-            "Program Duration": s.programDuration, "Degree Award Code": s.degreeAwardCode,
-        }));
-        exportToExcel(exportData, "Students_List", "Students");
-        toaster.success({ title: "Exported successfully" });
-    };
-
-    const handleDownloadTemplate = () => {
-        const link = document.createElement("a");
-        link.href = "/departmental-admin/documents/Students_Sample_File.csv";
-        link.setAttribute("download", "Students_Sample_File.csv");
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
-    };
-
-    const handleBulkDownload = async () => {
-        if (selectedIds.length === 0) return;
+    // Camera
+    const startCamera = async () => {
         try {
-            const blob = await StudentServices.bulkDownloadStudents(selectedIds);
-            const url = window.URL.createObjectURL(new Blob([blob]));
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", "students_data.csv");
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode?.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            toaster.success({ title: "Download started" });
-        } catch {
-            toaster.error({ title: "Failed to download" });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+            if (videoRef.current) { videoRef.current.srcObject = stream; setCameraActive(true); }
+        } catch { toaster.error({ title: "Camera access denied" }); }
+    };
+
+    const stopCamera = () => {
+        if (videoRef.current?.srcObject) {
+            (videoRef.current.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
+            videoRef.current.srcObject = null;
+        }
+        setCameraActive(false);
+    };
+
+    const captureImage = () => {
+        if (videoRef.current && canvasRef.current) {
+            const ctx = canvasRef.current.getContext("2d");
+            if (ctx) { ctx.drawImage(videoRef.current, 0, 0, 640, 480); setCapturedPhoto(canvasRef.current.toDataURL("image/jpeg", 0.9)); stopCamera(); }
         }
     };
 
-    const handleBulkDelete = () => {
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) { toaster.error({ title: "File too large (max 5MB)" }); return; }
+        const reader = new FileReader();
+        reader.onloadend = () => { setCapturedPhoto(reader.result as string); stopCamera(); };
+        reader.readAsDataURL(file);
+    };
+
+    const handleIssueCard = (student: Student) => {
+        setCurrentStudent(student);
+        setCapturedPhoto(null);
+        setShowModal(true);
+        setTimeout(() => startCamera(), 100);
+    };
+
+    // Upload photo to server
+    const uploadPhotoToServer = async (): Promise<boolean> => {
+        if (!currentStudent || !capturedPhoto) return false;
+        setUploadingPhoto(true);
+        try {
+            const response = await fetch(capturedPhoto);
+            const blob = await response.blob();
+            const formData = new FormData();
+            formData.append("avatar", blob, `${currentStudent.matric}.jpg`);
+            await axiosClient.put(`/department-admins/students/avatar?studentId=${currentStudent.matric}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+            return true;
+        } catch (err: any) {
+            toaster.error({ title: err.response?.data?.message || "Failed to upload photo" });
+            return false;
+        } finally {
+            setUploadingPhoto(false);
+        }
+    };
+
+    // Generate PDF
+    const generateIDCardPDF = async () => {
+        if (!currentStudent || !capturedPhoto) return;
+        setGeneratingPDF(true);
+        try {
+            const uploadSuccess = await uploadPhotoToServer();
+            if (!uploadSuccess) { setGeneratingPDF(false); return; }
+
+            const { jsPDF } = await import("jspdf");
+            const cardWidth = 85.6, cardHeight = 54;
+            const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [cardWidth, cardHeight] });
+
+            const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.onload = () => resolve(img);
+                    img.onerror = () => {
+                        console.error(`Failed to load image: ${src}`);
+                        resolve(null);
+                    };
+                    img.src = src;
+                    setTimeout(() => resolve(null), 10000); // 10s timeout
+                });
+            };
+
+            const frontSrc = idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png";
+            const backSrc = idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png";
+
+            const [frontTemplate, backTemplate] = await Promise.all([
+                loadImage(frontSrc),
+                loadImage(backSrc)
+            ]);
+
+            if (!frontTemplate) {
+                toaster.error({ title: "Failed to load ID card template" });
+                setGeneratingPDF(false);
+                return;
+            }
+
+            // Front
+            doc.addImage(frontTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+            doc.addImage(capturedPhoto!, "JPEG", 5.5, 20.5, 19.7, 23.1);
+
+            doc.setFontSize(3.5);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            const textX = 27; let textY = 23; const lineHeight = 3.8;
+            const infoLines = [
+                `NAME: ${currentStudent.name}`, `MATRIC NO.: ${currentStudent.matric}`,
+                `FACULTY: ${currentStudent.faculty}`, `DEPT: ${currentStudent.department}`,
+                `EXPIRY DATE: ${currentStudent.graduationDate}`,
+            ];
+            
+            infoLines.forEach((line, i) => {
+                const maxWidth = cardWidth - textX - 5;
+                const lines = doc.splitTextToSize(line, maxWidth);
+                if (lines.length > 1) {
+                    lines.forEach((lineText: string, lineIndex: number) => {
+                        doc.text(lineText, textX, (textY + i * lineHeight) + (lineIndex * 1.5));
+                    });
+                } else {
+                    doc.text(line, textX, textY + i * lineHeight);
+                }
+            });
+
+            // Back
+            if (backTemplate) {
+                doc.addPage([cardWidth, cardHeight], "landscape");
+                doc.addImage(backTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+
+                // Add Back Text
+                const backDescription = idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt";
+                const backDisclaimer = idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt";
+
+                doc.setTextColor(15, 23, 42); // slate-900 equivalent
+                
+                // Description
+                doc.setFontSize(3.5);
+                doc.setFont("helvetica", "bold");
+                const descLines = doc.splitTextToSize(backDescription, cardWidth - 20);
+                doc.text(descLines, cardWidth / 2, 20, { align: "center" });
+
+                // Disclaimer
+                doc.setFontSize(3);
+                const discLines = doc.splitTextToSize(backDisclaimer, cardWidth - 20);
+                doc.text(discLines, cardWidth / 2, 30, { align: "center" });
+
+                // Signature
+                const sigSrc = idCardSettings?.signature;
+                if (sigSrc) {
+                    const signatureImg = await loadImage(sigSrc);
+                    if (signatureImg) {
+                        doc.addImage(signatureImg, "PNG", (cardWidth / 2) - 15, cardHeight - 18, 30, 6, undefined, 'FAST');
+                    }
+                }
+
+                // Signature Line and Label
+                doc.setDrawColor(15, 23, 42);
+                doc.setLineWidth(0.2);
+                doc.line((cardWidth / 2) - 15, cardHeight - 11, (cardWidth / 2) + 15, cardHeight - 11);
+                
+                doc.setFontSize(2.5);
+                doc.text("Department Admin's Signature", cardWidth / 2, cardHeight - 8, { align: "center" });
+            }
+
+            doc.save(`${currentStudent.name.replace(/\s+/g, "_")}_ID_Card.pdf`);
+            toaster.success({ title: "ID Card PDF generated!" });
+            setTimeout(() => { setShowModal(false); setCapturedPhoto(null); stopCamera(); }, 1000);
+        } catch (err) {
+            console.error("PDF generation error:", err);
+            toaster.error({ title: "Failed to generate PDF" });
+        } finally {
+            setGeneratingPDF(false);
+        }
+    };
+
+    // Bulk downloads
+    const handleBulkDownloadIDCards = async () => {
         if (selectedIds.length === 0) return;
-        setIdsToDelete(selectedIds);
-        setIsDeleteModalOpen(true);
+        let toastId;
+        try {
+            toastId = toaster.create({ title: "Downloading ID Cards...", type: "loading" });
+            const templateResponse = await IDCardServices.getDefaultIDCard();
+            const templateId = templateResponse?.template?.id;
+            if (!templateId) { 
+                if (toastId) toaster.dismiss(toastId);
+                toaster.error({ title: "No default template found" }); 
+                return; 
+            }
+            const blob = await IDCardServices.bulkDownloadIDCards(selectedIds, templateId);
+            const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+            const link = document.createElement("a"); link.href = url; link.download = "ID_Cards.pdf";
+            document.body.appendChild(link); link.click(); link.remove();
+            
+            if (toastId) toaster.dismiss(toastId);
+            toaster.success({ title: "Download started" });
+            setSelectedIds([]);
+        } catch (err) { 
+            if (toastId) toaster.dismiss(toastId);
+            toaster.error({ title: "Failed to download" }); 
+        }
+    };
+
+    const handleBulkDownloadBanner = async () => {
+        if (selectedIds.length === 0) return;
+        let toastId;
+        try {
+            toastId = toaster.create({ title: "Downloading Banner...", type: "loading" });
+            const blob = await IDCardServices.bulkDownloadBanner(selectedIds);
+            const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+            const link = document.createElement("a"); link.href = url; link.download = "Banners.pdf";
+            document.body.appendChild(link); link.click(); link.remove();
+            
+            if (toastId) toaster.dismiss(toastId);
+            toaster.success({ title: "Download started" });
+            setSelectedIds([]);
+        } catch (err) { 
+            if (toastId) toaster.dismiss(toastId);
+            toaster.error({ title: "Failed to download" }); 
+        }
+    };
+
+    // Export
+    const handleExportStudents = () => {
+        exportToExcel(students.map((s) => ({
+            "Student Name": s.name, "Matric No": s.matric, "Department": s.department,
+            "Faculty": s.faculty, "Level": s.level, "ID Card Fee Paid": s.hasPaidIDCardFee ? "Yes" : "No",
+        })), "Students_List", "Students");
+        toaster.success({ title: "Exporting students table to Excel..." });
     };
 
     const selectStyle: React.CSSProperties = {
-        padding: "8px 12px",
-        borderRadius: "8px",
-        border: "1px solid #e2e8f0",
-        fontSize: "13px",
-        color: "#475569",
-        background: "white",
-        outline: "none",
-        minWidth: "140px",
-        cursor: "pointer",
+        padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f1f5f9",
+        borderRadius: "12px", fontSize: "14px", fontWeight: 500, color: "#475569", outline: "none",
     };
 
     return (
         <Box>
             {/* Header */}
-            <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="10" gap="4">
-                <Box maxW="xl">
-                    <Text fontSize="3xl" fontWeight="bold" color="slate.900">Students</Text>
-                    <Text color="slate.500" mt="2">
-                        {students.length} total students • {filteredStudents.length} filtered
-                    </Text>
+            <Flex justifyContent="space-between" alignItems="center" mb="8" flexWrap="wrap" gap="4">
+                <Box>
+                    <Text fontSize="2xl" fontWeight="bold" color="slate.900">Student ID Issuance</Text>
+                    <Text fontSize="sm" color="slate.500">Capture photos and generate official department ID cards.</Text>
                 </Box>
-                <Flex alignItems="center" gap="3" flexWrap="wrap">
-                    <Box as="button" onClick={handleDownloadTemplate} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="1px solid" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
-                        <FileDown size={18} /> Download Sample File
+                <Flex gap="3" alignItems="center" flexWrap="wrap" w={{ base: "100%", lg: "auto" }}>
+                    <Box flex={{ base: "1 1 45%", lg: "none" }}>
+                        <select value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)} className="idcard-filter-input" style={{ ...selectStyle, width: "100%" }}>
+                            <option value="all">All Levels</option>
+                            {uniqueLevels.map((l) => <option key={l} value={l}>{l}</option>)}
+                        </select>
                     </Box>
-                    <Box as="button" onClick={() => setShowUpload(true)} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="1px solid" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
-                        <FileUp size={18} /> Upload CSV
+                    <Box flex={{ base: "1 1 45%", lg: "none" }}>
+                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)} className="idcard-filter-input" style={{ ...selectStyle, width: "100%" }}>
+                            <option value="all">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                        </select>
                     </Box>
-                    <Box as="button" onClick={() => { setStudentToEdit(null); setShowAddForm(true); }} bg="#1D7AD9" color="white" px="6" py="2.5" borderRadius="lg" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" boxShadow="lg" cursor="pointer" _hover={{ bg: "blue.700" }} border="none">
-                        <Plus size={18} /> Add Students
-                    </Box>
-                </Flex>
-            </Flex>
-
-            {/* Search & Filters Card */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="6" mb="4">
-                <Flex alignItems="center" justifyContent="space-between" gap="4" flexWrap="wrap">
-                    <Box position="relative" flex="1" maxW="md">
+                    <Box flex={{ base: "1 1 100%", lg: "none" }} position="relative" w={{ base: "100%", lg: "320px" }}>
                         <input
-                            type="text"
-                            placeholder="Search by name, email or student ID"
-                            value={searchQuery}
+                            type="text" placeholder="Search by name or matric number..." value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{ width: "100%", background: "white", border: "1px solid #e2e8f0", fontSize: "12px", padding: "8px 12px 8px 36px", borderRadius: "8px", outline: "none", color: "#334155" }}
+                            className="idcard-filter-input"
+                            style={{ width: "100%", padding: "10px 16px 10px 40px", border: "1px solid #e2e8f0", background: "white", borderRadius: "12px", fontSize: "14px", outline: "none", color: "#334155" }}
                         />
-                        <Box position="absolute" left="3" top="50%" transform="translateY(-50%)" color="slate.400" pointerEvents="none">
-                            <Search size={16} />
-                        </Box>
+                        <Search size={18} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
                     </Box>
-                    <Flex alignItems="center" gap="3" flexWrap="wrap">
-                        <select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)} style={selectStyle}>
-                            {levels.map((l) => (
-                                <option key={l} value={l}>{l === "all" ? "All Levels" : l}</option>
-                            ))}
-                        </select>
-                        <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} style={selectStyle}>
-                            <option value="all">All Programs</option>
-                        </select>
-                        <select value={selectedSession} onChange={(e) => setSelectedSession(e.target.value)} style={selectStyle}>
-                            <option value="all">All Sessions</option>
-                        </select>
-                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="1px solid" borderColor="slate.200" borderRadius="lg" fontSize="xs" fontWeight="semibold" color="slate.800" cursor="pointer" _hover={{ bg: "slate.50" }}>
-                            <X size={16} /> Clear Filters
-                        </Box>
-                    </Flex>
                 </Flex>
-            </Box>
-
-            {/* Export Table header */}
-            <Flex alignItems="center" justifyContent="space-between" mb="4">
-                <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({filteredStudents.length})</Text>
-                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="1px solid" borderColor="slate.200" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>
-                    <Download size={16} color="#94a3b8" /> Export Table
-                </Box>
             </Flex>
 
             {/* Table */}
@@ -291,103 +406,88 @@ const StudentsPage = () => {
                     <Text color="slate.400" fontSize="sm">Try changing your search or filter criteria</Text>
                 </Box>
             ) : (
-                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
-                    <Box overflowX="auto">
-                        <Box as="table" w="full" textAlign="left">
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden">
+                    {/* Export Table header */}
+                    <Flex alignItems="center" justifyContent="space-between" p={{ base: "4", md: "6" }} borderBottom="1px solid" borderColor="gray.100">
+                        <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({allFiltered.length})</Text>
+                        <Button onClick={handleExportStudents} 
+                            display="flex" alignItems="center" gap="6px" padding="6px 10px" background="white" border="1px solid #e2e8f0" borderRadius="12px" fontSize="12px" fontWeight="600" color="#475569" cursor="pointer" _hover={{ background: "#f8f9faff" }}>
+                            <Download size={12} color="#94a3b8" /> Export Table
+                        </Button>
+                    </Flex>
+
+                    {/* Scrollable Table Container - Horizontal scroll only */}
+                    <Box overflowX="auto" overflowY="visible" w="100%">
+                        <Box as="table" w="full" textAlign="left" style={{ borderCollapse: 'collapse', minWidth: "1000px" }}>
                             <Box as="thead">
                                 <Box as="tr" bg="slate.50" borderBottom="1px solid" borderColor="gray.100" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
-                                    <Box as="th" px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50">
-                                        <input
-                                            type="checkbox"
-                                            checked={filteredStudents.length > 0 && selectedIds.length > 0 && selectedIds.length === filteredStudents.length}
-                                            onChange={toggleSelectAll}
-                                            style={{ cursor: "pointer" }}
-                                        />
+                                    <Box as="th" px="6" py="4" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50">
+                                        <input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} style={{ cursor: "pointer" }} />
                                     </Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Reg No.</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Mat. No.</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Surname</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Other Names</Box>
-                                    <Box as="th" px="6" py="5" minW="200px">Email</Box>
-                                    <Box as="th" px="6" py="5" minW="140px">Phone No</Box>
-                                    <Box as="th" px="6" py="5" minW="100px">Gender</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Admission Mode</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Entry Qualification</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Faculty</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Department</Box>
-                                    <Box as="th" px="6" py="5" minW="100px">Level</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Degree Course</Box>
-                                    <Box as="th" px="6" py="5" minW="120px">Course Duration</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Degree Award Code</Box>
-                                    <Box as="th" px="6" py="5" minW="100px">Status</Box>
-                                    <Box as="th" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex="20" bg="slate.50">Action</Box>
+                                    <Box as="th" px="6" py="4" minW="200px">Student Name</Box>
+                                    <Box as="th" px="6" py="4" minW="150px">Matric No</Box>
+                                    <Box as="th" px="6" py="4" minW="200px">Department</Box>
+                                    <Box as="th" px="6" py="4" minW="100px">Level</Box>
+                                    <Box as="th" px="6" py="4" minW="100px" textAlign="center">Status</Box>
+                                    <Box as="th" px="6" py="4" minW="100px" textAlign="center" position="sticky" right="0" zIndex="20" bg="slate.50">Action</Box>
                                 </Box>
                             </Box>
-                            <Box as="tbody" fontSize="xs">
+                            <Box as="tbody" fontSize="sm">
                                 {paginatedStudents.map((s) => (
-                                    <Box as="tr" key={s.id} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.id) ? "blue.50" : undefined} cursor="pointer" whiteSpace="nowrap">
-                                        <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50">
-                                            <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
+                                    <Box
+                                        as="tr" key={s.id}
+                                        _hover={{ bg: "slate.50" }}
+                                        borderBottom="1px solid" borderColor="slate.50" color="slate.600"
+                                        bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"}
+                                        cursor="pointer"
+                                        onClick={() => toggleSelection(s.id)}
+                                        whiteSpace="nowrap"
+                                    >
+                                        <Box as="td" px="6" py="4" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                            <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} style={{ cursor: "pointer" }} />
                                         </Box>
-                                        <Box as="td" px="6" py="5" color="slate.400" fontWeight="medium">{s.regNo}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.matNo}</Box>
-                                        <Box as="td" px="6" py="5" fontWeight="bold" color="slate.700">{s.surname}</Box>
-                                        <Box as="td" px="6" py="5" fontWeight="medium" color="slate.600">{s.otherNames}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.email}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.phoneNo}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500" textTransform="capitalize">{s.sex}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500" textTransform="capitalize">{s.admissionMode}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.entryQualification}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.faculty}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.department}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.level}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.degreeCourse}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.programDuration}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.degreeAwardCode}</Box>
-                                        <Box as="td" px="6" py="5">
-                                            <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold" bg={s.isActive ? "green.100" : "red.100"} color={s.isActive ? "green.700" : "red.700"}>
-                                                {s.isActive ? "Active" : "Inactive"}
+                                        <Box as="td" px="6" py="4" fontWeight="bold" color="slate.700">{s.name}</Box>
+                                        <Box as="td" px="6" py="4" color="slate.500">{s.matric}</Box>
+                                        <Box as="td" px="6" py="4" color="slate.500">{s.department}</Box>
+                                        <Box as="td" px="6" py="4" color="slate.500">{s.level}</Box>
+                                        <Box as="td" px="6" py="4" textAlign="center">
+                                            <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold"
+                                                bg={s.hasPaidIDCardFee ? "green.100" : "red.100"}
+                                                color={s.hasPaidIDCardFee ? "green.700" : "red.700"}
+                                            >
+                                                {s.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
                                             </Text>
                                         </Box>
-                                        <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" ref={dropdownRef}>
-                                            <Box position="relative">
-                                                <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.id, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
-                                                    <MoreHorizontal size={20} />
-                                                </Box>
-
-                                                {activeDropdownId === s.id && (
-                                                    <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="1px solid" borderColor="gray.100" zIndex="50" overflow="hidden" textAlign="left">
-                                                        <Box p="1">
-                                                            <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStudent(s); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
-                                                                <UserCog size={16} /> Assign Role
-                                                            </Box>
-                                                            <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setStudentToEdit(s); setShowAddForm(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="amber.600" _hover={{ bg: "amber.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
-                                                                <Pencil size={16} /> Edit details
-                                                            </Box>
-                                                            <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setIdsToDelete([s.id]); setIsDeleteModalOpen(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="red.600" _hover={{ bg: "red.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
-                                                                <Trash2 size={16} /> Delete student
-                                                            </Box>
-                                                        </Box>
-                                                    </Box>
-                                                )}
-                                            </Box>
+                                        <Box as="td" px="6" py="4" textAlign="center" position="sticky" right="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                            <button
+                                                onClick={() => handleIssueCard(s)}
+                                                disabled={!s.hasPaidIDCardFee}
+                                                style={{
+                                                    background: "none", border: "none", fontWeight: 700, cursor: s.hasPaidIDCardFee ? "pointer" : "not-allowed",
+                                                    color: s.hasPaidIDCardFee ? "#2563eb" : "#cbd5e1", fontSize: "14px",
+                                                    textDecoration: "none",
+                                                }}
+                                                onMouseEnter={(e) => { if (s.hasPaidIDCardFee) (e.target as HTMLElement).style.textDecoration = "underline"; }}
+                                                onMouseLeave={(e) => { (e.target as HTMLElement).style.textDecoration = "none"; }}
+                                            >
+                                                Issue Card
+                                            </button>
                                         </Box>
                                     </Box>
                                 ))}
                             </Box>
                         </Box>
                     </Box>
-
                 </Box>
             )}
 
-            {/* Pagination - separate card below table */}
+            {/* Pagination */}
             {totalPages > 1 && (
                 <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="4" mt="4">
                     <Text fontSize="sm" color="slate.500">
                         Showing{" "}
-                        <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)}</Text>
-                        {" "}of <Text as="span" fontWeight="semibold">{filteredStudents.length}</Text> students
+                        <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, allFiltered.length)}</Text>
+                        {" "}of <Text as="span" fontWeight="semibold">{allFiltered.length}</Text> students
                         (Total: {students.length})
                     </Text>
                     <Flex alignItems="center" gap="2">
@@ -418,72 +518,144 @@ const StudentsPage = () => {
                 </Flex>
             )}
 
+            {/* Camera/Generate Modal */}
+            {showModal && currentStudent && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+                    <div style={{ background: "white", borderRadius: "24px", width: "100%", maxWidth: "672px", boxShadow: "0 24px 48px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
+                        {/* Modal Header */}
+                        <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", margin: 0, wordBreak: "break-word" }}>
+                                Capture & Issue: {currentStudent.name}
+                            </h3>
+                            <button onClick={() => { setShowModal(false); stopCamera(); setCapturedPhoto(null); }} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", borderRadius: "50%", color: "#64748b" }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div style={{ padding: "24px", overflowY: "auto" }}>
+                            {/* Camera Area */}
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+                                <div style={{ width: "100%", aspectRatio: "16/9", background: "#0f172a", borderRadius: "16px", overflow: "hidden", position: "relative", border: "4px solid #f1f5f9" }}>
+                                    {!capturedPhoto ? (
+                                        <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    ) : (
+                                        <img src={capturedPhoto} style={{ width: "100%", height: "100%", objectFit: "fill" }} alt="Captured student photo" />
+                                    )}
+                                </div>
+
+                                {!capturedPhoto ? (
+                                    <Flex gap="12px" w="100%" direction={{ base: "column", sm: "row" }}>
+                                        <button onClick={captureImage} style={{ flex: 1, background: "#2563eb", color: "white", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "none", cursor: "pointer", opacity: !cameraActive ? 0.5 : 1 }}>
+                                            <Camera size={18} /> Capture Photo
+                                        </button>
+                                        <label style={{ flex: 1, background: "#f1f5f9", color: "#334155", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer" }}>
+                                            <Upload size={18} /> Upload Image (≤ 5MB)
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} ref={fileInputRef} style={{ display: "none" }} />
+                                        </label>
+                                    </Flex>
+                                ) : (
+                                    <button onClick={() => { setCapturedPhoto(null); startCamera(); }} style={{ width: "100%", background: "#f1f5f9", color: "#475569", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", border: "none", cursor: "pointer" }}>
+                                        Retake Photo
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* ID Preview Section */}
+                            {capturedPhoto && (
+                                <div style={{ marginTop: "32px" }}>
+                                    <h4 style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px" }}>
+                                        ID Card Preview
+                                    </h4>
+                                    <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="16px">
+                                        {/* Front View */}
+                                        <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                                            <img src={idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png"} style={{ width: "100%", height: "100%" }} alt="Front template" />
+                                            <img src={capturedPhoto} style={{ position: "absolute", top: "38%", left: "6.5%", width: "23%", height: "43%", objectFit: "cover", border: "1px solid white" }} alt="Student" />
+                                            <div style={{ position: "absolute", left: "32%", top: "42.5%", width: "45%", fontSize: "7px", fontWeight: 700, color: "black", textTransform: "uppercase" }}>
+                                                <div style={{ display: "flex", flexDirection: "column", gap: "8.5px", lineHeight: 1 }}>
+                                                    <div>NAME: {currentStudent.name}</div>
+                                                    <div>MATRIC NO.: {currentStudent.matric}</div>
+                                                    <div>FACULTY: {currentStudent.faculty}</div>
+                                                    <div>DEPT: {currentStudent.department}</div>
+                                                    <div>EXPIRY DATE: {currentStudent.graduationDate}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Back View */}
+                                        <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                                            <img src={idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png"} style={{ width: "100%", height: "100%" }} alt="Back template" />
+                                            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px", textAlign: "center", padding: "40px 24px 0" }}>
+                                                <p style={{ fontSize: "9px", fontWeight: 700, color: "#0f172a", marginBottom: "8px", lineHeight: 1.2, maxWidth: "95%", margin: "0 0 8px" }}>
+                                                    {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+                                                </p>
+                                                <p style={{ fontSize: "8px", fontWeight: 700, color: "#0f172a", lineHeight: 1.2, maxWidth: "95%", margin: 0 }}>
+                                                    {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+                                                </p>
+
+                                                <div style={{ marginTop: "auto", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                    {idCardSettings?.signature && (
+                                                        <img src={idCardSettings.signature} alt="Signature" style={{ width: "176px", height: "28px", marginBottom: 0, objectFit: "contain" }} />
+                                                    )}
+                                                    <div style={{ width: "160px", height: "1.5px", background: "#0f172a", marginBottom: "4px" }} />
+                                                    <p style={{ fontSize: "7px", fontWeight: 700, color: "#0f172a", margin: 0 }}>Department Admin's Signature</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Box>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div style={{ padding: "24px", background: "#f8fafc", borderTop: "1px solid #e2e8f0", display: "flex", gap: "16px" }}>
+                            <button
+                                onClick={generateIDCardPDF}
+                                disabled={!capturedPhoto || uploadingPhoto || generatingPDF}
+                                style={{
+                                    flex: 1, background: "#16a34a", color: "white", padding: "14px", borderRadius: "12px", fontWeight: 700, fontSize: "14px",
+                                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                                    border: "none", cursor: (!capturedPhoto || uploadingPhoto || generatingPDF) ? "not-allowed" : "pointer",
+                                    opacity: (!capturedPhoto || uploadingPhoto || generatingPDF) ? 0.5 : 1,
+                                    boxShadow: "0 4px 12px rgba(22,163,74,0.2)",
+                                }}
+                            >
+                                {generatingPDF ? (
+                                    <><Loader2 size={20} style={{ animation: "spin 1s linear infinite" }} /> Generating PDF...</>
+                                ) : uploadingPhoto ? (
+                                    <><Loader2 size={20} style={{ animation: "spin 1s linear infinite" }} /> Uploading...</>
+                                ) : (
+                                    <><Download size={20} /> Generate ID Card PDF</>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
-                    <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
-                    <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={handleBulkDownload} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
-                        <Download size={16} /> Bulk Download
+                <Flex position="fixed" bottom={{ base: "4", md: "8" }} left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py={{ base: "3", md: "3" }} borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" w={{ base: "calc(100% - 32px)", md: "auto" }} flexWrap={{ base: "wrap", md: "nowrap" }} justifyContent="center">
+                    <Text fontSize="sm" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{selectedIds.length} items</Text>
+                    <Box w="px" h="6" bg="slate.200" display={{ base: "none", md: "block" }} />
+                    <Box as="button" onClick={handleBulkDownloadBanner} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
+                        <Download size={16} /> <Text as="span" display={{ base: "none", sm: "inline" }}>Bulk Download Banner</Text><Text as="span" display={{ base: "inline", sm: "none" }}>Banners</Text>
                     </Box>
-                    <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
-                        <Trash2 size={16} /> Bulk Delete
-                    </Box>
-                    <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent" title="Unselect all">
-                        <X size={20} />
+                    <Box as="button" onClick={handleBulkDownloadIDCards} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
+                        <Download size={16} /> <Text as="span" display={{ base: "none", sm: "inline" }}>Bulk Download ID-Cards</Text><Text as="span" display={{ base: "inline", sm: "none" }}>IDs</Text>
                     </Box>
                 </Flex>
             )}
 
-            <BulkUploadStudentsModal isOpen={showUpload} onClose={() => setShowUpload(false)} onUploaded={() => { setShowUpload(false); fetchStudents(); }} />
-
-            {/* Assign Role Sidebar */}
-            {selectedStudent && (
-                <StudentDetailsSidebar
-                    student={selectedStudent}
-                    onClose={() => setSelectedStudent(null)}
-                />
-            )}
-
-            {/* Add/Edit Student Form */}
-            {showAddForm && (
-                <AddStudentForm
-                    initialData={studentToEdit}
-                    onClose={() => { setShowAddForm(false); setStudentToEdit(null); }}
-                    onSubmit={async (data) => {
-                        if (studentToEdit) {
-                            await StudentServices.updateStudent(studentToEdit.id, data);
-                            toaster.success({ title: "Student updated successfully" });
-                        } else {
-                            console.log("Adding student:", data);
-                            toaster.success({ title: "Student added" });
-                        }
-                        setShowAddForm(false);
-                        setStudentToEdit(null);
-                        fetchStudents();
-                    }}
-                />
-            )}
-
-            {/* Delete Confirmation Modal */}
-            <DeleteConfirmationModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => { setIsDeleteModalOpen(false); setIdsToDelete([]); }}
-                onConfirm={async (reason) => {
-                    await StudentServices.bulkDeleteStudents(idsToDelete, reason);
-                    toaster.success({ title: `${idsToDelete.length} student(s) deleted` });
-                    setIsDeleteModalOpen(false);
-                    setIdsToDelete([]);
-                    setSelectedIds(prev => prev.filter(id => !idsToDelete.includes(id)));
-                    fetchStudents();
-                }}
-                title="Delete Students"
-                description="This action cannot be undone. This will permanently delete the selected student records from the system."
-                itemCount={idsToDelete.length}
-            />
+            {/* Hidden Canvas */}
+            <canvas ref={canvasRef} style={{ display: "none" }} width={640} height={480} />
+            <style>{`
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .idcard-filter-input:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important; border-color: #93c5fd !important; }
+            `}</style>
         </Box>
     );
 };
 
-export default StudentsPage;
+export default IDCardPage;
