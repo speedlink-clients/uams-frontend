@@ -116,9 +116,19 @@ const LatestNews = ({ id }: { id?: string }) => {
                                 <Text fontSize="sm" color="#000000" lineClamp={3} mb={4}>
                                     {item.excerpt}
                                 </Text>
-                                {/* <Button size="sm" bg="#2AB0E8" color="white" _hover={{ bg: "#2AB0E8" }} borderRadius="none" onClick={handleComingSoon}>
+                                <Button 
+                                    as="a"
+                                    href="https://www.uniport.edu.ng/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    size="sm" 
+                                    bg="#2AB0E8" 
+                                    color="white" 
+                                    _hover={{ bg: "#2AB0E8", transform: "scale(1.05)" }} 
+                                    borderRadius="none"
+                                >
                                     Read More
-                                </Button> */}
+                                </Button>
                             </Box>
                         </MotionBox>
                     ))}

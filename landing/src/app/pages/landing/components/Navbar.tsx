@@ -115,20 +115,6 @@ const Navbar = () => {
                     </Flex>
                 </Container>
 
-                {/* Admission Bar
-                <Box bg="#4CC5F5" py={2}>
-                    <Container maxW="container.xl">
-                        <Flex justify="center" align="center" gap={2} fontSize={{ base: "xs", md: "sm" }} color="white" flexWrap="wrap">
-                            <Text textAlign="center">
-                                Admission for the January 2026 academic session is ongoing.
-                            </Text>
-                            <Link href="https://www.uniport.edu.ng/" fontWeight="bold" textDecoration="underline" color="white">
-                                Apply Now!
-                            </Link>
-                        </Flex>
-                    </Container>
-                </Box> */}
-
                 {/* Mobile Menu Overlay */}
                 {isOpen && (
                     <Box
