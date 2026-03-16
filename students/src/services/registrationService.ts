@@ -459,7 +459,7 @@ export const calculateTranscriptFee = async (
  */
 export const getDefaultIDCard = async () => {
   try {
-    const response = await apiClient.get("/university-admin/id-card/default");
+    const response = await apiClient.get("/students/id-card/default");
     return response.data;
   } catch (error) {
     console.error("Failed to fetch ID card template", error);
