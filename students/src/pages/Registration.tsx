@@ -643,7 +643,7 @@ const IDCardGraphic = ({
       {/* FRONT OF CARD */}
       <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={idCardSettings?.frontTemplate || `${import.meta.env.BASE_URL}assets/image 1.png`}
+          src={idCardSettings?.frontTemplate}
           alt="ID Card Front"
           className="w-full h-full object-fill"
         />
@@ -681,17 +681,17 @@ const IDCardGraphic = ({
       {/* BACK OF CARD */}
       <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={idCardSettings?.backTemplate || `${import.meta.env.BASE_URL}assets/image 2.png`}
+          src={idCardSettings?.backTemplate}
           alt="ID Card Back"
           className="w-full h-full object-fill"
         />
 
         <div className="absolute inset-0 flex flex-col items-center pt-[40px] text-center px-[24px]">
           <p className="text-[9px] font-bold text-[#0f172a] mb-[8px] leading-tight max-w-[95%]">
-            {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+            {idCardSettings?.backDescription}
           </p>
           <p className="text-[8px] font-bold text-[#0f172a] leading-tight max-w-[95%]">
-            {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+            {idCardSettings?.backDisclaimer}
           </p>
 
           <div className="mt-auto mb-[32px] flex flex-col items-center">
