@@ -59,15 +59,15 @@ const Programmes = () => {
 
                     <Box overflowX="auto" pb={2} css={{ '&::-webkit-scrollbar': { display: 'none' } }}>
                         <HStack gap={4} minW="max-content">
-                            <Button size="sm" variant="ghost" color="#000000" _hover={{ bg: "#EC9A29" }} onClick={handleComingSoon}>Bachelor</Button>
-                            <Button size="sm" bg="#F6AD55" color="white" _hover={{ bg: "#EC9A29" }} onClick={handleComingSoon}>Masters</Button>
-                            <Button size="sm" variant="ghost" color="#000000" _hover={{ bg: "#EC9A29" }} onClick={handleComingSoon}>Sandwich</Button>
-                            <Button size="sm" variant="ghost" color="#000000" _hover={{ bg: "#EC9A29" }} onClick={handleComingSoon}>Post-Graduate</Button>
+                            <Button size="sm" variant="ghost" color="#000000" _hover={{ bg: "#23a1d5" }} onClick={handleComingSoon}>Bachelor</Button>
+                            <Button size="sm" bg="#2AB0E8" color="white" _hover={{ bg: "#23a1d5" }} onClick={handleComingSoon}>Masters</Button>
+                            <Button size="sm" variant="ghost" color="#000000" _hover={{ bg: "#23a1d5" }} onClick={handleComingSoon}>Sandwich</Button>
+                            <Button size="sm" variant="ghost" color="#000000" _hover={{ bg: "##23a1d5" }} onClick={handleComingSoon}>Post-Graduate</Button>
                         </HStack>
                     </Box>
 
                     <MotionBox
-                        bg="#EC9A29"
+                        bg="#154A99"
                         p={{ base: 6, md: 12 }}
                         borderRadius="none"
                         position="relative"
@@ -109,7 +109,7 @@ const Programmes = () => {
                             <IconButton aria-label="Previous" size="sm" variant="outline" borderColor="whiteAlpha.400" color="white" onClick={handleComingSoon}>
                                 <ChevronLeft size={24} />
                             </IconButton>
-                            <IconButton aria-label="Next" size="sm" bg="#2AB0E8" color="white" _hover={{ bg: "blue.700" }} onClick={handleComingSoon}>
+                            <IconButton aria-label="Next" size="sm" bg="#2AB0E8" color="white" _hover={{ bg: "#23a1d5" }} onClick={handleComingSoon}>
                                 <ChevronRight size={24} />
                             </IconButton>
                         </Flex>

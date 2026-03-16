@@ -1,3 +1,4 @@
+/*
 import { Box, Container, Heading, SimpleGrid, Image, Button, Flex, IconButton } from "@chakra-ui/react";
 import { toaster } from "@components/ui/toaster";
 import { CircleChevronRight } from "lucide-react";
@@ -67,5 +68,8 @@ const ResourcesSection = () => {
         </Box>
     );
 };
+*/
 
+// Export a placeholder so the app doesn't break if this component is imported
+const ResourcesSection = () => null;
 export default ResourcesSection;

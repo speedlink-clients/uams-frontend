@@ -13,7 +13,7 @@ const HERO_IMAGES = [
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
 
-const Hero = () => {
+const Hero = ({ id }: { id?: string }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const Hero = () => {
 
     return (
         <Box
-            id="hero"
+            id={id}
             position="relative"
             h={{ base: "450px", md: "600px" }}
             overflow="hidden"
@@ -100,37 +100,24 @@ const Hero = () => {
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.4, duration: 0.6 }}
                     >
-                        <Heading as="h2" size={{ base: "lg", md: "xl" }} color="#0C426F">
-                            of <Text as="span" fontWeight="bold">Technology Experts</Text>
+                        <Heading as="h2" size={{ base: "lg", md: "xl" }} color="#0C426F"
+                            textTransform="uppercase" letterSpacing="wide">
+                            of Technology Experts
                         </Heading>
                     </MotionBox>
 
-                    <MotionBox
+                    <Text
+                        color="white"
+                        fontSize={{ base: "md", md: "lg" }}
+                        fontWeight="medium"
+                        maxW="2xl"
+                        textShadow="0 2px 4px rgba(0,0,0,0.5)"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.8, duration: 1 }}
+                        transition={{ delay: 0.6, duration: 0.8 }}
                     >
-                        <Text color="white" fontSize={{ base: "md", md: "lg" }} maxW="2xl" textShadow="0 2px 4px rgba(0,0,0,0.5)">
-                            Become part of a dynamic institution recognized for its high-impact research and commitment to shaping the future.
-                        </Text>
-                    </MotionBox>
-
-                    {/* Carousel dots */}
-                    <Box display="flex" gap={2} mt={{ base: 4, md: 8 }}>
-                        {HERO_IMAGES.map((_, index) => (
-                            <Box
-                                key={index}
-                                w={3}
-                                h={3}
-                                borderRadius="100%"
-                                bg={index === currentImageIndex ? "#2AB0E8" : "whiteAlpha.600"}
-                                border="1px solid white"
-                                cursor="pointer"
-                                onClick={() => setCurrentImageIndex(index)}
-                                transition="all 0.3s"
-                            />
-                        ))}
-                    </Box>
+                        Become part of a dynamic institution recognized for its high-impact research and commitment to shaping the future.
+                    </Text>
                 </MotionVStack>
             </Container>
         </Box>
