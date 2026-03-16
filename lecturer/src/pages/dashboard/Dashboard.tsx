@@ -10,6 +10,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const { user } = useUserStore();
 
+    // Date filter state for attendance chart
 
 
     // Timetable filter state: today, tomorrow, week

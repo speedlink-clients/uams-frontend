@@ -42,91 +42,91 @@ const LecturersTable = ({ lecturers, isLoading }: LecturersTableProps) => {
     }
 
     return (
-        <Box
-            borderRadius="lg"
-            border="1px solid"
-            borderColor="gray.100"
-            bg="white"
-            overflowX="auto"
-        >
-            <Table.Root size="sm" variant="line">
-                <Table.Header>
-                    <Table.Row bg="gray.50">
-                        {COLUMNS.map((col) => (
-                            <Table.ColumnHeader
-                                key={col.key}
-                                fontSize="xs"
-                                fontWeight="600"
-                                color="gray.600"
-                                textTransform="none"
-                                minW={col.width}
-                                px="4"
-                                py="3"
-                                whiteSpace="nowrap"
-                            >
-                                {col.label}
-                            </Table.ColumnHeader>
-                        ))}
-                    </Table.Row>
-                </Table.Header>
+       <Box
+    borderRadius="lg"
+    border="1px solid"
+    borderColor="gray.100"
+    bg="white"
+    overflowX="auto"
+>
+    <Table.Root size="sm" variant="line" style={{ tableLayout: 'auto', minWidth: '1200px' }}>
+        <Table.Header>
+            <Table.Row bg="gray.50">
+                {COLUMNS.map((col) => (
+                    <Table.ColumnHeader
+                        key={col.key}
+                        fontSize="xs"
+                        fontWeight="600"
+                        color="gray.600"
+                        textTransform="none"
+                        minW={col.width}
+                        px="4"
+                        py="3"
+                        whiteSpace="nowrap"
+                    >
+                        {col.label}
+                    </Table.ColumnHeader>
+                ))}
+            </Table.Row>
+        </Table.Header>
 
-                <Table.Body>
-                    {lecturers.map((lecturer, index) => (
-                        <Table.Row
-                            key={lecturer.id}
-                            _hover={{ bg: "gray.50" }}
-                            transition="background 0.15s"
-                        >
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.600">
-                                {index + 1}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.staffNumber}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" fontWeight="600">
-                                {lecturer.User.fullName}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.500">
-                                {lecturer.User.email}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.User.phone}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.currentAdminRole}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700">
-                                {lecturer.courseAssignments.length}
-                            </Table.Cell>
-                            <Table.Cell px="4" py="3.5">
-                                <Menu.Root>
-                                    <Menu.Trigger asChild>
-                                        <Button variant="ghost" size="xs">
-                                            <MoreHorizontal />
-                                        </Button>
-                                    </Menu.Trigger>
-                                    <Portal>
-                                        <Menu.Positioner>
-                                            <Menu.Content>
-                                                <Menu.Item value="courses" asChild>
-                                                    <CourseDrawer courses={lecturer.courseAssignments} lecturer={lecturer.User.fullName} />
-                                                </Menu.Item>
-                                                <Menu.Item value="students" asChild>
-                                                    <StudentDrawer 
-                                                        lecturerId={lecturer.id}
-                                                        lecturer={lecturer.User.fullName} 
-                                                    />
-                                                </Menu.Item>
-                                            </Menu.Content>
-                                        </Menu.Positioner>
-                                    </Portal>
-                                </Menu.Root>
-                            </Table.Cell>
-                        </Table.Row>
-                    ))}
-                </Table.Body>
-            </Table.Root>
-        </Box>
+        <Table.Body>
+            {lecturers.map((lecturer, index) => (
+                <Table.Row
+                    key={lecturer.id}
+                    _hover={{ bg: "gray.50" }}
+                    transition="background 0.15s"
+                >
+                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.600" whiteSpace="nowrap">
+                        {index + 1}
+                    </Table.Cell>
+                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                        {lecturer.staffNumber}
+                    </Table.Cell>
+                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" fontWeight="600" whiteSpace="nowrap">
+                        {lecturer.User.fullName}
+                    </Table.Cell>
+                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.500" whiteSpace="nowrap">
+                        {lecturer.User.email}
+                    </Table.Cell>
+                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                        {lecturer.User.phone}
+                    </Table.Cell>
+                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                        {lecturer.currentAdminRole}
+                    </Table.Cell>
+                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                        {lecturer.courseAssignments.length}
+                    </Table.Cell>
+                    <Table.Cell px="4" py="3.5" whiteSpace="nowrap">
+                        <Menu.Root>
+                            <Menu.Trigger asChild>
+                                <Button variant="ghost" size="xs">
+                                    <MoreHorizontal />
+                                </Button>
+                            </Menu.Trigger>
+                            <Portal>
+                                <Menu.Positioner>
+                                    <Menu.Content>
+                                        <Menu.Item value="courses" asChild>
+                                            <CourseDrawer courses={lecturer.courseAssignments} lecturer={lecturer.User.fullName} />
+                                        </Menu.Item>
+                                        <Menu.Item value="students" asChild>
+                                            <StudentDrawer 
+                                                lecturerId={lecturer.id}
+                                                lecturer={lecturer.User.fullName} 
+                                            />
+                                        </Menu.Item>
+                                    </Menu.Content>
+                                </Menu.Positioner>
+                            </Portal>
+                        </Menu.Root>
+                    </Table.Cell>
+                </Table.Row>
+            ))}
+        </Table.Body>
+    </Table.Root>
+</Box>
     );
 };
 
