@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { AnnouncementServices } from "@services/announcement.service";
 import { toaster } from "@components/ui/toaster";
 import { Box, Flex, Text, Spinner, Input } from "@chakra-ui/react";
-import CreateAnnouncementModal from "@components/announcements/CreateAnnouncementModal";
 
 interface Announcement {
     id: string;
@@ -19,7 +18,6 @@ const AnnouncementsPage = () => {
     const [loading, setLoading] = useState(true);
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
-    const [showCreate, setShowCreate] = useState(false);
 
     const fetchAnnouncements = async () => {
         try {
@@ -74,27 +72,6 @@ const AnnouncementsPage = () => {
             {/* Header */}
             <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="6" gap="4">
                 <Text fontSize="2xl" fontWeight="bold" color="slate.900">Announcement</Text>
-                <Flex
-                    as="button"
-                    onClick={() => setShowCreate(true)}
-                    bg="#1D7AD9"
-                    color="white"
-                    px="5"
-                    py="2.5"
-                    borderRadius="lg"
-                    cursor="pointer"
-                    alignItems="center"
-                    gap="2"
-                    fontSize="sm"
-                    fontWeight="bold"
-                    boxShadow="lg"
-                    _hover={{ bg: "blue.700" }}
-                    transition="all 0.2s"
-                    border="none"
-                >
-                    <Plus size={18} />
-                    Create New Announcement
-                </Flex>
             </Flex>
 
             {/* Date Filters */}
@@ -137,8 +114,6 @@ const AnnouncementsPage = () => {
                     ))
                 )}
             </Flex>
-
-            <CreateAnnouncementModal isOpen={showCreate} onClose={() => setShowCreate(false)} onCreated={fetchAnnouncements} />
         </Box>
     );
 };

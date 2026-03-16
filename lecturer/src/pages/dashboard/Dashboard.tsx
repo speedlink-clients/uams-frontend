@@ -1,30 +1,22 @@
 import { useState, useMemo } from "react";
-import { Box, Flex, Text, Heading, Spinner, Center } from "@chakra-ui/react";
+import { Box, Flex, Text, Heading, Spinner, Center, Button } from "@chakra-ui/react";
 import useUserStore from "@stores/user.store";
 import { DashboardHook } from "@hooks/dashboard.hook";
 import StatCard from "@components/shared/StatCard";
-import AttendanceChart from "@components/shared/AttendanceChart";
 import TimetablePanel from "@components/shared/TimetablePanel";
+import { useNavigate } from "react-router";
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const { user } = useUserStore();
 
-    // Date filter state for attendance chart
-    const today = new Date().toISOString().split("T")[0];
-    const [fromDate, setFromDate] = useState(today);
-    const [toDate, setToDate] = useState(today);
+
 
     // Timetable filter state: today, tomorrow, week
     const [timetableFilter, setTimetableFilter] = useState("today");
 
     // Data from hooks
     const { data: dashboardData, isLoading, error } = DashboardHook.useDashboardData();
-    const { data: attendanceData } = DashboardHook.useAttendance(fromDate, toDate);
-
-    const handleClearDateFilter = () => {
-        setFromDate(today);
-        setToDate(today);
-    };
 
     const currentDay = useMemo(() => {
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -118,7 +110,40 @@ const Dashboard = () => {
                     />
                 </Flex>
 
-                {/* Attendance Chart
+                {/* Timetable Box with Heading and Button */}
+                <Box 
+                    mb="6" 
+                    p="5" 
+                    bg="white" 
+                    borderRadius="lg" 
+                    border="1px solid" 
+                    borderColor="gray.100"
+                    boxShadow="sm"
+                >
+                    <Flex align="center" justify="space-between" mb="4">
+                        <Heading size="md" fontWeight="600" color="gray.800">
+                            Timetable
+                        </Heading>
+                        <Button
+                            colorScheme="blue"
+                            size="sm"
+                            onClick={() => navigate("/timetable")}
+                        >
+                            View Full Timetable
+                        </Button>
+                    </Flex>
+                    
+                    {/* Mini timetable preview */}
+                    <Box maxH="300px" overflowY="auto">
+                        <TimetablePanel
+                            entries={normalizedEntries as any}
+                            selectedFilter={timetableFilter}
+                            onFilterChange={setTimetableFilter}
+                        />
+                    </Box>
+                </Box>
+
+                {/* Attendance Chart 
                 <AttendanceChart
                     data={attendanceData ?? []}
                     fromDate={fromDate}
@@ -129,14 +154,7 @@ const Dashboard = () => {
                 /> */}
             </Box>
 
-            {/* Timetable Panel (Right) — fills available height, scrolls internally */}
-            <Box w="320px" flexShrink={0} h="100%" maxH="calc(100vh - 120px)">
-                <TimetablePanel
-                    entries={normalizedEntries as any}
-                    selectedFilter={timetableFilter}
-                    onFilterChange={setTimetableFilter}
-                />
-            </Box>
+    
         </Flex>
     );
 };
