@@ -120,10 +120,10 @@ const Students = () => {
                 </select>
             </Flex>
 
-            {/* Students Table - Pass paginated students */}
+            {/* Students Table */}
             <StudentsTable students={paginatedStudents} isLoading={isLoading} />
 
-            {/* Pagination - Your UI */}
+            {/* Pagination */}
             {totalPages > 1 && (
                 <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="4" mt="4">
                     <Text fontSize="sm" color="slate.500">
