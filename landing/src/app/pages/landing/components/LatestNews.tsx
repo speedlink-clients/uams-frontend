@@ -9,7 +9,6 @@ import {
     HStack,
     Center,
 } from "@chakra-ui/react";
-import { toaster } from "@components/ui/toaster";
 import { Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -62,13 +61,6 @@ const newsItems = [
 const MotionBox = motion(Box);
 
 const LatestNews = ({ id }: { id?: string }) => {
-    const handleComingSoon = () => {
-        toaster.create({
-            title: "Coming Soon",
-            description: "Detailed news articles will be available soon.",
-            type: "info",
-        });
-    };
     return (
         <Box id={id} py={20} bg="#F7FAFC">
             <Container maxW="container.xl">

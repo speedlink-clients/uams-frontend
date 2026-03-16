@@ -3,7 +3,6 @@ import {
     Flex,
     HStack,
     Link,
-    Text,
     Button,
     Container,
     Image,
