@@ -663,9 +663,9 @@ const IDCardGraphic = ({
 
         {/* Student Details */}
         <div className="absolute left-[33%] top-[41%] w-[65%] text-[9px] sm:text-[13px] font-bold text-black flex flex-col gap-[8px] sm:gap-[12px] leading-none">
-          <div className="uppercase font-black">{studentName}</div>
+          <div className="uppercase font-black">NAME:{studentName}</div>
           <div className="uppercase">MATRIC NO.: {studentProfile?.studentId || 'N/A'}</div>
-          <div className="uppercase">FACULTY: {studentProfile?.Department?.type?.toUpperCase() === 'FACULTY' ? 'N/A' : (studentProfile?.Department?.type || 'N/A')}</div>
+          <div className="uppercase">FACULTY: COMPUTING</div>
           <div className="uppercase">DEPT: {studentProfile?.Department?.name || 'N/A'}</div>
           <div className="uppercase text-[#ef4444]">
             EXPIRY DATE: {studentProfile?.courseDuration ? new Date(new Date(studentProfile?.createdAt).setFullYear(new Date(studentProfile?.createdAt).getFullYear() + studentProfile.courseDuration)).getFullYear() : 'N/A'}
