@@ -1875,7 +1875,7 @@ const Registration: React.FC = () => {
         setSessions(sessionsData);
         setStudentProfile(profileData);
         setRegistrationData(registrationsData);
-        setIdCardSettings(idCardData?.data || idCardData);
+        setIdCardSettings(idCardData?.template || idCardData?.data || idCardData);
       } catch (err) {
         console.error("Error fetching registration data:", err);
         setError("Failed to load registration data. Please try again.");
