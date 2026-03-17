@@ -609,7 +609,7 @@ interface IDCardSettings {
   frontTemplate?: string;
   backDescription?: string;
   backDisclaimer?: string;
-  signature?: string;
+  hodSignature?: string;
 }
 
 interface IDCardProps {
@@ -686,20 +686,24 @@ const IDCardGraphic = ({
           className="w-full h-full object-fill"
         />
 
-        <div className="absolute inset-0 flex flex-col items-center pt-[40px] text-center px-[24px]">
-          <p className="text-[9px] font-bold text-[#0f172a] mb-[8px] leading-tight max-w-[95%]">
-            {idCardSettings?.backDescription}
-          </p>
-          <p className="text-[8px] font-bold text-[#0f172a] leading-tight max-w-[95%]">
-            {idCardSettings?.backDisclaimer}
-          </p>
+        <div className="absolute inset-0 flex flex-col items-center justify-between text-center px-[10%] py-[8%]">
+          <div className="flex-1 flex flex-col justify-center items-center w-full mt-[3%]">
+            <p className="text-[12px] sm:text-[15px] font-bold text-[#0f172a] mb-[6%] leading-snug">
+              {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+            </p>
+            <p className="text-[11px] sm:text-[13px] font-bold text-[#0f172a] leading-snug px-[2%]">
+              {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+            </p>
+          </div>
 
-          <div className="mt-auto mb-[32px] flex flex-col items-center">
-            {idCardSettings?.signature && (
-              <img src={idCardSettings.signature} alt="Signature" className="w-[120px] h-[24px] object-contain mb-0" />
+          <div className="flex flex-col items-center w-full pb-[2%]">
+            {idCardSettings?.hodSignature ? (
+              <img src={idCardSettings.hodSignature} alt="Signature" className="h-[24px] sm:h-[32px] object-contain mb-[2px]" />
+            ) : (
+              <div className="h-[24px] sm:h-[32px] mb-[2px]" />
             )}
-            <div className="w-[140px] h-[1px] bg-[#0f172a] mb-[4px]" />
-            <p className="text-[7px] font-bold text-[#0f172a] m-0">Department Admin's Signature</p>
+            <div className="w-[70%] sm:w-[60%] h-[1.5px] bg-[#0f172a] mb-[4px] sm:mb-[6px]" />
+            <p className="text-[11px] sm:text-[13px] font-bold text-[#0f172a] m-0">Department Admin's Signature</p>
           </div>
         </div>
 
@@ -824,7 +828,7 @@ const IDCardView = ({
         doc.text(discLines, cardWidth / 2, 30, { align: "center" });
 
         // Signature
-        const sigSrc = idCardSettings?.signature;
+        const sigSrc = idCardSettings?.hodSignature;
         if (sigSrc) {
           const signatureImg = await loadImage(sigSrc);
           if (signatureImg) {
