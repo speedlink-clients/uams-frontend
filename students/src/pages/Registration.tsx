@@ -1838,8 +1838,8 @@ const Registration: React.FC = () => {
   const [hasPaidID, setHasPaidID] = useState(() => {
     return localStorage.getItem("idcard_paid") === "true";
   });
-  const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
-  const [studentPhoto, setStudentPhoto] = useState<string | null>(null);
+  const [isPhotoUploaded, setIsPhotoUploaded] = useState(() => !!getStoredUser()?.avatar);
+  const [studentPhoto, setStudentPhoto] = useState<string | null>(() => getStoredUser()?.avatar || null);
   const [paymentCheckTrigger, setPaymentCheckTrigger] = useState(0); // Used to trigger payment re-check
 
   // Fetch initial data
