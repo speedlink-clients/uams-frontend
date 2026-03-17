@@ -1027,26 +1027,16 @@ const OtherServicesView = ({
   const [transactionCharges, setTransactionCharges] = useState<number | null>(null);
   const [subtotal, setSubtotal] = useState<number | null>(null);
   const [error, setError] = useState("");
-
-  // get payment status on mount to update hasPaid state
   const [sq, _] = useSearchParams();
-  const trxRef = useMemo(() => sq.get("trxRef"), [sq]);
+  const trxRef = useMemo(() => sq.get("trxRef") || sq.get("reference"), [sq]);
 
   // handle successful id card payment
   useEffect(() => {
     if (trxRef) {
-      apiClient
-        .post("/payment/verify", {
-          reference: trxRef,
-        })
-        .then((res) => {
-          res.data.success &&
-            toaster.success({ description: "Payment verified successfully!" });
-        })
-        .catch(() => {
-          setError("Failed to verify payment. Please contact support.");
-          toaster.error({ description: "Payment verified successfully!" });
-        });
+      toaster.success({ description: "Payment has been processed successfully!" });
+      // Remove trxRef from URL to prevent re-triggering toast on refresh
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
     }
   }, [trxRef]);
 
