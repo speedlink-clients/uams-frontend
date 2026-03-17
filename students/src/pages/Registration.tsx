@@ -648,24 +648,35 @@ const IDCardGraphic = ({
           className="w-full h-full object-fill"
         />
 
-        {/* Student Photo - Placed in the exact position on the card */}
-        {studentPhoto && isPhotoUploaded && (
-          <img
-            src={studentPhoto}
-            alt="Student Photo"
-            className="absolute top-[38%] left-[6.5%] w-[23%] h-[43%] object-cover border-[1px] border-white"
-          />
-        )}
+        {/* Student Photo */}
+        <div className="absolute top-[38%] left-[6.5%] w-[23%] h-[43%] bg-white p-[3px] border-[2px] border-gray-400 shadow-sm flex items-center justify-center">
+          {studentPhoto && isPhotoUploaded ? (
+            <img
+              src={studentPhoto}
+              alt="Student Photo"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100" />
+          )}
+        </div>
 
         {/* Student Details */}
-        <div className="absolute left-[32%] top-[42.5%] w-[45%] text-[7px] font-bold text-black uppercase">
-          <div className="flex flex-col gap-[8px] leading-none">
-            <div>NAME: {studentName}</div>
-            <div>MATRIC NO.: {studentProfile?.studentId || 'N/A'}</div>
-            <div>FACULTY: {studentProfile?.Department?.type || 'N/A'}</div>
-            <div>DEPT: {studentProfile?.Department?.name || 'N/A'}</div>
-            <div>EXPIRY DATE: {studentProfile?.courseDuration ? new Date(new Date(studentProfile?.createdAt).setFullYear(new Date(studentProfile?.createdAt).getFullYear() + studentProfile.courseDuration)).toLocaleDateString() : 'N/A'}</div>
+        <div className="absolute left-[33%] top-[41%] w-[65%] text-[9px] sm:text-[13px] font-bold text-black flex flex-col gap-[8px] sm:gap-[12px] leading-none">
+          <div className="uppercase font-black">{studentName}</div>
+          <div className="uppercase">MATRIC NO.: {studentProfile?.studentId || 'N/A'}</div>
+          <div className="uppercase">FACULTY: {studentProfile?.Department?.type?.toUpperCase() === 'FACULTY' ? 'N/A' : (studentProfile?.Department?.type || 'N/A')}</div>
+          <div className="uppercase">DEPT: {studentProfile?.Department?.name || 'N/A'}</div>
+          <div className="uppercase text-[#ef4444]">
+            EXPIRY DATE: {studentProfile?.courseDuration ? new Date(new Date(studentProfile?.createdAt).setFullYear(new Date(studentProfile?.createdAt).getFullYear() + studentProfile.courseDuration)).getFullYear() : 'N/A'}
           </div>
+        </div>
+
+        {/* Student Name in Bottom Banner */}
+        <div className="absolute bottom-[3%] sm:bottom-[3.5%] left-0 w-full flex justify-center">
+          <span className="text-white font-bold text-[9px] sm:text-[13px] uppercase tracking-wide">
+            {studentName}
+          </span>
         </div>
 
         {/* Watermark Overlay */}
@@ -774,36 +785,43 @@ const IDCardView = ({
 
       // Front Page
       doc.addImage(frontTemplate, "PNG", 0, 0, cardWidth, cardHeight);
-      doc.addImage(studentPhoto, "JPEG", 5.5, 20.5, 19.7, 23.1);
+      
+      // Photo Border and Photo
+      doc.setDrawColor(156, 163, 175); // gray-400
+      doc.setLineWidth(0.4);
+      doc.setFillColor(255, 255, 255);
+      doc.rect(5.5, 20.5, 19.7, 23.1, 'FD'); // background white with gray border
+      doc.addImage(studentPhoto, "JPEG", 5.8, 20.8, 19.1, 22.5); // photo slightly padded
 
-      doc.setFontSize(3.5);
+      doc.setFontSize(4);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(0, 0, 0);
-      const textX = 27; let textY = 23; const lineHeight = 3.8;
+      const textX = 28; let textY = 23; const lineHeight = 4.5;
       
-      const expiryDate = studentProfile?.courseDuration 
-        ? new Date(new Date(studentProfile.createdAt).setFullYear(new Date(studentProfile.createdAt).getFullYear() + studentProfile.courseDuration)).toLocaleDateString() 
+      const expiryYear = studentProfile?.courseDuration 
+        ? new Date(new Date(studentProfile.createdAt).setFullYear(new Date(studentProfile.createdAt).getFullYear() + studentProfile.courseDuration)).getFullYear().toString()
         : 'N/A';
 
+      const facultyRaw = studentProfile?.Department?.type?.toUpperCase();
       const infoLines = [
-        `NAME: ${studentName}`,
-        `MATRIC NO.: ${studentProfile?.studentId || 'N/A'}`,
-        `FACULTY: ${studentProfile?.Department?.type || 'N/A'}`,
-        `DEPT: ${studentProfile?.Department?.name || 'N/A'}`,
-        `EXPIRY DATE: ${expiryDate}`,
+        studentName.toUpperCase(),
+        `MATRIC NO.: ${studentProfile?.studentId?.toUpperCase() || 'N/A'}`,
+        `FACULTY: ${facultyRaw === 'FACULTY' ? 'N/A' : (studentProfile?.Department?.type?.toUpperCase() || 'N/A')}`,
+        `DEPT: ${studentProfile?.Department?.name?.toUpperCase() || 'N/A'}`,
       ];
 
       infoLines.forEach((line, i) => {
-        const maxWidth = cardWidth - textX - 5;
-        const lines = doc.splitTextToSize(line, maxWidth);
-        if (lines.length > 1) {
-          lines.forEach((lineText: string, lineIndex: number) => {
-            doc.text(lineText, textX, (textY + i * lineHeight) + (lineIndex * 1.5));
-          });
-        } else {
-          doc.text(line, textX, textY + i * lineHeight);
-        }
+        doc.text(line, textX, textY + i * lineHeight);
       });
+
+      // Expiry Date (Red)
+      doc.setTextColor(239, 68, 68); // #ef4444
+      doc.text(`EXPIRY DATE: ${expiryYear}`, textX, textY + infoLines.length * lineHeight);
+
+      // Student Name in Bottom Banner
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(4);
+      doc.text(studentName.toUpperCase(), cardWidth / 2, cardHeight - 3, { align: "center", charSpace: 0.1 });
 
       // Back Page
       if (backTemplate) {
