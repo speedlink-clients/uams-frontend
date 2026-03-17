@@ -795,12 +795,36 @@ const IDCardView = ({
       doc.setLineWidth(0.4);
       doc.setFillColor(255, 255, 255);
       doc.rect(photoX, photoY, photoW, photoH, 'FD'); // background white with gray border
-      doc.addImage(studentPhoto, "JPEG", photoX + pad, photoY + pad, photoW - (pad * 2), photoH - (pad * 2)); 
+      
+      // Preserve image aspect ratio inside the box
+      const imgProps = doc.getImageProperties(studentPhoto);
+      const imgRatio = imgProps.width / imgProps.height;
+      const boxW = photoW - (pad * 2);
+      const boxH = photoH - (pad * 2);
+      const boxRatio = boxW / boxH;
+      let drawW = boxW;
+      let drawH = boxH;
+      let drawX = photoX + pad;
+      let drawY = photoY + pad;
+      
+      if (imgRatio > boxRatio) {
+        // Image is wider than box -> fit width, center vertically
+        drawW = boxW;
+        drawH = boxW / imgRatio;
+        drawY = photoY + pad + (boxH - drawH) / 2;
+      } else {
+        // Image is taller than box -> fit height, center horizontally
+        drawH = boxH;
+        drawW = boxH * imgRatio;
+        drawX = photoX + pad + (boxW - drawW) / 2;
+      }
+      
+      doc.addImage(studentPhoto, "JPEG", drawX, drawY, drawW, drawH); 
 
-      doc.setFontSize(3.7);
+      doc.setFontSize(3.2); // Scaling down the font size correctly
       doc.setFont("helvetica", "bold");
       doc.setTextColor(0, 0, 0);
-      const textX = 28.5; let textY = 22.8; const lineHeight = 4.1;
+      const textX = 28.5; let textY = 23; const lineHeight = 4.0;
       
       const expiryYear = studentProfile?.courseDuration 
         ? new Date(new Date(studentProfile.createdAt).setFullYear(new Date(studentProfile.createdAt).getFullYear() + studentProfile.courseDuration)).getFullYear().toString()
@@ -823,7 +847,7 @@ const IDCardView = ({
 
       // Student Name in Bottom Banner
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(4.0);
+      doc.setFontSize(3.8);
       doc.text(studentName.toUpperCase(), cardWidth / 2, cardHeight - 2.8, { align: "center", charSpace: 0.1 });
 
       // Back Page
@@ -838,34 +862,35 @@ const IDCardView = ({
         doc.setTextColor(15, 23, 42); // slate-900 equivalent
         
         // Description
-        doc.setFontSize(4.8);
+        doc.setFontSize(3.8);
         doc.setFont("helvetica", "bold");
         const descLines = doc.splitTextToSize(backDescription, cardWidth - 20);
-        doc.text(descLines, cardWidth / 2, 22, { align: "center" });
+        doc.text(descLines, cardWidth / 2, 21, { align: "center" });
 
         // Disclaimer
-        doc.setFontSize(3.8);
+        doc.setFontSize(3.0);
         const discLines = doc.splitTextToSize(backDisclaimer, cardWidth - 16);
-        doc.text(discLines, cardWidth / 2, 33, { align: "center" });
+        doc.text(discLines, cardWidth / 2, 31.5, { align: "center" });
 
-        // Signature
+        // Signature Line and Label (positioned lower down)
+        const lineY = cardHeight - 9.5;
+        doc.setDrawColor(15, 23, 42);
+        doc.setLineWidth(0.3);
+        doc.line((cardWidth / 2) - 16, lineY, (cardWidth / 2) + 16, lineY);
+        
+        doc.setFontSize(3.0);
+        doc.text("Department Admin's Signature", cardWidth / 2, cardHeight - 6.5, { align: "center" });
+
+        // Signature Img (rests on the line, instead of fixed vertical pos)
         const sigSrc = idCardSettings?.hodSignature;
         if (sigSrc) {
           const signatureImg = await loadImage(sigSrc);
           if (signatureImg) {
-            const sigWidth = 26;
+            const sigWidth = 24;
             const sigHeight = (signatureImg.height * sigWidth) / signatureImg.width;
-            doc.addImage(signatureImg, "PNG", (cardWidth / 2) - (sigWidth / 2), cardHeight - 11 - sigHeight, sigWidth, Math.min(sigHeight, 8), undefined, 'FAST');
+            doc.addImage(signatureImg, "PNG", (cardWidth / 2) - (sigWidth / 2), lineY - sigHeight - 0.5, sigWidth, Math.min(sigHeight, 8), undefined, 'FAST');
           }
         }
-
-        // Signature Line and Label
-        doc.setDrawColor(15, 23, 42);
-        doc.setLineWidth(0.3);
-        doc.line((cardWidth / 2) - 16, cardHeight - 9.5, (cardWidth / 2) + 16, cardHeight - 9.5);
-        
-        doc.setFontSize(3.3);
-        doc.text("Department Admin's Signature", cardWidth / 2, cardHeight - 6.5, { align: "center" });
       }
 
       doc.save(`${studentName.replace(/\s+/g, "_")}_ID_Card.pdf`);
