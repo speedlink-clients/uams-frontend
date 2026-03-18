@@ -7,7 +7,7 @@ import {
   VStack,
   Button,
   Icon,
-  Image,
+
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GraduationCap, BookOpen, School, Settings, ArrowRight } from "lucide-react";
@@ -130,17 +130,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                 {/* Header */}
                 <VStack gap={2} mb={8} align="center">
-                  <Image
+                  {/* <Image
                     src="/images/uniport-crest.png"
                     alt="University Logo"
                     // w={20}
                     h={14}
                     mb={2}
-                  />
+                  /> */}
                   {/*  */}
-                  <Text textAlign="center" color="gray.500" fontSize="md">
+                  {/* <Text textAlign="center" color="gray.500" fontSize="md">
                     Please select your role to continue
-                  </Text>
+                  </Text> */}
                 </VStack>
 
                 {/* Role Selection Buttons */}
@@ -211,9 +211,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   ))}
                 </VStack>
 
-                <Text textAlign="center" mt={8} color="gray.400" fontSize="xs">
+                {/* <Text textAlign="center" mt={8} color="gray.400" fontSize="xs">
                   Having trouble? <Text as="span" color="#1a365d" fontWeight="600" cursor="pointer" _hover={{ textDecoration: "underline" }}>Contact Support</Text>
-                </Text>
+                </Text> */}
               </Box>
             </MotionBox>
           </MotionBox>
