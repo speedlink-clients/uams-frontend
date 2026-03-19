@@ -1,5 +1,5 @@
-import { Box, Table, Text, Flex, Menu, Button, Portal, Drawer, CloseButton, For, Heading, Spinner } from "@chakra-ui/react";
-import { MoreHorizontal } from "lucide-react";
+import { Box, Table, Text, Flex, Menu, Button, Portal, Drawer, CloseButton, For, Heading, Spinner, InputGroup, Input } from "@chakra-ui/react";
+import { MoreHorizontal, Search, User, UserRoundPen } from "lucide-react";
 import type { Lecturer } from "@type/lecturer.type";
 import { StudentHook } from "@hooks/student.hook";
 import React, { useState } from "react";
@@ -183,8 +183,11 @@ const CourseDrawer = ({ courses, lecturer }: { courses: Lecturer["courseAssignme
 
 const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer: Lecturer["User"]["fullName"] }) => {
     const [open, setOpen] = useState(false);
+    const [showAssigned, setShowAssigned] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
     const { data: activeSession, isLoading: isSessionLoading } = AcademicHook.useActiveSession();
     const { data: students, isLoading, refetch } = StudentHook.useUnassignedStudents();
+    const { data: assignedStudents, isLoading: isAssignedLoading, refetch: refetchAssigned } = StudentHook.useAssignedStudents(lecturerId);
     const { mutate: assignStudents, isPending: isAssigning } = StudentHook.useAssignStudents({
         onSuccess: () => {
             toaster.create({
@@ -193,6 +196,7 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
             });
             setSelectedStudents(new Set());
             refetch();
+            refetchAssigned();
             setOpen(false);
         },
         onError: (error) => {
@@ -205,6 +209,23 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
     });
 
     const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
+
+    // Filter students based on search term
+    const filteredStudents = React.useMemo(() => {
+        if (!students) return [];
+        if (!searchTerm.trim()) return students;
+        
+        const searchLower = searchTerm.toLowerCase().trim();
+        return students.filter(student => {
+            const fullName = (student.name || student.fullName || "").toLowerCase();
+            const email = (student.email || "").toLowerCase();
+            const matricNumber = (student.matricNumber || "").toLowerCase();
+            
+            return fullName.includes(searchLower) || 
+                   email.includes(searchLower) || 
+                   matricNumber.includes(searchLower);
+        });
+    }, [students, searchTerm]);
 
     const toggleStudent = (id: string) => {
         setSelectedStudents((prev) => {
@@ -232,7 +253,7 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
             lecturerId,
             sessionId: activeSession.id,
             studentIds: Array.from(selectedStudents),
-            notes: "students for project supervisor" // Hardcoded per requirement
+            notes: "students for project supervisor"
         });
     };
 
@@ -253,16 +274,73 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                     <Drawer.Title fontSize="lg" fontWeight="600">{lecturer}</Drawer.Title>
                                     <Text fontSize="xs" color="gray.500">Unassigned Students</Text>
                                 </Box>
-                                {students && students.length > 0 && (
-                                    <Flex align="center" gap="2">
+                                <Flex align="center" gap="2">
+                                    {students && students.length > 0 && (
                                         <Text fontSize="xs" fontWeight="600" color="blue.600">
                                             {selectedStudents.size} selected
                                         </Text>
-                                    </Flex>
-                                )}
+                                    )}
+                                    {/* Assigned Students Button */}
+                                    <Button 
+                                        size="xs"
+                                        colorScheme="blue"
+                                        onClick={() => setShowAssigned(true)}
+                                        borderRadius="sm"
+                                        px="3"
+                                        py="1"
+                                        fontSize="xs"
+                                        fontWeight="600"
+                                        bg="blue.600"
+                                        _hover={{ bg: "blue.700" }}
+                                    >
+                                        {assignedStudents?.length || 0} Assigned
+                                    </Button>
+                                </Flex>
                             </Flex>
                         </Drawer.Header>
-                        <Drawer.Body spaceY="4" py="6" pb="24">
+                        
+                        {/* Search Bar */}
+                        <Box px="4" py="3" borderBottomWidth="1px" borderColor="gray.100">
+                            <Flex align="center" gap="2">
+                                <Box flex="1">
+                                    <InputGroup startElement={<Search />}>
+                                        <Input
+                                            type="text"
+                                            placeholder="Search students..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            bg="gray.50"
+                                            border="1px solid"
+                                            borderColor="gray.200"
+                                            _focus={{
+                                                borderColor: "blue.400",
+                                                bg: "white",
+                                                boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                                            }}
+                                            pl="10"
+                                        />
+                                    </InputGroup>
+                                </Box>
+                                {searchTerm && (
+                                    <Button 
+                                        size="sm" 
+                                        variant="ghost" 
+                                        onClick={() => setSearchTerm('')}
+                                        color="gray.400"
+                                        _hover={{ color: "gray.600" }}
+                                    >
+                                        Clear
+                                    </Button>
+                                )}
+                            </Flex>
+                            {searchTerm && filteredStudents && (
+                                <Text fontSize="xs" color="gray.500" mt="2">
+                                    Found {filteredStudents.length} {filteredStudents.length === 1 ? 'student' : 'students'}
+                                </Text>
+                            )}
+                        </Box>
+
+                        <Drawer.Body spaceY="4" py="6" pb="24" overflowY="auto">
                             {isLoading ? (
                                 <Flex direction="column" align="center" justify="center" py="20" gap="2">
                                     <Spinner size="lg" color="blue.500" />
@@ -271,7 +349,7 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                             ) : !students || students.length === 0 ? (
                                 <Flex direction="column" align="center" justify="center" py="20" gap="4">
                                     <Box bg="gray.50" p="4" rounded="full">
-                                        <Text fontSize="2xl">👨‍🎓</Text>
+                                        <UserRoundPen />
                                     </Box>
                                     <Box textAlign="center">
                                         <Text fontSize="sm" fontWeight="600" color="gray.800">No students found</Text>
@@ -282,7 +360,7 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                 <>
                                     <Flex align="center" justify="space-between" mb="4">
                                         <Heading size="xs" color="gray.600" textTransform="uppercase" letterSpacing="wider">
-                                            Students ({students.length})
+                                            Students ({filteredStudents.length})
                                         </Heading>
                                         <Flex align="center" gap="2">
                                             <Text fontSize="xs" fontWeight="600" color="gray.500">Select All</Text>
@@ -292,56 +370,72 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                             />
                                         </Flex>
                                     </Flex>
-                                    <For each={students}>
-                                        {(student) => (
-                                            <Box 
-                                                key={student.id}
-                                                border="1px solid"
-                                                borderColor={selectedStudents.has(student.id) ? "blue.200" : "gray.100"}
-                                                bg={selectedStudents.has(student.id) ? "blue.50/30" : "white"}
-                                                rounded="lg"
-                                                p="4"
-                                                position="relative"
-                                                cursor="pointer"
-                                                onClick={() => toggleStudent(student.id)}
-                                                transition="all 0.2s"
-                                                _hover={{ borderColor: "blue.200", bg: "blue.50/10" }}
+                                    
+                                    {filteredStudents.length === 0 ? (
+                                        <Flex direction="column" align="center" justify="center" py="10" gap="2">
+                                            <Text fontSize="sm" color="gray.500">No students match your search</Text>
+                                            <Button 
+                                                size="xs" 
+                                                variant="ghost" 
+                                                color="blue.600"
+                                                onClick={() => setSearchTerm('')}
                                             >
-                                                <Flex align="flex-start" justify="space-between">
-                                                    <Box flex="1">
-                                                        <Text fontWeight="700" fontSize="sm" color="gray.800" mb="0.5">
-                                                            {student.name || student.fullName}
-                                                        </Text>
-                                                        <Text fontSize="xs" color="gray.500" fontWeight="500">
-                                                            {student.email}
-                                                        </Text>
-                                                        <Flex align="center" gap="2" mt="2">
-                                                            <Box px="2" py="0.5" bg="gray.100" rounded="full">
-                                                                <Text fontSize="10px" fontWeight="700" color="gray.600">
-                                                                    {student.matricNumber}
-                                                                </Text>
-                                                            </Box>
-                                                            {student.level && (
-                                                                <Box px="2" py="0.5" bg="blue.50" rounded="full">
-                                                                    <Text fontSize="10px" fontWeight="700" color="blue.600">
-                                                                        Level {typeof student.level === 'string' ? student.level : student.level.name}
+                                                Clear search
+                                            </Button>
+                                        </Flex>
+                                    ) : (
+                                        <For each={filteredStudents}>
+                                            {(student) => (
+                                                <Box 
+                                                    key={student.id}
+                                                    border="1px solid"
+                                                    borderColor={selectedStudents.has(student.id) ? "blue.200" : "gray.100"}
+                                                    bg={selectedStudents.has(student.id) ? "blue.50/30" : "white"}
+                                                    rounded="lg"
+                                                    p="4"
+                                                    position="relative"
+                                                    cursor="pointer"
+                                                    onClick={() => toggleStudent(student.id)}
+                                                    transition="all 0.2s"
+                                                    _hover={{ borderColor: "blue.200", bg: "blue.50/10" }}
+                                                >
+                                                    <Flex align="flex-start" justify="space-between">
+                                                        <Box flex="1">
+                                                            <Text fontWeight="700" fontSize="sm" color="gray.800" mb="0.5">
+                                                                {student.name || student.fullName}
+                                                            </Text>
+                                                            <Text fontSize="xs" color="gray.500" fontWeight="500">
+                                                                {student.email}
+                                                            </Text>
+                                                            <Flex align="center" gap="2" mt="2">
+                                                                <Box px="2" py="0.5" bg="gray.100" rounded="full">
+                                                                    <Text fontSize="10px" fontWeight="700" color="gray.600">
+                                                                        {student.matricNumber}
                                                                     </Text>
                                                                 </Box>
-                                                            )}
-                                                        </Flex>
-                                                    </Box>
-                                                    <Checkbox 
-                                                        checked={selectedStudents.has(student.id)}
-                                                        onCheckedChange={() => toggleStudent(student.id)}
-                                                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                                                    />
-                                                </Flex>
-                                            </Box>
-                                        )}
-                                    </For>
+                                                                {student.level && (
+                                                                    <Box px="2" py="0.5" bg="blue.50" rounded="full">
+                                                                        <Text fontSize="10px" fontWeight="700" color="blue.600">
+                                                                            Level {typeof student.level === 'string' ? student.level : student.level.name}
+                                                                        </Text>
+                                                                    </Box>
+                                                                )}
+                                                            </Flex>
+                                                        </Box>
+                                                        <Checkbox 
+                                                            checked={selectedStudents.has(student.id)}
+                                                            onCheckedChange={() => toggleStudent(student.id)}
+                                                            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                                                        />
+                                                    </Flex>
+                                                </Box>
+                                            )}
+                                        </For>
+                                    )}
                                 </>
                             )}
                         </Drawer.Body>
+                        
                         {students && students.length > 0 && (
                             <Box 
                                 position="absolute" 
@@ -371,12 +465,155 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                 </Button>
                             </Box>
                         )}
+                        
                         <Drawer.CloseTrigger asChild>
                             <CloseButton size="sm" pos="absolute" top="4" right="4" />
                         </Drawer.CloseTrigger>
                     </Drawer.Content>
                 </Drawer.Positioner>
             </Portal>
+
+            {/* Assigned Students Drawer */}
+            <Drawer.Root open={showAssigned} onOpenChange={(e) => setShowAssigned(e.open)} placement="start">
+                <Portal>
+                    <Drawer.Backdrop />
+                    <Drawer.Positioner>
+                        <Drawer.Content roundedRight="xl" maxW="450px">
+                            <Drawer.Header borderBottomWidth="1px" borderColor="gray.100" py="4">
+                                <Flex justify="space-between" align="center">
+                                    <Box>
+                                        <Drawer.Title fontSize="lg" fontWeight="600">{lecturer}</Drawer.Title>
+                                        <Text fontSize="xs" color="gray.500">Assigned Students</Text>
+                                    </Box>
+                                    <Button 
+                                        size="xs" 
+                                        variant="ghost" 
+                                        onClick={() => setShowAssigned(false)}
+                                        borderRadius="full"
+                                    >
+                                        ✕
+                                    </Button>
+                                </Flex>
+                            </Drawer.Header>
+
+                            {/* Search Bar for Assigned Students */}
+                            <Box px="4" py="3" borderBottomWidth="1px" borderColor="gray.100">
+                                <Flex align="center" gap="2">
+                                    <Box flex="1">
+                                        <InputGroup startElement={<Search />}>
+                                            <Input
+                                                type="text"
+                                                placeholder="Search assigned students..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                bg="gray.50"
+                                                border="1px solid"
+                                                borderColor="gray.200"
+                                                _focus={{
+                                                    borderColor: "blue.400",
+                                                    bg: "white",
+                                                    boxShadow: "0 0 0 1px var(--chakra-colors-blue-400)"
+                                                }}
+                                                pl="10"
+                                            />
+                                        </InputGroup>
+                                    </Box>
+                                    {searchTerm && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            onClick={() => setSearchTerm('')}
+                                            color="gray.400"
+                                        >
+                                            Clear
+                                        </Button>
+                                    )}
+                                </Flex>
+                            </Box>
+
+                            <Drawer.Body spaceY="4" py="6" overflowY="auto">
+                                {isAssignedLoading ? (
+                                    <Flex direction="column" align="center" justify="center" py="20" gap="2">
+                                        <Spinner size="lg" color="blue.500" />
+                                        <Text fontSize="sm" color="gray.500">Loading assigned students...</Text>
+                                    </Flex>
+                                ) : !assignedStudents || assignedStudents.length === 0 ? (
+                                    <Flex direction="column" align="center" justify="center" py="20" gap="4">
+                                        <Box bg="gray.50" p="4" rounded="full">
+                                            <User />
+                                        </Box>
+                                        <Box textAlign="center">
+                                            <Text fontSize="sm" fontWeight="600" color="gray.800">No assigned students</Text>
+                                            <Text fontSize="xs" color="gray.500" mt="1">
+                                                This lecturer hasn't been assigned any students yet.
+                                            </Text>
+                                            <Button 
+                                                size="sm" 
+                                                colorScheme="blue" 
+                                                mt="4"
+                                                onClick={() => {
+                                                    setShowAssigned(false);
+                                                }}
+                                            >
+                                                Back to Unassigned
+                                            </Button>
+                                        </Box>
+                                    </Flex>
+                                ) : (
+                                    <>
+                                        <Heading size="xs" color="gray.600" textTransform="uppercase" letterSpacing="wider" mb="4">
+                                            Students ({assignedStudents.length})
+                                        </Heading>
+                                        <For each={assignedStudents}>
+                                            {(student) => (
+                                                <Box 
+                                                    key={student.id}
+                                                    border="1px solid"
+                                                    borderColor="gray.100"
+                                                    bg="white"
+                                                    rounded="lg"
+                                                    p="4"
+                                                    _hover={{ bg: "gray.50" }}
+                                                    transition="all 0.2s"
+                                                >
+                                                    <Flex align="flex-start" justify="space-between">
+                                                        <Box flex="1">
+                                                            <Text fontWeight="700" fontSize="sm" color="gray.800" mb="0.5">
+                                                                {student.name || student.fullName}
+                                                            </Text>
+                                                            <Text fontSize="xs" color="gray.500" fontWeight="500">
+                                                                {student.email}
+                                                            </Text>
+                                                            <Flex align="center" gap="2" mt="2">
+                                                                <Box px="2" py="0.5" bg="gray.100" rounded="full">
+                                                                    <Text fontSize="10px" fontWeight="700" color="gray.600">
+                                                                        {student.matricNumber}
+                                                                    </Text>
+                                                                </Box>
+                                                                {student.level && (
+                                                                    <Box px="2" py="0.5" bg="green.50" rounded="full">
+                                                                        <Text fontSize="10px" fontWeight="700" color="green.600">
+                                                                            Level {typeof student.level === 'string' ? student.level : student.level.name}
+                                                                        </Text>
+                                                                    </Box>
+                                                                )}
+                                                            </Flex>
+                                                        </Box>
+                                                    </Flex>
+                                                </Box>
+                                            )}
+                                        </For>
+                                    </>
+                                )}
+                            </Drawer.Body>
+                            
+                            <Drawer.CloseTrigger asChild>
+                                <CloseButton size="sm" pos="absolute" top="4" right="4" />
+                            </Drawer.CloseTrigger>
+                        </Drawer.Content>
+                    </Drawer.Positioner>
+                </Portal>
+            </Drawer.Root>
         </Drawer.Root>
     )
 }

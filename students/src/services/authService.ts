@@ -258,8 +258,7 @@ export const getIdCardFee = async (): Promise<IdCardFeeResponse> => {
 export const initializeIdCardPayment =
   async (): Promise<InitializePaymentResponse> => {
     try {
-      // const callbackUrl = import.meta.env.VITE_ID_CARD_CALLBACK_URL;
-      const callbackUrl = `${window.location.origin}/students/payment-verification`;
+      const callbackUrl = `${window.location.origin}/students/registration/other`;
       const response = await apiClient.post<InitializePaymentResponse>(
         "/annual-access-fee/idcard-payment",
         { callbackUrl },

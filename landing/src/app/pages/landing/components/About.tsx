@@ -1,5 +1,4 @@
-import { Box, Container, Flex, Heading, Text, Button, Image, Stack, VStack } from "@chakra-ui/react";
-import { toaster } from "@components/ui/toaster";
+import { Box, Container, Flex, Heading, Text, Image, Stack, VStack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 
 const ABOUT_IMG = "/images/3941bb7f924ec837957d353f2bb7fe7c091f261d (1).png";
@@ -8,13 +7,6 @@ const MotionBox = motion(Box);
 const MotionFlex = motion(Flex);
 
 const About = ({ id }: { id?: string }) => {
-    const handleComingSoon = () => {
-        toaster.create({
-            title: "Coming Soon",
-            description: "Our full institution story is on the way!",
-            type: "info",
-        });
-    };
     return (
         <Box id={id} py={{ base: 12, md: 20 }} bg="white" overflow="hidden">
             <Container maxW="container.xl">

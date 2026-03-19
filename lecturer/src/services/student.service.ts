@@ -21,6 +21,17 @@ export const StudentService = {
         return data.data;
     },
 
+    getAssignedStudents: async (lecturerId: string): Promise<Student[]> => {
+        const { data } = await axiosClient.get<{
+            success: boolean;
+            data: {
+                students: Student[];
+                total: number;
+            }
+        }>(`/hod/lecturers/${lecturerId}/assigned-students`);
+        return data.data.students;
+    },
+
     assignStudents: async (payload: {
         lecturerId: string;
         sessionId: string;
@@ -28,6 +39,18 @@ export const StudentService = {
         notes: string;
     }): Promise<any> => {
         const { data } = await axiosClient.post("/project-supervisor/assign", payload);
+        return data;
+    },
+
+    removeAssignedStudent: async (
+        lecturerId: string, 
+        studentId: string, 
+        sessionId: string
+    ): Promise<any> => {
+        const { data } = await axiosClient.delete(
+            `/hod/lecturers/${lecturerId}/assigned-students/${studentId}`,
+            { data: { sessionId } }
+        );
         return data;
     }
 };

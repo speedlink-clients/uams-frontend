@@ -137,10 +137,15 @@ axiosClient.interceptors.response.use(
 
       toaster.error({
         title: getErrorTitle(error),
-        description: getErrorMessage(error),
+        description: getErrorMessage(error) || "Session expired. Please log in again.",
         closable: true
       });
 
+      // Clear auth and redirect to login
+      useAuthStore.getState().clearAuth();
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
     }
 
     // 🟡 Bad Request (400)

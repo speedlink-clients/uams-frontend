@@ -2,9 +2,6 @@ import { StudentService } from "@services/student.service";
 import { useMutation, useQuery, type UseMutationOptions, type UseQueryOptions } from "@tanstack/react-query";
 import type { Student } from "@type/student.type";
 
-
-// ── Hooks ────────────────────────────────────────────────────────────
-
 export const StudentHook = {
     useStudents: (
         options?: Partial<UseQueryOptions<Student[]>>
@@ -26,6 +23,18 @@ export const StudentHook = {
             ...options,
         }),
 
+    useAssignedStudents: (
+        lecturerId: string,
+        options?: Partial<UseQueryOptions<Student[]>>
+    ) =>
+        useQuery<Student[]>({
+            queryKey: ["assigned-students", lecturerId],
+            queryFn: () => StudentService.getAssignedStudents(lecturerId),
+            enabled: !!lecturerId,
+            staleTime: 5 * 60 * 1000,
+            ...options,
+        }),
+
     useAssignStudents: (
         options?: Partial<UseMutationOptions<any, any, {
             lecturerId: string;
@@ -36,6 +45,19 @@ export const StudentHook = {
     ) =>
         useMutation({
             mutationFn: (payload) => StudentService.assignStudents(payload),
+            ...options,
+        }),
+
+    useRemoveAssignedStudent: (
+        options?: Partial<UseMutationOptions<any, any, {
+            lecturerId: string;
+            studentId: string;
+            sessionId: string;
+        }>>
+    ) =>
+        useMutation({
+            mutationFn: ({ lecturerId, studentId, sessionId }) => 
+                StudentService.removeAssignedStudent(lecturerId, studentId, sessionId),
             ...options,
         }),
 };
