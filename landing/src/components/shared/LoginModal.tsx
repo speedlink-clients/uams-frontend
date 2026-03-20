@@ -10,7 +10,7 @@ import {
 
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, BookOpen, School, Settings, ArrowRight } from "lucide-react";
+import { GraduationCap, BookOpen, School, ArrowRight } from "lucide-react";
 import { useCallback } from "react";
 
 const MotionBox = motion.create(Box);
@@ -45,14 +45,14 @@ const loginOptions = [
     color: "purple",
     description: "Manage departmental resources and scheduling",
   },
-  {
-    id: "university_admin",
-    label: "Continue as University Admin",
-    icon: Settings,
-    url: "/university-admin/login",
-    color: "orange",
-    description: "Oversee university-wide management, operations, users, and system settings",
-  },
+  // {
+  //   id: "university_admin",
+  //   label: "Continue as University Admin",
+  //   icon: Settings,
+  //   url: "/university-admin/login",
+  //   color: "orange",
+  //   description: "Oversee university-wide management, operations, users, and system settings",
+  // },
 ];
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
