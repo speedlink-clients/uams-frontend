@@ -42,15 +42,10 @@ export const StudentService = {
         return data;
     },
 
-    removeAssignedStudent: async (
-        lecturerId: string, 
-        studentId: string, 
-        sessionId: string
-    ): Promise<any> => {
-        const { data } = await axiosClient.delete(
-            `/hod/lecturers/${lecturerId}/assigned-students/${studentId}`,
-            { data: { sessionId } }
-        );
+    removeAssignedStudent: async (lecturerId: string, studentId: string, sessionId: string): Promise<any> => {
+        const { data } = await axiosClient.delete(`/hod/lecturers/${lecturerId}/assigned-students/${studentId}`, {
+            data: { sessionId }
+        });
         return data;
     }
 };

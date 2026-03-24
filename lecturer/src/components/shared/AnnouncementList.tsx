@@ -1,16 +1,34 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text, Button, Spinner } from "@chakra-ui/react";
 import type { Announcement } from "@type/announcement.type";
 
 interface AnnouncementListProps {
     announcements: Announcement[];
     isLoading?: boolean;
+    error?: Error | null;
+    onRetry?: () => void;
 }
 
-const AnnouncementList = ({ announcements, isLoading }: AnnouncementListProps) => {
+const AnnouncementList = ({ 
+    announcements, 
+    isLoading, 
+    error, 
+    onRetry 
+}: AnnouncementListProps) => {
     if (isLoading) {
         return (
-            <Flex justify="center" py="12">
+            <Flex justify="center" py="12" direction="column" align="center" gap="3">
+                <Spinner size="md" color="blue.500" />
                 <Text color="gray.500" fontSize="sm">Loading announcements...</Text>
+            </Flex>
+        );
+    }
+
+    if (error) {
+        return (
+            <Flex justify="center" py="12" direction="column" align="center" gap="4">
+                <Text color="red.500" fontSize="sm">
+                    Error loading announcements: {error.message}
+                </Text>
             </Flex>
         );
     }
@@ -51,7 +69,7 @@ const AnnouncementList = ({ announcements, isLoading }: AnnouncementListProps) =
                         </Text>
                     </Box>
                     <Text fontSize="xs" color="gray.500" whiteSpace="nowrap" ml="8">
-                        {item.date}
+                        {new Date(item.date).toLocaleDateString()}
                     </Text>
                 </Flex>
             ))}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Flex, Text, Heading} from "@chakra-ui/react";
+import { Box, Flex, Text, Heading } from "@chakra-ui/react";
 import { X } from "lucide-react";
 import { AnnouncementHook } from "@hooks/announcement.hook";
 import AnnouncementList from "@components/shared/AnnouncementList";
@@ -8,7 +8,12 @@ const Announcement = () => {
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
 
-    const { data: announcements, isLoading } = AnnouncementHook.useAnnouncements(
+    const { 
+        data: announcements, 
+        isLoading, 
+        error,
+        refetch 
+    } = AnnouncementHook.useAnnouncements(
         fromDate || undefined,
         toDate || undefined
     );
@@ -25,25 +30,6 @@ const Announcement = () => {
                 <Heading size="lg" fontWeight="600" color="#000000" fontSize="24px">
                     Announcement
                 </Heading>
-
-                {/* Create New Announcement Button - Commented out
-                <Flex
-                    align="center"
-                    gap="2"
-                    px="5"
-                    py="2.5"
-                    bg="accent.500"
-                    borderRadius="md"
-                    color="white"
-                    cursor="pointer"
-                    _hover={{ bg: "accent.600" }}
-                    transition="background 0.15s"
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    <Icon as={Plus} boxSize="4" />
-                    <Text fontSize="sm" fontWeight="500">Create New Announcement</Text>
-                </Flex>
-                */}
             </Flex>
 
             {/* Date Range Filter */}
@@ -111,15 +97,9 @@ const Announcement = () => {
             <AnnouncementList
                 announcements={announcements ?? []}
                 isLoading={isLoading}
+                error={error}
+                onRetry={refetch}
             />
-
-            {/* Create Modal - Commented out since button is commented
-            <CreateAnnouncementModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={(payload) => createMutation.mutate(payload)}
-            />
-            */}
         </Box>
     );
 };

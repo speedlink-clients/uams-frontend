@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { AcademicHook } from "@hooks/academic.hook";
 import { Checkbox } from "../ui/checkbox";
 import { toaster } from "@components/ui/toaster";
+import type { Student } from "@type/student.type";
 
 
 interface LecturersTableProps {
@@ -187,7 +188,12 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
     const [searchTerm, setSearchTerm] = useState("");
     const { data: activeSession, isLoading: isSessionLoading } = AcademicHook.useActiveSession();
     const { data: students, isLoading, refetch } = StudentHook.useUnassignedStudents();
-    const { data: assignedStudents, isLoading: isAssignedLoading, refetch: refetchAssigned } = StudentHook.useAssignedStudents(lecturerId);
+    const { 
+        data: assignedStudents, 
+        isLoading: isAssignedLoading, 
+        refetch: refetchAssigned 
+    } = StudentHook.useAssignedStudents(lecturerId);
+    
     const { mutate: assignStudents, isPending: isAssigning } = StudentHook.useAssignStudents({
         onSuccess: () => {
             toaster.create({
@@ -196,7 +202,7 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
             });
             setSelectedStudents(new Set());
             refetch();
-            refetchAssigned();
+            refetchAssigned(); // Refresh assigned list
             setOpen(false);
         },
         onError: (error) => {
@@ -208,7 +214,27 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
         }
     });
 
+    // Remove student mutation
+    const { mutate: removeStudent, isPending: isRemoving } = StudentHook.useRemoveAssignedStudent({
+        onSuccess: () => {
+            toaster.create({
+                title: "Student removed successfully",
+                type: "success",
+            });
+            refetchAssigned(); // Refresh assigned list
+            refetch(); // Refresh unassigned list
+        },
+        onError: (error) => {
+            toaster.create({
+                title: "Failed to remove student",
+                description: error?.response?.data?.message || "Something went wrong",
+                type: "error",
+            });
+        }
+    });
+
     const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
+    const [studentToRemove, setStudentToRemove] = useState<Student | null>(null);
 
     // Filter students based on search term
     const filteredStudents = React.useMemo(() => {
@@ -226,6 +252,23 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                    matricNumber.includes(searchLower);
         });
     }, [students, searchTerm]);
+
+    // Filter assigned students based on search term
+    const filteredAssignedStudents = React.useMemo(() => {
+        if (!assignedStudents) return [];
+        if (!searchTerm.trim()) return assignedStudents;
+        
+        const searchLower = searchTerm.toLowerCase().trim();
+        return assignedStudents.filter(student => {
+            const fullName = (student.name || student.fullName || "").toLowerCase();
+            const email = (student.email || "").toLowerCase();
+            const matricNumber = (student.matricNumber || "").toLowerCase();
+            
+            return fullName.includes(searchLower) || 
+                   email.includes(searchLower) || 
+                   matricNumber.includes(searchLower);
+        });
+    }, [assignedStudents, searchTerm]);
 
     const toggleStudent = (id: string) => {
         setSelectedStudents((prev) => {
@@ -257,6 +300,17 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
         });
     };
 
+    const handleRemoveStudent = () => {
+        if (!studentToRemove || !activeSession?.id) return;
+        
+        removeStudent({
+            lecturerId,
+            studentId: studentToRemove.id,
+            sessionId: activeSession.id
+        });
+        setStudentToRemove(null);
+    };
+
     return (
         <Drawer.Root size="md" open={open} onOpenChange={(e) => setOpen(e.open)}>
             <Drawer.Trigger asChild>
@@ -280,7 +334,6 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                             {selectedStudents.size} selected
                                         </Text>
                                     )}
-                                    {/* Assigned Students Button */}
                                     <Button 
                                         size="xs"
                                         colorScheme="blue"
@@ -333,11 +386,6 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                     </Button>
                                 )}
                             </Flex>
-                            {searchTerm && filteredStudents && (
-                                <Text fontSize="xs" color="gray.500" mt="2">
-                                    Found {filteredStudents.length} {filteredStudents.length === 1 ? 'student' : 'students'}
-                                </Text>
-                            )}
                         </Box>
 
                         <Drawer.Body spaceY="4" py="6" pb="24" overflowY="auto">
@@ -562,9 +610,9 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                 ) : (
                                     <>
                                         <Heading size="xs" color="gray.600" textTransform="uppercase" letterSpacing="wider" mb="4">
-                                            Students ({assignedStudents.length})
+                                            Students ({filteredAssignedStudents.length})
                                         </Heading>
-                                        <For each={assignedStudents}>
+                                        <For each={filteredAssignedStudents}>
                                             {(student) => (
                                                 <Box 
                                                     key={student.id}
@@ -599,6 +647,15 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                                                 )}
                                                             </Flex>
                                                         </Box>
+                                                        <Button
+                                                            size="xs"
+                                                            colorScheme="red"
+                                                            variant="ghost"
+                                                            onClick={() => setStudentToRemove(student)}
+                                                            loading={isRemoving && studentToRemove?.id === student.id}
+                                                        >
+                                                            Remove
+                                                        </Button>
                                                     </Flex>
                                                 </Box>
                                             )}
@@ -607,6 +664,42 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                 )}
                             </Drawer.Body>
                             
+                            <Drawer.CloseTrigger asChild>
+                                <CloseButton size="sm" pos="absolute" top="4" right="4" />
+                            </Drawer.CloseTrigger>
+                        </Drawer.Content>
+                    </Drawer.Positioner>
+                </Portal>
+            </Drawer.Root>
+
+            {/* Confirmation Dialog for Removing Student */}
+            <Drawer.Root open={!!studentToRemove} onOpenChange={() => setStudentToRemove(null)}>
+                <Portal>
+                    <Drawer.Backdrop />
+                    <Drawer.Positioner>
+                        <Drawer.Content rounded="xl" maxW="400px">
+                            <Drawer.Header borderBottomWidth="1px" borderColor="gray.100" py="4">
+                                <Drawer.Title fontSize="lg" fontWeight="600">Confirm Removal</Drawer.Title>
+                            </Drawer.Header>
+                            <Drawer.Body py="6">
+                                <Text>
+                                    Are you sure you want to remove {studentToRemove?.name || studentToRemove?.fullName} from this lecturer?
+                                </Text>
+                            </Drawer.Body>
+                            <Drawer.Footer borderTopWidth="1px" borderColor="gray.100" py="4">
+                                <Flex gap="3" justify="flex-end">
+                                    <Button variant="outline" onClick={() => setStudentToRemove(null)}>
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        colorScheme="red" 
+                                        onClick={handleRemoveStudent}
+                                        loading={isRemoving}
+                                    >
+                                        Remove
+                                    </Button>
+                                </Flex>
+                            </Drawer.Footer>
                             <Drawer.CloseTrigger asChild>
                                 <CloseButton size="sm" pos="absolute" top="4" right="4" />
                             </Drawer.CloseTrigger>

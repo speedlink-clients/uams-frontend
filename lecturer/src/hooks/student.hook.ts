@@ -1,5 +1,5 @@
 import { StudentService } from "@services/student.service";
-import { useMutation, useQuery, type UseMutationOptions, type UseQueryOptions } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseMutationOptions, type UseQueryOptions } from "@tanstack/react-query";
 import type { Student } from "@type/student.type";
 
 export const StudentHook = {
@@ -36,28 +36,58 @@ export const StudentHook = {
         }),
 
     useAssignStudents: (
-        options?: Partial<UseMutationOptions<any, any, {
+        options?: UseMutationOptions<any, any, {
             lecturerId: string;
             sessionId: string;
             studentIds: string[];
             notes: string;
-        }>>
-    ) =>
-        useMutation({
+        }>
+    ) => {
+        const queryClient = useQueryClient();
+        
+        return useMutation({
             mutationFn: (payload) => StudentService.assignStudents(payload),
+            onSuccess: (data, variables, onMutateResult, context) => {
+                // Invalidate both unassigned and assigned students queries
+                queryClient.invalidateQueries({ queryKey: ["unassigned-students"] });
+                queryClient.invalidateQueries({ 
+                    queryKey: ["assigned-students", variables.lecturerId] 
+                });
+                
+                // Call the original onSuccess if provided with all 4 arguments
+                if (options?.onSuccess) {
+                    options.onSuccess(data, variables, onMutateResult, context);
+                }
+            },
             ...options,
-        }),
+        });
+    },
 
     useRemoveAssignedStudent: (
-        options?: Partial<UseMutationOptions<any, any, {
+        options?: UseMutationOptions<any, any, {
             lecturerId: string;
             studentId: string;
             sessionId: string;
-        }>>
-    ) =>
-        useMutation({
+        }>
+    ) => {
+        const queryClient = useQueryClient();
+        
+        return useMutation({
             mutationFn: ({ lecturerId, studentId, sessionId }) => 
                 StudentService.removeAssignedStudent(lecturerId, studentId, sessionId),
+            onSuccess: (data, variables, onMutateResult, context) => {
+                // Invalidate both assigned and unassigned students queries
+                queryClient.invalidateQueries({ 
+                    queryKey: ["assigned-students", variables.lecturerId] 
+                });
+                queryClient.invalidateQueries({ queryKey: ["unassigned-students"] });
+                
+                // Call the original onSuccess if provided with all 4 arguments
+                if (options?.onSuccess) {
+                    options.onSuccess(data, variables, onMutateResult, context);
+                }
+            },
             ...options,
-        }),
+        });
+    },
 };
