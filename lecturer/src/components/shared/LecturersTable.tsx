@@ -1,4 +1,4 @@
-import { Box, Table, Text, Flex, Menu, Button, Portal, Drawer, CloseButton, For, Heading, Spinner, InputGroup, Input } from "@chakra-ui/react";
+import { Box, Table, Text, Flex, Menu, Button, Portal, Drawer, CloseButton, For, Heading, Spinner, InputGroup, Input, Dialog } from "@chakra-ui/react";
 import { MoreHorizontal, Search, User, UserRoundPen } from "lucide-react";
 import type { Lecturer } from "@type/lecturer.type";
 import { StudentHook } from "@hooks/student.hook";
@@ -334,24 +334,30 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                             {selectedStudents.size} selected
                                         </Text>
                                     )}
-                                    <Button 
-                                        size="xs"
-                                        colorScheme="blue"
-                                        onClick={() => setShowAssigned(true)}
-                                        borderRadius="sm"
-                                        px="3"
-                                        py="1"
-                                        fontSize="xs"
-                                        fontWeight="600"
-                                        bg="blue.600"
-                                        _hover={{ bg: "blue.700" }}
-                                    >
-                                        {assignedStudents?.length || 0} Assigned
-                                    </Button>
                                 </Flex>
                             </Flex>
                         </Drawer.Header>
                         
+                        {/* View Assigned Students Button */}
+                        <Box px="4" pt="3" pb="2">
+                            <Button 
+                                w="150px"
+                                colorScheme="blue"
+                                variant="outline"
+                                onClick={() => setShowAssigned(true)}
+                                borderRadius="md"
+                                px="3"
+                                py="2"
+                                fontSize="sm"
+                                fontWeight="500"
+                                borderColor="blue.200"
+                                bg="blue.600"
+                                color="white"
+                            >
+                                View Assigned ({assignedStudents?.length || 0})
+                            </Button>
+                        </Box>
+
                         {/* Search Bar */}
                         <Box px="4" py="3" borderBottomWidth="1px" borderColor="gray.100">
                             <Flex align="center" gap="2">
@@ -533,14 +539,7 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                                         <Drawer.Title fontSize="lg" fontWeight="600">{lecturer}</Drawer.Title>
                                         <Text fontSize="xs" color="gray.500">Assigned Students</Text>
                                     </Box>
-                                    <Button 
-                                        size="xs" 
-                                        variant="ghost" 
-                                        onClick={() => setShowAssigned(false)}
-                                        borderRadius="full"
-                                    >
-                                        ✕
-                                    </Button>
+                                   
                                 </Flex>
                             </Drawer.Header>
 
@@ -672,41 +671,43 @@ const StudentDrawer = ({ lecturerId, lecturer }: { lecturerId: string, lecturer:
                 </Portal>
             </Drawer.Root>
 
-            {/* Confirmation Dialog for Removing Student */}
-            <Drawer.Root open={!!studentToRemove} onOpenChange={() => setStudentToRemove(null)}>
+            {/* Confirmation Dialog for Removing Student - Changed from Drawer to Dialog */}
+            <Dialog.Root open={!!studentToRemove} onOpenChange={() => setStudentToRemove(null)}>
                 <Portal>
-                    <Drawer.Backdrop />
-                    <Drawer.Positioner>
-                        <Drawer.Content rounded="xl" maxW="400px">
-                            <Drawer.Header borderBottomWidth="1px" borderColor="gray.100" py="4">
-                                <Drawer.Title fontSize="lg" fontWeight="600">Confirm Removal</Drawer.Title>
-                            </Drawer.Header>
-                            <Drawer.Body py="6">
+                    <Dialog.Backdrop />
+                    <Dialog.Positioner>
+                        <Dialog.Content rounded="xl" maxW="400px">
+                            <Dialog.Header borderBottomWidth="1px" borderColor="gray.100" py="4">
+                                <Dialog.Title fontSize="lg" fontWeight="600">Confirm Removal</Dialog.Title>
+                            </Dialog.Header>
+                            <Dialog.Body py="6">
                                 <Text>
                                     Are you sure you want to remove {studentToRemove?.name || studentToRemove?.fullName} from this lecturer?
                                 </Text>
-                            </Drawer.Body>
-                            <Drawer.Footer borderTopWidth="1px" borderColor="gray.100" py="4">
+                            </Dialog.Body>
+                            <Dialog.Footer borderTopWidth="1px" borderColor="gray.100" py="4">
                                 <Flex gap="3" justify="flex-end">
                                     <Button variant="outline" onClick={() => setStudentToRemove(null)}>
                                         Cancel
                                     </Button>
                                     <Button 
-                                        colorScheme="red" 
+                                        colorScheme="blue"
                                         onClick={handleRemoveStudent}
                                         loading={isRemoving}
+                                        bg="blue.600"
+                                        _hover={{ bg: "blue.700" }}
                                     >
                                         Remove
                                     </Button>
                                 </Flex>
-                            </Drawer.Footer>
-                            <Drawer.CloseTrigger asChild>
+                            </Dialog.Footer>
+                            <Dialog.CloseTrigger asChild>
                                 <CloseButton size="sm" pos="absolute" top="4" right="4" />
-                            </Drawer.CloseTrigger>
-                        </Drawer.Content>
-                    </Drawer.Positioner>
+                            </Dialog.CloseTrigger>
+                        </Dialog.Content>
+                    </Dialog.Positioner>
                 </Portal>
-            </Drawer.Root>
+            </Dialog.Root>
         </Drawer.Root>
     )
 }

@@ -4,89 +4,47 @@ import type {
     CreateAnnouncementPayload,
     UpdateAnnouncementPayload,
     ApiResponse,
-    NotificationResponse
 } from "@type/announcement.type";
 
 export const AnnouncementService = {
     // Get all announcements/notifications
     getAnnouncements: async (from?: string, to?: string): Promise<Announcement[]> => {
-        const { data } = await axiosClient.get<ApiResponse<NotificationResponse>>("/notifications", {
+        const { data } = await axiosClient.get<ApiResponse<Announcement>>("/notifications", {
             params: { from, to },
         });
-        
-        // Transform the API response to match your Announcement type
-        return data.data.map(notification => ({
-            id: notification.id,
-            title: notification.type, // Map type to title
-            description: notification.isFor, // Map isFor to description
-            date: notification.createdAt.split('T')[0], 
-            isFor: notification.isFor,
-            userIdentityId: notification.userIdentityId,
-            isAdmin: notification.isAdmin,
-            lastRead: notification.lastRead,
-            type: notification.type
-        }));
+        return data.data;
     },
 
     // Get single announcement by ID
     getAnnouncementById: async (id: string): Promise<Announcement> => {
-        const { data } = await axiosClient.get<{ data: NotificationResponse }>(`/notifications/${id}`);
-        
-        return {
-            id: data.data.id,
-            title: data.data.type,
-            description: data.data.isFor,
-            date: data.data.createdAt.split('T')[0],
-            isFor: data.data.isFor,
-            userIdentityId: data.data.userIdentityId,
-            isAdmin: data.data.isAdmin,
-            lastRead: data.data.lastRead,
-            type: data.data.type
-        };
+        const { data } = await axiosClient.get<{ data: Announcement }>(`/notifications/${id}`);
+        return data.data;
     },
 
     // Create new announcement/notification
     createAnnouncement: async (payload: CreateAnnouncementPayload): Promise<Announcement> => {
-        const { data } = await axiosClient.post<{ data: NotificationResponse }>("/notifications", {
-            isFor: payload.description, // Map description to isFor
-            type: payload.title, // Map title to type
-            userIdentityId: payload.recipients[0], // Handle recipients
-            isAdmin: false,
-            lastRead: false
+        const { data } = await axiosClient.post<{ data: Announcement }>("/notifications", {
+            title: payload.title,
+            body: payload.description,
+            isFor: payload.recipients?.join(',') || 'OTHERS', 
+            isRead: false,
+            data: null
         });
         
-        return {
-            id: data.data.id,
-            title: data.data.type,
-            description: data.data.isFor,
-            date: data.data.createdAt.split('T')[0],
-            isFor: data.data.isFor,
-            userIdentityId: data.data.userIdentityId,
-            isAdmin: data.data.isAdmin,
-            lastRead: data.data.lastRead,
-            type: data.data.type
-        };
+        return data.data;
     },
 
     // Update announcement
     updateAnnouncement: async (id: string, payload: UpdateAnnouncementPayload): Promise<Announcement> => {
-        const { data } = await axiosClient.put<{ data: NotificationResponse }>(`/notifications/${id}`, {
-            ...(payload.title && { type: payload.title }),
-            ...(payload.description && { isFor: payload.description }),
-            ...(payload.lastRead !== undefined && { lastRead: payload.lastRead })
-        });
+        const updateData: any = {};
         
-        return {
-            id: data.data.id,
-            title: data.data.type,
-            description: data.data.isFor,
-            date: data.data.createdAt.split('T')[0],
-            isFor: data.data.isFor,
-            userIdentityId: data.data.userIdentityId,
-            isAdmin: data.data.isAdmin,
-            lastRead: data.data.lastRead,
-            type: data.data.type
-        };
+        if (payload.title) updateData.title = payload.title;
+        if (payload.description) updateData.body = payload.description;
+        if (payload.lastRead !== undefined) updateData.isRead = payload.lastRead;
+        if (payload.recipients) updateData.isFor = payload.recipients.join(',');
+        
+        const { data } = await axiosClient.put<{ data: Announcement }>(`/notifications/${id}`, updateData);
+        return data.data;
     },
 
     // Delete announcement
@@ -103,21 +61,10 @@ export const AnnouncementService = {
 
     // Mark announcement as read
     markAsRead: async (id: string): Promise<Announcement> => {
-        const { data } = await axiosClient.patch<{ data: NotificationResponse }>(`/notifications/${id}/read`, {
-            lastRead: true
+        const { data } = await axiosClient.patch<{ data: Announcement }>(`/notifications/${id}/read`, {
+            isRead: true
         });
-        
-        return {
-            id: data.data.id,
-            title: data.data.type,
-            description: data.data.isFor,
-            date: data.data.createdAt.split('T')[0],
-            isFor: data.data.isFor,
-            userIdentityId: data.data.userIdentityId,
-            isAdmin: data.data.isAdmin,
-            lastRead: data.data.lastRead,
-            type: data.data.type
-        };
+        return data.data;
     },
 
     // Mark multiple announcements as read
@@ -133,76 +80,32 @@ export const AnnouncementService = {
 
     // Get announcements by user
     getAnnouncementsByUser: async (userId: string): Promise<Announcement[]> => {
-        const { data } = await axiosClient.get<ApiResponse<NotificationResponse>>(`/notifications/user/${userId}`);
-        
-        return data.data.map(notification => ({
-            id: notification.id,
-            title: notification.type,
-            description: notification.isFor,
-            date: notification.createdAt.split('T')[0],
-            isFor: notification.isFor,
-            userIdentityId: notification.userIdentityId,
-            isAdmin: notification.isAdmin,
-            lastRead: notification.lastRead,
-            type: notification.type
-        }));
+        const { data } = await axiosClient.get<ApiResponse<Announcement>>(`/notifications/user/${userId}`);
+        return data.data;
     },
 
-    // Get announcements by type
-    getAnnouncementsByType: async (type: string): Promise<Announcement[]> => {
-        const { data } = await axiosClient.get<ApiResponse<NotificationResponse>>("/notifications", {
-            params: { type }
+    // Get announcements by type/for
+    getAnnouncementsByType: async (isFor: string): Promise<Announcement[]> => {
+        const { data } = await axiosClient.get<ApiResponse<Announcement>>("/notifications", {
+            params: { isFor }
         });
-        
-        return data.data.map(notification => ({
-            id: notification.id,
-            title: notification.type,
-            description: notification.isFor,
-            date: notification.createdAt.split('T')[0],
-            isFor: notification.isFor,
-            userIdentityId: notification.userIdentityId,
-            isAdmin: notification.isAdmin,
-            lastRead: notification.lastRead,
-            type: notification.type
-        }));
+        return data.data;
     },
 
     // Search announcements
     searchAnnouncements: async (query: string): Promise<Announcement[]> => {
-        const { data } = await axiosClient.get<ApiResponse<NotificationResponse>>("/notifications/search", {
+        const { data } = await axiosClient.get<ApiResponse<Announcement>>("/notifications/search", {
             params: { q: query }
         });
-        
-        return data.data.map(notification => ({
-            id: notification.id,
-            title: notification.type,
-            description: notification.isFor,
-            date: notification.createdAt.split('T')[0],
-            isFor: notification.isFor,
-            userIdentityId: notification.userIdentityId,
-            isAdmin: notification.isAdmin,
-            lastRead: notification.lastRead,
-            type: notification.type
-        }));
+        return data.data;
     },
 
     // Get announcements by date range
     getAnnouncementsByDateRange: async (from: string, to: string): Promise<Announcement[]> => {
-        const { data } = await axiosClient.get<ApiResponse<NotificationResponse>>("/notifications", {
+        const { data } = await axiosClient.get<ApiResponse<Announcement>>("/notifications", {
             params: { from, to }
         });
-        
-        return data.data.map(notification => ({
-            id: notification.id,
-            title: notification.type,
-            description: notification.isFor,
-            date: notification.createdAt.split('T')[0],
-            isFor: notification.isFor,
-            userIdentityId: notification.userIdentityId,
-            isAdmin: notification.isAdmin,
-            lastRead: notification.lastRead,
-            type: notification.type
-        }));
+        return data.data;
     },
 
     // Get recent announcements

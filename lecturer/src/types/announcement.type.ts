@@ -13,28 +13,47 @@ export interface ApiResponse<T> {
     data: T[];
 }
 
+
 export interface Announcement {
     id: string;
-    title: string;          
-    description: string;   
-    date: string;         
     isFor: string;
-    userIdentityId: string;
-    isAdmin: boolean;
-    lastRead: boolean;
-    type: string;
+    universityId: string;        
+    departmentId: string;         
+    title: string;
+    body: string;                 
+    data: any | null;            
+    isRead: boolean;              
+    createdAt: string;            
+    userIdentityId?: string;      
+    isAdmin?: boolean;            
+    lastRead?: boolean;           
+    type?: string;               
 }
 
+
+export interface AnnouncementWithCompatibility extends Announcement {
+    get description(): string;
+    get date(): string;
+}
+
+// Or create a transformer func
+export const transformAnnouncement = (item: Announcement): Announcement => {
+    return {
+        ...item,
+    } as Announcement & { description?: string; date?: string };
+};
+
+
 export interface CreateAnnouncementPayload {
-    title: string;          
-    recipients: string[];   
-    description: string;   
+    title: string;
+    recipients: string[];
+    description: string;    
 }
 
 export interface UpdateAnnouncementPayload {
-    title?: string;         
-    description?: string;   
-    recipients?: string[];  
+    title?: string;
+    description?: string;
+    recipients?: string[];
     lastRead?: boolean;
     isAdmin?: boolean;
 }

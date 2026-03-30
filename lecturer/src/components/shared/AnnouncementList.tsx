@@ -93,11 +93,11 @@ const AnnouncementList = ({
               display="-webkit-box"
               style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
             >
-              {item.description}
+              {item.body}
             </Text>
           </Box>
           <Text fontSize="xs" color="gray.500" whiteSpace="nowrap" ml="8">
-            {formatDate(item.date)}
+            {formatDate(item.createdAt)}
           </Text>
         </Flex>
       ))}
