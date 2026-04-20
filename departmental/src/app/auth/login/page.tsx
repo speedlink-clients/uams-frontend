@@ -1,32 +1,28 @@
 import { useState } from "react";
-import { User, Eye, EyeOff } from "lucide-react";
+import { User } from "lucide-react";
 import { useNavigate } from "react-router";
 import useAuthStore from "@stores/auth.store";
-import { AuthServices } from "@services/auth.service";
+import { AuthHooks } from "@hooks/auth.hook";
+import useLoginForm from "@forms/auth/login.form";
+import type { LoginFormData } from "@schemas/auth/login.schema";
+import { PasswordInput } from "@components/ui/password-input";
 
 import { Box, Flex, Text, Image, Spinner, Input } from "@chakra-ui/react";
 
 const LoginPage = () => {
     const { setAuth } = useAuthStore();
     const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useLoginForm();
 
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError("");
-        setIsLoading(true);
-
-        try {
-            localStorage.setItem("loginEmail", email);
-
-            const data = await AuthServices.login({ email, password });
+    const { mutate: login, isPending: isLoading, error: mutationError } = AuthHooks.useLogin({
+        onSuccess: (data) => {
+            localStorage.setItem("loginEmail", data.user.email);
 
             setAuth({
                 token: data.token,
@@ -41,27 +37,37 @@ const LoginPage = () => {
             });
 
             navigate("/dashboard");
-        } catch (err: any) {
+        },
+        onError: () => {
             localStorage.removeItem("loginEmail");
-            if (err.response) {
-                if (err.response.status === 401) {
-                    setError("Invalid email or password. Please try again.");
-                } else if (err.response.status === 400) {
-                    setError(err.response.data?.message || "Invalid request. Please check your input.");
-                } else if (err.response.status === 500) {
-                    setError("Server error. Please try again later.");
-                } else {
-                    setError(err.response.data?.message || "Login failed. Please try again.");
-                }
-            } else if (err.request) {
-                setError("Network error. Please check your connection.");
-            } else {
-                setError("An unexpected error occurred. Please try again.");
-            }
-        } finally {
-            setIsLoading(false);
-        }
+        },
+    });
+
+    const onSubmit = (formData: LoginFormData) => {
+        login(formData);
     };
+
+    // Derive a user-friendly error message from the mutation error
+    const getErrorMessage = (): string | null => {
+        if (!mutationError) return null;
+
+        const err = mutationError as any;
+        if (err.response) {
+            if (err.response.status === 401) {
+                return "Invalid email or password. Please try again.";
+            } else if (err.response.status === 400) {
+                return err.response.data?.message || "Invalid request. Please check your input.";
+            } else if (err.response.status === 500) {
+                return "Server error. Please try again later.";
+            }
+            return err.response.data?.message || "Login failed. Please try again.";
+        } else if (err.request) {
+            return "Network error. Please check your connection.";
+        }
+        return "An unexpected error occurred. Please try again.";
+    };
+
+    const errorMessage = getErrorMessage();
 
     return (
         <Flex minH="100vh" w="full" bg="white" fontFamily="'Inter'">
@@ -118,61 +124,63 @@ const LoginPage = () => {
                         </Text>
                     </Box>
 
-                    {/* Error */}
-                    {error && (
+                    {/* Server Error */}
+                    {errorMessage && (
                         <Box mb="6" p="4" bg="red.50" border="1px solid" borderColor="red.200" borderRadius="22px">
                             <Text color="red.600" fontSize="sm" textAlign="center" fontWeight="bold">
-                                {error}
+                                {errorMessage}
                             </Text>
                         </Box>
                     )}
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <Flex direction="column" gap="6">
                             {/* Email */}
-                            <Box position="relative">
-                                <Input
-                                    type="email"
-                                    placeholder="Enter Email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    disabled={isLoading}
-                                    required
-                                    w="full"
-                                    bg="white"
-                                    border="1px solid"
-                                    borderColor="gray.200"
-                                    borderRadius="22px"
-                                    py="4.5"
-                                    px="7"
-                                    fontSize="15px"
-                                    fontWeight="medium"
-                                    color="#1e293b"
-                                    outline="none"
-                                    transition="all 0.2s"
-                                    boxShadow="sm"
-                                    _placeholder={{ color: "gray.300" }}
-                                    _focus={{ borderColor: "#1d76d2", boxShadow: "0 0 0 3px rgba(29,118,210,0.1)" }}
-                                    _disabled={{ opacity: 0.6, cursor: "not-allowed" }}
-                                />
-                                <Box position="absolute" right="7" top="50%" transform="translateY(-50%)" color="gray.300">
-                                    <User size={20} strokeWidth={2.5} />
+                            <Box>
+                                <Box position="relative">
+                                    <Input
+                                        type="email"
+                                        placeholder="Enter Email"
+                                        {...register("email")}
+                                        disabled={isLoading}
+                                        w="full"
+                                        bg="white"
+                                        border="1px solid"
+                                        borderColor={errors.email ? "red.400" : "gray.200"}
+                                        borderRadius="22px"
+                                        py="4.5"
+                                        px="7"
+                                        fontSize="15px"
+                                        fontWeight="medium"
+                                        color="#1e293b"
+                                        outline="none"
+                                        transition="all 0.2s"
+                                        boxShadow="sm"
+                                        _placeholder={{ color: "gray.300" }}
+                                        _focus={{ borderColor: "#1d76d2", boxShadow: "0 0 0 3px rgba(29,118,210,0.1)" }}
+                                        _disabled={{ opacity: 0.6, cursor: "not-allowed" }}
+                                    />
+                                    <Box position="absolute" right="7" top="50%" transform="translateY(-50%)" color="gray.300">
+                                        <User size={20} strokeWidth={2.5} />
+                                    </Box>
                                 </Box>
+                                {errors.email && (
+                                    <Text color="red.500" fontSize="xs" mt="1" px="4" fontWeight="medium">
+                                        {errors.email.message}
+                                    </Text>
+                                )}
                             </Box>
 
                             {/* Password */}
-                            <Box position="relative">
-                                <Input
-                                    type={showPassword ? "text" : "password"}
+                            <Box>
+                                <PasswordInput
                                     placeholder="Enter Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    {...register("password")}
                                     disabled={isLoading}
-                                    required
                                     w="full"
                                     bg="white"
                                     border="1px solid"
-                                    borderColor="gray.200"
+                                    borderColor={errors.password ? "red.400" : "gray.200"}
                                     borderRadius="22px"
                                     py="4.5"
                                     px="7"
@@ -186,29 +194,16 @@ const LoginPage = () => {
                                     _focus={{ borderColor: "#1d76d2", boxShadow: "0 0 0 3px rgba(29,118,210,0.1)" }}
                                     _disabled={{ opacity: 0.6, cursor: "not-allowed" }}
                                 />
-                                <Flex
-                                    as="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    position="absolute"
-                                    right="7"
-                                    top="50%"
-                                    transform="translateY(-50%)"
-                                    color="gray.300"
-                                    _hover={{ color: "#1d76d2" }}
-                                    transition="all 0.2s"
-                                    bg="transparent"
-                                    border="none"
-                                    cursor="pointer"
-                                    aria-label="Toggle password"
-                                >
-                                    {showPassword ? <EyeOff size={20} strokeWidth={2.5} /> : <Eye size={20} strokeWidth={2.5} />}
-                                </Flex>
+                                {errors.password && (
+                                    <Text color="red.500" fontSize="xs" mt="1" px="4" fontWeight="medium">
+                                        {errors.password.message}
+                                    </Text>
+                                )}
                             </Box>
 
                             {/* Remember Me */}
                             <Flex alignItems="center" gap="3" px="2">
                                 <Flex
-                                    as="button"
                                     onClick={() => setRememberMe(!rememberMe)}
                                     position="relative"
                                     w="48px"
@@ -219,6 +214,8 @@ const LoginPage = () => {
                                     border="none"
                                     cursor="pointer"
                                     opacity={isLoading ? 0.6 : 1}
+                                    role="button"
+                                    tabIndex={0}
                                     aria-label="Remember me"
                                 >
                                     <Box
