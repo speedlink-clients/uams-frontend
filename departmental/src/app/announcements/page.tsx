@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { AnnouncementServices } from "@services/announcement.service";
 import { toaster } from "@components/ui/toaster";
 import { Box, Flex, Text, Spinner, Input } from "@chakra-ui/react";
+import CreateAnnouncementModal from "@components/announcements/CreateAnnouncementModal";
 
 interface Announcement {
     id: string;
@@ -18,6 +19,7 @@ const AnnouncementsPage = () => {
     const [loading, setLoading] = useState(true);
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchAnnouncements = async () => {
         try {
@@ -72,6 +74,26 @@ const AnnouncementsPage = () => {
             {/* Header */}
             <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="6" gap="4">
                 <Text fontSize="2xl" fontWeight="bold" color="slate.900">Announcement</Text>
+                <Flex
+                    as="button"
+                    onClick={() => setIsModalOpen(true)}
+                    bg="blue.600"
+                    color="white"
+                    px="4"
+                    py="2.5"
+                    borderRadius="xl"
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    _hover={{ bg: "blue.700" }}
+                    transition="all 0.2s"
+                    alignItems="center"
+                    gap="2"
+                    border="none"
+                    cursor="pointer"
+                >
+                    <Plus size={18} />
+                    Create Announcement
+                </Flex>
             </Flex>
 
             {/* Date Filters */}
@@ -114,6 +136,13 @@ const AnnouncementsPage = () => {
                     ))
                 )}
             </Flex>
+
+            {/* Create Announcement Modal */}
+            <CreateAnnouncementModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onCreated={fetchAnnouncements}
+            />
         </Box>
     );
 };

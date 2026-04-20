@@ -1,5 +1,6 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { Plus } from "lucide-react";
+import { useNavigate } from "react-router";
 import type { Announcement } from "@type/common.type";
 
 interface Props {
@@ -7,6 +8,8 @@ interface Props {
 }
 
 export const AnnouncementList = ({ announcements }: Props) => {
+    const navigate = useNavigate();
+
     return (
         <Box bg="white" borderRadius="2xl" p="6" boxShadow="sm" border="1px solid" borderColor="gray.100" display="flex" flexDirection="column" h="full">
             <Flex alignItems="center" justifyContent="space-between" mb="6">
@@ -26,6 +29,7 @@ export const AnnouncementList = ({ announcements }: Props) => {
                     gap="1.5"
                     border="none"
                     cursor="pointer"
+                    onClick={() => navigate("/announcements")}
                 >
                     <Plus size={14} />
                     Create New
