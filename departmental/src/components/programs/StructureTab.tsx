@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router";
-import { Download, Edit, X } from "lucide-react";
+import { Download, Edit, Trash2, X } from "lucide-react";
 import { AcademicServices } from "@services/academic.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
@@ -110,6 +110,34 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
         }
     };
 
+    const handleDelete = async (id: string) => {
+        if (window.confirm("Are you sure you want to delete this session?")) {
+            try {
+                await AcademicServices.deleteSession(id);
+                toaster.success({ title: "Session deleted successfully" });
+                const updated = await AcademicServices.getSessions();
+                setSessions(Array.isArray(updated) ? updated : []);
+            } catch (error: any) {
+                toaster.error({ title: error.response?.data?.message || "Failed to delete session" });
+            }
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected sessions?`)) {
+            try {
+                await Promise.all(selectedIds.map((id) => AcademicServices.deleteSession(id)));
+                toaster.success({ title: `${selectedIds.length} sessions deleted` });
+                setSelectedIds([]);
+                const updated = await AcademicServices.getSessions();
+                setSessions(Array.isArray(updated) ? updated : []);
+            } catch (err) {
+                toaster.error({ title: "Failed to delete some sessions" });
+            }
+        }
+    };
+
     const handleExport = () => {
         exportToExcel(sessions, "Academic_Sessions", "Sessions");
         toaster.success({ title: "Exported to Excel" });
@@ -149,7 +177,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                                     checked={formData.isActive}
                                     onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
                                 />
-                                <Text fontSize="sm" fontWeight="medium" color="slate.700" as="label" htmlFor="isActive">
+                                <Text fontSize="sm" fontWeight="medium" color="slate.700" as="label">
                                     Activate Session
                                 </Text>
                             </Flex>
@@ -245,9 +273,14 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                                         </Text>
                                     </Box>
                                     <Box as="td" px="6" py="4" textAlign="center">
-                                        <Box as="button" onClick={() => navigate(`/program-courses/sessions/edit/${session.id}`)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent">
-                                            <Edit size={16} />
-                                        </Box>
+                                        <Flex justifyContent="center" gap="2">
+                                            <Box as="button" onClick={() => navigate(`/program-courses/sessions/edit/${session.id}`)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent">
+                                                <Edit size={16} />
+                                            </Box>
+                                            <Box as="button" onClick={() => handleDelete(session.id)} p="1" _hover={{ bg: "red.50" }} borderRadius="full" color="red.400" cursor="pointer" border="none" bg="transparent">
+                                                <Trash2 size={16} />
+                                            </Box>
+                                        </Flex>
                                     </Box>
                                 </Box>
                             ))}
@@ -259,6 +292,10 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
             {selectedIds.length > 0 && (
                 <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
+                    <Box w="px" h="6" bg="slate.200" />
+                    <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
+                        <Trash2 size={16} /> Delete
+                    </Box>
                     <Box w="px" h="6" bg="slate.200" />
                     <Box as="button" onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent">
                         <X size={20} />

@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
+import { toaster } from "../components/ui/toaster";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://uams-backend-production.up.railway.app/api";
 const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || "5000");
@@ -35,10 +36,19 @@ apiClient.interceptors.response.use(
       error.config?.url?.includes("/auth/");
 
     if (error.response?.status === 401 && !isAuthEndpoint) {
+      toaster.error({
+        title: "Unauthorized",
+        description: "Session expired. Please log in again.",
+        closable: true
+      });
+
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       localStorage.removeItem("role");
-      window.location.href = "/login";
+      
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
     }
     return Promise.reject(error);
   }

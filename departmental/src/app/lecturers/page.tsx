@@ -7,7 +7,6 @@ import BulkUploadStaffModal from "@components/lecturers/BulkUploadStaffModal";
 import AssignCourseModal from "@components/lecturers/AssignCourseModal";
 import AddStaffForm from "@components/lecturers/AddStaffForm";
 import { StaffServices } from "@services/staff.service";
-import AssignStudentModal from "@components/lecturers/AssignStudentsModal";
 
 interface Staff {
     id: string;
@@ -34,12 +33,10 @@ const StaffPage = () => {
 
     // Action modals state
     const [showAssignCourse, setShowAssignCourse] = useState(false);
-    const [showAssignStudent, setShowAssignStudent] = useState(false);
     const [showAddEditForm, setShowAddEditForm] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
     const [staffToEdit, setStaffToEdit] = useState<any>(null);
 
-    
     const fetchStaff = async () => {
         try {
             setLoading(true);
@@ -142,22 +139,6 @@ const StaffPage = () => {
         }
     };
 
-
-    const handleAssignStudent = async (data: { studentId: string; level?: string }) => {
-        if (!selectedStaff) return;
-        try {
-            await StaffServices.assignStudent(selectedStaff.id, {
-                studentId: data.studentId,
-                ...(data.level && { level: data.level })
-            });
-            toaster.success({ title: "Student assigned successfully" });
-        } catch (err: any) {
-            console.error("Failed to assign student:", err);
-            toaster.error({ title: err.response?.data?.message || "Failed to assign student" });
-            throw err;
-        }
-    };
-
     const handleAddEditSubmit = async (payload: any) => {
         try {
             if (staffToEdit) {
@@ -215,43 +196,43 @@ const StaffPage = () => {
                     <Text color="slate.500" fontWeight="medium">No lecturers found</Text>
                 </Box>
             ) : (
-                <Box bg="white" borderRadius="xl" border="1px solid" borderColor="gray.100" overflow="hidden" boxShadow="sm">
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
                     <Box overflowX="auto">
-                        <Box as="table" w="full" fontSize="sm">
-                            <Box as="thead" bg="slate.50">
-                                <Box as="tr" borderBottom="1px solid" borderColor="slate.100">
-                                    <Box as="th" px="6" py="5" w="12" textAlign="center">
+                        <Box as="table" w="full" textAlign="left">
+                            <Box as="thead">
+                                <Box as="tr" bg="slate.50" borderBottom="1px solid" borderColor="gray.100" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
+                                    <Box as="th" px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50">
                                         <input
                                             type="checkbox"
-                                            checked={filteredStaff.length > 0 && selectedIds.length > 0 && filteredStaff.every((s) => selectedIds.includes(s.staffNumber))}
+                                            checked={filteredStaff.length > 0 && selectedIds.length > 0 && selectedIds.length === filteredStaff.length}
                                             onChange={toggleSelectAll}
                                             style={{ cursor: "pointer" }}
                                         />
                                     </Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Staff ID</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Name</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Email</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Phone No</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Department</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Rank</Box>
-                                    <Box as="th" textAlign="left" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Course(s)</Box>
-                                    <Box as="th" textAlign="center" px="6" py="5" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">Action</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Staff ID</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Name</Box>
+                                    <Box as="th" px="6" py="5" minW="200px">Email</Box>
+                                    <Box as="th" px="6" py="5" minW="140px">Phone No</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Department</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Rank</Box>
+                                    <Box as="th" px="6" py="5" minW="200px">Course(s)</Box>
+                                    <Box as="th" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex="20" bg="slate.50">Action</Box>
                                 </Box>
                             </Box>
-                            <Box as="tbody">
+                            <Box as="tbody" fontSize="xs">
                                 {paginatedStaff.map((s) => (
-                                    <Box as="tr" key={s.staffNumber} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.staffNumber) ? "blue.50" : undefined}>
-                                        <Box as="td" px="6" py="5" textAlign="center">
-                                            <input type="checkbox" checked={selectedIds.includes(s.staffNumber)} onChange={() => toggleSelection(s.staffNumber)} style={{ cursor: "pointer" }} />
+                                    <Box as="tr" key={s.staffNumber} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.staffNumber) ? "blue.50" : undefined} cursor="pointer" whiteSpace="nowrap">
+                                        <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.staffNumber) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50">
+                                            <input type="checkbox" checked={selectedIds.includes(s.staffNumber)} onChange={() => toggleSelection(s.staffNumber)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
                                         </Box>
-                                        <Box as="td" px="6" py="5" fontSize="11px" color="slate.400" fontWeight="medium">{s.staffNumber}</Box>
-                                        <Box as="td" px="6" py="5" fontSize="xs" fontWeight="bold" color="slate.700">{s.fullName}</Box>
-                                        <Box as="td" px="6" py="5" fontSize="xs" color="slate.500">{s.email}</Box>
-                                        <Box as="td" px="6" py="5" fontSize="xs" color="slate.500">{s.phone || "—"}</Box>
-                                        <Box as="td" px="6" py="5" fontSize="xs" color="slate.500">{s.department}</Box>
-                                        <Box as="td" px="6" py="5" fontSize="xs" color="slate.500">{s.level}</Box>
+                                        <Box as="td" px="6" py="5" color="slate.400" fontWeight="medium">{s.staffNumber}</Box>
+                                        <Box as="td" px="6" py="5" fontWeight="bold" color="slate.700">{s.fullName}</Box>
+                                        <Box as="td" px="6" py="5" color="slate.500">{s.email}</Box>
+                                        <Box as="td" px="6" py="5" color="slate.500">{s.phone || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="slate.500">{s.department}</Box>
+                                        <Box as="td" px="6" py="5" color="slate.500">{s.level}</Box>
                                         <Box as="td" px="6" py="5">
-                                            <Flex gap="1.5" wrap="wrap" maxW="160px">
+                                            <Flex gap="1.5" wrap="wrap" maxW="200px">
                                                 {s.courses?.split(", ").map((course, idx) => (
                                                     <Text key={idx} as="span" bg="#2ECC71" color="white" px="3" py="1" borderRadius="md" fontSize="10px" fontWeight="bold" boxShadow="sm" display="inline-block" textAlign="center" minW={course === "N/A" ? "60px" : "auto"}>
                                                         {course}
@@ -259,29 +240,28 @@ const StaffPage = () => {
                                                 ))}
                                             </Flex>
                                         </Box>
-                                        <Box as="td" px="6" py="5" textAlign="center" position="relative" ref={dropdownRef}>
-                                            <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.staffNumber, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
-                                                <MoreHorizontal size={20} />
-                                            </Box>
+                                        <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.staffNumber ? "50" : "10"} bg={selectedIds.includes(s.staffNumber) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" ref={dropdownRef}>
+                                            <Box position="relative">
+                                                <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.staffNumber, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
+                                                    <MoreHorizontal size={20} />
+                                                </Box>
 
-                                            {activeDropdownId === s.staffNumber && (
-                                                <Box position="absolute" right="0" top="10" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="1px solid" borderColor="gray.100" zIndex="50" overflow="hidden" textAlign="left">
-                                                    <Box p="1">
-                                                        <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignCourse(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
-                                                            <UserCog size={16} /> Assign Course
-                                                        </Box>
-                                                        <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignStudent(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="purple.600" _hover={{ bg: "purple.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
-                                                            <UserCog size={16} /> Assign Student
-                                                        </Box>
-                                                        <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setStaffToEdit(s); setShowAddEditForm(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="amber.600" _hover={{ bg: "blackAlpha.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
-                                                            <Pencil size={16} /> Edit details
-                                                        </Box>
-                                                        <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(s); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="red.600" _hover={{ bg: "red.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
-                                                            <Trash2 size={16} /> Delete Lecturer
+                                                {activeDropdownId === s.staffNumber && (
+                                                    <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="1px solid" borderColor="gray.100" zIndex="50" overflow="hidden" textAlign="left">
+                                                        <Box p="1">
+                                                            <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignCourse(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
+                                                                <UserCog size={16} /> Assign Course
+                                                            </Box>
+                                                            <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setStaffToEdit(s); setShowAddEditForm(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="amber.600" _hover={{ bg: "amber.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
+                                                                <Pencil size={16} /> Edit details
+                                                            </Box>
+                                                            <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(s); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="red.600" _hover={{ bg: "red.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
+                                                                <Trash2 size={16} /> Delete Lecturer
+                                                            </Box>
                                                         </Box>
                                                     </Box>
-                                                </Box>
-                                            )}
+                                                )}
+                                            </Box>
                                         </Box>
                                     </Box>
                                 ))}
@@ -289,19 +269,39 @@ const StaffPage = () => {
                         </Box>
                     </Box>
 
-                    {/* Pagination */}
+                    {/* Pagination - separate card below table */}
                     {totalPages > 1 && (
-                        <Flex justifyContent="space-between" alignItems="center" px="4" py="3" borderTop="1px solid" borderColor="gray.100">
+                        <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="4" mt="4">
                             <Text fontSize="sm" color="slate.500">
-                                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredStaff.length)} of {filteredStaff.length}
+                                Showing{" "}
+                                <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStaff.length)}</Text>
+                                {" "}of <Text as="span" fontWeight="semibold">{filteredStaff.length}</Text> lecturers
+                                (Total: {staffList.length})
                             </Text>
-                            <Flex gap="2">
-                                <Flex as="button" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} px="3" py="1" borderRadius="md" border="1px solid" borderColor="gray.200" fontSize="sm" cursor="pointer" opacity={currentPage === 1 ? 0.5 : 1}>
+                            <Flex alignItems="center" gap="2">
+                                <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: "8px 12px", background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#334155", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1 }}>
                                     Previous
-                                </Flex>
-                                <Flex as="button" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} px="3" py="1" borderRadius="md" border="1px solid" borderColor="gray.200" fontSize="sm" cursor="pointer" opacity={currentPage === totalPages ? 0.5 : 1}>
+                                </button>
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                    let pageNum;
+                                    if (totalPages <= 5) {
+                                        pageNum = i + 1;
+                                    } else if (currentPage <= 3) {
+                                        pageNum = i + 1;
+                                    } else if (currentPage >= totalPages - 2) {
+                                        pageNum = totalPages - 4 + i;
+                                    } else {
+                                        pageNum = currentPage - 2 + i;
+                                    }
+                                    return (
+                                        <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="slate.200" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
+                                            {pageNum}
+                                        </Box>
+                                    );
+                                })}
+                                <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: "8px 12px", background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#334155", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1 }}>
                                     Next
-                                </Flex>
+                                </button>
                             </Flex>
                         </Flex>
                     )}
@@ -339,13 +339,6 @@ const StaffPage = () => {
                 isOpen={showAssignCourse}
                 onClose={() => { setShowAssignCourse(false); setSelectedStaff(null); }}
                 onAssign={handleAssignCourse}
-                staffName={selectedStaff?.fullName}
-            />
-
-            <AssignStudentModal
-                isOpen={showAssignStudent}
-                onClose={() => { setShowAssignStudent(false); setSelectedStaff(null); }}
-                onAssign={handleAssignStudent}
                 staffName={selectedStaff?.fullName}
             />
 

@@ -184,7 +184,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         </Box>
                         <Flex as="button" onClick={handleSubmit} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="lg" border="none" cursor={isLoading ? "not-allowed" : "pointer"} _hover={{ bg: "blue.700" }} boxShadow="lg" opacity={isLoading ? 0.7 : 1} alignItems="center" gap="2">
                             {isLoading && <Spinner size="sm" />}
-                            {initialData ? "Save Changes" : "Add Staff"}
+                            {initialData ? "Save Changes" : "Add Lecturer"}
                         </Flex>
                     </Flex>
                 </Box>

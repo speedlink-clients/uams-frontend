@@ -3,16 +3,15 @@ import {
     Flex,
     HStack,
     Link,
-    Text,
     Button,
     Container,
     Image,
     IconButton,
     Stack,
 } from "@chakra-ui/react";
-import { toaster } from "@components/ui/toaster";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import LoginModal from "@components/shared/LoginModal";
 
 const LOGO_SRC = "/images/a7f14cb8262ed215ba9b9d5819404f20e896d5cc.png";
@@ -20,22 +19,44 @@ const LOGO_SRC = "/images/a7f14cb8262ed215ba9b9d5819404f20e896d5cc.png";
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoginOpen, setIsLoginOpen] = useState(false);
+    const navigate = useNavigate();
 
     const openLogin = () => setIsLoginOpen(true);
     const closeLogin = () => setIsLoginOpen(false);
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
-    const handleComingSoon = (e: React.MouseEvent) => {
-        e.preventDefault();
-        toaster.create({
-            title: "Coming Soon",
-            description: "This page is currently under development.",
-            type: "info",
-        });
+    const scrollToSection = (id: string) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
-    const navLinks = ["Home", "About", "Research", "Collaborations", "Admissions", "Updates"];
+    const handleNavClick = (href: string) => {
+        if (href.startsWith("#")) {
+            const id = href.substring(1);
+            if (window.location.pathname !== "/") {
+                navigate("/");
+                setTimeout(() => scrollToSection(id), 100);
+            } else {
+                scrollToSection(id);
+                // Update URL without reloading page
+                window.history.pushState(null, "", href);
+            }
+        } else {
+            window.location.href = href;
+        }
+    };
+
+    const navLinks = [
+        { label: "Home", href: "#home" },
+        { label: "About", href: "#about" },
+        { label: "Research", href: "#research" },
+        { label: "Collaborations", href: "https://www.uniport.edu.ng/" },
+        { label: "Admissions", href: "https://www.uniport.edu.ng/" },
+        { label: "Updates", href: "https://www.uniport.edu.ng/" }
+    ];
 
     return (
         <>
@@ -51,8 +72,15 @@ const Navbar = () => {
                         {/* Desktop Nav Links */}
                         <HStack gap={8} display={{ base: "none", lg: "flex" }}>
                             {navLinks.map((item) => (
-                                <Link key={item} href="#" color="gray.600" _hover={{ color: "#2AB0E8" }} fontSize="sm" fontWeight="medium" onClick={handleComingSoon}>
-                                    {item}
+                                <Link 
+                                    key={item.label} 
+                                    onClick={() => handleNavClick(item.href)}
+                                    color="gray.600" 
+                                    _hover={{ color: "#2AB0E8", cursor: "pointer" }} 
+                                    fontSize="sm" 
+                                    fontWeight="medium"
+                                >
+                                    {item.label}
                                 </Link>
                             ))}
                         </HStack>
@@ -86,19 +114,19 @@ const Navbar = () => {
                     </Flex>
                 </Container>
 
-                {/* Admission Bar */}
+                {/* Admission Bar
                 <Box bg="#4CC5F5" py={2}>
                     <Container maxW="container.xl">
                         <Flex justify="center" align="center" gap={2} fontSize={{ base: "xs", md: "sm" }} color="white" flexWrap="wrap">
                             <Text textAlign="center">
                                 Admission for the January 2026 academic session is ongoing.
                             </Text>
-                            <Link href="#" fontWeight="bold" textDecoration="underline" color="white" onClick={handleComingSoon}>
+                            <Link href="https://www.uniport.edu.ng/" fontWeight="bold" textDecoration="underline" color="white">
                                 Apply Now!
                             </Link>
                         </Flex>
                     </Container>
-                </Box>
+                </Box> */}
 
                 {/* Mobile Menu Overlay */}
                 {isOpen && (
@@ -118,15 +146,15 @@ const Navbar = () => {
                         <Stack gap={1} py={4}>
                             {navLinks.map((item) => (
                                 <Link 
-                                    key={item} 
-                                    href="#" 
+                                    key={item.label} 
+                                    onClick={() => { setIsOpen(false); handleNavClick(item.href); }}
                                     fontSize="md" 
                                     fontWeight="medium" 
                                     color="gray.700" 
                                     py={3} // Added padding for better mobile touch targets
-                                    onClick={(e) => { setIsOpen(false); handleComingSoon(e); }}
+                                    _hover={{ cursor: "pointer" }}
                                 >
-                                    {item}
+                                    {item.label}
                                 </Link>
                             ))}
                             {/* Login Button removed from here as it is persistent in the header */}

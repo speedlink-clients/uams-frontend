@@ -17,6 +17,7 @@ export const axiosClient = axios.create({
 // List of public endpoints that don't require auth token
 const PUBLIC_ENDPOINTS = [
   "/v1/auth/login",
+  "/auth/signin",
   // Add any other public endpoints here
 ];
 
@@ -123,7 +124,7 @@ axiosClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && originalRequest.url === "/auth/login") {
+    if (error.response?.status === 401 && (originalRequest.url === "/auth/login" || originalRequest.url === "/auth/signin" || originalRequest.url?.includes("/auth/signin"))) {
       toaster.error({
         title: getErrorTitle(error),
         description: getErrorMessage(error),
@@ -137,10 +138,15 @@ axiosClient.interceptors.response.use(
 
       toaster.error({
         title: getErrorTitle(error),
-        description: getErrorMessage(error),
+        description: getErrorMessage(error) || "Session expired. Please log in again.",
         closable: true
       });
 
+      // Clear auth and redirect to login
+      useAuthStore.getState().clearAuth();
+      setTimeout(() => {
+        window.location.href = "/departmental-admin/login";
+      }, 1000);
     }
 
     // 🟡 Bad Request (400)

@@ -30,6 +30,7 @@ import {
   bulkRegisterCourses,
   getStudentPayments,
   getTranscripts,
+  getDefaultIDCard,
 } from "../services/registrationService";
 import type {
   Level,
@@ -379,7 +380,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
               <div className="space-y-3 text-[13px]">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Institution</span>
-                  <span className="font-bold text-slate-700 text-right max-w-[200px] truncate">{institution_name}</span>
+                  <span className="font-bold text-slate-700 text-right max-w-50 truncate">{institution_name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Delivery Method</span>
@@ -392,13 +393,13 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 {recipient_address && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Address</span>
-                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipient_address}</span>
+                    <span className="font-medium text-slate-600 text-right max-w-50 truncate">{recipient_address}</span>
                   </div>
                 )}
                 {recipient_email && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Contact</span>
-                    <span className="font-medium text-slate-600 text-right max-w-[200px] truncate">{recipient_email}</span>
+                    <span className="font-medium text-slate-600 text-right max-w-50 truncate">{recipient_email}</span>
                   </div>
                 )}
               </div>
@@ -505,7 +506,7 @@ const TranscriptRegView = () => {
                 placeholder="Search by institution, status"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-2 text-[12px] font-medium text-slate-700 placeholder:text-gray-300 focus:outline-none focus:border-blue-300 w-full md:w-[220px] h-[36px]"
+                className="bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-2 text-[12px] font-medium text-slate-700 placeholder:text-gray-300 focus:outline-none focus:border-blue-300 w-full md:w-55 h-9"
               />
             </div>
             {/* Filter */}
@@ -513,7 +514,7 @@ const TranscriptRegView = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-[#f8fafc] border border-gray-100 rounded-lg px-3 pr-7 py-2 text-[11px] font-bold text-gray-500 appearance-none cursor-pointer h-[36px]"
+                className="bg-[#f8fafc] border border-gray-100 rounded-lg px-3 pr-7 py-2 text-[11px] font-bold text-gray-500 appearance-none cursor-pointer h-9"
               >
                 <option value="All Application">All Application</option>
                 <option value="In Progress">In Progress</option>
@@ -603,11 +604,21 @@ const FormRow = ({
 
 // --- ID Card Components ---
 
+interface IDCardSettings {
+  backTemplate?: string;
+  frontTemplate?: string;
+  backDescription?: string;
+  backDisclaimer?: string;
+  hodSignature?: string;
+}
+
 interface IDCardProps {
   isWatermarked?: boolean;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
   isPhotoUploaded?: boolean;
+  idCardSettings?: IDCardSettings | null;
+  studentName?: string;
 }
 
 const IDCardGraphic = ({
@@ -615,6 +626,8 @@ const IDCardGraphic = ({
   studentProfile,
   studentPhoto,
   isPhotoUploaded = false,
+  idCardSettings,
+  studentName = "N/A",
 }: IDCardProps) => {
   const getInitials = (name?: string) => {
     if (!name) return "?";
@@ -628,23 +641,43 @@ const IDCardGraphic = ({
   return (
     <div className="space-y-4 max-w-lg mx-auto">
       {/* FRONT OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={`${import.meta.env.BASE_URL}assets/image 1.png`}
+          src={idCardSettings?.frontTemplate}
           alt="ID Card Front"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-fill"
         />
 
-        {/* Student Photo - Placed in the exact position on the card */}
-        {studentPhoto && isPhotoUploaded && (
-          <div className="absolute top-6 right-6 w-20 h-24 rounded-lg overflow-hidden shadow-md">
+        {/* Student Photo */}
+        <div className="absolute top-[38%] left-[6.5%] w-[23%] h-[43%] bg-white p-[3px] border-[2px] border-gray-400 shadow-sm flex items-center justify-center">
+          {studentPhoto && isPhotoUploaded ? (
             <img
               src={studentPhoto}
               alt="Student Photo"
               className="w-full h-full object-cover"
             />
+          ) : (
+            <div className="w-full h-full bg-gray-100" />
+          )}
+        </div>
+
+        {/* Student Details */}
+        <div className="absolute left-[33%] top-[41%] w-[65%] text-[9px] sm:text-[13px] font-bold text-black flex flex-col gap-[8px] sm:gap-[12px] leading-none">
+          <div className="uppercase font-black">NAME: {studentName}</div>
+          <div className="uppercase">MATRIC NO.: {studentProfile?.studentId || 'N/A'}</div>
+          <div className="uppercase">FACULTY: COMPUTING</div>
+          <div className="uppercase">DEPT: {studentProfile?.Department?.name || 'N/A'}</div>
+          <div className="uppercase text-[#ef4444]">
+            EXPIRY DATE: {studentProfile?.courseDuration ? new Date(new Date(studentProfile?.createdAt).setFullYear(new Date(studentProfile?.createdAt).getFullYear() + studentProfile.courseDuration)).getFullYear() : 'N/A'}
           </div>
-        )}
+        </div>
+
+        {/* Student Name in Bottom Banner */}
+        <div className="absolute bottom-[3%] sm:bottom-[3.5%] left-0 w-full flex justify-center">
+          <span className="text-white font-bold text-[9px] sm:text-[13px] uppercase tracking-wide">
+            {studentName}
+          </span>
+        </div>
 
         {/* Watermark Overlay */}
         {isWatermarked && (
@@ -657,12 +690,33 @@ const IDCardGraphic = ({
       </div>
 
       {/* BACK OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
         <img
-          src={`${import.meta.env.BASE_URL}assets/image 2.png`}
+          src={idCardSettings?.backTemplate}
           alt="ID Card Back"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-fill"
         />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-between text-center px-[10%] py-[8%]">
+          <div className="flex-1 flex flex-col justify-center items-center w-full mt-[3%]">
+            <p className="text-[12px] sm:text-[15px] font-bold text-[#0f172a] mb-[6%] leading-snug">
+              {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+            </p>
+            <p className="text-[11px] sm:text-[13px] font-bold text-[#0f172a] leading-snug px-[2%]">
+              {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center w-full pb-[2%]">
+            {idCardSettings?.hodSignature ? (
+              <img src={idCardSettings.hodSignature} alt="Signature" className="h-[24px] sm:h-[32px] object-contain mb-[2px]" />
+            ) : (
+              <div className="h-[24px] sm:h-[32px] mb-[2px]" />
+            )}
+            <div className="w-[70%] sm:w-[60%] h-[1.5px] bg-[#0f172a] mb-[4px] sm:mb-[6px]" />
+            <p className="text-[11px] sm:text-[13px] font-bold text-[#0f172a] m-0">Department Admin's Signature</p>
+          </div>
+        </div>
 
         {/* Watermark Overlay */}
         {isWatermarked && (
@@ -683,6 +737,8 @@ interface IDCardViewProps {
   onBack: () => void;
   studentProfile?: StudentProfile | null;
   studentPhoto?: string | null;
+  idCardSettings?: IDCardSettings | null;
+  studentName?: string;
 }
 
 const IDCardView = ({
@@ -691,97 +747,268 @@ const IDCardView = ({
   onBack,
   studentProfile,
   studentPhoto,
-}: IDCardViewProps) => (
-  <div className="bg-white rounded-4xl p-8 lg:p-14 border border-gray-100 shadow-sm animate-in zoom-in-95 duration-500 max-w-4xl mx-auto">
-    <div className="flex items-center space-x-4 mb-10">
-      <button
-        onClick={onBack}
-        className="p-2 hover:bg-slate-50 rounded-full text-gray-400 transition-colors"
-      >
-        <ArrowLeft size={22} />
-      </button>
-      <h2 className="font-['Inter'] text-2xl font-bold text-[#1e293b] tracking-tight">
-        {isPaid
-          ? isPhotoUploaded
-            ? "ID Card Ready"
-            : "ID Card - Waiting for Photo"
-          : "ID Card Preview"}
-      </h2>
-    </div>
+  idCardSettings,
+  studentName,
+}: IDCardViewProps) => {
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-    {/* Photo Status Notification */}
-    {isPaid && !isPhotoUploaded && (
-      <div className="bg-linear-to-r from-[#fbbf24] to-[#f59e0b] p-4 rounded-xl mb-8 flex items-center space-x-3 shadow-md animate-pulse">
-        <div className="text-white text-xl">⏳</div>
-        <div className="flex-1">
-          <p className="text-sm font-bold text-white">
-            Waiting for Photo Upload
-          </p>
-          <p className="text-xs text-white/90">
-            Admin will upload your photo soon
-          </p>
-        </div>
+  const handleDownloadID = async () => {
+    if (!studentProfile || !studentPhoto || !studentName) return;
+    setIsGeneratingPDF(true);
+    let toastId;
+    try {
+      toastId = toaster.create({ title: "Generating PDF...", type: "loading" });
+      const { jsPDF } = await import("jspdf");
+      const cardWidth = 85.6, cardHeight = 54;
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [cardWidth, cardHeight] });
+
+      const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = src;
+          setTimeout(() => resolve(null), 10000); // 10s timeout
+        });
+      };
+
+      const frontTemplate = idCardSettings?.frontTemplate ? await loadImage(idCardSettings.frontTemplate) : null;
+      const backTemplate = idCardSettings?.backTemplate ? await loadImage(idCardSettings.backTemplate) : null;
+
+      if (!frontTemplate) {
+        if (toastId) toaster.dismiss(toastId);
+        toaster.error({ title: "Failed to load ID card template" });
+        setIsGeneratingPDF(false);
+        return;
+      }
+
+      // Front Page
+      doc.addImage(frontTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+      
+      // Photo Border and Photo (Matches w-[23%] h-[43%] left-[6.5%] top-[38%] p-[3px] border-[2px])
+      const photoX = 5.56; const photoY = 20.52;
+      const photoW = 19.68; const photoH = 23.22;
+      const pad = 0.8;
+      
+      doc.setDrawColor(156, 163, 175); // gray-400
+      doc.setLineWidth(0.4);
+      doc.setFillColor(255, 255, 255);
+      doc.rect(photoX, photoY, photoW, photoH, 'FD'); // background white with gray border
+      
+      // Preserve image aspect ratio inside the box
+      const imgProps = doc.getImageProperties(studentPhoto);
+      const imgRatio = imgProps.width / imgProps.height;
+      const boxW = photoW - (pad * 2);
+      const boxH = photoH - (pad * 2);
+      const boxRatio = boxW / boxH;
+      let drawW = boxW;
+      let drawH = boxH;
+      let drawX = photoX + pad;
+      let drawY = photoY + pad;
+      
+      if (imgRatio > boxRatio) {
+        // Image is wider than box -> fit width, center vertically
+        drawW = boxW;
+        drawH = boxW / imgRatio;
+        drawY = photoY + pad + (boxH - drawH) / 2;
+      } else {
+        // Image is taller than box -> fit height, center horizontally
+        drawH = boxH;
+        drawW = boxH * imgRatio;
+        drawX = photoX + pad + (boxW - drawW) / 2;
+      }
+      
+      doc.addImage(studentPhoto, "JPEG", drawX, drawY, drawW, drawH); 
+
+      doc.setFontSize(3.2); // Scaling down the font size correctly
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      const textX = 28.5; let textY = 23; const lineHeight = 4.0;
+      
+      const expiryYear = studentProfile?.courseDuration 
+        ? new Date(new Date(studentProfile.createdAt).setFullYear(new Date(studentProfile.createdAt).getFullYear() + studentProfile.courseDuration)).getFullYear().toString()
+        : 'N/A';
+
+      const infoLines = [
+        `NAME: ${studentName.toUpperCase()}`,
+        `MATRIC NO.: ${studentProfile?.studentId?.toUpperCase() || 'N/A'}`,
+        `FACULTY: COMPUTING`,
+        `DEPT: ${studentProfile?.Department?.name?.toUpperCase() || 'N/A'}`,
+      ];
+
+      infoLines.forEach((line, i) => {
+        doc.text(line, textX, textY + i * lineHeight);
+      });
+
+      // Expiry Date (Red)
+      doc.setTextColor(239, 68, 68); // #ef4444
+      doc.text(`EXPIRY DATE: ${expiryYear}`, textX, textY + infoLines.length * lineHeight);
+
+      // Student Name in Bottom Banner
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(3.8);
+      doc.text(studentName.toUpperCase(), cardWidth / 2, cardHeight - 2.8, { align: "center", charSpace: 0.1 });
+
+      // Back Page
+      if (backTemplate) {
+        doc.addPage([cardWidth, cardHeight], "landscape");
+        doc.addImage(backTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+
+        // Add Back Text
+        const backDescription = idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt";
+        const backDisclaimer = idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt";
+
+        doc.setTextColor(15, 23, 42); // slate-900 equivalent
+        
+        // Description
+        doc.setFontSize(3.8);
+        doc.setFont("helvetica", "bold");
+        const descLines = doc.splitTextToSize(backDescription, cardWidth - 20);
+        doc.text(descLines, cardWidth / 2, 21, { align: "center" });
+
+        // Disclaimer
+        doc.setFontSize(3.0);
+        const discLines = doc.splitTextToSize(backDisclaimer, cardWidth - 16);
+        doc.text(discLines, cardWidth / 2, 31.5, { align: "center" });
+
+        // Signature Line and Label (positioned lower down)
+        const lineY = cardHeight - 9.5;
+        doc.setDrawColor(15, 23, 42);
+        doc.setLineWidth(0.3);
+        doc.line((cardWidth / 2) - 16, lineY, (cardWidth / 2) + 16, lineY);
+        
+        doc.setFontSize(3.0);
+        doc.text("Department Admin's Signature", cardWidth / 2, cardHeight - 6.5, { align: "center" });
+
+        // Signature Img (rests on the line, instead of fixed vertical pos)
+        const sigSrc = idCardSettings?.hodSignature;
+        if (sigSrc) {
+          const signatureImg = await loadImage(sigSrc);
+          if (signatureImg) {
+            const sigWidth = 24;
+            const sigHeight = (signatureImg.height * sigWidth) / signatureImg.width;
+            doc.addImage(signatureImg, "PNG", (cardWidth / 2) - (sigWidth / 2), lineY - sigHeight - 0.5, sigWidth, Math.min(sigHeight, 8), undefined, 'FAST');
+          }
+        }
+      }
+
+      doc.save(`${studentName.replace(/\s+/g, "_")}_ID_Card.pdf`);
+      
+      if (toastId) toaster.dismiss(toastId);
+      toaster.success({ title: "ID Card PDF generated!" });
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      if (toastId) toaster.dismiss(toastId);
+      toaster.error({ title: "Failed to generate PDF" });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-4xl p-8 lg:p-14 border border-gray-100 shadow-sm animate-in zoom-in-95 duration-500 max-w-4xl mx-auto">
+      <div className="flex items-center space-x-4 mb-10">
+        <button
+          onClick={onBack}
+          className="p-2 hover:bg-slate-50 rounded-full text-gray-400 transition-colors"
+        >
+          <ArrowLeft size={22} />
+        </button>
+        <h2 className="font-['Inter'] text-2xl font-bold text-[#1e293b] tracking-tight">
+          {isPaid
+            ? isPhotoUploaded
+              ? "ID Card Ready"
+              : "ID Card - Waiting for Photo"
+            : "ID Card Preview"}
+        </h2>
       </div>
-    )}
 
-    {isPaid && isPhotoUploaded && (
-      <div className="bg-linear-to-r from-[#4ade80] to-[#22c55e] p-4 rounded-xl mb-8 flex items-center space-x-3 shadow-md">
-        <div className="text-white text-xl">✓</div>
-        <div className="flex-1">
-          <p className="text-sm font-bold text-white">Photo Ready</p>
-          <p className="text-xs text-white/90">
-            Your ID card is ready to download
-          </p>
-        </div>
-      </div>
-    )}
-
-    {/* ID Card Display */}
-    <div className="bg-[#525252] rounded-3xl p-10 mb-12 shadow-inner">
-      <IDCardGraphic
-        isWatermarked={!isPaid}
-        studentProfile={studentProfile}
-        studentPhoto={studentPhoto}
-        isPhotoUploaded={isPhotoUploaded && isPaid}
-      />
-    </div>
-
-    {/* Action Buttons */}
-    <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-      {isPaid ? (
-        <>
-          <button
-            onClick={() => window.print()}
-            disabled={!isPhotoUploaded}
-            className="w-full sm:w-60 flex items-center justify-center space-x-3 bg-[#2ecc71] hover:bg-[#27ae60] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4.5 rounded-2xl text-[15px] font-black shadow-lg shadow-green-100 transition-all active:scale-[0.98]"
-          >
-            <Printer size={20} strokeWidth={2.5} />
-            <span>{isPhotoUploaded ? "Print ID" : "Waiting for Photo"}</span>
-          </button>
-          <button
-            onClick={() => alert("Downloading PDF...")}
-            disabled={!isPhotoUploaded}
-            className="w-full sm:w-60 flex items-center justify-center space-x-3 bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4.5 rounded-2xl text-[15px] font-black shadow-lg shadow-blue-100 transition-all active:scale-[0.98]"
-          >
-            <Download size={20} strokeWidth={2.5} />
-            <span>{isPhotoUploaded ? "Download ID" : "Waiting for Photo"}</span>
-          </button>
-        </>
-      ) : (
-        <div className="bg-[#eff6ff] border border-blue-100 p-5 rounded-2xl flex items-center space-x-4 max-w-md">
-          <div className="bg-blue-500 p-2 rounded-full text-white">
-            <CreditCard size={18} />
+      {/* Photo Status Notification */}
+      {isPaid && !isPhotoUploaded && (
+        <div className="bg-linear-to-r from-[#fbbf24] to-[#f59e0b] p-4 rounded-xl mb-8 flex items-center space-x-3 shadow-md animate-pulse">
+          <div className="text-white text-xl">⏳</div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-white">
+              Waiting for Photo Upload
+            </p>
+            <p className="text-xs text-white/90">
+              Admin will upload your photo soon
+            </p>
           </div>
-          <p className="text-[12px] text-[#1d76d2] font-medium leading-tight">
-            This is a watermarked preview. Please{" "}
-            <span className="font-black uppercase">apply and pay</span> the
-            application fee to download your official ID card.
-          </p>
         </div>
       )}
+
+      {isPaid && isPhotoUploaded && (
+        <div className="bg-linear-to-r from-[#4ade80] to-[#22c55e] p-4 rounded-xl mb-8 flex items-center space-x-3 shadow-md">
+          <div className="text-white text-xl">✓</div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-white">Photo Ready</p>
+            <p className="text-xs text-white/90">
+              Your ID card is ready to download
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ID Card Display */}
+      <div className="bg-[#525252] rounded-3xl p-10 mb-12 shadow-inner">
+        <IDCardGraphic
+          isWatermarked={!isPaid}
+          studentProfile={studentProfile}
+          studentPhoto={studentPhoto}
+          isPhotoUploaded={isPhotoUploaded && isPaid}
+          idCardSettings={idCardSettings}
+          studentName={studentName}
+        />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+        {isPaid ? (
+          <>
+            <button
+              onClick={() => window.print()}
+              disabled={!isPhotoUploaded || isGeneratingPDF}
+              className="w-full sm:w-60 flex items-center justify-center space-x-3 bg-[#2ecc71] hover:bg-[#27ae60] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4.5 rounded-2xl text-[15px] font-black shadow-lg shadow-green-100 transition-all active:scale-[0.98]"
+            >
+              <Printer size={20} strokeWidth={2.5} />
+              <span>{isPhotoUploaded ? "Print ID" : "Waiting for Photo"}</span>
+            </button>
+            <button
+              onClick={handleDownloadID}
+              disabled={!isPhotoUploaded || isGeneratingPDF}
+              className="w-full sm:w-60 flex items-center justify-center space-x-3 bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4.5 rounded-2xl text-[15px] font-black shadow-lg shadow-blue-100 transition-all active:scale-[0.98]"
+            >
+              {isGeneratingPDF ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Generating...</span>
+                </div>
+              ) : (
+                <>
+                  <Download size={20} strokeWidth={2.5} />
+                  <span>{isPhotoUploaded ? "Download ID" : "Waiting for Photo"}</span>
+                </>
+              )}
+            </button>
+          </>
+        ) : (
+          <div className="bg-[#eff6ff] border border-blue-100 p-5 rounded-2xl flex items-center space-x-4 max-w-md">
+            <div className="bg-blue-500 p-2 rounded-full text-white">
+              <CreditCard size={18} />
+            </div>
+            <p className="text-[12px] text-[#1d76d2] font-medium leading-tight">
+              This is a watermarked preview. Please{" "}
+              <span className="font-black uppercase">apply and pay</span> the
+              application fee to download your official ID card.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const OtherServicesView = ({
   hasPaid,
@@ -800,26 +1027,16 @@ const OtherServicesView = ({
   const [transactionCharges, setTransactionCharges] = useState<number | null>(null);
   const [subtotal, setSubtotal] = useState<number | null>(null);
   const [error, setError] = useState("");
-
-  // get payment status on mount to update hasPaid state
   const [sq, _] = useSearchParams();
-  const trxRef = useMemo(() => sq.get("trxRef"), [sq]);
+  const trxRef = useMemo(() => sq.get("trxRef") || sq.get("reference"), [sq]);
 
   // handle successful id card payment
   useEffect(() => {
     if (trxRef) {
-      apiClient
-        .post("/payment/verify", {
-          reference: trxRef,
-        })
-        .then((res) => {
-          res.data.success &&
-            toaster.success({ description: "Payment verified successfully!" });
-        })
-        .catch(() => {
-          setError("Failed to verify payment. Please contact support.");
-          toaster.error({ description: "Payment verified successfully!" });
-        });
+      toaster.success({ description: "Payment has been processed successfully!" });
+      // Remove trxRef from URL to prevent re-triggering toast on refresh
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
     }
   }, [trxRef]);
 
@@ -1784,14 +2001,17 @@ const Registration: React.FC = () => {
     useState<RegistrationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [idCardSettings, setIdCardSettings] = useState<IDCardSettings | null>(
+    null,
+  );
 
   // State for ID Card application in Other tab
   const [isViewingID, setIsViewingID] = useState(false);
   const [hasPaidID, setHasPaidID] = useState(() => {
     return localStorage.getItem("idcard_paid") === "true";
   });
-  const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
-  const [studentPhoto, setStudentPhoto] = useState<string | null>(null);
+  const [isPhotoUploaded, setIsPhotoUploaded] = useState(() => !!getStoredUser()?.avatar);
+  const [studentPhoto, setStudentPhoto] = useState<string | null>(() => getStoredUser()?.avatar || null);
   const [paymentCheckTrigger, setPaymentCheckTrigger] = useState(0); // Used to trigger payment re-check
 
   // Fetch initial data
@@ -1812,12 +2032,14 @@ const Registration: React.FC = () => {
           sessionsData,
           profileData,
           registrationsData,
+          idCardData,
         ] = await Promise.all([
           getLevels(programId),
           getSemesters(),
           getSessions(),
           getStudentProfile(),
           getRegistrations(),
+          getDefaultIDCard(),
         ]);
 
         setLevels(levelsData);
@@ -1825,6 +2047,7 @@ const Registration: React.FC = () => {
         setSessions(sessionsData);
         setStudentProfile(profileData);
         setRegistrationData(registrationsData);
+        setIdCardSettings(idCardData?.template || idCardData?.data || idCardData);
       } catch (err) {
         console.error("Error fetching registration data:", err);
         setError("Failed to load registration data. Please try again.");
@@ -1951,6 +2174,8 @@ const Registration: React.FC = () => {
               onBack={() => setIsViewingID(false)}
               studentProfile={studentProfile}
               studentPhoto={studentPhoto}
+              idCardSettings={idCardSettings}
+              studentName={getStoredUser()?.fullName}
             />
           ) : (
             <OtherServicesView

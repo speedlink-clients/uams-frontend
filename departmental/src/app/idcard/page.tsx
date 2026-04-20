@@ -193,39 +193,105 @@ const IDCardPage = () => {
             const cardWidth = 85.6, cardHeight = 54;
             const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [cardWidth, cardHeight] });
 
-            const frontTemplate = document.createElement("img");
-            frontTemplate.src = "/departmental-admin/idcard-front.png";
-            const backTemplate = document.createElement("img");
-            backTemplate.src = "/departmental-admin/idcard-back.png";
-
-            await new Promise<void>((resolve) => {
-                frontTemplate.onload = () => {
-                    doc.addImage(frontTemplate, "PNG", 0, 0, cardWidth, cardHeight);
-                    doc.addImage(capturedPhoto!, "JPEG", 5.5, 20.5, 19.7, 23.1);
-
-                    doc.setFontSize(3.5);
-                    doc.setFont("helvetica", "bold");
-                    doc.setTextColor(0, 0, 0);
-                    const textX = 27; let textY = 23; const lineHeight = 3.8;
-                    const infoLines = [
-                        `NAME: ${currentStudent!.name}`, `MATRIC NO.: ${currentStudent!.matric}`,
-                        `FACULTY: ${currentStudent!.faculty}`, `DEPT: ${currentStudent!.department}`,
-                        `EXPIRY DATE: ${currentStudent!.graduationDate}`,
-                    ];
-                    infoLines.forEach((line, i) => { doc.text(line, textX, textY + i * lineHeight); });
-
-                    doc.addPage([cardWidth, cardHeight], "landscape");
-                    backTemplate.onload = () => {
-                        doc.addImage(backTemplate, "PNG", 0, 0, cardWidth, cardHeight);
-                        resolve();
+            const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.onload = () => resolve(img);
+                    img.onerror = () => {
+                        console.error(`Failed to load image: ${src}`);
+                        resolve(null);
                     };
-                };
+                    img.src = src;
+                    setTimeout(() => resolve(null), 10000); // 10s timeout
+                });
+            };
+
+            const frontSrc = idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png";
+            const backSrc = idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png";
+
+            const [frontTemplate, backTemplate] = await Promise.all([
+                loadImage(frontSrc),
+                loadImage(backSrc)
+            ]);
+
+            if (!frontTemplate) {
+                toaster.error({ title: "Failed to load ID card template" });
+                setGeneratingPDF(false);
+                return;
+            }
+
+            // Front
+            doc.addImage(frontTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+            doc.addImage(capturedPhoto!, "JPEG", 5.5, 20.5, 19.7, 23.1);
+
+            doc.setFontSize(3.5);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            const textX = 27; let textY = 23; const lineHeight = 3.8;
+            const infoLines = [
+                `NAME: ${currentStudent.name}`, `MATRIC NO.: ${currentStudent.matric}`,
+                `FACULTY: ${currentStudent.faculty}`, `DEPT: ${currentStudent.department}`,
+                `EXPIRY DATE: ${currentStudent.graduationDate}`,
+            ];
+            
+            infoLines.forEach((line, i) => {
+                const maxWidth = cardWidth - textX - 5;
+                const lines = doc.splitTextToSize(line, maxWidth);
+                if (lines.length > 1) {
+                    lines.forEach((lineText: string, lineIndex: number) => {
+                        doc.text(lineText, textX, (textY + i * lineHeight) + (lineIndex * 1.5));
+                    });
+                } else {
+                    doc.text(line, textX, textY + i * lineHeight);
+                }
             });
+
+            // Back
+            if (backTemplate) {
+                doc.addPage([cardWidth, cardHeight], "landscape");
+                doc.addImage(backTemplate, "PNG", 0, 0, cardWidth, cardHeight);
+
+                // Add Back Text
+                const backDescription = idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt";
+                const backDisclaimer = idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt";
+
+                doc.setTextColor(15, 23, 42); // slate-900 equivalent
+                
+                // Description
+                doc.setFontSize(3.5);
+                doc.setFont("helvetica", "bold");
+                const descLines = doc.splitTextToSize(backDescription, cardWidth - 20);
+                doc.text(descLines, cardWidth / 2, 20, { align: "center" });
+
+                // Disclaimer
+                doc.setFontSize(3);
+                const discLines = doc.splitTextToSize(backDisclaimer, cardWidth - 20);
+                doc.text(discLines, cardWidth / 2, 30, { align: "center" });
+
+                // Signature
+                const sigSrc = idCardSettings?.signature;
+                if (sigSrc) {
+                    const signatureImg = await loadImage(sigSrc);
+                    if (signatureImg) {
+                        doc.addImage(signatureImg, "PNG", (cardWidth / 2) - 15, cardHeight - 18, 30, 6, undefined, 'FAST');
+                    }
+                }
+
+                // Signature Line and Label
+                doc.setDrawColor(15, 23, 42);
+                doc.setLineWidth(0.2);
+                doc.line((cardWidth / 2) - 15, cardHeight - 11, (cardWidth / 2) + 15, cardHeight - 11);
+                
+                doc.setFontSize(2.5);
+                doc.text("Department Admin's Signature", cardWidth / 2, cardHeight - 8, { align: "center" });
+            }
 
             doc.save(`${currentStudent.name.replace(/\s+/g, "_")}_ID_Card.pdf`);
             toaster.success({ title: "ID Card PDF generated!" });
             setTimeout(() => { setShowModal(false); setCapturedPhoto(null); stopCamera(); }, 1000);
         } catch (err) {
+            console.error("PDF generation error:", err);
             toaster.error({ title: "Failed to generate PDF" });
         } finally {
             setGeneratingPDF(false);
@@ -235,31 +301,47 @@ const IDCardPage = () => {
     // Bulk downloads
     const handleBulkDownloadIDCards = async () => {
         if (selectedIds.length === 0) return;
+        let toastId;
         try {
-            toaster.create({ title: "Downloading ID Cards...", type: "loading" });
+            toastId = toaster.create({ title: "Downloading ID Cards...", type: "loading" });
             const templateResponse = await IDCardServices.getDefaultIDCard();
             const templateId = templateResponse?.template?.id;
-            if (!templateId) { toaster.error({ title: "No default template found" }); return; }
+            if (!templateId) { 
+                if (toastId) toaster.dismiss(toastId);
+                toaster.error({ title: "No default template found" }); 
+                return; 
+            }
             const blob = await IDCardServices.bulkDownloadIDCards(selectedIds, templateId);
             const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
             const link = document.createElement("a"); link.href = url; link.download = "ID_Cards.pdf";
             document.body.appendChild(link); link.click(); link.remove();
+            
+            if (toastId) toaster.dismiss(toastId);
             toaster.success({ title: "Download started" });
             setSelectedIds([]);
-        } catch { toaster.error({ title: "Failed to download" }); }
+        } catch (err) { 
+            if (toastId) toaster.dismiss(toastId);
+            toaster.error({ title: "Failed to download" }); 
+        }
     };
 
     const handleBulkDownloadBanner = async () => {
         if (selectedIds.length === 0) return;
+        let toastId;
         try {
-            toaster.create({ title: "Downloading Banner...", type: "loading" });
+            toastId = toaster.create({ title: "Downloading Banner...", type: "loading" });
             const blob = await IDCardServices.bulkDownloadBanner(selectedIds);
             const url = window.URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
             const link = document.createElement("a"); link.href = url; link.download = "Banners.pdf";
             document.body.appendChild(link); link.click(); link.remove();
+            
+            if (toastId) toaster.dismiss(toastId);
             toaster.success({ title: "Download started" });
             setSelectedIds([]);
-        } catch { toaster.error({ title: "Failed to download" }); }
+        } catch (err) { 
+            if (toastId) toaster.dismiss(toastId);
+            toaster.error({ title: "Failed to download" }); 
+        }
     };
 
     // Export
@@ -277,7 +359,7 @@ const IDCardPage = () => {
     };
 
     return (
-        <Box maxW="1400px" mx="auto">
+        <Box maxW="1400px" mx="auto" overflowX="hidden"> {/* Prevent page from scrolling horizontally */}
             {/* Header */}
             <Flex justifyContent="space-between" alignItems="center" mb="8" flexWrap="wrap" gap="4">
                 <Box>
@@ -310,8 +392,9 @@ const IDCardPage = () => {
                 </Flex>
             </Flex>
 
-            {/* Table */}
+            {/* Table Container */}
             <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="slate.100" boxShadow="sm" overflow="hidden">
+                {/* Table Header (Fixed - Not Scrolling) */}
                 <Flex p={{ base: "4", md: "6" }} alignItems="center" justifyContent="space-between" borderBottom="1px solid" borderColor="slate.100" flexWrap="wrap" gap="4">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({allFiltered.length})</Text>
                     <Button onClick={handleExportStudents} 
@@ -320,17 +403,18 @@ const IDCardPage = () => {
                     </Button>
                 </Flex>
 
-                <Box overflowX="auto">
-                    <Box as="table" w="full" textAlign="left" minW="800px">
+                {/* Scrollable Table Area - Only the table scrolls horizontally */}
+                <Box overflowX="auto" overflowY="visible" w="100%">
+                    <Box as="table" w="full" textAlign="left" minW="800px" style={{ borderCollapse: 'collapse' }}>
                         <Box as="thead" bg="slate.50" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">
                             <Box as="tr">
-                                <Box as="th" px="6" py="4" w="12" textAlign="center"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Box>
-                                <Box as="th" px="6" py="4">Student Name</Box>
-                                <Box as="th" px="6" py="4">Matric No</Box>
-                                <Box as="th" px="6" py="4">Department</Box>
-                                <Box as="th" px="6" py="4">Level</Box>
-                                <Box as="th" px="6" py="4" textAlign="center">Status</Box>
-                                <Box as="th" px="6" py="4" textAlign="center">Action</Box>
+                                <Box as="th" px="6" py="4" w="12" textAlign="center" whiteSpace="nowrap"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Student Name</Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Matric No</Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Department</Box>
+                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Level</Box>
+                                <Box as="th" px="6" py="4" textAlign="center" whiteSpace="nowrap">Status</Box>
+                                <Box as="th" px="6" py="4" textAlign="center" whiteSpace="nowrap">Action</Box>
                             </Box>
                         </Box>
                         <Box as="tbody" fontSize="sm">
@@ -354,14 +438,14 @@ const IDCardPage = () => {
                                     cursor="pointer"
                                     onClick={() => toggleSelection(s.id)}
                                 >
-                                    <Box as="td" px="6" py="4" textAlign="center" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} />
                                     </Box>
-                                    <Box as="td" px="6" py="4" fontWeight="bold" color="slate.700">{s.name}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500">{s.matric}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500">{s.department}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500">{s.level}</Box>
-                                    <Box as="td" px="6" py="4" textAlign="center">
+                                    <Box as="td" px="6" py="4" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{s.name}</Box>
+                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.matric}</Box>
+                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.department}</Box>
+                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.level}</Box>
+                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap">
                                         <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold"
                                             bg={s.hasPaidIDCardFee ? "green.100" : "red.100"}
                                             color={s.hasPaidIDCardFee ? "green.700" : "red.700"}
@@ -369,7 +453,7 @@ const IDCardPage = () => {
                                             {s.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
                                         </Text>
                                     </Box>
-                                    <Box as="td" px="6" py="4" textAlign="center" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         <button
                                             onClick={() => handleIssueCard(s)}
                                             disabled={!s.hasPaidIDCardFee}
@@ -486,7 +570,7 @@ const IDCardPage = () => {
                                     <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="16px">
                                         {/* Front View */}
                                         <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src={idCardSettings?.frontTemplate || "nil"} />
+                                            <img src={idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png"} style={{ width: "100%", height: "100%" }} alt="Front template" />
                                             <img src={capturedPhoto} style={{ position: "absolute", top: "38%", left: "6.5%", width: "23%", height: "43%", objectFit: "cover", border: "1px solid white" }} alt="Student" />
                                             <div style={{ position: "absolute", left: "32%", top: "42.5%", width: "45%", fontSize: "7px", fontWeight: 700, color: "black", textTransform: "uppercase" }}>
                                                 <div style={{ display: "flex", flexDirection: "column", gap: "8.5px", lineHeight: 1 }}>
@@ -501,13 +585,13 @@ const IDCardPage = () => {
 
                                         {/* Back View */}
                                         <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src={idCardSettings?.backTemplate || "nil"} />
+                                            <img src={idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png"} style={{ width: "100%", height: "100%" }} alt="Back template" />
                                             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px", textAlign: "center", padding: "40px 24px 0" }}>
                                                 <p style={{ fontSize: "9px", fontWeight: 700, color: "#0f172a", marginBottom: "8px", lineHeight: 1.2, maxWidth: "95%", margin: "0 0 8px" }}>
-                                                    {idCardSettings?.backDescription || "nil"}
+                                                    {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
                                                 </p>
                                                 <p style={{ fontSize: "8px", fontWeight: 700, color: "#0f172a", lineHeight: 1.2, maxWidth: "95%", margin: 0 }}>
-                                                    {idCardSettings?.backDisclaimer || "nil"}
+                                                    {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
                                                 </p>
 
                                                 <div style={{ marginTop: "auto", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -575,19 +659,3 @@ const IDCardPage = () => {
 };
 
 export default IDCardPage;
-
-
-// const payload = {
-//     transcript:{
-//         email:{
-//             splitKey:"dkjfjklsjkhfsdf",
-//             amount:57575,
-//             merdjjfjf:47575
-//         },
-//         phone:{
-//             splitKey:"dkjfjklsjkhfsdf",
-//             amount:57575,
-//             merdjjfjf:47575
-//          }
-//     }
-// }

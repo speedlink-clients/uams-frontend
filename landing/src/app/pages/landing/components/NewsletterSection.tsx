@@ -1,3 +1,4 @@
+/*
 import { Box, Container, Flex, Heading, Text, Input, Button } from "@chakra-ui/react";
 import { toaster } from "@components/ui/toaster";
 import { motion } from "framer-motion";
@@ -64,5 +65,8 @@ const NewsletterSection = () => {
         </Box>
     );
 };
+*/
 
+// Placeholder to prevent import errors in other files
+const NewsletterSection = () => null;
 export default NewsletterSection;

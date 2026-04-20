@@ -25,7 +25,7 @@ const TimeTable = () => {
             <Flex justify={"space-between"}>
                 <Heading fontWeight={"bold"}>Timetable</Heading>
 
-                <TimetableUploadDialog />
+               {/* <TimetableUploadDialog /> */}
             </Flex>
 
             <Box
