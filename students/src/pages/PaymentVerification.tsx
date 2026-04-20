@@ -15,14 +15,15 @@ import { LucideCheckCircle, LucideXCircle } from "lucide-react";
 const PaymentVerificationPage = () => {
   // get payment status on mount to update hasPaid state
   const [sq, _] = useSearchParams();
-  const trxRef = useMemo(() => sq.get("trxref"));
-  const reference = useMemo(() => sq.get("reference"));
+  const trxRef = useMemo(() => sq.get("trxref"), [sq]);
+  const reference = useMemo(() => sq.get("reference"), [sq]);
   const [verificationStatus, setVerificationStatus] = useState<
     "pending" | "success" | "failed"
   >("pending");
 
   const paymentCallbackUrl = useMemo(
     () => localStorage.getItem("paymentCallbackUrl") || "",
+    []
   );
 
   // handle successful id card payment
@@ -62,9 +63,11 @@ const PaymentVerificationPage = () => {
       <AbsoluteCenter>
         <Stack gap="4" justify="center" align="center">
 
-          <LucideXCircle size={64} color="red" alignSelf="center" />
+          <div style={{ alignSelf: "center" }}>
+            <LucideXCircle size={64} color="red" />
+          </div>
 
-          <Heading size={48} color="red" alignSelf="center">
+          <Heading size="2xl" color="red" alignSelf="center">
             Payment Verification failed
           </Heading>
 
@@ -83,11 +86,13 @@ const PaymentVerificationPage = () => {
     <AbsoluteCenter>
       <Stack gap="4" justify="center" align="center">
 
-        <LucideCheckCircle size={64} color="green" alignSelf="center" />
+        <div style={{ alignSelf: "center" }}>
+          <LucideCheckCircle size={64} color="green" />
+        </div>
 
         <Heading
           className="font-bold text-lg text-center"
-          size={48}
+          size="2xl"
           alignSelf="center"
         >
           Payment Verification Successful
