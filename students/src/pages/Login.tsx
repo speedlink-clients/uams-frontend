@@ -25,13 +25,13 @@ type AuthStep =
 
 const Login: React.FC<LoginProps> = ({ onLogin, initialStep }) => {
   const navigate = useNavigate();
-  
+
   // Use the step passed from router, ignore URL params for routing logic now
-  const step = initialStep || "login"; 
+  const step = initialStep || "login";
 
   // Navigation helper for flat routes
   const go = (s: AuthStep) => {
-    switch(s) {
+    switch (s) {
       case "reg-number": navigate("/register"); break;
       case "payment": navigate("/payment"); break;
       case "activate": navigate("/activate-account"); break;
@@ -62,14 +62,14 @@ const Login: React.FC<LoginProps> = ({ onLogin, initialStep }) => {
   }
 
   if (step === "activate") {
-    return <ActivateAccountStep onNext={() => go("payment")} />;
+    return <ActivateAccountStep onNext={() => go("payment")} onForgotPassword={() => go("forgot-password")} />;
   }
 
   if (step === "payment") {
     return <PaymentStep onNext={() => go("login")} />;
   }
 
-  
+
 
   // Default: Login Form
   return (
