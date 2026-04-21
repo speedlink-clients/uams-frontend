@@ -230,6 +230,7 @@ const ProjectsTable = ({ studentProjects, isLoading }: ProjectsTableProps) => {
                                 px="4"
                                 py="3"
                                 whiteSpace="nowrap"
+                                textAlign={col.key === "action" ? "center" : "left"} 
                             >
                                 {col.label}
                             </Table.ColumnHeader>
@@ -256,11 +257,13 @@ const ProjectsTable = ({ studentProjects, isLoading }: ProjectsTableProps) => {
                                     {record.student.matricNumber}
                                 </Table.Cell>
                                 <Table.Cell px="4" py="3.5">
+                                     <Flex justify="center" width="100%">
                                     {approvedProject ? (
                                         <ProjectWriter project={approvedProject} />
                                     ) : (
                                         <TopicsDrawer studentProjects={record} />
                                     )}
+                                    </Flex>
                                 </Table.Cell>
                             </Table.Row>
                         );
