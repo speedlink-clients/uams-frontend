@@ -332,7 +332,7 @@ const Dashboard: React.FC = () => {
           <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-base lg:text-lg font-bold text-[#1e293b]">Announcements</h2>
-              <button className="bg-[#3b82f6] text-white text-[11px] font-bold px-4 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
+              <button onClick={() => navigate('/announcements')} className="bg-[#3b82f6] text-white text-[11px] font-bold px-4 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
                 See All
               </button>
             </div>

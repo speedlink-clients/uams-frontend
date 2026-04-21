@@ -147,7 +147,7 @@ const PaymentsNew: React.FC = () => {
           {/* Left Sidebar */}
           <GridItem p={6} borderRight={{ base: 'none', md: '1px' }} borderBottom={{ base: '1px', md: 'none' }} borderColor="gray.100">
             <Text fontSize="xs" fontWeight="bold" color="gray.400" mb={4} textTransform="uppercase" letterSpacing="wider">Pay With</Text>
-            <VStack align="stretch" spacing={1}>
+            <VStack align="stretch" gap={1}>
               <PaymentMethodItem icon={CreditCard} label="Card" active />
               <PaymentMethodItem icon={ArrowRightLeft} label="Transfer" />
               <PaymentMethodItem icon={Building} label="Bank" />
@@ -162,7 +162,7 @@ const PaymentsNew: React.FC = () => {
               <Text fontSize="sm" color="green.500" fontWeight="bold">Pay NGN {amount.toLocaleString()}</Text>
             </Flex>
 
-            <VStack spacing={8} maxW="500px" mx="auto">
+            <VStack gap={8} maxW="500px" mx="auto">
               <Text fontWeight="bold" fontSize="lg" color="#334155">Enter your card details to pay</Text>
               
               <Box w="full">
@@ -199,7 +199,7 @@ const PaymentsNew: React.FC = () => {
                 rounded="lg" 
                 mt={4} 
                 onClick={handlePayment}
-                isLoading={isProcessing}
+                loading={isProcessing}
                 loadingText="Processing..."
               >
                 Pay NGN {amount.toLocaleString()}
