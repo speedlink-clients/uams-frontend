@@ -126,7 +126,8 @@ const Dashboard = () => {
                             Timetable
                         </Heading>
                         <Button
-                            colorScheme="blue"
+                            bg="#3b82f6"
+                            variant="solid"
                             size="sm"
                             onClick={() => navigate("/timetable")}
                         >
