@@ -124,8 +124,8 @@ interface InitializePaymentResponse {
 export const initializePayment =
   async (): Promise<InitializePaymentResponse> => {
     try {
-      // const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
-      const callbackUrl = `${window.location.origin}/students/payment-verification`;
+      // Redirect to login page after payment since backend already verifies it
+      const callbackUrl = `${window.location.origin}/students/login`;
       const response = await apiClient.post<InitializePaymentResponse>(
         "/annual-access-fee/initialize",
         { callbackUrl },
