@@ -167,7 +167,12 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         {/* Role */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Role</Text>
-                            <input placeholder="ERO" value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} style={inputStyle} />
+                            <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} style={inputStyle}>
+                                <option value="">Select</option>
+                                <option value="LECTURER">Lecturer</option>
+                                <option value="ERO">Exams and Record Officer</option>
+                                <option value="HOD">HOD</option>
+                            </select>
                         </Box>
 
                         {/* Category */}
