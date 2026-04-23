@@ -62,7 +62,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, initialStep }) => {
   }
 
   if (step === "activate") {
-    return <ActivateAccountStep onNext={() => go("payment")} onForgotPassword={() => go("forgot-password")} />;
+    return <ActivateAccountStep onNext={() => go("payment")} />;
   }
 
   if (step === "payment") {
