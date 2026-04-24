@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Box, Flex, Text, Heading, Spinner, Center, Button } from "@chakra-ui/react";
 import useUserStore from "@stores/user.store";
 import { DashboardHook } from "@hooks/dashboard.hook";
-import { TimetableHook } from "@hooks/timetable.hooks"; 
+import { TimetableHook } from "@hooks/timetable.hooks";
+import { CourseHook } from "@hooks/course.hook"; 
 import StatCard from "@components/shared/StatCard";
 import TimetablePanel from "@components/shared/TimetablePanel";
 import { useNavigate } from "react-router";
@@ -11,20 +12,19 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const { user } = useUserStore();
 
-    // Timetable filter state: today, tomorrow, week
     const [timetableFilter, setTimetableFilter] = useState("today");
 
-    // Dashboard summary data (courses, projects, students)
     const { data: dashboardData, isLoading: isDashboardLoading, error: dashboardError } = DashboardHook.useDashboardData();
-
-    // Fetch full timetable data for the lecturer
     const { data: timetableData = [], isLoading: isTimetableLoading } = TimetableHook.useTimetable();
+    const { data: assignedCourses = [], isLoading: isAssignedLoading } = CourseHook.useAssignedCourses();
 
-    const isLoading = isDashboardLoading || isTimetableLoading;
-    const error = dashboardError; // you can also handle timetable error separately
+    const isLoading = isDashboardLoading || isTimetableLoading || isAssignedLoading;
+    const error = dashboardError;
 
-    // Extract first name for greeting
-    const firstName = user?.firstName || "User";
+    const firstName = user?.firstName || "";
+    const lastName = user?.lastName || "";
+    const fullName = lastName ? `${firstName} ${lastName}` : firstName;
+    const displayName = fullName || "User";
 
     if (isLoading) {
         return (
@@ -46,23 +46,20 @@ const Dashboard = () => {
 
     return (
         <Flex gap="10" h="100%">
-            {/* Main Content (Left) */}
             <Box flex="1" minW="0">
-                {/* Greeting */}
                 <Box mb="6">
                     <Heading size="xl" fontWeight="700" color="#686A6F" fontSize="24px">
-                        Hello <Text as="span" color="#0D141C" fontWeight="700">{firstName},</Text>
+                        Hello <Text as="span" color="#0D141C" fontWeight="700">{displayName},</Text>
                     </Heading>
                     <Text color="#686A6F" fontSize="15px">
                         Welcome back
                     </Text>
                 </Box>
 
-                {/* Stat Cards */}
                 <Flex gap="5" mb="8">
                     <StatCard
                         label="Assigned courses"
-                        value={summary?.totalCourses ?? 0}
+                        value={assignedCourses.length}
                         colorScheme="pink"
                     />
                     <StatCard
@@ -77,7 +74,6 @@ const Dashboard = () => {
                     />
                 </Flex>
 
-                {/* Timetable Box with Heading and Button */}
                 <Box 
                     mb="6" 
                     p="5" 
@@ -101,7 +97,6 @@ const Dashboard = () => {
                         </Button>
                     </Flex>
                     
-                    {/* Mini timetable preview */}
                     <Box maxH="300px" overflowY="auto">
                         <TimetablePanel
                             timetable={timetableData}
@@ -110,7 +105,6 @@ const Dashboard = () => {
                         />
                     </Box>
                 </Box>
-
             </Box>
         </Flex>
     );

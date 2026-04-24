@@ -4,55 +4,74 @@ import { ChevronRight, Search } from "lucide-react";
 import { CourseHook } from "@hooks/course.hook";
 import { useNavigate } from "react-router";
 
-const PROGRAM_TYPES = ["All", "Regular", "Part-Time", "Sandwich"];
-const LEVELS = ["All", "100", "200", "300", "400", "500"];
-const SEMESTERS = ["All", "First Semester", "Second Semester"];
-
 const Results = () => {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
-    const [programType, setProgramType] = useState("All");
-    const [level, setLevel] = useState("All");
-    const [semester, setSemester] = useState("All");
+    const [selectedLevelId, setSelectedLevelId] = useState<string>("all");
+    const [selectedSemesterId, setSelectedSemesterId] = useState<string>("all");
 
-    const { data: courses, isLoading } = CourseHook.useCourses({
-        search, programType, level, semester,
-    });
+    // Fetch only assigned courses
+    const { data: assignedCourses = [], isLoading } = CourseHook.useAssignedCourses();
 
+    // Extract unique level options from assigned courses
+    const levelOptions = useMemo(() => {
+        const levelsMap = new Map<string, string>();
+        assignedCourses.forEach(course => {
+            if (course.level?.id && course.level?.name) {
+                levelsMap.set(course.level.id, course.level.name);
+            }
+        });
+        return Array.from(levelsMap.entries()).map(([id, name]) => ({ id, name }));
+    }, [assignedCourses]);
+
+    // Extract unique semester options from assigned courses
+    const semesterOptions = useMemo(() => {
+        const semestersMap = new Map<string, string>();
+        assignedCourses.forEach(course => {
+            if (course.semester?.id && course.semester?.name) {
+                semestersMap.set(course.semester.id, course.semester.name);
+            }
+        });
+        return Array.from(semestersMap.entries()).map(([id, name]) => ({ id, name }));
+    }, [assignedCourses]);
+
+    // Apply search + level + semester filters
     const filteredCourses = useMemo(() => {
-        if (!courses) return [];
-        if (!search.trim()) return courses;
-        const query = search.toLowerCase();
-        return courses.filter(
-            (c) =>
-                c.title.toLowerCase().includes(query) ||
-                c.code.toLowerCase().includes(query)
-        );
-    }, [courses, search]);
+        let filtered = assignedCourses;
 
-    if(isLoading) return <Text>Loading courses...</Text>
+        // Search filter
+        if (search.trim()) {
+            const query = search.toLowerCase();
+            filtered = filtered.filter(
+                (c) =>
+                    c.title.toLowerCase().includes(query) ||
+                    c.code.toLowerCase().includes(query)
+            );
+        }
 
-    // const totalCount = courses?.length ?? 0;
+        // Level filter (by levelId)
+        if (selectedLevelId !== "all") {
+            filtered = filtered.filter((c) => c.levelId === selectedLevelId);
+        }
+
+        // Semester filter (by semesterId)
+        if (selectedSemesterId !== "all") {
+            filtered = filtered.filter((c) => c.semesterId === selectedSemesterId);
+        }
+
+        return filtered;
+    }, [assignedCourses, search, selectedLevelId, selectedSemesterId]);
+
+    if (isLoading) return <Text>Loading courses...</Text>;
 
     return (
         <Box>
-            {/* Header */}
             <Heading size="lg" fontWeight="600" color="#000000" mb="5" fontSize="24px">
-                Results{" "}
-                {/* <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
-                    ({totalCount})
-                </Text> */}
+                Results
             </Heading>
 
-            {/* Toolbar */}
-            <Box
-                bg="white"
-                borderRadius="lg"
-                border="1px solid"
-                borderColor="gray.100"
-                p="5"
-            >
-                <Flex align="center" justify="space-between" mb="5">
+            <Box bg="white" borderRadius="lg" border="1px solid" borderColor="gray.100" p="5">
+                <Flex align="center" justify="space-between" mb="5" flexWrap="wrap" gap="4">
                     {/* Search */}
                     <Flex
                         align="center"
@@ -78,11 +97,12 @@ const Results = () => {
                         <Icon as={Search} boxSize="4" color="gray.400" ml="2" />
                     </Flex>
 
-                    {/* Filters */}
-                    <Flex gap="3">
+                    {/* Level & Semester Filters */}
+                    <Flex gap="3" flexWrap="wrap">
+                        {/* Level Filter */}
                         <select
-                            value={programType}
-                            onChange={(e) => setProgramType(e.target.value)}
+                            value={selectedLevelId}
+                            onChange={(e) => setSelectedLevelId(e.target.value)}
                             style={{
                                 fontSize: "12px",
                                 fontWeight: 500,
@@ -95,16 +115,18 @@ const Results = () => {
                                 background: "white",
                             }}
                         >
-                            {PROGRAM_TYPES.map((t) => (
-                                <option key={t} value={t}>
-                                    {t === "All" ? "Program Type" : t}
+                            <option value="all">All Levels</option>
+                            {levelOptions.map((level) => (
+                                <option key={level.id} value={level.id}>
+                                    {level.name}
                                 </option>
                             ))}
                         </select>
 
+                        {/* Semester Filter */}
                         <select
-                            value={level}
-                            onChange={(e) => setLevel(e.target.value)}
+                            value={selectedSemesterId}
+                            onChange={(e) => setSelectedSemesterId(e.target.value)}
                             style={{
                                 fontSize: "12px",
                                 fontWeight: 500,
@@ -117,40 +139,18 @@ const Results = () => {
                                 background: "white",
                             }}
                         >
-                            {LEVELS.map((l) => (
-                                <option key={l} value={l}>
-                                    {l === "All" ? "Level" : `${l} Level`}
-                                </option>
-                            ))}
-                        </select>
-
-                        <select
-                            value={semester}
-                            onChange={(e) => setSemester(e.target.value)}
-                            style={{
-                                fontSize: "12px",
-                                fontWeight: 500,
-                                color: "#4A5568",
-                                border: "1px solid #E2E8F0",
-                                borderRadius: "6px",
-                                padding: "8px 12px",
-                                cursor: "pointer",
-                                outline: "none",
-                                background: "white",
-                            }}
-                        >
-                            {SEMESTERS.map((s) => (
-                                <option key={s} value={s}>
-                                    {s === "All" ? "First Semester" : s}
+                            <option value="all">All Semesters</option>
+                            {semesterOptions.map((sem) => (
+                                <option key={sem.id} value={sem.id}>
+                                    {sem.name}
                                 </option>
                             ))}
                         </select>
                     </Flex>
                 </Flex>
 
-                {/* Course List */}
+                {/* Course List Table */}
                 <Box bg="white" borderRadius="lg" border="1px solid" borderColor="gray.100">
-                    {/* Table Header */}
                     <Flex
                         px="6"
                         py="3"
@@ -164,7 +164,6 @@ const Results = () => {
                         <Box w="30px" />
                     </Flex>
 
-                    {/* Course Rows */}
                     {filteredCourses.map((course, index) => (
                         <Flex
                             key={course.id}

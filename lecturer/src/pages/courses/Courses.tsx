@@ -4,36 +4,47 @@ import { Search } from "lucide-react";
 import { CourseHook } from "@hooks/course.hook";
 import CourseList from "@components/shared/CourseList";
 
-const PROGRAM_TYPES = ["All", "Regular", "Part-Time", "Sandwich"];
 const LEVELS = ["All", "100", "200", "300", "400", "500"];
 const SEMESTERS = ["All", "First Semester", "Second Semester"];
 
 const Courses = () => {
     const [search, setSearch] = useState("");
-    const [programType, setProgramType] = useState("All");
     const [level, setLevel] = useState("All");
     const [semester, setSemester] = useState("All");
 
-    const { data: courses, isLoading } = CourseHook.useCourses({
-        search, programType, level, semester,
-    });
+    const { data: assignedCourses = [], isLoading } = CourseHook.useAssignedCourses();
 
+    // filtering (search + level + semester)
     const filteredCourses = useMemo(() => {
-        if (!courses) return [];
-        if (!search.trim()) return courses;
-        const query = search.toLowerCase();
-        return courses.filter(
-            (c) =>
-                c.title.toLowerCase().includes(query) ||
-                c.code.toLowerCase().includes(query)
-        );
-    }, [courses, search]);
+        let filtered = assignedCourses;
 
-    const totalCount = courses?.length ?? 0;
+        // Search
+        if (search.trim()) {
+            const query = search.toLowerCase();
+            filtered = filtered.filter(
+                (c) =>
+                    c.title.toLowerCase().includes(query) ||
+                    c.code.toLowerCase().includes(query)
+            );
+        }
+
+        // Level filter 
+        if (level !== "All") {
+            filtered = filtered.filter((c) => c.level?.name?.includes(level));
+        }
+
+        // Semester filter 
+        if (semester !== "All") {
+            filtered = filtered.filter((c) => c.semester?.name === semester);
+        }
+
+        return filtered;
+    }, [assignedCourses, search, level, semester]);
+
+    const totalCount = assignedCourses.length;
 
     return (
         <Box>
-            {/* Header */}
             <Heading size="lg" fontWeight="600" color="#000000" mb="5" fontSize="24px">
                 Courses{" "}
                 <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
@@ -41,15 +52,8 @@ const Courses = () => {
                 </Text>
             </Heading>
 
-            {/* Toolbar */}
-            <Box
-                bg="white"
-                borderRadius="lg"
-                border="1px solid"
-                borderColor="gray.100"
-                p="5"
-            >
-                <Flex align="center" justify="space-between" mb="5">
+            <Box bg="white" borderRadius="lg" border="1px solid" borderColor="gray.100" p="5">
+                <Flex align="center" justify="space-between" mb="5" flexWrap="wrap" gap="4">
                     {/* Search */}
                     <Flex
                         align="center"
@@ -76,29 +80,7 @@ const Courses = () => {
                     </Flex>
 
                     {/* Filters */}
-                    <Flex gap="3">
-                        <select
-                            value={programType}
-                            onChange={(e) => setProgramType(e.target.value)}
-                            style={{
-                                fontSize: "12px",
-                                fontWeight: 500,
-                                color: "#4A5568",
-                                border: "1px solid #E2E8F0",
-                                borderRadius: "6px",
-                                padding: "8px 12px",
-                                cursor: "pointer",
-                                outline: "none",
-                                background: "white",
-                            }}
-                        >
-                            {PROGRAM_TYPES.map((t) => (
-                                <option key={t} value={t}>
-                                    {t === "All" ? "Program Type" : t}
-                                </option>
-                            ))}
-                        </select>
-
+                    <Flex gap="3" flexWrap="wrap">
                         <select
                             value={level}
                             onChange={(e) => setLevel(e.target.value)}
@@ -138,14 +120,13 @@ const Courses = () => {
                         >
                             {SEMESTERS.map((s) => (
                                 <option key={s} value={s}>
-                                    {s === "All" ? "First Semester" : s}
+                                    {s === "All" ? "Semester" : s}
                                 </option>
                             ))}
                         </select>
                     </Flex>
                 </Flex>
 
-                {/* Course List */}
                 <CourseList courses={filteredCourses} isLoading={isLoading} />
             </Box>
         </Box>

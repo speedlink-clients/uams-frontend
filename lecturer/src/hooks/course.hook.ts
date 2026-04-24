@@ -11,7 +11,6 @@ export const CourseHook = {
     ) =>
         useQuery<Course[]>({
             queryKey: ["courses", filters],
-            // TODO: swap with CourseService.getCourses()
             queryFn: async () => CourseService.getCourses(),
             staleTime: 5 * 60 * 1000,
             ...options,
@@ -26,7 +25,6 @@ export const CourseHook = {
             "isAssigned": boolean
         }>({
             queryKey: ["checkCourseOwnership", courseId],
-            // TODO: swap with CourseService.getCourses()
             queryFn: async () => CourseService.checkCourseOwnership(courseId),
             staleTime: 5 * 60 * 1000,
             ...options,
@@ -62,6 +60,15 @@ export const CourseHook = {
         useQuery<CourseStudent>({
             queryKey: ["courseStudent", courseId, studentId],
             queryFn: async () => CourseService.getCourseStudentById(courseId, studentId),
+            staleTime: 5 * 60 * 1000,
+            ...options,
+        }),
+
+    // New hook: fetch only courses assigned to the current lecturer
+    useAssignedCourses: (options?: Partial<UseQueryOptions<Course[]>>) =>
+        useQuery<Course[]>({
+            queryKey: ["assignedCourses"],
+            queryFn: async () => CourseService.getAssignedCourses(),
             staleTime: 5 * 60 * 1000,
             ...options,
         }),
