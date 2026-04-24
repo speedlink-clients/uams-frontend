@@ -21,33 +21,34 @@ const COLUMNS = [
     { key: "level", label: "Level", width: "100px" },
     { key: "degreeCourse", label: "Degree Course", width: "140px" },
     { key: "courseDuration", label: "Course Duration", width: "110px" },
-    { key: "degreeAwardCode", label: "Degree Award Code", width: "130px" },
+    { key: "academicStanding", label: "Academic Standing", width: "130px" },
 ] as const;
 
-/* Shared sticky cell styles */
+/* Left sticky cell – highest z-index */
 const stickyLeft = {
     position: "sticky" as const,
     left: 0,
     bg: "white",
-    zIndex: 2,
+    zIndex: 5,
     borderRight: "1px solid",
     borderColor: "gray.100",
 };
 
+/* Right sticky cell – lower z-index + shadow for separation */
 const stickyRight = {
     position: "sticky" as const,
     right: 0,
     bg: "white",
-    zIndex: 2,
+    zIndex: 4,
     borderLeft: "1px solid",
     borderColor: "gray.100",
+    boxShadow: "-2px 0 5px -2px rgba(0,0,0,0.1)",
 };
 
-const stickyLeftHeader = { ...stickyLeft, bg: "gray.50", zIndex: 3 };
-const stickyRightHeader = { ...stickyRight, bg: "gray.50", zIndex: 3 };
+const stickyLeftHeader = { ...stickyLeft, bg: "gray.50", zIndex: 6 };
+const stickyRightHeader = { ...stickyRight, bg: "gray.50", zIndex: 5, boxShadow: "-2px 0 5px -2px rgba(0,0,0,0.1)" };
 
 const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
-    console.log(students);
     if (isLoading) {
         return (
             <Flex justify="center" py="12">
@@ -103,54 +104,52 @@ const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
                             _hover={{ bg: "gray.50" }}
                             transition="background 0.15s"
                         >
-                            {/* S/N — sticky left */}
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500" {...stickyLeft}>
+                            {/* All cells now have whiteSpace="nowrap" */}
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500" {...stickyLeft}>
                                 {index + 1}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.registrationNo}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.matricNumber}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontStyle="semi-bold" fontSize="13px" color="gray.700" fontWeight="700">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="13px" color="gray.700" fontWeight="700">
                                 {student.fullName}
                             </Table.Cell>
-                           
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.500" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.500" fontWeight="500">
                                 {student.email}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.phone}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.gender}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.admissionMode}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.entryQualification}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.department.faculty?.name}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.department.name}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.level.name}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.program.name}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500">
                                 {student.program?.duration}
                             </Table.Cell>
-                            <Table.Cell px="3" py="3" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontStyle="medium" fontWeight="500">
+                            <Table.Cell px="3" py="3" whiteSpace="nowrap" fontFamily="sans-serif" fontSize="12px" color="gray.700" fontWeight="500" {...stickyRight}>
                                 {student.academicStanding}
                             </Table.Cell>
-                            
                         </Table.Row>
                     ))}
                 </Table.Body>
@@ -160,4 +159,3 @@ const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
 };
 
 export default StudentsTable;
-

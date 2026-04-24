@@ -3,10 +3,17 @@ import { Box, Flex, Text, Heading, Icon } from "@chakra-ui/react";
 import { Search } from "lucide-react";
 import { StudentHook } from "@hooks/student.hook";
 import StudentsTable from "@components/shared/StudentsTable";
-import type { Student } from "@type/student.type"; 
+import type { Student } from "@type/student.type";
 
 const LEVEL_OPTIONS = ["All", "100", "200", "300", "400", "500"];
 const ITEMS_PER_PAGE = 10;
+
+// Helper to get level name regardless of type
+const getLevelName = (student: Student): string => {
+    if (!student.level) return "";
+    if (typeof student.level === "string") return student.level;
+    return student.level.name || "";
+};
 
 const Students = () => {
     const [search, setSearch] = useState("");
@@ -18,36 +25,31 @@ const Students = () => {
         const handler = setTimeout(() => {
             setDebouncedSearch(search);
         }, 500);
-
-        return () => {
-            clearTimeout(handler);
-        };
+        return () => clearTimeout(handler);
     }, [search]);
 
-    // Reset to first page when filters change
     useEffect(() => {
         setCurrentPage(1);
     }, [debouncedSearch, level]);
 
-    // Fetch all students
     const { data: students = [], isLoading } = StudentHook.useStudents();
 
     const filteredStudents = useMemo(() => {
         if (!students.length) return [];
 
         return students.filter((student: Student) => {
-            const matchesLevel = level === "All" || student.level === level;
-            
-            const matchesSearch = !debouncedSearch || 
+            const levelName = getLevelName(student);
+            const matchesLevel = level === "All" || levelName === level;
+
+            const matchesSearch = !debouncedSearch ||
                 student.fullName?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
                 student.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
                 student.matricNumber?.toLowerCase().includes(debouncedSearch.toLowerCase());
-            
+
             return matchesLevel && matchesSearch;
         });
     }, [students, level, debouncedSearch]);
 
-    // Pagination calculations
     const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -55,10 +57,9 @@ const Students = () => {
 
     return (
         <Box>
-            {/* Page Header */}
             <Box mb="6">
                 <Heading size="lg" fontWeight="600" color="#000000" mb="1" fontSize="24px">
-                    Students {" "}
+                    Students{" "}
                     <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
                         ({filteredStudents.length} total)
                     </Text>
@@ -69,9 +70,7 @@ const Students = () => {
                 </Text>
             </Box>
 
-            {/* Toolbar */}
             <Flex align="center" justify="flex-end" gap="3" mb="5">
-                {/* Search Input */}
                 <Flex
                     align="center"
                     bg="white"
@@ -97,7 +96,6 @@ const Students = () => {
                     />
                 </Flex>
 
-                {/* Level Dropdown */}
                 <select
                     value={level}
                     onChange={(e) => setLevel(e.target.value)}
@@ -120,10 +118,8 @@ const Students = () => {
                 </select>
             </Flex>
 
-            {/* Students Table */}
             <StudentsTable students={paginatedStudents} isLoading={isLoading} />
 
-            {/* Pagination */}
             {totalPages > 1 && (
                 <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="4" mt="4">
                     <Text fontSize="sm" color="slate.500">
@@ -133,19 +129,19 @@ const Students = () => {
                         (Total: {students.length})
                     </Text>
                     <Flex alignItems="center" gap="2">
-                        <button 
-                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} 
-                            disabled={currentPage === 1} 
-                            style={{ 
-                                padding: "8px 12px", 
-                                background: "white", 
-                                border: "1px solid #e2e8f0", 
-                                borderRadius: "8px", 
-                                fontSize: "14px", 
-                                fontWeight: 500, 
-                                color: "#334155", 
-                                cursor: currentPage === 1 ? "not-allowed" : "pointer", 
-                                opacity: currentPage === 1 ? 0.5 : 1 
+                        <button
+                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            style={{
+                                padding: "8px 12px",
+                                background: "white",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px",
+                                fontWeight: 500,
+                                color: "#334155",
+                                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                                opacity: currentPage === 1 ? 0.5 : 1
                             }}
                         >
                             Previous
@@ -167,19 +163,19 @@ const Students = () => {
                                 </Box>
                             );
                         })}
-                        <button 
-                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} 
-                            disabled={currentPage === totalPages} 
-                            style={{ 
-                                padding: "8px 12px", 
-                                background: "white", 
-                                border: "1px solid #e2e8f0", 
-                                borderRadius: "8px", 
-                                fontSize: "14px", 
-                                fontWeight: 500, 
-                                color: "#334155", 
-                                cursor: currentPage === totalPages ? "not-allowed" : "pointer", 
-                                opacity: currentPage === totalPages ? 0.5 : 1 
+                        <button
+                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            style={{
+                                padding: "8px 12px",
+                                background: "white",
+                                border: "1px solid #e2e8f0",
+                                borderRadius: "8px",
+                                fontSize: "14px",
+                                fontWeight: 500,
+                                color: "#334155",
+                                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                                opacity: currentPage === totalPages ? 0.5 : 1
                             }}
                         >
                             Next

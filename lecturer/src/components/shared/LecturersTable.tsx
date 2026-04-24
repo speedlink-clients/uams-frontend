@@ -2,12 +2,11 @@ import { Box, Table, Text, Flex, Menu, Button, Portal, Drawer, CloseButton, For,
 import { MoreHorizontal, Search, User, UserRoundPen } from "lucide-react";
 import type { Lecturer } from "@type/lecturer.type";
 import { StudentHook } from "@hooks/student.hook";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AcademicHook } from "@hooks/academic.hook";
 import { Checkbox } from "../ui/checkbox";
 import { toaster } from "@components/ui/toaster";
 import type { Student } from "@type/student.type";
-
 
 interface LecturersTableProps {
     lecturers: Lecturer[];
@@ -25,7 +24,20 @@ const COLUMNS = [
     { key: "action", label: "Action", width: "70px" },
 ] as const;
 
+const ITEMS_PER_PAGE = 10;
+
 const LecturersTable = ({ lecturers, isLoading }: LecturersTableProps) => {
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Reset to first page whenever the lecturers list changes (e.g., after filtering)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [lecturers]);
+
+    const totalPages = Math.ceil(lecturers.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedLecturers = lecturers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
     if (isLoading) {
         return (
             <Flex justify="center" py="12">
@@ -43,91 +55,139 @@ const LecturersTable = ({ lecturers, isLoading }: LecturersTableProps) => {
     }
 
     return (
-       <Box
-    borderRadius="lg"
-    border="1px solid"
-    borderColor="gray.100"
-    bg="white"
-    overflowX="auto"
->
-    <Table.Root size="sm" variant="line" style={{ tableLayout: 'auto', minWidth: '1200px' }}>
-        <Table.Header>
-            <Table.Row bg="gray.50">
-                {COLUMNS.map((col) => (
-                    <Table.ColumnHeader
-                        key={col.key}
-                        fontSize="xs"
-                        fontWeight="600"
-                        color="gray.600"
-                        textTransform="none"
-                        minW={col.width}
-                        px="4"
-                        py="3"
-                        whiteSpace="nowrap"
-                    >
-                        {col.label}
-                    </Table.ColumnHeader>
-                ))}
-            </Table.Row>
-        </Table.Header>
+        <Box>
+            <Box
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="gray.100"
+                bg="white"
+                overflowX="auto"
+            >
+                <Table.Root size="sm" variant="line" style={{ tableLayout: 'auto', minWidth: '1200px' }}>
+                    <Table.Header>
+                        <Table.Row bg="gray.50">
+                            {COLUMNS.map((col) => (
+                                <Table.ColumnHeader
+                                    key={col.key}
+                                    fontSize="xs"
+                                    fontWeight="600"
+                                    color="gray.600"
+                                    textTransform="none"
+                                    minW={col.width}
+                                    px="4"
+                                    py="3"
+                                    whiteSpace="nowrap"
+                                >
+                                    {col.label}
+                                </Table.ColumnHeader>
+                            ))}
+                        </Table.Row>
+                    </Table.Header>
 
-        <Table.Body>
-            {lecturers.map((lecturer, index) => (
-                <Table.Row
-                    key={lecturer.id}
-                    _hover={{ bg: "gray.50" }}
-                    transition="background 0.15s"
-                >
-                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.600" whiteSpace="nowrap">
-                        {index + 1}
-                    </Table.Cell>
-                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
-                        {lecturer.staffNumber}
-                    </Table.Cell>
-                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" fontWeight="600" whiteSpace="nowrap">
-                        {lecturer.User.fullName}
-                    </Table.Cell>
-                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.500" whiteSpace="nowrap">
-                        {lecturer.User.email}
-                    </Table.Cell>
-                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
-                        {lecturer.User.phone}
-                    </Table.Cell>
-                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
-                        {lecturer.currentAdminRole}
-                    </Table.Cell>
-                    <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
-                        {lecturer.courseAssignments.length}
-                    </Table.Cell>
-                    <Table.Cell px="4" py="3.5" whiteSpace="nowrap">
-                        <Menu.Root>
-                            <Menu.Trigger asChild>
-                                <Button variant="ghost" size="xs">
-                                    <MoreHorizontal />
-                                </Button>
-                            </Menu.Trigger>
-                            <Portal>
-                                <Menu.Positioner>
-                                    <Menu.Content>
-                                        <Menu.Item value="courses" asChild>
-                                            <CourseDrawer courses={lecturer.courseAssignments} lecturer={lecturer.User.fullName} />
-                                        </Menu.Item>
-                                        <Menu.Item value="students" asChild>
-                                            <StudentDrawer 
-                                                lecturerId={lecturer.id}
-                                                lecturer={lecturer.User.fullName} 
-                                            />
-                                        </Menu.Item>
-                                    </Menu.Content>
-                                </Menu.Positioner>
-                            </Portal>
-                        </Menu.Root>
-                    </Table.Cell>
-                </Table.Row>
-            ))}
-        </Table.Body>
-    </Table.Root>
-</Box>
+                    <Table.Body>
+                        {paginatedLecturers.map((lecturer, index) => (
+                            <Table.Row
+                                key={lecturer.id}
+                                _hover={{ bg: "gray.50" }}
+                                transition="background 0.15s"
+                            >
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.600" whiteSpace="nowrap">
+                                    {startIndex + index + 1}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                                    {lecturer.staffNumber}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" fontWeight="600" whiteSpace="nowrap">
+                                    {lecturer.User.fullName}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.500" whiteSpace="nowrap">
+                                    {lecturer.User.email}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                                    {lecturer.User.phone}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                                    {lecturer.currentAdminRole}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                                    {lecturer.courseAssignments.length}
+                                </Table.Cell>
+                                <Table.Cell px="4" py="3.5" whiteSpace="nowrap">
+                                    <Menu.Root>
+                                        <Menu.Trigger asChild>
+                                            <Button variant="ghost" size="xs">
+                                                <MoreHorizontal />
+                                            </Button>
+                                        </Menu.Trigger>
+                                        <Portal>
+                                            <Menu.Positioner>
+                                                <Menu.Content>
+                                                    <Menu.Item value="courses" asChild>
+                                                        <CourseDrawer courses={lecturer.courseAssignments} lecturer={lecturer.User.fullName} />
+                                                    </Menu.Item>
+                                                    <Menu.Item value="students" asChild>
+                                                        <StudentDrawer
+                                                            lecturerId={lecturer.id}
+                                                            lecturer={lecturer.User.fullName}
+                                                        />
+                                                    </Menu.Item>
+                                                </Menu.Content>
+                                            </Menu.Positioner>
+                                        </Portal>
+                                    </Menu.Root>
+                                </Table.Cell>
+                            </Table.Row>
+                        ))}
+                    </Table.Body>
+                </Table.Root>
+            </Box>
+
+            {/* Pagination Controls */}
+            {totalPages > 0 && (
+                <Flex justify="space-between" align="center" mt="4" px="2">
+                    <Text fontSize="sm" color="gray.600">
+                        Showing {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, lecturers.length)} of {lecturers.length} lecturers
+                    </Text>
+                    <Flex gap="2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                        >
+                            Previous
+                        </Button>
+                        <Flex gap="1">
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                let pageNum;
+                                if (totalPages <= 5) {
+                                    pageNum = i + 1;
+                                } else if (currentPage <= 3) {
+                                    pageNum = i + 1;
+                                } else if (currentPage >= totalPages - 2) {
+                                    pageNum = totalPages - 4 + i;
+                                } else {
+                                    pageNum = currentPage - 2 + i;
+                                }
+                                return (
+                                   <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="slate.200" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
+                      {pageNum}
+                    </Box>
+                                );
+                            })}
+                        </Flex>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                        </Button>
+                    </Flex>
+                </Flex>
+            )}
+        </Box>
     );
 };
 

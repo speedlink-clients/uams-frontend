@@ -23,6 +23,6 @@ export interface CreateLecturerPayload {
     role: string;
     category: string;
     password?: string;
-    departmentId?: string;
+    departmentId: string;
     universityId?: string;
 }

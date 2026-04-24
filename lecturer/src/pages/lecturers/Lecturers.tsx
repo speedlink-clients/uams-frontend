@@ -1,32 +1,67 @@
 import { useState, useMemo } from "react";
-import { Box, Flex, Text, Heading, Icon } from "@chakra-ui/react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Box, Flex, Text, Heading, Icon, Select, Portal, createListCollection } from "@chakra-ui/react";
+import { Search, X } from "lucide-react";
 import { LecturerHook } from "@hooks/lecturer.hook";
 import LecturersTable from "@components/shared/LecturersTable";
 
 const Lecturers = () => {
     const [search, setSearch] = useState("");
+    const [roleFilter, setRoleFilter] = useState("");
 
     const { data: lecturers, isLoading } = LecturerHook.useLecturers();
 
-    // Client-side search filter
+    // Get unique roles from data (excluding null/undefined)
+    const uniqueRoles = useMemo(() => {
+        if (!lecturers) return [];
+        const roles = new Set(
+            lecturers
+                .map(l => l.currentAdminRole)
+                .filter(role => role && role.trim() !== "")
+        );
+        return Array.from(roles).sort();
+    }, [lecturers]);
+
+    // Create collection for Select.Root
+    const roleCollection = createListCollection({
+        items: uniqueRoles.map(role => ({ label: role, value: role }))
+    });
+
+    // Client-side search + role filter
     const filteredLecturers = useMemo(() => {
         if (!lecturers) return [];
-        if (!search.trim()) return lecturers;
 
-        const query = search.toLowerCase();
-        return lecturers.filter(
-            (l) =>
-                l.staffNumber?.toLowerCase()?.includes(query) ||
-                l.User?.fullName?.toLowerCase()?.includes(query) ||
-                l.User?.email?.toLowerCase()?.includes(query) ||
-                l.User?.phone?.toLowerCase()?.includes(query) ||
-                l.specialization?.toLowerCase()?.includes(query) ||
-                l.additionalRoles?.join(", ")?.toLowerCase().includes(query)
-        );
-    }, [lecturers, search]);
+        let result = lecturers;
+
+        // Apply search filter
+        if (search.trim()) {
+            const query = search.toLowerCase();
+            result = result.filter(
+                (l) =>
+                    l.staffNumber?.toLowerCase()?.includes(query) ||
+                    l.User?.fullName?.toLowerCase()?.includes(query) ||
+                    l.User?.email?.toLowerCase()?.includes(query) ||
+                    l.User?.phone?.toLowerCase()?.includes(query) ||
+                    l.specialization?.toLowerCase()?.includes(query) ||
+                    l.additionalRoles?.join(", ")?.toLowerCase().includes(query)
+            );
+        }
+
+        // Apply role filter
+        if (roleFilter) {
+            result = result.filter(l => l.currentAdminRole === roleFilter);
+        }
+
+        return result;
+    }, [lecturers, search, roleFilter]);
 
     const totalCount = lecturers?.length ?? 0;
+    const filteredCount = filteredLecturers.length;
+
+    // Clear all filters
+    const clearFilters = () => {
+        setSearch("");
+        setRoleFilter("");
+    };
 
     return (
         <Box>
@@ -34,12 +69,12 @@ const Lecturers = () => {
             <Heading size="lg" fontWeight="600" color="#000000" mb="6" fontSize="24px">
                 Lecturers{" "}
                 <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
-                    ({totalCount})
+                    ({filteredCount} / {totalCount})
                 </Text>
             </Heading>
 
             {/* Toolbar */}
-            <Flex align="center" justify="flex-end" gap="3" mb="5">
+            <Flex align="center" justify="flex-end" gap="3" mb="5" flexWrap="wrap">
                 {/* Search Input */}
                 <Flex
                     align="center"
@@ -62,11 +97,46 @@ const Lecturers = () => {
                             fontSize: "12px",
                             width: "100%",
                             background: "transparent",
+                            borderRadius: "xl",
                         }}
                     />
                 </Flex>
 
-                {/* Filter Button */}
+                {/* Role Filter */}
+                <Select.Root
+                    collection={roleCollection}
+                    value={roleFilter ? [roleFilter] : []}
+                    onValueChange={(e) => setRoleFilter(e.value[0] || "")}
+                    size="sm"
+                    width="120px"
+                    bg="white"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="xl"
+                >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                        <Select.Trigger>
+                            <Select.ValueText placeholder="All Roles" />
+                        </Select.Trigger>
+                        <Select.IndicatorGroup>
+                            <Select.Indicator />
+                        </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Portal>
+                        <Select.Positioner>
+                            <Select.Content>
+                                {roleCollection.items.map((item) => (
+                                    <Select.Item key={item.value} item={item}>
+                                        {item.label}
+                                    </Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Positioner>
+                    </Portal>
+                </Select.Root>
+
+                {/* Clear Filters Button */}
                 <Flex
                     align="center"
                     gap="2"
@@ -79,10 +149,11 @@ const Lecturers = () => {
                     cursor="pointer"
                     _hover={{ bg: "gray.50" }}
                     transition="background 0.15s"
+                    onClick={clearFilters}
                 >
-                    <Icon as={SlidersHorizontal} boxSize="3.5" color="gray.600" />
+                    <Icon as={X} boxSize="3.5" color="gray.600" />
                     <Text fontSize="xs" fontWeight="500" color="gray.700">
-                        Filter
+                        Clear Filters
                     </Text>
                 </Flex>
             </Flex>

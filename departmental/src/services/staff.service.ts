@@ -4,7 +4,7 @@ import type { AssignCoursePayload } from "@type/course.type"
 
 export const StaffServices = {
     addLecturer: async (payload: CreateLecturerPayload) => {
-        const { data } = await axiosClient.post("/university-admin/lecturers", payload);
+        const { data } = await axiosClient.post("/university-admin/lecturers/", payload);
         return data;
     },
 

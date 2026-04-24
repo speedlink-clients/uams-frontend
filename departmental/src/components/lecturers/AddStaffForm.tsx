@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
+import useAuthStore from "@stores/auth.store"; 
 
 interface Props {
     isOpen: boolean;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
+    const { departmentId: authDepartmentId } = useAuthStore(); 
     const [formData, setFormData] = useState({
         staffId: "",
         title: "",
@@ -24,6 +26,26 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
         category: "",
     });
     const [isLoading, setIsLoading] = useState(false);
+
+    // Category options (stored in lowercase as they will be sent to backend)
+    const categoryOptions = [
+        "professor",
+        "senior lecturer",
+        "lecturer II",
+        "graduate assistant",
+        "associate professor"
+    ];
+
+    // Helper function to capitalize each word, preserving Roman numerals like II, III, IV
+    const capitalizeWords = (str: string) => {
+        return str.split(' ').map(word => {
+            // If word looks like a Roman numeral (I, II, III, IV, V, X, etc.), keep uppercase
+            if (/^[IVXLCDM]+$/i.test(word)) {
+                return word.toUpperCase();
+            }
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        }).join(' ');
+    };
 
     useEffect(() => {
         if (initialData) {
@@ -49,6 +71,12 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
     }, [initialData, isOpen]);
 
     const handleSubmit = async () => {
+        // Use departmentId from authentication store
+        if (!authDepartmentId && !initialData) {
+            alert("Unable to determine department. Please contact support.");
+            return;
+        }
+
         setIsLoading(true);
         const payload = {
             staffId: formData.staffId,
@@ -60,7 +88,8 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
             phoneNumber: formData.phoneNumber,
             email: formData.email,
             role: formData.role,
-            category: formData.category,
+            category: formData.category, // stored in lowercase
+            departmentId: authDepartmentId, 
             ...(formData.password ? { password: formData.password } : (!initialData ? { password: formData.phoneNumber } : {})),
         };
         try {
@@ -94,7 +123,6 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
         <Flex position="fixed" top="0" left="0" right="0" bottom="0" bg="blackAlpha.600" zIndex="9999" alignItems="center" justifyContent="center" p="4" backdropFilter="blur(4px)">
             <Box bg="white" borderRadius="2xl" shadow="xl" w="full" maxW="4xl" maxH="90vh" overflowY="auto">
                 <Box p="8">
-                    {/* Header */}
                     <Flex justifyContent="space-between" alignItems="center" mb="8">
                         <Text fontSize="2xl" fontWeight="bold" color="#1D7AD9">
                             {initialData ? "Edit Lecturer" : "Add Lecturer"}
@@ -104,7 +132,6 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         </Box>
                     </Flex>
 
-                    {/* Form Grid */}
                     <Flex direction={{ base: "column", md: "row" }} gap="8" flexWrap="wrap">
                         {/* Staff ID */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
@@ -175,14 +202,24 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             </select>
                         </Box>
 
-                        {/* Category */}
+                        {/* Category - Dropdown with formatted display */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Category</Text>
-                            <input placeholder="Professor" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} style={inputStyle} />
+                            <select 
+                                value={formData.category} 
+                                onChange={(e) => setFormData({ ...formData, category: e.target.value })} 
+                                style={inputStyle}
+                            >
+                                <option value="">Select Category</option>
+                                {categoryOptions.map(opt => (
+                                    <option key={opt} value={opt}>
+                                        {capitalizeWords(opt)}
+                                    </option>
+                                ))}
+                            </select>
                         </Box>
                     </Flex>
 
-                    {/* Footer */}
                     <Flex justifyContent="flex-end" gap="3" mt="8" pt="6">
                         <Box as="button" onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="slate.700" bg="white" border="1px solid" borderColor="slate.300" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
                             Cancel

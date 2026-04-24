@@ -19,5 +19,11 @@ export const PaymentServices = {
     getPaymentReceipt: async (paymentId: string) => {
         const { data } = await axiosClient.get(`/university-admin/payments/${paymentId}/receipt`, { responseType: "blob" });
         return data;
+    },
+
+    getTranscriptApplications: async (programTypeId?: string) => {
+        const params = programTypeId ? { program_type_id: programTypeId } : {};
+        const { data } = await axiosClient.get("/university-admin/transcripts/applications", { params });
+        return data;
     }
 }

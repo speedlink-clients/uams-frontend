@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Box, Flex, Text, Heading, Spinner, Center, Button } from "@chakra-ui/react";
 import useUserStore from "@stores/user.store";
 import { DashboardHook } from "@hooks/dashboard.hook";
+import { TimetableHook } from "@hooks/timetable.hooks"; 
 import StatCard from "@components/shared/StatCard";
 import TimetablePanel from "@components/shared/TimetablePanel";
 import { useNavigate } from "react-router";
@@ -10,52 +11,17 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const { user } = useUserStore();
 
-    // Date filter state for attendance chart
-
-
     // Timetable filter state: today, tomorrow, week
     const [timetableFilter, setTimetableFilter] = useState("today");
 
-    // Data from hooks
-    const { data: dashboardData, isLoading, error } = DashboardHook.useDashboardData();
+    // Dashboard summary data (courses, projects, students)
+    const { data: dashboardData, isLoading: isDashboardLoading, error: dashboardError } = DashboardHook.useDashboardData();
 
-    const currentDay = useMemo(() => {
-        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        return days[new Date().getDay()];
-    }, []);
+    // Fetch full timetable data for the lecturer
+    const { data: timetableData = [], isLoading: isTimetableLoading } = TimetableHook.useTimetable();
 
-    const tomorrowDay = useMemo(() => {
-        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return days[tomorrow.getDay()];
-    }, []);
-
-    // Filtered timetable entries
-    const timetableEntries = useMemo(() => {
-        if (!dashboardData?.timetable?.byDay) return [];
-
-        if (timetableFilter === "today") {
-            return dashboardData.timetable.byDay[currentDay] || [];
-        }
-        if (timetableFilter === "tomorrow") {
-            return dashboardData.timetable.byDay[tomorrowDay] || [];
-        }
-        if (timetableFilter === "week") {
-            // Flatten all days
-            return Object.values(dashboardData.timetable.byDay).flat();
-        }
-        return [];
-    }, [dashboardData, timetableFilter, currentDay, tomorrowDay]);
-
-    // Map TimetableSlot to what TimetablePanel expects (it expects .title, we have .courseTitle)
-    const normalizedEntries = useMemo(() => {
-        return timetableEntries.map(slot => ({
-            ...slot,
-            title: slot.courseTitle || "No Title",
-            isActive: timetableFilter === "today" // Simple heuristic for active
-        }));
-    }, [timetableEntries, timetableFilter]);
+    const isLoading = isDashboardLoading || isTimetableLoading;
+    const error = dashboardError; // you can also handle timetable error separately
 
     // Extract first name for greeting
     const firstName = user?.firstName || "User";
@@ -138,25 +104,14 @@ const Dashboard = () => {
                     {/* Mini timetable preview */}
                     <Box maxH="300px" overflowY="auto">
                         <TimetablePanel
-                            entries={normalizedEntries as any}
+                            timetable={timetableData}
                             selectedFilter={timetableFilter}
                             onFilterChange={setTimetableFilter}
                         />
                     </Box>
                 </Box>
 
-                {/* Attendance Chart 
-                <AttendanceChart
-                    data={attendanceData ?? []}
-                    fromDate={fromDate}
-                    toDate={toDate}
-                    onFromDateChange={setFromDate}
-                    onToDateChange={setToDate}
-                    onClear={handleClearDateFilter}
-                /> */}
             </Box>
-
-    
         </Flex>
     );
 };
