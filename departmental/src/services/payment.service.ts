@@ -21,9 +21,9 @@ export const PaymentServices = {
         return data;
     },
 
-    getTranscriptApplications: async (programTypeId?: string) => {
-        const params = programTypeId ? { program_type_id: programTypeId } : {};
-        const { data } = await axiosClient.get("/university-admin/transcripts/applications", { params });
-        return data;
-    }
+getTranscriptApplications: async (programTypeId?: string) => {
+    const params = programTypeId ? { program_type_id: programTypeId } : {};
+    const { data } = await axiosClient.get("/university-admin/transcripts/applications", { params });
+    return data; 
+}
 }

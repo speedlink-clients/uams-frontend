@@ -15,7 +15,7 @@ interface ProgramTypeSummary {
     totalPayments: number;
     accessFee: { total: string; count: number; amount: number; average: string | number };
     idCardFee: { total: string; count: number; amount: number; average: string | number };
-    transcriptFee: { total: string; count: number; amount: number; average: string | number };
+    transcriptFee?: { total: string; count: number; amount: number; average: string | number };
     otherPayments: { total: string; count: number; amount: number };
 }
 
@@ -35,28 +35,51 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const response = await PaymentServices.getPaymentsSummary();
-
-                if (response.success) {
-                    const programTypes: Record<string, ProgramTypeSummary> = response.data.summary.programTypes;
-                    const rows: ProgramRevenue[] = Object.values(programTypes).map((pt) => ({
-                        programTypeId: pt.id,
-                        programType: pt.name,
-                        accessFee: pt.accessFee.amount,
-                        idCardFee: pt.idCardFee.amount,
-                        transcriptFee: pt.transcriptFee.amount,
-                    }));
-                    setRevenueData(rows);
-                } else {
+                // 1. Get payment summary (access & ID card fees)
+                const summaryResponse = await PaymentServices.getPaymentsSummary();
+                if (!summaryResponse.success) {
                     toaster.error({ title: "Failed to load payment data" });
+                    setLoading(false);
+                    return;
                 }
+
+                const programTypes: Record<string, ProgramTypeSummary> = summaryResponse.data.summary.programTypes;
+                const programTypeList = Object.values(programTypes);
+
+                // 2. For each program type, fetch transcript applications and compute total fee
+                const transcriptPromises = programTypeList.map(async (pt) => {
+                    try {
+                        const transcriptResponse = await PaymentServices.getTranscriptApplications(pt.id);
+                        const apps = transcriptResponse?.data || [];
+                        const total = apps.reduce((sum: number, app: any) => sum + parseFloat(app.feeAmount || "0"), 0);
+                        return { programTypeId: pt.id, transcriptTotal: total };
+                    } catch (error) {
+                        console.error(`Failed to fetch transcript data for ${pt.name}:`, error);
+                        return { programTypeId: pt.id, transcriptTotal: 0 };
+                    }
+                });
+
+                const transcriptResults = await Promise.all(transcriptPromises);
+                const transcriptMap = new Map(transcriptResults.map(r => [r.programTypeId, r.transcriptTotal]));
+
+                // 3. Build revenue rows with transcript fee
+                const rows: ProgramRevenue[] = programTypeList.map((pt) => ({
+                    programTypeId: pt.id,
+                    programType: pt.name,
+                    accessFee: pt.accessFee?.amount ?? 0,
+                    idCardFee: pt.idCardFee?.amount ?? 0,
+                    transcriptFee: transcriptMap.get(pt.id) ?? 0,
+                }));
+
+                setRevenueData(rows);
             } catch (error) {
-                console.error("Failed to load summary data:", error);
+                console.error("Failed to load revenue summary:", error);
                 toaster.error({ title: "Failed to load revenue summary" });
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
     }, []);
 
@@ -67,7 +90,6 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
     return (
         <div style={{ minHeight: "100vh", background: "#F8FAFC" }}>
             <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "8px 8px" }}>
-
                 {/* Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
                     <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#0f172a", margin: 0 }}>Payments History</h1>

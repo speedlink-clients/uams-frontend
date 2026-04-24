@@ -45,6 +45,29 @@ interface ProgramTypeSummary {
     transcriptFee: { amount: number };
 }
 
+// Updated to match actual backend response
+interface TranscriptApplication {
+    id: string;
+    status: string;
+    paymentStatus: string;
+    recipientName: string;
+    recipientEmail: string;
+    deliveryMethod: string;
+    purpose: string;
+    feeAmount: string;
+    institutionName: string;
+    createdAt: string;
+    paidAt: string | null;
+    student: {
+        id: string;
+        fullName: string;
+        email: string;
+        registrationNo: string;
+        studentId: string;
+        department: string;
+    };
+}
+
 const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
     const [activeTab, setActiveTab] = useState<PaymentTab>("Access Fee");
     const [searchQuery, setSearchQuery] = useState("");
@@ -57,8 +80,12 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
     const [programSummary, setProgramSummary] = useState<ProgramTypeSummary | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [transcriptApps, setTranscriptApps] = useState<TranscriptApplication[]>([]);
+    const [loadingTranscript, setLoadingTranscript] = useState(false);
+
     const tabs: PaymentTab[] = ["Access Fee", "ID Card", "Transcript"];
 
+    // 1. Fetch payment summary (for Access Fee & ID Card)
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -88,25 +115,70 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
         fetchData();
     }, [programTypeId]);
 
+    // 2. Fetch transcript applications only when Transcript tab is active
+    useEffect(() => {
+        if (activeTab !== "Transcript") return;
+
+        const fetchTranscriptApps = async () => {
+            setLoadingTranscript(true);
+            try {
+                const response = await PaymentServices.getTranscriptApplications(programTypeId || undefined);
+                // response structure: { success: true, data: [...] }
+                const apps = response?.data || [];
+                setTranscriptApps(Array.isArray(apps) ? apps : []);
+            } catch (error) {
+                console.error("Failed to fetch transcript applications:", error);
+                toaster.error({ title: "Could not load transcript applications" });
+                setTranscriptApps([]);
+            } finally {
+                setLoadingTranscript(false);
+            }
+        };
+
+        fetchTranscriptApps();
+    }, [activeTab, programTypeId]);
+
+    // Combine transactions based on active tab
     const tabTransactions: TransactionItem[] = useMemo(() => {
+        if (activeTab === "Transcript") {
+            return transcriptApps.map((app) => ({
+                transactionReference: app.id,
+                transactionId: app.id,
+                paymentFrom: app.student?.fullName || "Unknown",
+                studentName: app.student?.fullName || "Unknown",
+                studentRegNumber: app.student?.registrationNo || "N/A",
+                paymentFor: "Transcript Application",
+                paymentType: "transcript",
+                amount: app.feeAmount || "0",
+                currency: "NGN",
+                date: app.createdAt || new Date().toISOString(),
+                status: app.paymentStatus === "PAID" ? "success" : 
+                        app.paymentStatus === "PENDING" ? "pending" : "failed",
+                sessionId: "",
+                sessionName: "",
+                statusBadge: app.paymentStatus,
+            }));
+        }
+
         if (!programPayments) return [];
         switch (activeTab) {
             case "Access Fee": return programPayments.accessFee || [];
             case "ID Card": return programPayments.idCardFee || [];
-            case "Transcript": return programPayments.transcriptFee || [];
             default: return [];
         }
-    }, [programPayments, activeTab]);
+    }, [activeTab, programPayments, transcriptApps]);
 
     const tabTotal = useMemo(() => {
+        if (activeTab === "Transcript") {
+            return transcriptApps.reduce((sum, app) => sum + parseFloat(app.feeAmount || "0"), 0);
+        }
         if (!programSummary) return 0;
         switch (activeTab) {
             case "Access Fee": return programSummary.accessFee.amount;
             case "ID Card": return programSummary.idCardFee.amount;
-            case "Transcript": return programSummary.transcriptFee.amount;
             default: return 0;
         }
-    }, [programSummary, activeTab]);
+    }, [activeTab, programSummary, transcriptApps]);
 
     const filteredTransactions = useMemo(() => {
         return tabTransactions.filter((t) => {
@@ -164,7 +236,8 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
         return `${dd}-${mm}-${yyyy}`;
     };
 
-    const truncateRef = (ref: string) => {
+    const truncateRef = (ref: string | undefined) => {
+        if (!ref) return "N/A";
         if (ref.length <= 20) return ref;
         return ref.substring(0, 8) + "…." + ref.substring(ref.length - 4);
     };
@@ -187,6 +260,7 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
     };
 
     const tabLabel = activeTab === "Access Fee" ? "Access Fee" : activeTab === "ID Card" ? "ID Card" : "Transcript";
+    const isTableLoading = loading || (activeTab === "Transcript" && loadingTranscript);
 
     const inputStyle: React.CSSProperties = {
         padding: "8px 16px", border: "1px solid #e2e8f0", borderRadius: "999px",
@@ -201,7 +275,6 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
     return (
         <div style={{ minHeight: "100vh", background: "#F8FAFC" }}>
             <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "8px 8px" }}>
-
                 {/* Back Button */}
                 <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: "8px", color: "#64748b", background: "none", border: "none", cursor: "pointer", marginBottom: "16px", fontSize: "14px", fontWeight: 500 }}>
                     <ArrowLeft size={20} />
@@ -247,7 +320,7 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
                     </button>
                 </div>
 
-                {/* Transaction History Header + Filters */}
+                {/* Filters */}
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", gap: "16px" }}>
                     <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", margin: 0 }}>
                         Transaction History <span style={{ color: "#94a3b8" }}>({filteredTransactions.length})</span>
@@ -306,80 +379,80 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
                     </div>
                 </div>
 
-               {/* Transactions Table */}
-<div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", overflow: "hidden" }}>
-    <div style={{ overflowX: "auto", width: "100%" }}>
-        <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse", minWidth: "1200px", tableLayout: "auto" }}>
-            <thead>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", width: "56px", whiteSpace: "nowrap" }}>S/N</th>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Transaction Id</th>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Payment from</th>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Payment for</th>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Amount</th>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Date</th>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right", whiteSpace: "nowrap" }}>Status</th>
-                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right", whiteSpace: "nowrap" }}>Receipt</th>
-                </tr>
-            </thead>
-            <tbody>
-                {loading ? (
-                    <tr>
-                        <td colSpan={8} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
-                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
-                                <div style={{ width: "16px", height: "16px", border: "2px solid #94a3b8", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-                                Loading transactions...
-                            </div>
-                        </td>
-                    </tr>
-                ) : filteredTransactions.length === 0 ? (
-                    <tr>
-                        <td colSpan={8} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
-                            No transactions found.
-                        </td>
-                    </tr>
-                ) : (
-                    filteredTransactions.map((t, index) => (
-                        <tr key={t.transactionId} style={{ borderBottom: "1px solid #f8fafc" }} onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc80")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
-                            <td style={{ padding: "16px 24px", color: "#64748b", fontSize: "14px", whiteSpace: "nowrap" }}>{index + 1}</td>
-                            <td style={{ padding: "16px 24px", color: "#475569", fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap" }}>
-                                {truncateRef(t.transactionReference)}
-                            </td>
-                            <td style={{ padding: "16px 24px", color: "#334155", fontWeight: 500, fontSize: "14px", whiteSpace: "nowrap" }}>
-                                {t.studentName}
-                            </td>
-                            <td style={{ padding: "16px 24px", color: "#475569", fontSize: "14px", whiteSpace: "nowrap" }}>
-                                {t.paymentFor}
-                            </td>
-                            <td style={{ padding: "16px 24px", fontWeight: 700, color: "#0f172a", fontSize: "14px", whiteSpace: "nowrap" }}>
-                                {formatCurrency(t.amount)}
-                            </td>
-                            <td style={{ padding: "16px 24px", color: "#64748b", fontSize: "14px", whiteSpace: "nowrap" }}>
-                                {formatDate(t.date)}
-                            </td>
-                            <td style={{ padding: "16px 24px", textAlign: "right", whiteSpace: "nowrap" }}>
-                                <span style={{ ...getStatusStyle(t.status), display: "inline-block", padding: "4px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, whiteSpace: "nowrap" }}>
-                                    {getStatusLabel(t.status)}
-                                </span>
-                            </td>
-                            <td style={{ padding: "16px 24px", textAlign: "right", whiteSpace: "nowrap" }}>
-                                <button
-                                    onClick={() => handleDownloadReceipt(t.transactionId)}
-                                    style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#1D7AD9", color: "white", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", whiteSpace: "nowrap" }}
-                                >
-                                    <Download size={16} />
-                                    Receipt
-                                </button>
-                            </td>
-                        </tr>
-                    ))
-                )}
-            </tbody>
-        </table>
-    </div>
-</div>
-<style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-        </div>
+                {/* Transactions Table */}
+                <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+                    <div style={{ overflowX: "auto", width: "100%" }}>
+                        <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse", minWidth: "1200px", tableLayout: "auto" }}>
+                            <thead>
+                                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", width: "56px", whiteSpace: "nowrap" }}>S/N</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Transaction Id</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Payment from</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Payment for</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Amount</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>Date</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right", whiteSpace: "nowrap" }}>Status</th>
+                                    <th style={{ padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right", whiteSpace: "nowrap" }}>Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isTableLoading ? (
+                                    <tr>
+                                        <td colSpan={8} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
+                                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+                                                <div style={{ width: "16px", height: "16px", border: "2px solid #94a3b8", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                                                Loading transactions...
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : filteredTransactions.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} style={{ padding: "64px 24px", textAlign: "center", color: "#94a3b8" }}>
+                                            No transactions found.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredTransactions.map((t, index) => (
+                                        <tr key={t.transactionId} style={{ borderBottom: "1px solid #f8fafc" }} onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc80")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                                            <td style={{ padding: "16px 24px", color: "#64748b", fontSize: "14px", whiteSpace: "nowrap" }}>{index + 1}</td>
+                                            <td style={{ padding: "16px 24px", color: "#475569", fontFamily: "monospace", fontSize: "12px", whiteSpace: "nowrap" }}>
+                                                {truncateRef(t.transactionReference)}
+                                            </td>
+                                            <td style={{ padding: "16px 24px", color: "#334155", fontWeight: 500, fontSize: "14px", whiteSpace: "nowrap" }}>
+                                                {t.studentName}
+                                            </td>
+                                            <td style={{ padding: "16px 24px", color: "#475569", fontSize: "14px", whiteSpace: "nowrap" }}>
+                                                {t.paymentFor}
+                                            </td>
+                                            <td style={{ padding: "16px 24px", fontWeight: 700, color: "#0f172a", fontSize: "14px", whiteSpace: "nowrap" }}>
+                                                {formatCurrency(t.amount)}
+                                            </td>
+                                            <td style={{ padding: "16px 24px", color: "#64748b", fontSize: "14px", whiteSpace: "nowrap" }}>
+                                                {formatDate(t.date)}
+                                            </td>
+                                            <td style={{ padding: "16px 24px", textAlign: "right", whiteSpace: "nowrap" }}>
+                                                <span style={{ ...getStatusStyle(t.status), display: "inline-block", padding: "4px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, whiteSpace: "nowrap" }}>
+                                                    {getStatusLabel(t.status)}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: "16px 24px", textAlign: "right", whiteSpace: "nowrap" }}>
+                                                <button
+                                                    onClick={() => handleDownloadReceipt(t.transactionId)}
+                                                    style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#1D7AD9", color: "white", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", whiteSpace: "nowrap" }}
+                                                >
+                                                    <Download size={16} />
+                                                    Receipt
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+            </div>
         </div>
     );
 };
