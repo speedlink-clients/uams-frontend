@@ -1,6 +1,6 @@
 import { useState, FormEvent, useEffect } from "react";
 import { X, Loader2, CheckCircle2, AlertCircle, ChevronDown } from "lucide-react";
-import adminApi from "../api/AdminApi";
+import { subOrganizationService } from "../api/AdminApi";
 import { SubOrganization } from "./types";
 
 export const CreateDepartmentModal = ({
@@ -36,7 +36,7 @@ export const CreateDepartmentModal = ({
     const loadFaculties = async () => {
       setFetchingFaculties(true);
       try {
-        const res = await adminApi.get("/university-admin/sub-organizations");
+        const res = await subOrganizationService.getSubOrganizations();
         const responseData = res.data?.data || res.data;
         const orgs = Array.isArray(responseData) ? responseData : [];
         setFaculties(orgs.filter(o => o.type === "FACULTY"));
@@ -70,12 +70,12 @@ export const CreateDepartmentModal = ({
     const payload = {
       name: formData.name.trim(),
       code: formData.code.trim(),
-      type: "DEPARTMENT",
+      type: "DEPARTMENT" as "DEPARTMENT",
       parentId: formData.parentId,
     };
 
     try {
-      const res = await adminApi.post("/university-admin/sub-organizations", payload);
+      const res = await subOrganizationService.createDepartment(payload);
 
       const created = res.data?.data || res.data;
 

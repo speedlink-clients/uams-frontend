@@ -8,7 +8,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import adminApi from "../api/AdminApi";
+import { subOrganizationService, adminUserService } from "../api/AdminApi";
 import { AccountRecord, SubOrganization } from "./types";
 
 export const CreateAdminModal = ({
@@ -32,7 +32,8 @@ export const CreateAdminModal = ({
   } | null>(null);
 
   const [formData, setFormData] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     orgId: "",
@@ -50,7 +51,7 @@ export const CreateAdminModal = ({
     const loadSubOrgs = async () => {
       setFetchingData(true);
       try {
-        const res = await adminApi.get("/university-admin/sub-organizations");
+        const res = await subOrganizationService.getSubOrganizations();
         // Handle different API response structures - ensure we always get an array
         const responseData = res.data?.data || res.data;
         setSubOrgs(Array.isArray(responseData) ? responseData : []);
@@ -79,7 +80,8 @@ export const CreateAdminModal = ({
     setNotification(null);
 
     if (
-      !formData.fullName.trim() ||
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
       !formData.email.trim() ||
       !formData.phone.trim() ||
       !formData.orgId
@@ -93,23 +95,16 @@ export const CreateAdminModal = ({
 
     setLoading(true);
 
-    const isFaculty = adminType === "Faculty Admin";
-
-    const endpoint = isFaculty
-      ? "/university-admin/faculty-admins"
-      : "/university-admin/department-admins";
-
     const payload = {
-      fullName: formData.fullName.trim(),
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
       email: formData.email.trim(),
       phone: formData.phone.trim(),
-      ...(isFaculty
-        ? { facultyId: formData.orgId }
-        : { departmentId: formData.orgId }),
+      departmentId: formData.orgId,
     };
 
     try {
-      const res = await adminApi.post(endpoint, payload);
+      const res = await adminUserService.createDepartmentAdmin(payload);
 
       const created =
         res.data?.data?.facultyAdmin ||
@@ -125,7 +120,7 @@ export const CreateAdminModal = ({
         onSave({
           code: created?.faculty?.code || created?.department?.code || "N/A",
           role: adminType,
-          name: formData.fullName,
+          name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
           phone: formData.phone,
           status: "Active",
@@ -192,14 +187,24 @@ export const CreateAdminModal = ({
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
-              <input
-                className="w-full px-4 py-2.5 border rounded-xl"
-                placeholder="Full Name"
-                value={formData.fullName}
-                onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
-                }
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  className="px-4 py-2.5 border rounded-xl"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
+                />
+                <input
+                  className="px-4 py-2.5 border rounded-xl"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <input

@@ -1,6 +1,6 @@
 import { useState, FormEvent, useEffect } from "react";
 import { X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import adminApi from "../api/AdminApi";
+import { subOrganizationService } from "../api/AdminApi";
 
 export const CreateFacultyModal = ({
   onClose,
@@ -45,11 +45,11 @@ export const CreateFacultyModal = ({
     const payload = {
       name: formData.name.trim(),
       code: formData.code.trim(),
-      type: "FACULTY"
+      type: "FACULTY" as "FACULTY"
     };
 
     try {
-      const res = await adminApi.post("/university-admin/sub-organizations", payload);
+      const res = await subOrganizationService.createFaculty(payload);
 
       const created = res.data?.data || res.data;
 
