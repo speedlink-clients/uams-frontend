@@ -73,7 +73,7 @@ const PaymentsNew: React.FC = () => {
       setIsProcessing(true);
       setErrorMessage(null);
       
-      const callbackUrl = `${window.location.origin}/payments`;
+      const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
       const result = await initCourseRegistrationPayment(semesterId, amount, callbackUrl);
       
       if (result.success && result.authorizationUrl) {
