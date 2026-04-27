@@ -28,19 +28,18 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    // Category options (stored in lowercase as they will be sent to backend)
+
     const categoryOptions = [
-        "professor",
-        "senior lecturer",
-        "lecturer II",
-        "graduate assistant",
-        "associate professor"
+        "Professor",
+        "Senior Lecturer",
+        "Lecturer II",
+        "Graduate Assistant",
+        "Associate Professor"
     ];
 
     // Helper function to capitalize each word, preserving Roman numerals like II, III, IV
     const capitalizeWords = (str: string) => {
         return str.split(' ').map(word => {
-            // If word looks like a Roman numeral (I, II, III, IV, V, X, etc.), keep uppercase
             if (/^[IVXLCDM]+$/i.test(word)) {
                 return word.toUpperCase();
             }
@@ -89,7 +88,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
             phoneNumber: formData.phoneNumber,
             email: formData.email,
             role: formData.role,
-            category: formData.category, // stored in lowercase
+            category: formData.category, 
             departmentId: authDepartmentId, 
             ...(formData.password ? { password: formData.password } : (!initialData ? { password: formData.phoneNumber } : {})),
         };
@@ -202,8 +201,8 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Role</Text>
                             <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} style={inputStyle}>
                                 <option value="">Select</option>
-                                <option value="LECTURER">Lecturer</option>
-                                <option value="ERO">Exams and Record Officer</option>
+                                <option value="LECTURER">LECTURER</option>
+                                <option value="ERO">ERO</option>
                                 <option value="HOD">HOD</option>
                             </select>
                         </Box>
