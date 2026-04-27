@@ -3,6 +3,8 @@ import { Box, Flex, Text, Heading, Icon } from "@chakra-ui/react";
 import { ChevronRight, Search } from "lucide-react";
 import { CourseHook } from "@hooks/course.hook";
 import { useNavigate } from "react-router";
+import useUserStore from "@stores/user.store";
+import type { AuthUser } from "@type/auth.type";
 
 const Results = () => {
     const navigate = useNavigate();
@@ -10,36 +12,47 @@ const Results = () => {
     const [selectedLevelId, setSelectedLevelId] = useState<string>("all");
     const [selectedSemesterId, setSelectedSemesterId] = useState<string>("all");
 
-    // Fetch only assigned courses
-    const { data: assignedCourses = [], isLoading } = CourseHook.useAssignedCourses();
+    // Get current user role from store
+    const user = useUserStore((state) => state.user) as AuthUser | null;
+    const isHOD = user?.role === "HOD";
 
-    // Extract unique level options from assigned courses
+    // Conditionally fetch courses based on role
+    const { data: allCourses = [], isLoading: allLoading } = CourseHook.useCourses({
+        enabled: isHOD,
+    });
+    const { data: assignedCourses = [], isLoading: assignedLoading } = CourseHook.useAssignedCourses({
+        enabled: !isHOD,
+    });
+
+    const courses = isHOD ? allCourses : assignedCourses;
+    const isLoading = allLoading || assignedLoading; // only one query runs
+
+    // Extract unique level options from the fetched courses
     const levelOptions = useMemo(() => {
         const levelsMap = new Map<string, string>();
-        assignedCourses.forEach(course => {
+        courses.forEach(course => {
             if (course.level?.id && course.level?.name) {
                 levelsMap.set(course.level.id, course.level.name);
             }
         });
         return Array.from(levelsMap.entries()).map(([id, name]) => ({ id, name }));
-    }, [assignedCourses]);
+    }, [courses]);
 
-    // Extract unique semester options from assigned courses
+    // Extract unique semester options from the fetched courses
     const semesterOptions = useMemo(() => {
         const semestersMap = new Map<string, string>();
-        assignedCourses.forEach(course => {
+        courses.forEach(course => {
             if (course.semester?.id && course.semester?.name) {
                 semestersMap.set(course.semester.id, course.semester.name);
             }
         });
         return Array.from(semestersMap.entries()).map(([id, name]) => ({ id, name }));
-    }, [assignedCourses]);
+    }, [courses]);
 
     // Apply search + level + semester filters
     const filteredCourses = useMemo(() => {
-        let filtered = assignedCourses;
+        let filtered = courses;
 
-        // Search filter
         if (search.trim()) {
             const query = search.toLowerCase();
             filtered = filtered.filter(
@@ -49,18 +62,16 @@ const Results = () => {
             );
         }
 
-        // Level filter (by levelId)
         if (selectedLevelId !== "all") {
             filtered = filtered.filter((c) => c.levelId === selectedLevelId);
         }
 
-        // Semester filter (by semesterId)
         if (selectedSemesterId !== "all") {
             filtered = filtered.filter((c) => c.semesterId === selectedSemesterId);
         }
 
         return filtered;
-    }, [assignedCourses, search, selectedLevelId, selectedSemesterId]);
+    }, [courses, search, selectedLevelId, selectedSemesterId]);
 
     if (isLoading) return <Text>Loading courses...</Text>;
 

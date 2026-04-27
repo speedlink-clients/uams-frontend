@@ -3,6 +3,7 @@ import { Box, Flex, Text, Heading, Icon } from "@chakra-ui/react";
 import { Search } from "lucide-react";
 import { CourseHook } from "@hooks/course.hook";
 import CourseList from "@components/shared/CourseList";
+import { useCurrentUser } from "@hooks/currentUser.hook";
 
 const LEVELS = ["All", "100", "200", "300", "400", "500"];
 const SEMESTERS = ["All", "First Semester", "Second Semester"];
@@ -12,36 +13,38 @@ const Courses = () => {
     const [level, setLevel] = useState("All");
     const [semester, setSemester] = useState("All");
 
-    const { data: assignedCourses = [], isLoading } = CourseHook.useAssignedCourses();
+    const { isHOD } = useCurrentUser();
 
-    // filtering (search + level + semester)
+    // Conditionally fetch data – the "enabled" flag prevents unnecessary network calls
+    const { data: allCourses = [], isLoading: allLoading } = CourseHook.useCourses({
+        enabled: isHOD,
+    });
+    const { data: assignedCourses = [], isLoading: assignedLoading } = CourseHook.useAssignedCourses({
+        enabled: !isHOD,
+    });
+
+    const courses = isHOD ? allCourses : assignedCourses;
+    const isLoading = allLoading || assignedLoading; // only one query runs, so this is fine
+
+    // Filtering (search + level + semester)
     const filteredCourses = useMemo(() => {
-        let filtered = assignedCourses;
-
-        // Search
+        let filtered = courses;
         if (search.trim()) {
-            const query = search.toLowerCase();
+            const q = search.toLowerCase();
             filtered = filtered.filter(
-                (c) =>
-                    c.title.toLowerCase().includes(query) ||
-                    c.code.toLowerCase().includes(query)
+                (c) => c.title.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
             );
         }
-
-        // Level filter 
         if (level !== "All") {
             filtered = filtered.filter((c) => c.level?.name?.includes(level));
         }
-
-        // Semester filter 
         if (semester !== "All") {
             filtered = filtered.filter((c) => c.semester?.name === semester);
         }
-
         return filtered;
-    }, [assignedCourses, search, level, semester]);
+    }, [courses, search, level, semester]);
 
-    const totalCount = assignedCourses.length;
+    const totalCount = courses.length;
 
     return (
         <Box>
