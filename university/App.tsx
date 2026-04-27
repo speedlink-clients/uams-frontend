@@ -11,6 +11,7 @@ import AccountsPage from "./pages/AccountPage";
 import SettingsView from "./components/SettingsView";
 import { UserSession, AuthData } from "./components/types";
 import DashboardHome from "./components/DashboardHome";
+import FacultyDepartmentPage from "./pages/FacultyDepartmentPage";
 
 const SESSION_KEY = "u_university_session";
  
@@ -157,6 +158,7 @@ const App: React.FC = () => {
         >
           <Route index element={<DashboardHome />} />
           <Route path="accounts" element={<AccountsPage />} />
+          <Route path="faculty-department" element={<FacultyDepartmentPage />} />
           <Route path="students" element={<StudentsPage />} />
           <Route path="staff" element={<StaffView />} />
           <Route path="payments" element={<PaymentsView />} />

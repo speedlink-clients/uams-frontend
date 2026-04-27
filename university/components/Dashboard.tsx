@@ -15,6 +15,7 @@ import {
   MessageSquareText,
   Menu,
   X,
+  Building2,
 } from "lucide-react";
 import ChatBot from "./ChatBot";
 
@@ -89,20 +90,21 @@ const Dashboard: React.FC<DashboardProps> = ({ authData, onLogout }) => {
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Admins", path: "/dashboard/accounts", icon: UserSquare2 },
-    { name: "Staff", path: "/dashboard/staff", icon: Users },
-    { name: "Students", path: "/dashboard/students", icon: GraduationCap },
-    { name: "Payments", path: "/dashboard/payments", icon: CreditCard },
-    {
-      name: "Roles & Permissions",
-      path: "/dashboard/roles",
-      icon: ShieldCheck,
-    },
-    {
-      name: "Announcements",
-      path: "/dashboard/announcements",
-      icon: Megaphone,
-    },
-    { name: "Settings", path: "/dashboard/settings", icon: Settings },
+    { name: "Faculty & Department", path: "/dashboard/faculty-department", icon: Building2 },
+    // { name: "Staff", path: "/dashboard/staff", icon: Users },
+    // { name: "Students", path: "/dashboard/students", icon: GraduationCap },
+    // { name: "Payments", path: "/dashboard/payments", icon: CreditCard },
+    // {
+    //   name: "Roles & Permissions",
+    //   path: "/dashboard/roles",
+    //   icon: ShieldCheck,
+    // },
+    // {
+    //   name: "Announcements",
+    //   path: "/dashboard/announcements",
+    //   icon: Megaphone,
+    // },
+    // { name: "Settings", path: "/dashboard/settings", icon: Settings },
   ];
 
   const isActive = (path: string) =>

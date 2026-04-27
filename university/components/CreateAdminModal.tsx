@@ -176,7 +176,7 @@ export const CreateAdminModal = ({
         <div className="px-10 pb-10 overflow-y-auto">
           {step === "choose" ? (
             <div className="space-y-4">
-              {["Department Admin", "Faculty Admin"].map((type) => (
+              {["Department Admin"].map((type) => (
                 <button
                   key={type}
                   onClick={() => {
