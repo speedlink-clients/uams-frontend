@@ -58,12 +58,21 @@ const StudentDetailsSidebar = ({ student, onClose }: StudentDetailsSidebarProps)
         setSaveError(null);
     };
 
+    // Fixed: Use the actual user ID from the profile, not the student ID
     const handleSaveRole = async () => {
         if (!selectedRole) return;
+        
+        // Extract user ID from the fetched profile
+        const userId = profile?.user?.id || profile?.userId;
+        if (!userId) {
+            setSaveError("Unable to identify user. Please refresh and try again.");
+            return;
+        }
+
         setIsSaving(true);
         setSaveError(null);
         try {
-            await StudentServices.assignClassRepRole(student.id, selectedRole);
+            await StudentServices.assignClassRepRole(userId, selectedRole);
             toaster.success({ title: "Role assigned successfully" });
             onClose();
         } catch (err: any) {

@@ -157,7 +157,7 @@ const StudentsPage = () => {
 
     const handleExport = () => {
         const exportData = filteredStudents.map((s) => ({
-            "Reg No": s.regNo, "Mat No": s.matNo, Surname: s.surname, "Other Names": s.otherNames,
+            "Reg No": s.regNo, "Mat No": s.matNo, "First Name": s.surname, "Other Names": s.otherNames,
             Email: s.email, Phone: s.phoneNo, Sex: s.sex, Department: s.department,
             Faculty: s.faculty, Level: s.level, "Admission Mode": s.admissionMode,
             "Entry Qualification": s.entryQualification, "Degree Course": s.degreeCourse,
@@ -306,7 +306,7 @@ const StudentsPage = () => {
                                     </Box>
                                     <Box as="th" px="6" py="5" minW="150px">Reg No.</Box>
                                     <Box as="th" px="6" py="5" minW="150px">Mat. No.</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Surname</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">First Name</Box>
                                     <Box as="th" px="6" py="5" minW="150px">Other Names</Box>
                                     <Box as="th" px="6" py="5" minW="200px">Email</Box>
                                     <Box as="th" px="6" py="5" minW="140px">Phone No</Box>
