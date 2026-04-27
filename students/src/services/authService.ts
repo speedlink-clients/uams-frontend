@@ -125,7 +125,7 @@ export const initializePayment =
   async (): Promise<InitializePaymentResponse> => {
     try {
       // Redirect to login page after payment since backend already verifies it
-      const callbackUrl = `${window.location.origin}/students/login`;
+      const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
       const response = await apiClient.post<InitializePaymentResponse>(
         "/annual-access-fee/initialize",
         { callbackUrl },
@@ -258,7 +258,7 @@ export const getIdCardFee = async (): Promise<IdCardFeeResponse> => {
 export const initializeIdCardPayment =
   async (): Promise<InitializePaymentResponse> => {
     try {
-      const callbackUrl = `${window.location.origin}/students/registration/other`;
+      const callbackUrl = import.meta.env.VITE_ID_CARD_CALLBACK_URL;
       const response = await apiClient.post<InitializePaymentResponse>(
         "/annual-access-fee/idcard-payment",
         { callbackUrl },

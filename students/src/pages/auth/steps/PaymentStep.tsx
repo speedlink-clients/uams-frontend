@@ -60,7 +60,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
     setError("");
 
     try {
-      const callbackUrl = `${window.location.origin}/students/login`;
+      const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
       localStorage.setItem("paymentCallbackUrl", callbackUrl);
       const response = await authService.initializePayment();
       // Redirect to Paystack checkout page

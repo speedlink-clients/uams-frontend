@@ -1063,7 +1063,7 @@ const OtherServicesView = ({
     setError("");
 
     try {
-      const callbackUrl = `${window.location.origin}/students/registration/other`;
+      const callbackUrl = import.meta.env.VITE_ID_CARD_CALLBACK_URL;
       localStorage.setItem("paymentCallbackUrl", callbackUrl);
       const response = await initializeIdCardPayment();
       window.location.href = response.data.authorizationUrl;
