@@ -5,6 +5,7 @@ export interface Student {
     regNo: string;
     matNo: string;
     surname: string;
+    firstName: string;
     otherNames: string;
     name: string;
     email: string;
