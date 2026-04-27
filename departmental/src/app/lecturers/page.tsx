@@ -129,7 +129,7 @@ const StaffPage = () => {
   };
 
   const toggleSelectAll = () => {
-    const allIds = filteredStaff.map((s) => s.staffNumber);
+    const allIds = filteredStaff.map((s) => s.id);
     const allSelected = allIds.every((id) => selectedIds.includes(id));
     setSelectedIds(allSelected ? [] : allIds);
   };
@@ -361,9 +361,9 @@ const StaffPage = () => {
               </Box>
               <Box as="tbody" fontSize="xs">
                 {paginatedStaff.map((s) => (
-                  <Box as="tr" key={s.staffNumber} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.staffNumber) ? "blue.50" : undefined} cursor="pointer" whiteSpace="nowrap">
-                    <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.staffNumber) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50">
-                      <input type="checkbox" checked={selectedIds.includes(s.staffNumber)} onChange={() => toggleSelection(s.staffNumber)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
+                  <Box as="tr" key={s.id} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.id) ? "blue.50" : undefined} cursor="pointer" whiteSpace="nowrap">
+                    <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50">
+                      <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
                     </Box>
                     <Box as="td" px="6" py="5" color="slate.400" fontWeight="medium">{s.staffNumber}</Box>
                     <Box as="td" px="6" py="5" fontWeight="bold" color="slate.700">{s.fullName}</Box>
@@ -380,12 +380,12 @@ const StaffPage = () => {
                         ))}
                       </Flex>
                     </Box>
-                    <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.staffNumber ? "50" : "10"} bg={selectedIds.includes(s.staffNumber) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" ref={dropdownRef}>
+                    <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" ref={dropdownRef}>
                       <Box position="relative">
-                        <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.staffNumber, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
+                        <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.id, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
                           <MoreHorizontal size={20} />
                         </Box>
-                        {activeDropdownId === s.staffNumber && (
+                        {activeDropdownId === s.id && (
                           <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="1px solid" borderColor="gray.100" zIndex="50" overflow="hidden" textAlign="left">
                             <Box p="1">
                               <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignCourse(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
@@ -450,7 +450,7 @@ const StaffPage = () => {
         <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
           <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
           <Box w="px" h="6" bg="slate.200" />
-          <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.staffNumber)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Courses: s.courses })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
+          <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.id)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Courses: s.courses })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
             <Download size={16} /> Bulk Download
           </Box>
           <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">

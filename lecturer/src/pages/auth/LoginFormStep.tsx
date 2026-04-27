@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Box, Flex, Text, Heading, Icon, Input } from "@chakra-ui/react";
+import { toaster } from "@components/ui/toaster";
 import { User, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router";
 import AuthBackground from "@components/auth/AuthBackground";
@@ -18,7 +19,6 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
     const [showPassword, setShowPassword] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
 
     const { setAuth } = useAuthStore();
     const { setUser } = useUserStore();
@@ -34,7 +34,7 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
             onLoginSuccess();
         },
         onError: (err) => {
-            setError(err.message || "Login failed. Please try again.");
+            toaster.error({ title: "Login Failed", description: err.message || "Please try again." });
         },
     });
 
@@ -42,11 +42,10 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
         e.preventDefault();
 
         if (!username.trim() || !password.trim()) {
-            setError("Please enter both username and password");
+            toaster.error({ title: "Please enter both email and password" });
             return;
         }
 
-        setError("");
         login({ email: username, password });
     };
 
@@ -141,14 +140,6 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
                             </Box>
                         </Box>
 
-                        {/* Error Message */}
-                        {error && (
-                            <Box bg="red.50" border="1px solid" borderColor="red.200" borderRadius="lg" p="3">
-                                <Text fontSize="13px" fontWeight="500" color="red.600">
-                                    {error}
-                                </Text>
-                            </Box>
-                        )}
 
                         {/* Login Button */}
                         <button

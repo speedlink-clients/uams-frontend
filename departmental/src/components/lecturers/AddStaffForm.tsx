@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
 import useAuthStore from "@stores/auth.store"; 
 
@@ -26,6 +26,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
         category: "",
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     // Category options (stored in lowercase as they will be sent to backend)
     const categoryOptions = [
@@ -188,7 +189,12 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         {/* Password */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Password</Text>
-                            <input type="password" placeholder="Use Phone Number as Default Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} style={inputStyle} />
+                            <Box position="relative">
+                                <input type={showPassword ? "text" : "password"} placeholder="Use Phone Number as Default Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} style={{ ...inputStyle, paddingRight: "40px" }} />
+                                <Box as="button" onClick={() => setShowPassword(!showPassword)} position="absolute" right="10px" top="50%" transform="translateY(-50%)" bg="transparent" border="none" cursor="pointer" color="slate.400" display="flex" alignItems="center" p="0" _hover={{ color: "slate.600" }}>
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </Box>
+                            </Box>
                         </Box>
 
                         {/* Role */}
