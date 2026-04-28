@@ -4,7 +4,7 @@ import { Container, Field, Heading, Input, Stack } from "@chakra-ui/react";
 import { PasswordInput } from "@components/ui/password-input";
 import { useNavigate } from "react-router";
 import type { AuthState, SignupFormData } from "@type/auth.type";
-import { AuthHook } from "@hooks/auth.hook";
+import { AuthHooks } from "@hooks/auth.hook";
 import useAuthStore from "@stores/auth.store";
 import SubmitButton from "@components/shared/buttons/SubmitButton";
 
@@ -12,7 +12,7 @@ const SignupPage = () => {
     const { register, handleSubmit, formState: { errors } } = useSignupForm();
     const navigate = useNavigate();
     const { setAuth } = useAuthStore();
-    const { mutateAsync: signup, isPending } = AuthHook.useSignup({
+    const { mutateAsync: signup, isPending } = AuthHooks.useSignup({
         onSuccess: (data) => {
             setAuth(data as AuthState);
             navigate("/");
@@ -21,7 +21,7 @@ const SignupPage = () => {
 
     const onSubmit = useCallback((data: SignupFormData) => {
         signup(data);
-    }, [signup])
+    }, [])
 
     return (
         <Container py="6" maxW="md">

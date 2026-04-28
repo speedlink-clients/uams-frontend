@@ -1,19 +1,13 @@
 import axiosClient from "@configs/axios.config"
-import type { LoginData, LoginResponse, SignupFormData, SignupResponse } from "@type/auth.type"
-import { sleep } from "@utils/sleep.util";
+import type { LoginData, LoginResponse } from "@type/auth.type"
 
-export const AuthService = {
+export const AuthServices = {
     login: async (payload: LoginData) => {
-        const { data } = await axiosClient.post<LoginResponse>("/auth/login", payload);
-
-        await sleep(3000);
-        return data;
-    },
-    signup: async (payload: SignupFormData) => {
-        const { data } = await axiosClient.post<SignupResponse>("/auth/signup", payload);
+        const { data } = await axiosClient.post<LoginResponse>("/auth/signin", payload);
         return data;
     },
     logout: async () => {
-
-    }
+        // Server-side logout if endpoint exists
+        // await axiosClient.post("/auth/logout");
+    },
 }

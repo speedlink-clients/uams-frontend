@@ -12,17 +12,13 @@ import {
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import LoginModal from "@components/shared/LoginModal";
 
 const LOGO_SRC = "/images/a7f14cb8262ed215ba9b9d5819404f20e896d5cc.png";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isLoginOpen, setIsLoginOpen] = useState(false);
     const navigate = useNavigate();
 
-    const openLogin = () => setIsLoginOpen(true);
-    const closeLogin = () => setIsLoginOpen(false);
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -96,7 +92,7 @@ const Navbar = () => {
                                 _hover={{ bg: "#23a1d5" }}
                                 // Button is now always visible
                                 display="inline-flex"
-                                onClick={openLogin}
+                                onClick={() => navigate("/auth/login")}
                             >
                                 Login
                             </Button>
@@ -163,7 +159,7 @@ const Navbar = () => {
                 )}
             </Box>
 
-            <LoginModal isOpen={isLoginOpen} onClose={closeLogin} />
+            
         </>
     );
 };
