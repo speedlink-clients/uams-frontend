@@ -19,7 +19,6 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
 
-
     const toggleMenu = () => setIsOpen(!isOpen);
 
     const scrollToSection = (id: string) => {
@@ -83,19 +82,27 @@ const Navbar = () => {
 
                         {/* Actions */}
                         <HStack gap={{ base: 2, md: 4 }}>
-                            <Button
+                            <Link
+                                onClick={() => navigate("/auth/login")}
                                 bg="#2AB0E8"
                                 color="white"
-                                size={{ base: "xs", md: "sm" }}
                                 px={{ base: 3, md: 6 }}
+                                py={{ base: 1.5, md: 2 }}
                                 borderRadius="none"
-                                _hover={{ bg: "#23a1d5" }}
-                                // Button is now always visible
+                                _hover={{ 
+                                    bg: "#23a1d5",
+                                    textDecoration: "none",
+                                    cursor: "pointer"
+                                }}
                                 display="inline-flex"
-                                onClick={() => navigate("/auth/login")}
+                                alignItems="center"
+                                justifyContent="center"
+                                fontSize={{ base: "xs", md: "sm" }}
+                                fontWeight="medium"
+                                transition="all 0.2s"
                             >
                                 Login
-                            </Button>
+                            </Link>
 
                             {/* Mobile Menu Toggle */}
                             <IconButton
@@ -109,20 +116,6 @@ const Navbar = () => {
                         </HStack>
                     </Flex>
                 </Container>
-
-                {/* Admission Bar
-                <Box bg="#4CC5F5" py={2}>
-                    <Container maxW="container.xl">
-                        <Flex justify="center" align="center" gap={2} fontSize={{ base: "xs", md: "sm" }} color="white" flexWrap="wrap">
-                            <Text textAlign="center">
-                                Admission for the January 2026 academic session is ongoing.
-                            </Text>
-                            <Link href="https://www.uniport.edu.ng/" fontWeight="bold" textDecoration="underline" color="white">
-                                Apply Now!
-                            </Link>
-                        </Flex>
-                    </Container>
-                </Box> */}
 
                 {/* Mobile Menu Overlay */}
                 {isOpen && (
@@ -147,19 +140,16 @@ const Navbar = () => {
                                     fontSize="md" 
                                     fontWeight="medium" 
                                     color="gray.700" 
-                                    py={3} // Added padding for better mobile touch targets
+                                    py={3}
                                     _hover={{ cursor: "pointer" }}
                                 >
                                     {item.label}
                                 </Link>
                             ))}
-                            {/* Login Button removed from here as it is persistent in the header */}
                         </Stack>
                     </Box>
                 )}
             </Box>
-
-            
         </>
     );
 };

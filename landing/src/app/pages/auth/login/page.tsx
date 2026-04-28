@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { User } from "lucide-react";
 import { useNavigate } from "react-router";
 import useAuthStore from "@stores/auth.store";
@@ -21,24 +21,14 @@ const LoginPage = () => {
 
     const { mutate: login, isPending: isLoading, error: mutationError } = AuthHooks.useLogin({
         onSuccess: (data) => {
-            localStorage.setItem("loginEmail", data.user.email);
-
             setAuth({
                 token: data.token,
-                role: data.user.role,
-                tenantId: data.permissions.tenantId,
-                universityId: data.permissions.universityId,
-                facultyId: data.permissions.facultyId || null,
-                departmentId: data.permissions.departmentId || null,
-                email: data.user.email,
-                username: data.user.fullName,
+                refreshToken: data.refreshToken || "",
+                expireAt: data.expireAt || "",
                 user: data.user,
             });
 
             navigate("/dashboard");
-        },
-        onError: () => {
-            localStorage.removeItem("loginEmail");
         },
     });
 
@@ -200,7 +190,6 @@ const LoginPage = () => {
                             {/* Submit Button */}
                             <Flex
                                 as="button"
-                                type="submit"
                                 w="full"
                                 bg="#1d76d2"
                                 color="white"
