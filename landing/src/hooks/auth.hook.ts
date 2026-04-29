@@ -1,17 +1,12 @@
-import { AuthService } from "@services/auth.service"
+import { AuthServices } from "@services/auth.service"
 import { useMutation, type UseMutationOptions } from "@tanstack/react-query"
-import type { LoginData, LoginResponse, SignupData, SignupResponse } from "@type/auth.type"
+import type { LoginData, LoginResponse } from "@type/auth.type"
 
 
 // auth hook
-export const AuthHook = {
+export const AuthHooks = {
     useLogin: (options?: UseMutationOptions<LoginResponse, Error, LoginData, unknown>) => useMutation<LoginResponse, Error, LoginData, unknown>({
-        mutationFn: (payload: LoginData) => AuthService.login(payload),
+        mutationFn: (payload: LoginData) => AuthServices.login(payload),
         ...options
     }),
-    useSignup: (options?: UseMutationOptions<SignupResponse, Error, SignupData, unknown>) => useMutation<SignupResponse, Error, SignupData, unknown>({
-        mutationFn: (payload: SignupData) => AuthService.signup(payload),
-        ...options
-    }),
-    // ... other auth hooks here
 }
