@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { UserSquare, CreditCard, GraduationCap } from "lucide-react";
+import { UserSquare, CreditCard } from "lucide-react";
 import { Box, Flex } from "@chakra-ui/react";
 import IDCardSettingsTab from "@components/settings/IDCardSettingsTab";
 import PaymentSettingsTab from "@components/settings/PaymentSettingsTab";
-import AcademicSettingsTab from "@components/settings/AcademicSettingsTab";
+// import AcademicSettingsTab from "@components/settings/AcademicSettingsTab";
 
-type SettingsTab = "ID Card" | "Payment" | "Academic";
+type SettingsTab = "ID Card" | "Payment";
 
 const TabButton = ({ active, icon, label, onClick }: { active: boolean; icon: React.ReactNode; label: string; onClick: () => void }) => (
     <Box
@@ -43,13 +43,13 @@ const SettingsPage = () => {
             <Flex bg="slate.50" p="1.5" borderRadius="lg" alignItems="center" gap="2" overflowX="auto" mb="8" border="1px solid" borderColor="slate.200">
                 <TabButton active={activeTab === "ID Card"} onClick={() => setActiveTab("ID Card")} icon={<UserSquare size={16} />} label="ID Card" />
                 <TabButton active={activeTab === "Payment"} onClick={() => setActiveTab("Payment")} icon={<CreditCard size={16} />} label="Payment" />
-                <TabButton active={activeTab === "Academic"} onClick={() => setActiveTab("Academic")} icon={<GraduationCap size={16} />} label="Academic" />
+                {/* <TabButton active={activeTab === "Academic"} onClick={() => setActiveTab("Academic")} icon={<GraduationCap size={16} />} label="Academic" /> */}
             </Flex>
 
             {/* Content */}
             {activeTab === "ID Card" && <IDCardSettingsTab />}
             {activeTab === "Payment" && <PaymentSettingsTab />}
-            {activeTab === "Academic" && <AcademicSettingsTab />}
+            {/* {activeTab === "Academic" && <AcademicSettingsTab />} */}
         </Box>
     );
 };
