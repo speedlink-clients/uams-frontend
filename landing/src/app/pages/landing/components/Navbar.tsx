@@ -2,8 +2,7 @@ import {
     Box,
     Flex,
     HStack,
-    Link,
-    Button,
+    Link as ChakraLink,
     Container,
     Image,
     IconButton,
@@ -11,18 +10,13 @@ import {
 } from "@chakra-ui/react";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import LoginModal from "@components/shared/LoginModal";
+import { Link, useNavigate } from "react-router";
 
 const LOGO_SRC = "/images/a7f14cb8262ed215ba9b9d5819404f20e896d5cc.png";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isLoginOpen, setIsLoginOpen] = useState(false);
     const navigate = useNavigate();
-
-    const openLogin = () => setIsLoginOpen(true);
-    const closeLogin = () => setIsLoginOpen(false);
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -72,7 +66,7 @@ const Navbar = () => {
                         {/* Desktop Nav Links */}
                         <HStack gap={8} display={{ base: "none", lg: "flex" }}>
                             {navLinks.map((item) => (
-                                <Link 
+                                <ChakraLink 
                                     key={item.label} 
                                     onClick={() => handleNavClick(item.href)}
                                     color="gray.600" 
@@ -81,25 +75,31 @@ const Navbar = () => {
                                     fontWeight="medium"
                                 >
                                     {item.label}
-                                </Link>
+                                </ChakraLink>
                             ))}
                         </HStack>
 
                         {/* Actions */}
                         <HStack gap={{ base: 2, md: 4 }}>
-                            <Button
-                                bg="#2AB0E8"
-                                color="white"
-                                size={{ base: "xs", md: "sm" }}
-                                px={{ base: 3, md: 6 }}
-                                borderRadius="none"
-                                _hover={{ bg: "#23a1d5" }}
-                                // Button is now always visible
-                                display="inline-flex"
-                                onClick={openLogin}
+                            <Link
+                                to="/auth/login"
+                                style={{
+                                    backgroundColor: "#2AB0E8",
+                                    color: "white",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: 500,
+                                    transition: "all 0.2s",
+                                    textDecoration: "none",
+                                    padding: "8px 24px",
+                                    fontSize: "14px",
+                                }}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#23a1d5")}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2AB0E8")}
                             >
                                 Login
-                            </Button>
+                            </Link>
 
                             {/* Mobile Menu Toggle */}
                             <IconButton
@@ -113,20 +113,6 @@ const Navbar = () => {
                         </HStack>
                     </Flex>
                 </Container>
-
-                {/* Admission Bar
-                <Box bg="#4CC5F5" py={2}>
-                    <Container maxW="container.xl">
-                        <Flex justify="center" align="center" gap={2} fontSize={{ base: "xs", md: "sm" }} color="white" flexWrap="wrap">
-                            <Text textAlign="center">
-                                Admission for the January 2026 academic session is ongoing.
-                            </Text>
-                            <Link href="https://www.uniport.edu.ng/" fontWeight="bold" textDecoration="underline" color="white">
-                                Apply Now!
-                            </Link>
-                        </Flex>
-                    </Container>
-                </Box> */}
 
                 {/* Mobile Menu Overlay */}
                 {isOpen && (
@@ -145,25 +131,22 @@ const Navbar = () => {
                     >
                         <Stack gap={1} py={4}>
                             {navLinks.map((item) => (
-                                <Link 
+                                <ChakraLink 
                                     key={item.label} 
                                     onClick={() => { setIsOpen(false); handleNavClick(item.href); }}
                                     fontSize="md" 
                                     fontWeight="medium" 
                                     color="gray.700" 
-                                    py={3} // Added padding for better mobile touch targets
+                                    py={3}
                                     _hover={{ cursor: "pointer" }}
                                 >
                                     {item.label}
-                                </Link>
+                                </ChakraLink>
                             ))}
-                            {/* Login Button removed from here as it is persistent in the header */}
                         </Stack>
                     </Box>
                 )}
             </Box>
-
-            <LoginModal isOpen={isLoginOpen} onClose={closeLogin} />
         </>
     );
 };
