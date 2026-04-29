@@ -2,8 +2,7 @@ import {
     Box,
     Flex,
     HStack,
-    Link,
-    Button,
+    Link as ChakraLink,
     Container,
     Image,
     IconButton,
@@ -11,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const LOGO_SRC = "/images/a7f14cb8262ed215ba9b9d5819404f20e896d5cc.png";
 
@@ -67,7 +66,7 @@ const Navbar = () => {
                         {/* Desktop Nav Links */}
                         <HStack gap={8} display={{ base: "none", lg: "flex" }}>
                             {navLinks.map((item) => (
-                                <Link 
+                                <ChakraLink 
                                     key={item.label} 
                                     onClick={() => handleNavClick(item.href)}
                                     color="gray.600" 
@@ -76,30 +75,28 @@ const Navbar = () => {
                                     fontWeight="medium"
                                 >
                                     {item.label}
-                                </Link>
+                                </ChakraLink>
                             ))}
                         </HStack>
 
                         {/* Actions */}
                         <HStack gap={{ base: 2, md: 4 }}>
                             <Link
-                                onClick={() => navigate("/auth/login")}
-                                bg="#2AB0E8"
-                                color="white"
-                                px={{ base: 3, md: 6 }}
-                                py={{ base: 1.5, md: 2 }}
-                                borderRadius="none"
-                                _hover={{ 
-                                    bg: "#23a1d5",
+                                to="/auth/login"
+                                style={{
+                                    backgroundColor: "#2AB0E8",
+                                    color: "white",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: 500,
+                                    transition: "all 0.2s",
                                     textDecoration: "none",
-                                    cursor: "pointer"
+                                    padding: "8px 24px",
+                                    fontSize: "14px",
                                 }}
-                                display="inline-flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                fontSize={{ base: "xs", md: "sm" }}
-                                fontWeight="medium"
-                                transition="all 0.2s"
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#23a1d5")}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2AB0E8")}
                             >
                                 Login
                             </Link>
@@ -134,7 +131,7 @@ const Navbar = () => {
                     >
                         <Stack gap={1} py={4}>
                             {navLinks.map((item) => (
-                                <Link 
+                                <ChakraLink 
                                     key={item.label} 
                                     onClick={() => { setIsOpen(false); handleNavClick(item.href); }}
                                     fontSize="md" 
@@ -144,7 +141,7 @@ const Navbar = () => {
                                     _hover={{ cursor: "pointer" }}
                                 >
                                     {item.label}
-                                </Link>
+                                </ChakraLink>
                             ))}
                         </Stack>
                     </Box>
