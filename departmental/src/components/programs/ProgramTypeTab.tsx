@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { ProgramServices } from "@services/program.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Input, Spinner } from "@chakra-ui/react";
-import { Edit, Trash2, X } from "lucide-react";
+import { Box, Flex, Text, Input, Spinner, Textarea } from "@chakra-ui/react";
+import { Edit, Trash2, X, Plus, GraduationCap } from "lucide-react";
 
 const ProgramTypeTab = () => {
     const [programTypes, setProgramTypes] = useState<any[]>([]);
@@ -11,6 +11,8 @@ const ProgramTypeTab = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [formData, setFormData] = useState({ name: "", code: "", type: "UNDERGRADUATE", description: "" });
+    const [isCreating, setIsCreating] = useState(false);
+    const [createFormData, setCreateFormData] = useState({ name: "", code: "", type: "", description: "" });
 
     useEffect(() => {
         fetchProgramTypes();
@@ -37,6 +39,30 @@ const ProgramTypeTab = () => {
     const handleCancel = () => {
         setEditingId(null);
         setFormData({ name: "", code: "", type: "UNDERGRADUATE", description: "" });
+    };
+
+    const handleCreate = async () => {
+        if (!createFormData.name || !createFormData.code) {
+            toaster.error({ title: "Please fill in required fields (Name and Code)" });
+            return;
+        }
+        try {
+            setIsSaving(true);
+            await ProgramServices.createProgramType({ ...createFormData, type: createFormData.type.toUpperCase() });
+            toaster.success({ title: "Program Type created successfully" });
+            setCreateFormData({ name: "", code: "", type: "", description: "" });
+            setIsCreating(false);
+            await fetchProgramTypes();
+        } catch (error: any) {
+            toaster.error({ title: error.response?.data?.message || "Failed to create program type" });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleCancelCreate = () => {
+        setCreateFormData({ name: "", code: "", type: "", description: "" });
+        setIsCreating(false);
     };
 
     const handleSave = async () => {
@@ -101,6 +127,58 @@ const ProgramTypeTab = () => {
 
     return (
         <Flex direction="column" gap="8">
+            {/* Create Form Toggle */}
+            {!isCreating && !editingId && (
+                <Flex justifyContent="flex-end">
+                    <Flex as="button" onClick={() => setIsCreating(true)} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#1D7AD9" color="white" cursor="pointer" border="none" _hover={{ bg: "#1a6fc2" }} display="flex" alignItems="center" gap="2">
+                        <Plus size={16} /> Create Program Type
+                    </Flex>
+                </Flex>
+            )}
+
+            {/* Create Form */}
+            {isCreating && (
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden">
+                    <Flex p="6" borderBottom="1px solid" borderColor="gray.100" alignItems="center" gap="3">
+                        <Flex bg="blue.50" p="2" borderRadius="lg"><GraduationCap size={20} color="#2563eb" /></Flex>
+                        <Box>
+                            <Text fontSize="lg" fontWeight="bold" color="slate.800">Create Program Type</Text>
+                            <Text fontSize="sm" color="slate.500">Add a new program type to the system (e.g., Bachelor of Science, Master of Arts)</Text>
+                        </Box>
+                    </Flex>
+                    <Box p="8">
+                        <Flex direction={{ base: "column", lg: "row" }} gap="8">
+                            <Flex direction="column" gap="6" flex="1">
+                                <Box>
+                                    <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Name</Text>
+                                    <Input value={createFormData.name} onChange={(e) => setCreateFormData((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Bachelor of Science" bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" />
+                                </Box>
+                                <Box>
+                                    <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Code</Text>
+                                    <Input value={createFormData.code} onChange={(e) => setCreateFormData((p) => ({ ...p, code: e.target.value }))} placeholder="e.g. BSC" bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" />
+                                </Box>
+                            </Flex>
+                            <Flex direction="column" gap="6" flex="1">
+                                <Box>
+                                    <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Type</Text>
+                                    <Input value={createFormData.type} onChange={(e) => setCreateFormData((p) => ({ ...p, type: e.target.value }))} placeholder="e.g. UNDERGRADUATE, POST-GRADUATE" bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" />
+                                </Box>
+                                <Box>
+                                    <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Description</Text>
+                                    <Textarea value={createFormData.description} onChange={(e) => setCreateFormData((p) => ({ ...p, description: e.target.value }))} rows={3} bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" placeholder="Optional description" />
+                                </Box>
+                            </Flex>
+                        </Flex>
+                        <Flex wrap="wrap" justifyContent="flex-end" gap="3" mt="8">
+                            <Box as="button" onClick={handleCancelCreate} px="8" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="medium" border="1px solid" borderColor="#1D7AD9" color="#1D7AD9" cursor="pointer" bg="transparent" _hover={{ bg: "blue.50" }}>Cancel</Box>
+                            <Flex as="button" onClick={handleCreate} px="8" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#1D7AD9" color="white" cursor="pointer" border="none" _hover={{ bg: "#1a6fc2" }} display="flex" alignItems="center" gap="2" opacity={isSaving ? 0.5 : 1}>
+                                {isSaving ? "Creating..." : <><Plus size={16} /> Create Program Type</>}
+                            </Flex>
+                        </Flex>
+                    </Box>
+                </Box>
+            )}
+
             {/* Edit Form (only when editing) */}
             {editingId && (
                 <Box bg="white" borderRadius="2xl" p="8" border="1px solid" borderColor="gray.100" boxShadow="sm">
@@ -128,7 +206,7 @@ const ProgramTypeTab = () => {
                             </Box>
                             <Box>
                                 <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Description</Text>
-                                <textarea value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} rows={3} style={{ width: "100%", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px 12px", fontSize: "14px" }} />
+                                <Textarea value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} rows={3} bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" />
                             </Box>
                         </Flex>
                     </Flex>

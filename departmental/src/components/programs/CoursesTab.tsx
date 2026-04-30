@@ -4,7 +4,7 @@ import { Plus, Download, Upload, Edit, Trash2, X } from "lucide-react";
 import { CourseServices } from "@services/course.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
-import { Box, Flex, Text, Input, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, Input, Spinner, Textarea } from "@chakra-ui/react";
 import BulkUploadCoursesModal from "@components/programs/BulkUploadCoursesModal";
 
 interface CoursesTabProps {
@@ -146,7 +146,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                         </Box>
                         <Box>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Description</Text>
-                            <textarea value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} rows={3} style={{ width: "100%", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px 12px", fontSize: "14px" }} />
+                            <Textarea value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} rows={3} bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" />
                         </Box>
                     </Flex>
                 </Flex>
