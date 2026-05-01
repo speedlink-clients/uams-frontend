@@ -63,7 +63,7 @@ const LoginPage = () => {
             {/* Left Side - Campus Image */}
             <Box display={{ base: "none", lg: "block" }} w="65%" position="relative">
                 <Image
-                    src="/public/images/slider.jpeg"
+                    src="/images/slider.jpeg"
                     alt="Modern University Campus"
                     position="absolute"
                     inset="0"
@@ -94,7 +94,7 @@ const LoginPage = () => {
                     {/* Logo */}
                     <Flex justifyContent="center" mb="12">
                         <Image
-                            src="/public/images/uphcscLG.png"
+                            src="/images/uphcscLG.png"
                             alt="Logo"
                             h="12"
                             w="auto"
