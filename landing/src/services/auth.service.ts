@@ -6,8 +6,6 @@ import type {
     ActivateAccountResponse, 
     InitializePaymentResponse, 
     DepartmentDuesResponse, 
-    IdCardFeeResponse, 
-    ConfirmIdCardPaymentResponse 
 } from "@type/auth.type";
 
 /**
