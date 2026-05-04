@@ -72,7 +72,7 @@ const LoginPage = () => {
                     w="full"
                     maxW="md"
                     p={{ base: "8", lg: "12" }}
-                    gap="6"
+                    gap="12"
                 >
                     {/* Logo */}
                     <Flex justifyContent="center" >
@@ -87,7 +87,7 @@ const LoginPage = () => {
 
                     {/* Heading */}
                     <Box textAlign="center" >
-                        <Heading size="3xl" fontWeight="black" color="#1e293b">
+                        <Heading size="3xl" fontWeight="black">
                             Login
                         </Heading>
                         <Text fontSize="14px" fontWeight="medium" color="fg.subtle">
@@ -108,6 +108,7 @@ const LoginPage = () => {
                                     {...register("email")}
                                     disabled={isLoading}
                                     size="xl"
+                                    _placeholder={{color:"fg.subtle"}}
                                 />
                                 <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
                             </Field.Root>
@@ -123,6 +124,7 @@ const LoginPage = () => {
                                     {...register("password")}
                                     disabled={isLoading}
                                     size="xl"
+                                     _placeholder={{color:"fg.subtle"}}
                                 />
                                 <Field.ErrorText>
                                     {errors.password?.message}
