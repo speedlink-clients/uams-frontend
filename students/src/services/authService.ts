@@ -1,6 +1,6 @@
-import { PasswordSchema } from "../pages/Profile";
-import apiClient from "./api";
-import type { LoginRequest, LoginResponse } from "./types";
+import type { ChangePasswordSchema } from "@/schemas/profile/change-password.schema";
+import apiClient from "@/services/api";
+import type { LoginRequest, LoginResponse } from "@/services/types";
 import { AxiosError } from "axios";
 
 /**
@@ -330,7 +330,7 @@ export const confirmIdCardPayment = async (
 };
 
 export const changePassword = async (
-  data: PasswordSchema,
+  data: ChangePasswordSchema,
 ): Promise<any> => {
   try {
     const response = await apiClient.patch<any>(

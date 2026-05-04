@@ -1,10 +1,11 @@
-import { useState } from "react";
 import { Box, Table, Text, Flex, Button, CloseButton, Dialog, Drawer, Portal, Card, Input, Textarea, Stack, Field, Select, createListCollection, useDisclosure } from "@chakra-ui/react";
 import type { ProjectTopic } from "@type/project.type";
 import { ProjectHook } from "@hooks/project.hook";
 import { toaster } from "@components/ui/toaster";
 import ProjectWriter from "./ProjectWriter";
 import type { StudentProjects } from "@pages/projects/Projects";
+import useUpdateProjectForm from "@forms/update-project.form";
+import type { UpdateProjectSchema } from "@schemas/project/update-project.schema";
 
 const StatusBadge = ({ status }: { status: "pending" | "approved" | string }) => {
     const isPending = status === "pending" || status === "Pending";
@@ -35,16 +36,27 @@ const statusCollection = createListCollection({
 });
 
 const TopicDialog = ({ topic }: { topic: ProjectTopic }) => {
-    const [title, setTitle] = useState(topic.title);
-    const [status, setStatus] = useState(topic.status);
-    const [description, setDescription] = useState(topic.description);
     const { mutate: updateProject, isPending } = ProjectHook.useUpdateProject();
     const { open, onClose, setOpen } = useDisclosure();
 
-    const handleSave = () => {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        setValue,
+        formState: { errors },
+    } = useUpdateProjectForm({
+        title: topic.title,
+        status: topic.status,
+        description: topic.description,
+    });
+
+    const currentStatus = watch("status");
+
+    const onSubmit = (data: UpdateProjectSchema) => {
         updateProject({
             id: topic.id,
-            payload: { title, status, description },
+            payload: data,
         }, {
             onSuccess() {
                 toaster.success({ description: "Changes saved!", closable: true })
@@ -66,63 +78,72 @@ const TopicDialog = ({ topic }: { topic: ProjectTopic }) => {
                             <Dialog.Title>Update Project Topic</Dialog.Title>
                         </Dialog.Header>
                         <Dialog.Body>
-                            <Stack gap="4" align="stretch">
-                                <Field.Root>
-                                    <Field.Label>Title</Field.Label>
-                                    <Input
-                                        type="text"
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                    />
-                                </Field.Root>
+                            <form id="update-project-form" onSubmit={handleSubmit(onSubmit)}>
+                                <Stack gap="4" align="stretch">
+                                    <Field.Root invalid={!!errors.title}>
+                                        <Field.Label>Title</Field.Label>
+                                        <Input
+                                            type="text"
+                                            {...register("title")}
+                                        />
+                                        {errors.title && (
+                                            <Field.ErrorText>{errors.title.message}</Field.ErrorText>
+                                        )}
+                                    </Field.Root>
 
-                                <Field.Root>
-                                    <Field.Label>Status</Field.Label>
-                                    <Select.Root
-                                        collection={statusCollection}
-                                        size="sm"
-                                        value={[status]}
-                                        onValueChange={(e) => setStatus(e.value[0] as any)}
-                                    >
-                                        <Select.HiddenSelect />
-                                        <Select.Control>
-                                            <Select.Trigger>
-                                                <Select.ValueText placeholder="Select status" />
-                                            </Select.Trigger>
-                                            <Select.IndicatorGroup>
-                                                <Select.Indicator />
-                                            </Select.IndicatorGroup>
-                                        </Select.Control>
-                                        <Portal>
-                                            <Select.Positioner>
-                                                <Select.Content>
-                                                    {statusCollection.items.map((item: any) => (
-                                                        <Select.Item item={item} key={item.value}>
-                                                            {item.label}
-                                                            <Select.ItemIndicator />
-                                                        </Select.Item>
-                                                    ))}
-                                                </Select.Content>
-                                            </Select.Positioner>
-                                        </Portal>
-                                    </Select.Root>
-                                </Field.Root>
+                                    <Field.Root invalid={!!errors.status}>
+                                        <Field.Label>Status</Field.Label>
+                                        <Select.Root
+                                            collection={statusCollection}
+                                            size="sm"
+                                            value={[currentStatus]}
+                                            onValueChange={(e) => setValue("status", e.value[0] as "pending" | "approved", { shouldValidate: true })}
+                                        >
+                                            <Select.HiddenSelect />
+                                            <Select.Control>
+                                                <Select.Trigger>
+                                                    <Select.ValueText placeholder="Select status" />
+                                                </Select.Trigger>
+                                                <Select.IndicatorGroup>
+                                                    <Select.Indicator />
+                                                </Select.IndicatorGroup>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content>
+                                                        {statusCollection.items.map((item: any) => (
+                                                            <Select.Item item={item} key={item.value}>
+                                                                {item.label}
+                                                                <Select.ItemIndicator />
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                        </Select.Root>
+                                        {errors.status && (
+                                            <Field.ErrorText>{errors.status.message}</Field.ErrorText>
+                                        )}
+                                    </Field.Root>
 
-                                <Field.Root>
-                                    <Field.Label>Description</Field.Label>
-                                    <Textarea
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        rows={4}
-                                    />
-                                </Field.Root>
-                            </Stack>
+                                    <Field.Root invalid={!!errors.description}>
+                                        <Field.Label>Description</Field.Label>
+                                        <Textarea
+                                            rows={4}
+                                            {...register("description")}
+                                        />
+                                        {errors.description && (
+                                            <Field.ErrorText>{errors.description.message}</Field.ErrorText>
+                                        )}
+                                    </Field.Root>
+                                </Stack>
+                            </form>
                         </Dialog.Body>
                         <Dialog.Footer>
                             <Dialog.ActionTrigger asChild>
                                 <Button variant="outline">Cancel</Button>
                             </Dialog.ActionTrigger>
-                            <Button w="40" loading={isPending} loadingText="Saving..." onClick={handleSave} disabled={isPending}>Save</Button>
+                            <Button type="submit" form="update-project-form" w="40" loading={isPending} loadingText="Saving..." disabled={isPending}>Save</Button>
                         </Dialog.Footer>
                         <Dialog.CloseTrigger asChild>
                             <CloseButton size="sm" />

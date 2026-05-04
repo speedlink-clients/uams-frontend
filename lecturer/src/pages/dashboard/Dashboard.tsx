@@ -88,7 +88,7 @@ const Dashboard = () => {
                             Timetable
                         </Heading>
                         <Button
-                            bg="#3b82f6"
+                            bg="accent.500"
                             variant="solid"
                             size="sm"
                             onClick={() => navigate("/timetable")}

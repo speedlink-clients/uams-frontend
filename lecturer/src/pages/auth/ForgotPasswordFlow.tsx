@@ -3,6 +3,9 @@ import { Box, Flex, Text, Heading, Icon, Input, Image } from "@chakra-ui/react";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import AuthBackground from "@components/auth/AuthBackground";
 import AuthCard from "@components/auth/AuthCard";
+import { useForgotPasswordForm, useResetPasswordForm } from "@forms/forgot-password.form";
+import type { ForgotPasswordSchema } from "@schemas/auth/forgot-password.schema";
+import type { ResetPasswordSchema } from "@schemas/auth/forgot-password.schema";
 
 interface ForgotPasswordFlowProps {
     onBackToLogin: () => void;
@@ -13,6 +16,21 @@ type RecoveryStep = "forgot-password" | "verify-code" | "reset-password" | "rese
 const ForgotPasswordFlow = ({ onBackToLogin }: ForgotPasswordFlowProps) => {
     const [internalStep, setInternalStep] = useState<RecoveryStep>("forgot-password");
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+    // Step 1: Forgot Password form
+    const {
+        register: registerForgot,
+        handleSubmit: handleForgotSubmit,
+        formState: { errors: forgotErrors },
+        getValues: getForgotValues,
+    } = useForgotPasswordForm();
+
+    // Step 3: Reset Password form
+    const {
+        register: registerReset,
+        handleSubmit: handleResetSubmit,
+        formState: { errors: resetErrors },
+    } = useResetPasswordForm();
 
     const recoveryImages: Record<string, { src: string; alt: string }> = {
         "forgot-password": {
@@ -62,6 +80,16 @@ const ForgotPasswordFlow = ({ onBackToLogin }: ForgotPasswordFlowProps) => {
         }
     };
 
+    const onForgotSubmit = (_data: ForgotPasswordSchema) => {
+        // TODO: call API to send recovery code
+        setInternalStep("verify-code");
+    };
+
+    const onResetSubmit = (_data: ResetPasswordSchema) => {
+        // TODO: call API to reset password
+        setInternalStep("reset-success");
+    };
+
     /* ─── Shared input styles ─── */
     const inputStyles = {
         bg: "white",
@@ -92,7 +120,7 @@ const ForgotPasswordFlow = ({ onBackToLogin }: ForgotPasswordFlowProps) => {
         border: "none",
         cursor: "pointer",
         transition: "all 0.2s",
-        backgroundColor: "var(--chakra-colors-accent-500, #1273D4)",
+        backgroundColor: "var(--chakra-colors-accent-500)",
         color: "white",
         boxShadow: "0 8px 20px rgba(18, 115, 212, 0.3)",
         textAlign: "center",
@@ -133,46 +161,53 @@ const ForgotPasswordFlow = ({ onBackToLogin }: ForgotPasswordFlowProps) => {
                             </Text>
                         </Box>
 
-                        <Flex direction="column" gap="6">
-                            <Box>
-                                <Text fontSize="13px" fontWeight="700" color="#1e293b" mb="2" px="1">
-                                    Email Address
-                                </Text>
-                                <Input
-                                    type="email"
-                                    placeholder="Enter email address"
-                                    {...inputStyles}
-                                />
-                            </Box>
+                        <form onSubmit={handleForgotSubmit(onForgotSubmit)}>
+                            <Flex direction="column" gap="6">
+                                <Box>
+                                    <Text fontSize="13px" fontWeight="700" color="#1e293b" mb="2" px="1">
+                                        Email Address
+                                    </Text>
+                                    <Input
+                                        type="email"
+                                        placeholder="Enter email address"
+                                        {...inputStyles}
+                                        {...registerForgot("email")}
+                                    />
+                                    {forgotErrors.email && (
+                                        <Text fontSize="12px" color="red.500" mt="1" px="1">
+                                            {forgotErrors.email.message}
+                                        </Text>
+                                    )}
+                                </Box>
 
-                            <button
-                                type="button"
-                                onClick={() => setInternalStep("verify-code")}
-                                style={primaryBtnStyle}
-                            >
-                                Send Code
-                            </button>
+                                <button
+                                    type="submit"
+                                    style={primaryBtnStyle}
+                                >
+                                    Send Code
+                                </button>
 
-                            <Flex
-                                as="button"
-                                align="center"
-                                justify="center"
-                                gap="2"
-                                w="100%"
-                                fontSize="13px"
-                                fontWeight="700"
-                                color="gray.400"
-                                _hover={{ color: "#3b82f6" }}
-                                transition="color 0.2s"
-                                cursor="pointer"
-                                onClick={onBackToLogin}
-                                bg="transparent"
-                                border="none"
-                            >
-                                <Icon as={ArrowLeft} boxSize="4" />
-                                <Text>Back to login</Text>
+                                <Flex
+                                    as="button"
+                                    align="center"
+                                    justify="center"
+                                    gap="2"
+                                    w="100%"
+                                    fontSize="13px"
+                                    fontWeight="700"
+                                    color="gray.400"
+                                    _hover={{ color: "accent.500" }}
+                                    transition="color 0.2s"
+                                    cursor="pointer"
+                                    onClick={onBackToLogin}
+                                    bg="transparent"
+                                    border="none"
+                                >
+                                    <Icon as={ArrowLeft} boxSize="4" />
+                                    <Text>Back to login</Text>
+                                </Flex>
                             </Flex>
-                        </Flex>
+                        </form>
                     </>
                 )}
 
@@ -186,7 +221,7 @@ const ForgotPasswordFlow = ({ onBackToLogin }: ForgotPasswordFlowProps) => {
                             <Text fontSize="12px" fontWeight="500" color="gray.400">
                                 We sent a code to{" "}
                                 <Text as="span" fontWeight="700">
-                                    youremail@provider.com
+                                    {getForgotValues("email") || "youremail@provider.com"}
                                 </Text>
                             </Text>
                         </Box>
@@ -229,7 +264,7 @@ const ForgotPasswordFlow = ({ onBackToLogin }: ForgotPasswordFlowProps) => {
                                     Didn't get the code?{" "}
                                     <Text
                                         as="span"
-                                        color="#3b82f6"
+                                        color="accent.500"
                                         _hover={{ textDecoration: "underline" }}
                                         cursor="pointer"
                                     >
@@ -261,26 +296,43 @@ const ForgotPasswordFlow = ({ onBackToLogin }: ForgotPasswordFlowProps) => {
                             </Text>
                         </Box>
 
-                        <Flex direction="column" gap="6">
-                            <Input
-                                type="password"
-                                placeholder="New Password"
-                                {...inputStyles}
-                            />
-                            <Input
-                                type="password"
-                                placeholder="Confirm new Password"
-                                {...inputStyles}
-                            />
+                        <form onSubmit={handleResetSubmit(onResetSubmit)}>
+                            <Flex direction="column" gap="6">
+                                <Box>
+                                    <Input
+                                        type="password"
+                                        placeholder="New Password"
+                                        {...inputStyles}
+                                        {...registerReset("newPassword")}
+                                    />
+                                    {resetErrors.newPassword && (
+                                        <Text fontSize="12px" color="red.500" mt="1" px="1">
+                                            {resetErrors.newPassword.message}
+                                        </Text>
+                                    )}
+                                </Box>
+                                <Box>
+                                    <Input
+                                        type="password"
+                                        placeholder="Confirm new Password"
+                                        {...inputStyles}
+                                        {...registerReset("confirmPassword")}
+                                    />
+                                    {resetErrors.confirmPassword && (
+                                        <Text fontSize="12px" color="red.500" mt="1" px="1">
+                                            {resetErrors.confirmPassword.message}
+                                        </Text>
+                                    )}
+                                </Box>
 
-                            <button
-                                type="button"
-                                onClick={() => setInternalStep("reset-success")}
-                                style={primaryBtnStyle}
-                            >
-                                Confirm
-                            </button>
-                        </Flex>
+                                <button
+                                    type="submit"
+                                    style={primaryBtnStyle}
+                                >
+                                    Confirm
+                                </button>
+                            </Flex>
+                        </form>
                     </>
                 )}
 

@@ -1,6 +1,6 @@
 import { Box, Flex, Text, Icon } from "@chakra-ui/react";
 import { Clock } from "lucide-react";
-import type { TimetableItem, CourseSlot } from "@type/timetable.type";
+import type { TimetableItem } from "@type/timetable.type";
 
 interface TimetablePanelProps {
     timetable: TimetableItem[];          // raw timetable data from API
@@ -137,13 +137,13 @@ const TimetablePanel = ({ timetable, selectedFilter, onFilterChange }: Timetable
                             return (
                                 <Box
                                     key={entry.id}
-                                    bg={isActive ? "#1273D4" : "#F8FAFC"}
+                                    bg={isActive ? "accent.500" : "gray.50"}
                                     color={isActive ? "white" : "gray.800"}
                                     borderRadius="lg"
                                     px="4.5"
                                     py="4"
                                     borderLeft="4px solid"
-                                    borderLeftColor={isActive ? "#0D5BA8" : "#E2E8F0"}
+                                    borderLeftColor={isActive ? "accent.600" : "gray.200"}
                                     transition="all 0.15s ease"
                                     position="relative"
                                     overflow="hidden"

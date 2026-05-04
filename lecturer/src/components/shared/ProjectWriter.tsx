@@ -1,8 +1,8 @@
 import { CloseButton, Dialog, Portal } from "@chakra-ui/react"
 import { Rocket } from "lucide-react";
-import { Box, Flex, Heading, IconButton, Text, Center, Button, VStack } from "@chakra-ui/react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
-import { useNavigate, useLocation } from "react-router";
+import { Flex, IconButton, Text, Center, Button, VStack } from "@chakra-ui/react";
+import { ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router";
 import type { ProjectTopic } from "@type/project.type";
 
 const ProjectWriter = ({ project }: { project: ProjectTopic }) => {
@@ -29,7 +29,7 @@ const ProjectWriter = ({ project }: { project: ProjectTopic }) => {
             {/* View Project Button (opens dialog) */}
             <Dialog.Root size="full" motionPreset="slide-in-bottom">
                 <Dialog.Trigger asChild>
-                    <Button size="sm" bg="#3b82f6" variant="solid">
+                    <Button size="sm" bg="accent.500" variant="solid">
                         <Rocket size={16} /> View Project
                     </Button>
                 </Dialog.Trigger>

@@ -108,7 +108,7 @@ const IdCardPaymentCallback: React.FC = () => {
 
             <button
               onClick={() => navigate('/registration/other')}
-              className="w-full bg-[#1d76d2] hover:bg-blue-700 text-white py-4 rounded-xl text-[14px] font-black shadow-lg shadow-blue-200/50 transition-all"
+              className="w-full bg-[var(--color-accent)] hover:bg-blue-700 text-white py-4 rounded-xl text-[14px] font-black shadow-lg shadow-blue-200/50 transition-all"
             >
               Continue to Registration
             </button>
@@ -135,7 +135,7 @@ const IdCardPaymentCallback: React.FC = () => {
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="flex-1 bg-[#1d76d2] hover:bg-blue-700 text-white py-4 rounded-xl text-[14px] font-bold transition-all"
+                className="flex-1 bg-[var(--color-accent)] hover:bg-blue-700 text-white py-4 rounded-xl text-[14px] font-bold transition-all"
               >
                 Retry
               </button>

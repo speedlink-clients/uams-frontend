@@ -92,7 +92,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                                 <Button
                                     size="sm"
                                     // colorPalette="blue"
-                                    bg="#3b82f6"
+                                    bg="var(--color-accent)"
                                     variant="solid"
                                     loading={isStarting}
                                     onClick={handleStartProject}

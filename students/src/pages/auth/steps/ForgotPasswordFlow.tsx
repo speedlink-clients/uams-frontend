@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import AuthBackground from '../components/AuthBackground';
 import AuthCard from '../components/AuthCard';
+import { useForgotPasswordForm, useResetPasswordForm } from '@/forms/forgot-password.form';
+import type { ForgotPasswordSchema, ResetPasswordSchema } from '@/schemas/auth/forgot-password.schema';
 
 interface ForgotPasswordFlowProps {
   onBackToLogin: () => void;
@@ -12,6 +14,19 @@ type RecoveryStep = 'forgot-password' | 'verify-code' | 'reset-password' | 'rese
 const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }) => {
   const [internalStep, setInternalStep] = useState<RecoveryStep>('forgot-password');
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+  const {
+    register: registerForgot,
+    handleSubmit: handleForgotSubmit,
+    formState: { errors: forgotErrors },
+    getValues: getForgotValues,
+  } = useForgotPasswordForm();
+
+  const {
+    register: registerReset,
+    handleSubmit: handleResetSubmit,
+    formState: { errors: resetErrors },
+  } = useResetPasswordForm();
 
   const handleOtpChange = (index: number, val: string) => {
     // Only allow numbers
@@ -49,6 +64,16 @@ const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }
     }
   };
 
+  const onForgotSubmit = (_data: ForgotPasswordSchema) => {
+    // TODO: Call API to send code
+    setInternalStep("verify-code");
+  };
+
+  const onResetSubmit = (_data: ResetPasswordSchema) => {
+    // TODO: Call API to reset password
+    setInternalStep("reset-success");
+  };
+
   const recoveryImages: Record<string, { src: string; alt: string }> = {
     "forgot-password": {
       src: `${import.meta.env.BASE_URL}assets/63e5419e646a8531661e423a2b33515388a2435e (1).jpg`,
@@ -83,31 +108,36 @@ const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }
                 Let's retrieve your password together
               </p>
             </div>
-            <div className="space-y-6">
-              <div className="space-y-2">
+            <form onSubmit={handleForgotSubmit(onForgotSubmit)} className="space-y-6">
+              <div className="space-y-1">
                 <label className="text-[13px] font-bold text-[#1e293b] px-1">
                   Email Address
                 </label>
                 <input
                   type="email"
+                  {...registerForgot("email")}
                   placeholder="Enter email address"
-                  className="w-full bg-white border border-gray-300 rounded-xl py-4 px-6 text-[14px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-blue-100/50 focus:border-[#1d76d2] transition-all"
+                  className={`w-full bg-white border ${forgotErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-xl py-4 px-6 text-[14px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]/20 focus:border-[var(--color-accent)] transition-all`}
                 />
+                {forgotErrors.email && (
+                  <p className="text-[13px] text-red-500 px-2">{forgotErrors.email.message}</p>
+                )}
               </div>
               <button
-                onClick={() => setInternalStep("verify-code")}
-                className="w-full bg-[#1d76d2] hover:bg-[#1565c0] text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all"
+                type="submit"
+                className="w-full bg-[var(--color-accent)] hover:bg-blue-700 text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all cursor-pointer"
               >
                 Send Code
               </button>
               <button
+                type="button"
                 onClick={onBackToLogin}
-                className="w-full flex items-center justify-center space-x-2 text-[13px] font-bold text-gray-400 hover:text-blue-500 transition-colors"
+                className="w-full flex items-center justify-center space-x-2 text-[13px] font-bold text-gray-400 hover:text-[var(--color-accent)] transition-colors cursor-pointer"
               >
                 <ArrowLeft size={16} />
                 <span>Back to login</span>
               </button>
-            </div>
+            </form>
           </>
         )}
         {internalStep === "verify-code" && (
@@ -118,7 +148,7 @@ const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }
               </h1>
               <p className="text-[12px] font-medium text-gray-400">
                 We sent a code to{" "}
-                <span className="font-bold">youremail@provider.com</span>
+                <span className="font-bold">{getForgotValues("email") || "youremail@provider.com"}</span>
               </p>
             </div>
             <div className="space-y-8">
@@ -134,21 +164,21 @@ const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }
                     value={digit}
                     onChange={(e) => handleOtpChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
-                    className="w-full h-12 text-center border border-gray-300 rounded-lg text-lg font-bold text-[#1e293b] focus:border-[#1d76d2] focus:ring-2 focus:ring-blue-100 outline-none"
+                    className="w-full h-12 text-center border border-gray-300 rounded-lg text-lg font-bold text-[#1e293b] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 outline-none"
                   />
                 ))}
               </div>
               <div className="text-center">
                 <p className="text-[12px] font-bold text-gray-400">
                   Didn't get the code?{" "}
-                  <button className="text-[#3b82f6] hover:underline">
+                  <button className="text-[var(--color-accent)] hover:underline cursor-pointer">
                     Resend code
                   </button>
                 </p>
               </div>
               <button
                 onClick={() => setInternalStep("reset-password")}
-                className="w-full bg-[#1d76d2] hover:bg-[#1565c0] text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all"
+                className="w-full bg-[var(--color-accent)] hover:bg-blue-700 text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all cursor-pointer"
               >
                 Continue
               </button>
@@ -165,28 +195,40 @@ const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }
                 Update Password to enhance account security
               </p>
             </div>
-            <div className="space-y-6">
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="New Password"
-                  className="w-full bg-white border border-gray-300 rounded-xl py-4 px-6 text-[14px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-blue-100/50 focus:border-[#1d76d2] transition-all"
-                />
+            <form onSubmit={handleResetSubmit(onResetSubmit)} className="space-y-6">
+              <div className="space-y-1">
+                <div className="relative">
+                  <input
+                    type="password"
+                    {...registerReset("newPassword")}
+                    placeholder="New Password"
+                    className={`w-full bg-white border ${resetErrors.newPassword ? 'border-red-500' : 'border-gray-300'} rounded-xl py-4 px-6 text-[14px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]/20 focus:border-[var(--color-accent)] transition-all`}
+                  />
+                </div>
+                {resetErrors.newPassword && (
+                  <p className="text-[13px] text-red-500 px-2">{resetErrors.newPassword.message}</p>
+                )}
               </div>
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="Confirm new Password"
-                  className="w-full bg-white border border-gray-300 rounded-xl py-4 px-6 text-[14px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-blue-100/50 focus:border-[#1d76d2] transition-all"
-                />
+              <div className="space-y-1">
+                <div className="relative">
+                  <input
+                    type="password"
+                    {...registerReset("confirmPassword")}
+                    placeholder="Confirm new Password"
+                    className={`w-full bg-white border ${resetErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-xl py-4 px-6 text-[14px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]/20 focus:border-[var(--color-accent)] transition-all`}
+                  />
+                </div>
+                {resetErrors.confirmPassword && (
+                  <p className="text-[13px] text-red-500 px-2">{resetErrors.confirmPassword.message}</p>
+                )}
               </div>
               <button
-                onClick={() => setInternalStep("reset-success")}
-                className="w-full bg-[#1d76d2] hover:bg-[#1565c0] text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all"
+                type="submit"
+                className="w-full bg-[var(--color-accent)] hover:bg-blue-700 text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all cursor-pointer"
               >
                 Confirm
               </button>
-            </div>
+            </form>
           </>
         )}
         {internalStep === "reset-success" && (
@@ -206,7 +248,7 @@ const ForgotPasswordFlow: React.FC<ForgotPasswordFlowProps> = ({ onBackToLogin }
             </div>
             <button
               onClick={onBackToLogin}
-              className="w-full bg-[#1d76d2] hover:bg-[#1565c0] text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all"
+              className="w-full bg-[var(--color-accent)] hover:bg-blue-700 text-white py-4 rounded-xl text-[15px] font-black shadow-lg shadow-blue-200/50 transition-all cursor-pointer"
             >
               Continue
             </button>

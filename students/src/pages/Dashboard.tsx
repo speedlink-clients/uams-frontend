@@ -211,7 +211,7 @@ const Dashboard: React.FC = () => {
               ) : courseRegStatus === 'registered' ? (
                 <span className="inline-block px-4 py-1.5 rounded-lg text-xs font-bold bg-[#dcfce7] text-[#22c55e]">Registered</span>
               ) : (
-                <span className="inline-block px-4 py-1.5 rounded-lg text-xs font-bold bg-[#dbeafe] text-[#3b82f6]">Pending</span>
+                <span className="inline-block px-4 py-1.5 rounded-lg text-xs font-bold bg-[#dbeafe] text-[var(--color-accent)]">Pending</span>
               )}
             </div>
 
@@ -332,7 +332,7 @@ const Dashboard: React.FC = () => {
           <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-gray-100 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-base lg:text-lg font-bold text-[#1e293b]">Announcements</h2>
-              <button onClick={() => navigate('/announcements')} className="bg-[#3b82f6] text-white text-[11px] font-bold px-4 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
+              <button onClick={() => navigate('/announcements')} className="bg-[var(--color-accent)] text-white text-[11px] font-bold px-4 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
                 See All
               </button>
             </div>
@@ -346,7 +346,7 @@ const Dashboard: React.FC = () => {
                   className="flex items-start justify-between gap-4 p-4 rounded-xl bg-[#f8fafc] border border-gray-50 hover:bg-[#f1f5f9] transition-colors cursor-pointer"
                 >
                   <div className="flex gap-3 min-w-0">
-                    <div className="w-1 shrink-0 rounded-full bg-[#3b82f6] self-stretch" />
+                    <div className="w-1 shrink-0 rounded-full bg-[var(--color-accent)] self-stretch" />
                     <div className="min-w-0">
                       <p className="text-[13px] font-bold text-[#1e293b] truncate">{item.title}</p>
                       <p className="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">{item.body}</p>

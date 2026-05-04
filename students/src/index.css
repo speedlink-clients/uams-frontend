@@ -1,3 +1,7 @@
+:root {
+  --color-accent: #1273D4;
+}
+
 @import "tailwindcss";
 
 @source "../**/*.{js,ts,jsx,tsx,html}";

@@ -427,7 +427,7 @@ const Payments: React.FC = () => {
               <tr>
                 <td colSpan={8} style={{ padding: '48px 20px', textAlign: 'center' }}>
                   <Flex justify="center" align="center" gap={3}>
-                    <Loader2 size={20} className="animate-spin" style={{ color: '#3b82f6' }} />
+                    <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-accent)' }} />
                     <Text fontSize="sm" color="gray.400" fontWeight="medium">Loading payments...</Text>
                   </Flex>
                 </td>

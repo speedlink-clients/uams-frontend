@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { User, Eye, EyeOff, Loader2, AlertCircle, Phone } from 'lucide-react';
 import AuthBackground from '../components/AuthBackground';
 import AuthCard from '../components/AuthCard';
-import authService from '../../../services/authService';
-import { getAssetPath } from '../../../utils/assetPath';
+import authService from '@/services/authService';
+import { getAssetPath } from '@/utils/assetPath';
+import { useActivateAccountForm } from '@/forms/activate-account.form';
+import type { ActivateAccountSchema } from '@/schemas/auth/activate-account.schema';
 
 interface ActivateAccountStepProps {
   onNext: () => void;
@@ -11,57 +13,45 @@ interface ActivateAccountStepProps {
 }
 
 const ActivateAccountStep: React.FC<ActivateAccountStepProps> = ({ onNext, onForgotPassword }) => {
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [globalError, setGlobalError] = useState('');
   const [studentInfo, setStudentInfo] = useState<any>(null);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useActivateAccountForm();
 
   React.useEffect(() => {
     const user = authService.getStoredUser();
     if (user) {
       setStudentInfo(user);
-      if (user.email) setEmail(user.email);
-       // Attempt to pre-fill phone if available, often it might not be in the initial verify response
-       // depending on the backend response structure.
+      if (user.email) setValue("email", user.email);
     }
-  }, []);
+  }, [setValue]);
 
-  const handleActivate = async () => {
-    if (!email.trim()) {
-      setError('Please enter your email address');
-      return;
-    }
-    if (!phone.trim()) {
-      setError('Please enter your phone number');
-      return;
-    }
-    if (!password.trim()) {
-      setError('Please enter your password');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
+  const onSubmit = async (data: ActivateAccountSchema) => {
     setIsLoading(true);
-    setError('');
+    setGlobalError('');
 
     try {
-      await authService.activateAccount({ email, phone, password });
+      await authService.activateAccount({ 
+        email: data.email, 
+        phone: data.phone, 
+        password: data.password 
+      });
       onNext();
     } catch (err: any) {
       // Handle specific validation error (e.g., duplicate email)
       const errorMessage = err.message || err.response?.data?.message || '';
       if (errorMessage.toLowerCase().includes('validation error')) {
-        setError('Email already exists. Please use a different email address.');
+        setGlobalError('Email already exists. Please use a different email address.');
       } else {
-        setError(errorMessage || 'Account activation failed. Please try again.');
+        setGlobalError(errorMessage || 'Account activation failed. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -92,7 +82,7 @@ const ActivateAccountStep: React.FC<ActivateAccountStepProps> = ({ onNext, onFor
 
           {/* Student Information Section */}
           <div className="mb-10">
-            <h2 className="text-[#1d76d2] font-bold text-lg mb-6">Student Information</h2>
+            <h2 className="text-[var(--color-accent)] font-bold text-lg mb-6">Student Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#1e293b]">Reg No.</label>
@@ -177,99 +167,94 @@ const ActivateAccountStep: React.FC<ActivateAccountStepProps> = ({ onNext, onFor
           <div className="w-full h-px bg-gray-200 my-8"></div>
 
           {/* Form Section */}
-          <div>
-            <h2 className="text-[#1d76d2] font-bold text-lg mb-6">Input the following</h2>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <h2 className="text-[var(--color-accent)] font-bold text-lg mb-6">Input the following</h2>
             
-             {error && (
+             {globalError && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-2">
                     <AlertCircle size={20} className="shrink-0" />
-                    <p className="text-[13px] font-bold">{error}</p>
+                    <p className="text-[13px] font-bold">{globalError}</p>
                 </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-8">
-                <div className="space-y-2">
+                <div className="space-y-1">
                     <label className="text-sm font-medium text-[#1e293b]">Email Address</label>
                     <input
                         type="email"
-                        value={email}
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (error) setError('');
-                        }}
+                        {...register("email")}
                         placeholder="Enter email address"
-                        className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
+                        className={`w-full bg-white border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-all placeholder:text-gray-400`}
                         disabled={isLoading}
                     />
+                    {errors.email && (
+                      <p className="text-[13px] text-red-500">{errors.email.message}</p>
+                    )}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                     <label className="text-sm font-medium text-[#1e293b]">Phone Number</label>
                     <input
                         type="tel"
-                        value={phone}
-                         onChange={(e) => {
-                            setPhone(e.target.value);
-                            if (error) setError('');
-                        }}
+                        {...register("phone")}
                         placeholder="Enter phone number"
-                        className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
+                        className={`w-full bg-white border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-all placeholder:text-gray-400`}
                         disabled={isLoading}
                     />
+                    {errors.phone && (
+                      <p className="text-[13px] text-red-500">{errors.phone.message}</p>
+                    )}
                 </div>
 
-                 <div className="space-y-2">
+                 <div className="space-y-1">
                     <label className="text-sm font-medium text-[#1e293b]">Password</label>
                     <div className="relative">
                         <input
                             type={showPassword ? "text" : "password"}
-                             value={password}
-                            onChange={(e) => {
-                                setPassword(e.target.value);
-                                if (error) setError('');
-                            }}
+                            {...register("password")}
                             placeholder="Enter password"
-                            className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
+                            className={`w-full bg-white border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-all placeholder:text-gray-400`}
                             disabled={isLoading}
                         />
                          <button
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[var(--color-accent)] cursor-pointer"
                             type="button"
                         >
                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                     </div>
+                    {errors.password && (
+                      <p className="text-[13px] text-red-500">{errors.password.message}</p>
+                    )}
                 </div>
-                 <div className="space-y-2">
+                 <div className="space-y-1">
                     <label className="text-sm font-medium text-[#1e293b]">Re-enter Password</label>
                      <div className="relative">
                         <input
                             type={showConfirmPassword ? "text" : "password"}
-                             value={confirmPassword}
-                            onChange={(e) => {
-                                setConfirmPassword(e.target.value);
-                                if (error) setError('');
-                            }}
+                            {...register("confirmPassword")}
                             placeholder="Re-enter password"
-                            className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
+                            className={`w-full bg-white border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-all placeholder:text-gray-400`}
                            disabled={isLoading}
-                           onKeyDown={(e) => e.key === 'Enter' && handleActivate()}
                         />
                          <button
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500"
+                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[var(--color-accent)] cursor-pointer"
                             type="button"
                         >
                             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                     </div>
+                    {errors.confirmPassword && (
+                      <p className="text-[13px] text-red-500">{errors.confirmPassword.message}</p>
+                    )}
                 </div>
             </div>
 
             <button
-                onClick={handleActivate}
+                type="submit"
                 disabled={isLoading}
-                 className="w-full bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-blue-300 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-lg shadow-blue-200/50 transition-all flex items-center justify-center gap-2"
+                 className="w-full bg-[var(--color-accent)] hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-lg shadow-blue-200/50 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
                 {isLoading ? (
                     <>
@@ -280,7 +265,7 @@ const ActivateAccountStep: React.FC<ActivateAccountStepProps> = ({ onNext, onFor
                     'Activate Account'
                 )}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

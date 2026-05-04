@@ -3,25 +3,9 @@ import { Box, Flex, Text, Input, Button, Image, Grid, GridItem, Field, IconButto
 import { Camera, Edit2, Eye, EyeOff } from 'lucide-react';
 import authService from '../services/authService';
 import { StudentProfile } from '../services/types';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Toaster, toaster } from '../components/ui/toaster';
-
-const passwordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
-  confirmNewPassword: z.string().min(1, 'Confirm new password is required'),
-}).refine((data) => data.newPassword === data.confirmNewPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmNewPassword'],
-});
-
-export type PasswordSchema = z.infer<typeof passwordSchema>;
+import { useChangePasswordForm } from '../forms/change-password.form';
+import type { ChangePasswordSchema } from '../schemas/profile/change-password.schema';
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -61,11 +45,9 @@ const Profile: React.FC = () => {
   const mockDegree = 'B.SC';
 
 
-  const { register, handleSubmit, formState: { errors } } = useForm<PasswordSchema>({
-    resolver: zodResolver(passwordSchema),
-  });
+  const { register, handleSubmit, formState: { errors } } = useChangePasswordForm();
 
-  const handleChangePassword = async (data: PasswordSchema) => {
+  const handleChangePassword = async (data: ChangePasswordSchema) => {
     try {
       const response = await authService.changePassword(data);
       toaster.success(response.message);
