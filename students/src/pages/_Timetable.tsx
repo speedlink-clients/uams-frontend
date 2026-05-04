@@ -184,7 +184,7 @@ const Timetable: React.FC = () => {
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value as typeof DAY_NAMES[number])}
                   style={{
-                    background: '#3b82f6',
+                    background: 'var(--color-accent)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',

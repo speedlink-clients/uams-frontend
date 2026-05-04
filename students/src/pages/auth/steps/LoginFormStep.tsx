@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router';
 import AuthBackground from '../components/AuthBackground';
 import AuthCard from '../components/AuthCard';
 import authService from '../../../services/authService';
+import { useLoginForm } from '@/forms/login.form';
+import type { LoginSchema } from '@/schemas/auth/login.schema';
 
 interface LoginFormStepProps {
   onLoginSuccess: () => void;
@@ -14,36 +16,32 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [globalError, setGlobalError] = useState("");
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!username.trim() || !password.trim()) {
-      setError("Please enter both username and password");
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useLoginForm();
 
+  const onSubmit = async (data: LoginSchema) => {
     try {
       setIsLoading(true);
-      setError("");
+      setGlobalError("");
       
       const response = await authService.login({
-        email: username,
-        password: password,
+        email: data.email,
+        password: data.password,
       });
 
       if (response.status === "success") {
-        // Login successful, navigate to dashboard
         navigate("/");
         onLoginSuccess();
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed. Please try again.";
-      setError(message);
+      setGlobalError(message);
     } finally {
       setIsLoading(false);
     }
@@ -60,41 +58,49 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
           </p>
         </div>
         <form
-          onSubmit={handleLoginSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="space-y-6"
         >
-          <div className="relative group">
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter Email-Address"
-              className="w-full bg-white border border-gray-300 rounded-xl py-4 px-6 text-[15px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-blue-100/50 focus:border-[#1d76d2] transition-all"
-            />
-            <User
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#1d76d2]"
-              size={20}
-            />
+          <div className="space-y-1">
+            <div className="relative group">
+              <input
+                type="text"
+                {...register("email")}
+                placeholder="Enter Email-Address"
+                className={`w-full bg-white border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-xl py-4 px-6 text-[15px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]/20 focus:border-[var(--color-accent)] transition-all`}
+              />
+              <User
+                className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[var(--color-accent)]"
+                size={20}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-[13px] text-red-500 px-2">{errors.email.message}</p>
+            )}
           </div>
-          <div className="relative group">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter Password"
-              className="w-full bg-white border border-gray-300 rounded-xl py-4 px-6 text-[15px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-blue-100/50 focus:border-[#1d76d2] transition-all"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1d76d2]"
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
+          <div className="space-y-1">
+            <div className="relative group">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                placeholder="Enter Password"
+                className={`w-full bg-white border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-xl py-4 px-6 text-[15px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-[var(--color-accent)]/20 focus:border-[var(--color-accent)] transition-all`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[var(--color-accent)]"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-[13px] text-red-500 px-2">{errors.password.message}</p>
+            )}
           </div>
-          {error && (
+          {globalError && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-[13px] font-medium text-red-600">{error}</p>
+              <p className="text-[13px] font-medium text-red-600">{globalError}</p>
             </div>
           )}
           <div className="flex items-center space-x-3 px-2">
@@ -104,7 +110,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
               className={`relative w-11 h-5 rounded-full transition-colors ${rememberMe ? "bg-blue-100" : "bg-gray-100"}`}
             >
               <div
-                className={`absolute top-1 left-1 w-3 h-3 rounded-full transition-transform transform ${rememberMe ? "translate-x-6 bg-[#1d76d2]" : "translate-x-0 bg-white"}`}
+                className={`absolute top-1 left-1 w-3 h-3 rounded-full transition-transform transform ${rememberMe ? "translate-x-6 bg-[var(--color-accent)]" : "translate-x-0 bg-white"}`}
               ></div>
             </button>
             <span className="text-[13px] font-bold text-gray-400">
@@ -114,7 +120,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-xl shadow-blue-200/50 transition-all mt-4 cursor-pointer"
+            className="w-full bg-[var(--color-accent)] hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-xl shadow-blue-200/50 transition-all mt-4 cursor-pointer"
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
@@ -124,7 +130,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
               <button
                 type="button"
                 onClick={onForgotPassword}
-                className="text-[#3b82f6] cursor-pointer hover:underline disabled:cursor-not-allowed"
+                className="text-[var(--color-accent)] cursor-pointer hover:underline disabled:cursor-not-allowed"
               >
                 Click Here
               </button>
@@ -136,7 +142,7 @@ const LoginFormStep: React.FC<LoginFormStepProps> = ({ onLoginSuccess, onForgotP
               <button
                 type="button"
                 onClick={() => navigate("/register")}
-                className="text-[#3b82f6] cursor-pointer hover:underline disabled:cursor-not-allowed"
+                className="text-[var(--color-accent)] cursor-pointer hover:underline disabled:cursor-not-allowed"
               >
                 Click Here
               </button>

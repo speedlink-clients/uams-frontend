@@ -45,7 +45,9 @@ import type {
 import type { CoursesRegViewProps } from "../types";
 import { toaster } from "../components/ui/toaster";
 import apiClient from "../services/api";
-import { useAsync } from "react-use"
+import { useAsync } from "react-use";
+import { useTranscriptForm } from "@/forms/transcript.form";
+import type { TranscriptSchema } from "@/schemas/registration/transcript.schema";
 
 const checkboxClasses =
   "appearance-none w-4 h-4 bg-white border border-gray-300 rounded checked:bg-blue-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer transition-all bg-center bg-no-repeat checked:bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22white%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M16.707%205.293a1%201%200%20010%201.414l-8%208a1%201%200%2001-1.414%200l-4-4a1%201%200%20011.414-1.414L8%2012.586l7.293-7.293a1%201%200%20011.414%200z%22%20clip-rule%3D%22evenodd%22%20%2F%3E%3C%2Fsvg%3E')]";
@@ -114,14 +116,22 @@ const formatDeliveryLabel = (key: string) => {
 const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
   const [feeData, setFeeData] = useState<TranscriptFeeData | null>(null);
   const [feeLoading, setFeeLoading] = useState(true);
-  const [institution_name, setInstitution_name] = useState('');
-  const [recipient_name, setRecipient_name] = useState('');
-  const [delivery_method, setDelivery_method] = useState('');
-  const [purpose, setPurpose] = useState('');
-  const [recipient_address, setRecipient_address] = useState('');
-  const [recipient_email, setRecipient_email] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors }
+  } = useTranscriptForm();
+
+  const delivery_method = watch("delivery_method");
+  const institution_name = watch("institution_name");
+  const recipient_name = watch("recipient_name");
+  const recipient_address = watch("recipient_address");
+  const recipient_email = watch("recipient_email");
+  const purpose = watch("purpose");
 
   useEffect(() => {
     apiClient.get('/annual-access-fee/transcript-fee')
@@ -142,11 +152,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
   const formatCurrency = (amount: number) =>
     `₦${amount.toLocaleString('en-NG')}`;
 
-  const handleProceed = () => {
-    if (!delivery_method || !institution_name.trim()) {
-      toaster.create({ title: 'Please fill in the required fields', type: 'warning' });
-      return;
-    }
+  const onSubmit = (data: TranscriptSchema) => {
     setShowConfirmModal(true);
   };
 
@@ -199,7 +205,7 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
           Loading delivery options...
         </div>
       ) : (
-        <>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
             {/* Institution */}
             <div className="space-y-2">
@@ -207,11 +213,11 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 Name of receiving institution or organization
               </label>
               <input
-                value={institution_name}
-                onChange={(e) => setInstitution_name(e.target.value)}
+                {...register("institution_name")}
                 placeholder="University of Port..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+                className={`w-full bg-gray-50 border ${errors.institution_name ? 'border-red-500' : 'border-gray-200'} rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-[var(--color-accent)] transition-colors`}
               />
+              {errors.institution_name && <p className="text-red-500 text-[11px] mt-1">{errors.institution_name.message}</p>}
             </div>
 
             {/* Recipient Name */}
@@ -220,11 +226,11 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 Recipient Name
               </label>
               <input
-                value={recipient_name}
-                onChange={(e) => setRecipient_name(e.target.value)}
+                {...register("recipient_name")}
                 placeholder="Input recipient name"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+                className={`w-full bg-gray-50 border ${errors.recipient_name ? 'border-red-500' : 'border-gray-200'} rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-[var(--color-accent)] transition-colors`}
               />
+              {errors.recipient_name && <p className="text-red-500 text-[11px] mt-1">{errors.recipient_name.message}</p>}
             </div>
 
             {/* Delivery Mode - dynamic from API */}
@@ -234,9 +240,8 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
               </label>
               <div className="relative">
                 <select
-                  value={delivery_method}
-                  onChange={(e) => setDelivery_method(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium appearance-none cursor-pointer focus:outline-none focus:border-blue-300 transition-colors"
+                  {...register("delivery_method")}
+                  className={`w-full bg-gray-50 border ${errors.delivery_method ? 'border-red-500' : 'border-gray-200'} rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium appearance-none cursor-pointer focus:outline-none focus:border-[var(--color-accent)] transition-colors`}
                 >
                   <option value="" disabled>Select delivery method</option>
                   {feeData?.available_delivery_methods.map((method) => {
@@ -258,11 +263,11 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 Recipient/Institution address
               </label>
               <input
-                value={recipient_address}
-                onChange={(e) => setRecipient_address(e.target.value)}
+                {...register("recipient_address")}
                 placeholder="Enter address"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+                className={`w-full bg-gray-50 border ${errors.recipient_address ? 'border-red-500' : 'border-gray-200'} rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-[var(--color-accent)] transition-colors`}
               />
+              {errors.recipient_address && <p className="text-red-500 text-[11px] mt-1">{errors.recipient_address.message}</p>}
             </div>
 
             {/* Contact Email */}
@@ -271,11 +276,11 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 Contact email/phone of recipient
               </label>
               <input
-                value={recipient_email}
-                onChange={(e) => setRecipient_email(e.target.value)}
+                {...register("recipient_email")}
                 placeholder="Input contact information"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+                className={`w-full bg-gray-50 border ${errors.recipient_email ? 'border-red-500' : 'border-gray-200'} rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-[var(--color-accent)] transition-colors`}
               />
+              {errors.recipient_email && <p className="text-red-500 text-[11px] mt-1">{errors.recipient_email.message}</p>}
             </div>
 
             {/* Purpose */}
@@ -284,11 +289,11 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
                 Purpose of Application
               </label>
               <input
-                value={purpose}
-                onChange={(e) => setPurpose(e.target.value)}
+                {...register("purpose")}
                 placeholder="Admission purpose"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-blue-300 transition-colors"
+                className={`w-full bg-gray-50 border ${errors.purpose ? 'border-red-500' : 'border-gray-200'} rounded-xl px-4 py-3 text-[13px] text-slate-700 font-medium placeholder:text-gray-300 focus:outline-none focus:border-[var(--color-accent)] transition-colors`}
               />
+              {errors.purpose && <p className="text-red-500 text-[11px] mt-1">{errors.purpose.message}</p>}
             </div>
           </div>
 
@@ -334,20 +339,21 @@ const TranscriptFormView = ({ onBack }: { onBack: () => void }) => {
 
           <div className="mt-10 lg:mt-12 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
             <button
-              onClick={handleProceed}
+              type="submit"
               disabled={!delivery_method}
-              className="bg-[#22c55e] hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg text-[13px] font-bold transition-all shadow-md shadow-green-100 flex items-center justify-center gap-2"
+              className="bg-[#22c55e] hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg text-[13px] font-bold transition-all shadow-md shadow-green-100 flex items-center justify-center gap-2 cursor-pointer"
             >
               Proceed to make payment — {selectedOption ? formatCurrency(totalFee) : ''}
             </button>
             <button
+              type="button"
               onClick={onBack}
-              className="bg-white border border-gray-200 text-gray-500 px-8 py-3 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all"
+              className="bg-white border border-gray-200 text-gray-500 px-8 py-3 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-all cursor-pointer"
             >
               Cancel
             </button>
           </div>
-        </>
+        </form>
       )}
 
       {/* Confirmation Modal */}
@@ -485,7 +491,7 @@ const TranscriptRegView = () => {
       <div className="flex justify-end">
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-[#3b82f6] hover:bg-blue-600 text-white px-6 py-3 rounded-xl text-[13px] font-bold transition-all shadow-md"
+          className="flex items-center gap-2 bg-[var(--color-accent)] hover:bg-blue-600 text-white px-6 py-3 rounded-xl text-[13px] font-bold transition-all shadow-md"
         >
           <Plus size={16} />
           New Transcript Application
@@ -641,7 +647,7 @@ const IDCardGraphic = ({
   return (
     <div className="space-y-4 max-w-lg mx-auto">
       {/* FRONT OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[var(--color-accent)] shadow-xl overflow-hidden bg-gray-100">
         <img
           src={idCardSettings?.frontTemplate}
           alt="ID Card Front"
@@ -690,7 +696,7 @@ const IDCardGraphic = ({
       </div>
 
       {/* BACK OF CARD */}
-      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[#3b82f6] shadow-xl overflow-hidden bg-gray-100">
+      <div className="relative aspect-[1.6/1] rounded-xl border-4 border-[var(--color-accent)] shadow-xl overflow-hidden bg-gray-100">
         <img
           src={idCardSettings?.backTemplate}
           alt="ID Card Back"
@@ -978,7 +984,7 @@ const IDCardView = ({
             <button
               onClick={handleDownloadID}
               disabled={!isPhotoUploaded || isGeneratingPDF}
-              className="w-full sm:w-60 flex items-center justify-center space-x-3 bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4.5 rounded-2xl text-[15px] font-black shadow-lg shadow-blue-100 transition-all active:scale-[0.98]"
+              className="w-full sm:w-60 flex items-center justify-center space-x-3 bg-[var(--color-accent)] hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4.5 rounded-2xl text-[15px] font-black shadow-lg shadow-blue-100 transition-all active:scale-[0.98]"
             >
               {isGeneratingPDF ? (
                 <div className="flex items-center space-x-2">
@@ -998,7 +1004,7 @@ const IDCardView = ({
             <div className="bg-blue-500 p-2 rounded-full text-white">
               <CreditCard size={18} />
             </div>
-            <p className="text-[12px] text-[#1d76d2] font-medium leading-tight">
+            <p className="text-[12px] text-[var(--color-accent)] font-medium leading-tight">
               This is a watermarked preview. Please{" "}
               <span className="font-black uppercase">apply and pay</span> the
               application fee to download your official ID card.
@@ -1192,7 +1198,7 @@ const OtherServicesView = ({
                 <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">
                   Total
                 </span>
-                <span className="text-2xl font-black text-[#1d76d2]">
+                <span className="text-2xl font-black text-[var(--color-accent)]">
                   {formatCurrency(subtotal)}
                 </span>
               </div>
@@ -1763,7 +1769,7 @@ const CoursesRegView: React.FC<CoursesRegViewProps> = ({
               <button
                 onClick={handleConfirmCourses}
                 disabled={previewedCourses.length === 0 || isAddingToCart}
-                className="bg-[#3b82f6] text-white px-6 py-2.5 rounded-lg text-[11px] font-bold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                className="bg-[var(--color-accent)] text-white px-6 py-2.5 rounded-lg text-[11px] font-bold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 {isAddingToCart && <Loader2 className="w-4 h-4 animate-spin" />}
                 {isAddingToCart ? "Adding..." : "Confirm Course(s)"}
@@ -2136,7 +2142,7 @@ const Registration: React.FC = () => {
               key={tab}
               onClick={() => navigate(`/registration/${tab}`)}
               className={`px-8 lg:px-12 py-3 rounded-2xl text-[12px] lg:text-sm font-bold transition-all duration-300 ${activeSubTab === tab
-                ? "bg-[#3b82f6] text-white shadow-md"
+                ? "bg-[var(--color-accent)] text-white shadow-md"
                 : "text-gray-400 hover:text-gray-600"
                 }`}
             >

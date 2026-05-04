@@ -79,7 +79,7 @@ const CourseInfoPanel = ({ course, lecturers }: CourseInfoPanelProps) => {
                         >
                             <Text fontSize="xs" color="gray.500" mb="1">Credit Unit</Text>
                             <Text fontSize="sm" fontWeight="600" color="gray.800">
-                                {course.creditUnit}
+                                {course.creditUnits}
                             </Text>
                         </Box>
                     </Flex>

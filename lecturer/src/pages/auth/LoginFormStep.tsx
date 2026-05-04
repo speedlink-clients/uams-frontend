@@ -8,6 +8,8 @@ import AuthCard from "@components/auth/AuthCard";
 import { AuthHook } from "@hooks/auth.hook";
 import useAuthStore from "@stores/auth.store";
 import useUserStore from "@stores/user.store";
+import useLoginForm from "@forms/login.form";
+import type { LoginSchema } from "@schemas/auth/login.schema";
 
 interface LoginFormStepProps {
     onLoginSuccess: () => void;
@@ -17,11 +19,15 @@ interface LoginFormStepProps {
 const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps) => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
 
     const { setAuth } = useAuthStore();
     const { setUser } = useUserStore();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useLoginForm();
 
     const { mutate: login, isPending } = AuthHook.useLogin({
         onSuccess: (data) => {
@@ -38,15 +44,8 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
         },
     });
 
-    const handleLoginSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!username.trim() || !password.trim()) {
-            toaster.error({ title: "Please enter both email and password" });
-            return;
-        }
-
-        login({ email: username, password });
+    const onSubmit = (data: LoginSchema) => {
+        login({ email: data.email, password: data.password });
     };
 
     /* ─── Shared input styles ─── */
@@ -91,53 +90,65 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
                 </Box>
 
                 {/* Form */}
-                <form onSubmit={handleLoginSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <Flex direction="column" gap="6">
                         {/* Email Input */}
-                        <Box position="relative">
-                            <Input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder="Enter Email-Address"
-                                {...inputStyles}
-                            />
-                            <Icon
-                                as={User}
-                                boxSize="5"
-                                color="gray.400"
-                                position="absolute"
-                                right="6"
-                                top="50%"
-                                transform="translateY(-50%)"
-                            />
+                        <Box>
+                            <Box position="relative">
+                                <Input
+                                    type="text"
+                                    placeholder="Enter Email-Address"
+                                    {...inputStyles}
+                                    {...register("email")}
+                                />
+                                <Icon
+                                    as={User}
+                                    boxSize="5"
+                                    color="gray.400"
+                                    position="absolute"
+                                    right="6"
+                                    top="50%"
+                                    transform="translateY(-50%)"
+                                />
+                            </Box>
+                            {errors.email && (
+                                <Text fontSize="12px" color="red.500" mt="1" px="1">
+                                    {errors.email.message}
+                                </Text>
+                            )}
                         </Box>
 
                         {/* Password Input */}
-                        <Box position="relative">
-                            <Input
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter Password"
-                                {...inputStyles}
-                            />
-                            <Box
-                                as="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                position="absolute"
-                                right="6"
-                                top="50%"
-                                transform="translateY(-50%)"
-                                color="gray.400"
-                                _hover={{ color: "accent.500" }}
-                                cursor="pointer"
-                                bg="transparent"
-                                border="none"
-                                p="0"
-                            >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        <Box>
+                            <Box position="relative">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Enter Password"
+                                    {...inputStyles}
+                                    {...register("password")}
+                                />
+                                <Box
+                                    as="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    position="absolute"
+                                    right="6"
+                                    top="50%"
+                                    transform="translateY(-50%)"
+                                    color="gray.400"
+                                    _hover={{ color: "accent.500" }}
+                                    cursor="pointer"
+                                    bg="transparent"
+                                    border="none"
+                                    p="0"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </Box>
                             </Box>
+                            {errors.password && (
+                                <Text fontSize="12px" color="red.500" mt="1" px="1">
+                                    {errors.password.message}
+                                </Text>
+                            )}
                         </Box>
 
 
@@ -156,7 +167,7 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
                                 cursor: isPending ? "not-allowed" : "pointer",
                                 transition: "all 0.2s",
                                 /* Using CSS vars from theme */
-                                backgroundColor: isPending ? "#A0AEC0" : "var(--chakra-colors-accent-500, #1273D4)",
+                                backgroundColor: isPending ? "#A0AEC0" : "var(--chakra-colors-accent-500)",
                                 color: "white",
                                 boxShadow: "0 10px 25px rgba(18, 115, 212, 0.3)",
                             }}
@@ -170,7 +181,7 @@ const LoginFormStep = ({ onLoginSuccess, onForgotPassword }: LoginFormStepProps)
                                 Forgot Password?{" "}
                                 <Text
                                     as="span"
-                                    color="#3b82f6"
+                                    color="accent.500"
                                     cursor="pointer"
                                     _hover={{ textDecoration: "underline" }}
                                     onClick={onForgotPassword}

@@ -29,7 +29,7 @@ const ProjectWriter = ({ project }: { project: ProjectTopic }) => {
             <Dialog.Trigger asChild>
                 <Button
                     size="sm"
-                    bg="#3b82f6"
+                    bg="var(--color-accent)"
                     variant="solid"
                 >
                     <Rocket size={16} /> View Project
