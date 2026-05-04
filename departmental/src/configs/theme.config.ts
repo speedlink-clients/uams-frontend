@@ -31,7 +31,7 @@ const config = defineConfig({
                 },
                 accent: {
                     DEFAULT: {
-                        value: "#2926EB", // main brand accent
+                        value: "#1d76d2", // main brand accent
                     },
                     50: {
                         value: "#f8f8ff", // very light tint
@@ -49,7 +49,7 @@ const config = defineConfig({
                         value: "#c3c3ff",
                     },
                     500: {
-                        value: "#2926EB", // base purple
+                        value: "#1d76d2", // base purple
                     },
                     600: {
                         value: "#2220c8",
