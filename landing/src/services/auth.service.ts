@@ -63,6 +63,14 @@ export const AuthServices = {
         const { data } = await axiosClient.patch("/user/update-password", payload);
         return data;
     },
+
+    /**
+     * Request a password reset link
+     */
+    forgotPassword: async (payload: { email: string }): Promise<{ status: string; message: string; data: null }> => {
+        const { data } = await axiosClient.post("/auth/password", payload);
+        return data;
+    },
 }
 
 export default AuthServices;

@@ -9,4 +9,9 @@ export const AuthHooks = {
         mutationFn: (payload: LoginData) => AuthServices.login(payload),
         ...options
     }),
+
+    useForgotPassword: (options?: UseMutationOptions<{ status: string; message: string; data: null }, Error, { email: string }, unknown>) => useMutation<{ status: string; message: string; data: null }, Error, { email: string }, unknown>({
+        mutationFn: (payload: { email: string }) => AuthServices.forgotPassword(payload),
+        ...options
+    }),
 }

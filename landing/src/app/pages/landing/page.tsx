@@ -1,16 +1,16 @@
 import { Box } from "@chakra-ui/react";
-import Hero from "./components/Hero";
-import Stats from "./Stats";
-import About from "./components/About";
-import SecureFuture from "./SecureFuture";
-import Programmes from "./components/Programmes";
-import LatestNews from "./components/LatestNews";
-import LibrarySection from "./components/LibrarySection";
-import ResourcesSection from "./components/ResourcesSection";
-import NewsletterSection from "./components/NewsletterSection";
+import Hero from "../../../components/shared/Hero";
+import Stats from "../../../components/shared/Stats";
+import About from "../../../components/shared/About";
+import SecureFuture from "../../../components/shared/SecureFuture";
+import Programmes from "../../../components/shared/Programmes";
+import LatestNews from "../../../components/shared/LatestNews";
+import LibrarySection from "../../../components/shared/LibrarySection";
+import ResourcesSection from "../../../components/shared/ResourcesSection";
+import NewsletterSection from "../../../components/shared/NewsletterSection";
 
 const LandingPage = () => {
-  
+
   return (
     <Box bg="white">
       <Hero id="home" />
