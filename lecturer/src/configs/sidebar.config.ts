@@ -9,6 +9,7 @@ import {
     // CreditCard,
     Megaphone,
     type LucideIcon,
+    ChartColumn,
 } from "lucide-react";
 
 export interface SidebarItem {
@@ -25,7 +26,7 @@ const sidebarItems: SidebarItem[] = [
     { label: "Lecturers", icon: Users, path: "/lecturers", accessLevel: "HOD" },
     { label: "Courses", icon: BookOpen, path: "/courses", accessLevel: "ALL" },
     { label: "Results", icon: ClipboardList, path: "/results", accessLevel: "ALL" },
-    { label: "Projects", icon: Ship, path: "/projects", accessLevel: ["HOD", "LECTURER", "ERO"] },
+    { label: "Projects", icon: ChartColumn, path: "/projects", accessLevel: ["HOD", "LECTURER", "ERO"] },
     { label: "Timetable", icon: CalendarDays, path: "/timetable", accessLevel: "ALL" },
     // { label: "Payments", icon: CreditCard, path: "/payments" },
     { label: "Announcement", icon: Megaphone, path: "/announcement", accessLevel: "ALL" },
