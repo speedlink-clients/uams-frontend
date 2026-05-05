@@ -6,7 +6,7 @@ import tsconfigPaths from "vite-tsconfig-paths"
 export default defineConfig({
     base: '/lecturer/',
     server: {
-      allowedHosts: ['computerscience.uniport.edu.ng', 'localhost'],
+      allowedHosts: ['computerscience.uniport.edu.ng', 'localhost', 'wrought-squeamish-mothball.ngrok-free.dev 80'],
       port: 3000,
       host: '0.0.0.0',
     },

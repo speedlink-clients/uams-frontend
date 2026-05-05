@@ -145,7 +145,7 @@ axiosClient.interceptors.response.use(
       useAuthStore.getState().clearAuth();
       setTimeout(() => {
         window.location.href = "/login";
-      }, 1000);
+       }, 1000);
     }
 
     // 🟡 Bad Request (400)
