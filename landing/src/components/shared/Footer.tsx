@@ -1,6 +1,7 @@
 import { Box, Container, SimpleGrid, Text, Stack, Link, Image, Flex, HStack } from "@chakra-ui/react";
 import { toaster } from "@components/ui/toaster";
-import { Facebook, Twitter, Linkedin, Instagram, Phone, Mail } from "lucide-react";
+import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
+import { LuMail, LuPhone } from "react-icons/lu";
 
 const Footer = () => {
     const handleComingSoon = () => {
@@ -36,18 +37,18 @@ const Footer = () => {
 
                             <Stack gap={3}>
                                 <Flex align="center" gap={3}>
-                                    <Phone size={16} color="#2AB0E8" />
+                                    <LuPhone size={16} color="#2AB0E8" />
                                     <Text color="white">Hot Line: +23404017041</Text>
                                 </Flex>
                                 <Flex align="center" gap={3}>
-                                    <Mail size={16} color="#2AB0E8" />
+                                    <LuMail size={16} color="#2AB0E8" />
                                     <Link href="mailto: helpdesk@uniport.edu.ng" color="white">Email: helpdesk@uniport.edu.ng</Link>
                                 </Flex>
                             </Stack>
                         </Box>
 
                         <Flex gap={4}>
-                            {[Facebook, Twitter, Instagram, Linkedin].map((IconComp, i) => (
+                            {[FaFacebook, FaTwitter, FaInstagram, FaLinkedin].map((IconComp, i) => (
                                 <Box key={i} border="1px solid" borderColor="white" borderRadius="full" p={2} _hover={{ bg: "#2AB0E8", borderColor: "#2AB0E8" }} cursor="pointer" onClick={handleComingSoon}>
                                     <IconComp size={18} />
                                 </Box>

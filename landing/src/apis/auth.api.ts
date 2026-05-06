@@ -8,6 +8,7 @@ import type {
     ActivateAccountResponse, 
     InitializePaymentResponse, 
     DepartmentDuesResponse, 
+    VerifyStudentResponse,
 } from "@type/auth.type"
 
 /**
@@ -29,8 +30,8 @@ export const logoutApi = async () => {
     // Optional: Implementation for logout if needed
 }
 
-export const verifyStudentApi = async (studentId: string): Promise<LoginResponse> => {
-    const { data } = await axiosClient.post<LoginResponse>("/activate-student/login", { studentId });
+export const verifyStudentApi = async (studentId: string): Promise<VerifyStudentResponse> => {
+    const { data } = await axiosClient.post<VerifyStudentResponse>("/auth/verify-student", { matricNumber: studentId });
     return data;
 }
 
@@ -57,5 +58,20 @@ export const changePasswordApi = async (payload: any): Promise<any> => {
 
 export const forgotPasswordApi = async (payload: { email: string }): Promise<{ status: string; message: string; data: null }> => {
     const { data } = await axiosClient.post("/auth/password", payload);
+    return data;
+}
+
+export const verifyOtpApi = async (payload: { email: string; otp: string }): Promise<LoginResponse> => {
+    const { data } = await axiosClient.post<LoginResponse>("/auth/verify", payload);
+    return data;
+}
+
+export const resendOtpApi = async (payload: { email: string }): Promise<{ status: string; message: string; data: null }> => {
+    const { data } = await axiosClient.post("/auth/password", payload);
+    return data;
+}
+
+export const resetPasswordApi = async (payload: any): Promise<{ status: string; message: string; data: null }> => {
+    const { data } = await axiosClient.patch("/auth/password", payload);
     return data;
 }

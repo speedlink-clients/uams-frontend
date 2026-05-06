@@ -14,43 +14,18 @@ const config = defineConfig({
     theme: {
         tokens: {
             colors: {
-                test: {
-                    value: "pink"
-                },
                 accent: {
-                    DEFAULT: {
-                        value: "#2926EB", // main brand accent
-                    },
-                    50: {
-                        value: "#f8f8ff", // very light tint
-                    },
-                    100: {
-                        value: "#f0f0ff",
-                    },
-                    200: {
-                        value: "#e1e1ff",
-                    },
-                    300: {
-                        value: "#d2d2ff",
-                    },
-                    400: {
-                        value: "#c3c3ff",
-                    },
-                    500: {
-                        value: "#2926EB", // base purple
-                    },
-                    600: {
-                        value: "#2220c8",
-                    },
-                    700: {
-                        value: "#1b1ba5",
-                    },
-                    800: {
-                        value: "#14167e",
-                    },
-                    900: {
-                        value: "#0d1157",
-                    },
+                    DEFAULT: { value: "#1273D4" },
+                    50: { value: "#E7F1FB" },
+                    100: { value: "#CFE3F7" },
+                    200: { value: "#9FC7EF" },
+                    300: { value: "#6EABE7" },
+                    400: { value: "#3E8FDF" },
+                    500: { value: "#1273D4" }, // Base Color #1273D4
+                    600: { value: "#0E5CAA" },
+                    700: { value: "#0B4580" },
+                    800: { value: "#072E55" },
+                    900: { value: "#04172B" },
                 },
             },
 
@@ -63,32 +38,32 @@ const config = defineConfig({
             colors: {
                 accent: {
                     solid: {
-                        value: "{colors.accent.600}", // main solid color for buttons, etc.
+                        value: "{colors.accent.500}", // Standard solid blue
                     },
                     muted: {
-                        value: "{colors.accent.400}", // lighter for hover or subtle accents
+                        value: "{colors.accent.200}",
                     },
                     subtle: {
-                        value: "{colors.accent.100}", // for light backgrounds
+                        value: "{colors.accent.50}",
                     },
                     contrast: {
-                        value: "{colors.accent.50}", // strong contrast areas
+                        value: "{colors.white}", // Blue usually needs white text
                     },
                     fg: {
-                        value: "{colors.accent.700}", // text accent color
+                        value: "{colors.accent.600}", 
                     },
                     emphasized: {
-                        value: "{colors.accent.800}", // stronger emphasis (headings, etc.)
+                        value: "{colors.accent.700}", 
                     },
                     focusRing: {
-                        value: "{colors.accent.500}", // focus outlines, inputs, etc.
+                        value: "{colors.accent.400}", 
                     },
                 },
                 border: {
                     default: {
                         value: {
                             base: "{colors.gray.200}",
-                            _dark: "{colors.gray.200}",
+                            _dark: "{colors.gray.700}", // Dark mode borders should be darker
                         },
                     },
                 },

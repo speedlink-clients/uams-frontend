@@ -1,58 +1,85 @@
-import {
-    loginApi,
-    forgotPasswordApi,
-    verifyStudentApi,
-    activateAccountApi,
-    initializePaymentApi,
-    getDepartmentAnnualDueApi,
-    changePasswordApi
+import { 
+    loginApi, 
+    signupApi, 
+    forgotPasswordApi, 
+    verifyStudentApi, 
+    activateAccountApi, 
+    initializePaymentApi, 
+    getDepartmentAnnualDueApi, 
+    changePasswordApi,
+    verifyOtpApi,
+    resendOtpApi,
+    resetPasswordApi
 } from "@services/auth.api"
 import { useMutation, type UseMutationOptions, useQuery } from "@tanstack/react-query"
-import type {
-    LoginData,
-    LoginResponse,
-    ActivateAccountRequest,
-    ActivateAccountResponse,
-    InitializePaymentResponse,
-    DepartmentDuesResponse,
+import { type AxiosError } from "axios"
+import type { 
+    LoginData, 
+    LoginResponse, 
+    SignupFormData, 
+    SignupResponse,
+    ActivateAccountRequest, 
+    ActivateAccountResponse, 
+    InitializePaymentResponse, 
+    DepartmentDuesResponse, 
+    ResetPasswordData,
+    VerifyStudentResponse,
 } from "@type/auth.type"
 
 
 // auth hooks
 
-export const AuthHooks = {
-    useLogin: (options?: UseMutationOptions<LoginResponse, Error, LoginData, unknown>) => useMutation<LoginResponse, Error, LoginData, unknown>({
-        mutationFn: (payload: LoginData) => loginApi(payload),
-        ...options
-    }),
+export const useLogin = (options?: UseMutationOptions<LoginResponse, Error, LoginData, unknown>) => useMutation<LoginResponse, Error, LoginData, unknown>({
+    mutationFn: (payload: LoginData) => loginApi(payload),
+    ...options
+})
 
-    useForgotPassword: (options?: UseMutationOptions<{ status: string; message: string; data: null }, Error, { email: string }, unknown>) => useMutation<{ status: string; message: string; data: null }, Error, { email: string }, unknown>({
-        mutationFn: (payload: { email: string }) => forgotPasswordApi(payload),
-        ...options
-    }),
+export const useSignup = (options?: UseMutationOptions<SignupResponse, Error, SignupFormData, unknown>) => useMutation<SignupResponse, Error, SignupFormData, unknown>({
+    mutationFn: (payload: SignupFormData) => signupApi(payload),
+    ...options
+})
 
-    useVerifyStudent: (options?: UseMutationOptions<LoginResponse, Error, string, unknown>) => useMutation<LoginResponse, Error, string, unknown>({
-        mutationFn: (studentId: string) => verifyStudentApi(studentId),
-        ...options
-    }),
+export const useForgotPassword = (options?: UseMutationOptions<{ status: string; message: string; data: null }, Error, { email: string }, unknown>) => useMutation<{ status: string; message: string; data: null }, Error, { email: string }, unknown>({
+    mutationFn: (payload: { email: string }) => forgotPasswordApi(payload),
+    ...options
+})
 
-    useActivateAccount: (options?: UseMutationOptions<ActivateAccountResponse, Error, ActivateAccountRequest, unknown>) => useMutation<ActivateAccountResponse, Error, ActivateAccountRequest, unknown>({
-        mutationFn: (payload: ActivateAccountRequest) => activateAccountApi(payload),
-        ...options
-    }),
+export const useVerifyStudent = (options?: UseMutationOptions<VerifyStudentResponse, Error, string, unknown>) => useMutation<VerifyStudentResponse, Error, string, unknown>({
+    mutationFn: (studentId: string) => verifyStudentApi(studentId),
+    ...options
+})
 
-    useInitializePayment: (options?: UseMutationOptions<InitializePaymentResponse, Error, string | undefined, unknown>) => useMutation<InitializePaymentResponse, Error, string | undefined, unknown>({
-        mutationFn: (callbackUrl?: string) => initializePaymentApi(callbackUrl),
-        ...options
-    }),
+export const useActivateAccount = (options?: UseMutationOptions<ActivateAccountResponse, Error, ActivateAccountRequest, unknown>) => useMutation<ActivateAccountResponse, Error, ActivateAccountRequest, unknown>({
+    mutationFn: (payload: ActivateAccountRequest) => activateAccountApi(payload),
+    ...options
+})
 
-    useDepartmentAnnualDue: () => useQuery<DepartmentDuesResponse, Error>({
-        queryKey: ["department-annual-due"],
-        queryFn: () => getDepartmentAnnualDueApi(),
-    }),
+export const useInitializePayment = (options?: UseMutationOptions<InitializePaymentResponse, Error, string | undefined, unknown>) => useMutation<InitializePaymentResponse, Error, string | undefined, unknown>({
+    mutationFn: (callbackUrl?: string) => initializePaymentApi(callbackUrl),
+    ...options
+})
 
-    useChangePassword: (options?: UseMutationOptions<any, Error, any, unknown>) => useMutation<any, Error, any, unknown>({
-        mutationFn: (payload: any) => changePasswordApi(payload),
-        ...options
-    }),
-}
+export const useDepartmentAnnualDue = () => useQuery<DepartmentDuesResponse, Error>({
+    queryKey: ["department-annual-due"],
+    queryFn: () => getDepartmentAnnualDueApi(),
+})
+
+export const useChangePassword = (options?: UseMutationOptions<any, Error, any, unknown>) => useMutation<any, Error, any, unknown>({
+    mutationFn: (payload: any) => changePasswordApi(payload),
+    ...options
+})
+
+export const useVerifyOtp = (options?: UseMutationOptions<LoginResponse, AxiosError<{ message?: string }>, { email: string; otp: string }, unknown>) => useMutation<LoginResponse, AxiosError<{ message?: string }>, { email: string; otp: string }, unknown>({
+    mutationFn: (payload: { email: string; otp: string }) => verifyOtpApi(payload),
+    ...options
+})
+
+export const useResendOtp = (options?: UseMutationOptions<{ status: string; message: string; data: null }, Error, { email: string }, unknown>) => useMutation<{ status: string; message: string; data: null }, Error, { email: string }, unknown>({
+    mutationFn: (payload: { email: string }) => resendOtpApi(payload),
+    ...options
+})
+
+export const useResetPassword = (options?: UseMutationOptions<{ status: string; message: string; data: null }, Error, ResetPasswordData, unknown>) => useMutation<{ status: string; message: string; data: null }, Error, ResetPasswordData, unknown>({
+    mutationFn: (payload: ResetPasswordData) => resetPasswordApi(payload),
+    ...options
+})

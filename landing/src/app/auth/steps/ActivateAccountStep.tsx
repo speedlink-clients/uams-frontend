@@ -1,289 +1,204 @@
-import React, { useState } from 'react';
-import { User, Eye, EyeOff, Loader2, AlertCircle, Phone } from 'lucide-react';
-import AuthBackground from '../components/AuthBackground';
-import AuthCard from '../components/AuthCard';
-import authService from '@services/auth.service';
+import React from 'react';
+import { useActivateAccount } from "@hooks/auth.hook";
+import { useActivateAccountForm } from "@forms/auth.form";
+import { PasswordInput } from "@components/ui/password-input";
+import { Box, Flex, Text, Image, Input, Field, Button, Stack, Heading, SimpleGrid, Separator, Card } from "@chakra-ui/react";
 import useAuthStore from '@stores/auth.store';
-import { getAssetPath } from '@utils/assetPath';
+import { type ActivateAccountStepProps, type ActivateAccountFormData } from '@type/auth.type';
+import AuthBackground from '../components/AuthBackground';
 
-interface ActivateAccountStepProps {
-  onNext: () => void;
-  onForgotPassword: () => void;
-}
+const ActivateAccountStep: React.FC<ActivateAccountStepProps> = ({ onNext }) => {
+    const { user: studentInfo } = useAuthStore();
+    
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setValue
+    } = useActivateAccountForm();
 
-const ActivateAccountStep: React.FC<ActivateAccountStepProps> = ({ onNext, onForgotPassword }) => {
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const { user: storedUser } = useAuthStore();
-  const [studentInfo, setStudentInfo] = useState<any>(null);
+    React.useEffect(() => {
+        if (studentInfo?.email) {
+            setValue("email", studentInfo.email);
+        }
+    }, [studentInfo, setValue]);
 
-  React.useEffect(() => {
-    if (storedUser) {
-      setStudentInfo(storedUser);
-      if (storedUser.email) setEmail(storedUser.email);
-    }
-  }, [storedUser]);
+    const { mutate: activate, isPending: isLoading } = useActivateAccount({
+        onSuccess: () => {
+            onNext();
+        },
+    });
 
-  const handleActivate = async () => {
-    if (!email.trim()) {
-      setError('Please enter your email address');
-      return;
-    }
-    if (!phone.trim()) {
-      setError('Please enter your phone number');
-      return;
-    }
-    if (!password.trim()) {
-      setError('Please enter your password');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      await authService.activateAccount({ email, phone, password });
-      onNext();
-    } catch (err: any) {
-      // Handle specific validation error (e.g., duplicate email)
-      const errorMessage = err.message || err.response?.data?.message || '';
-      if (errorMessage.toLowerCase().includes('validation error')) {
-        setError('Email already exists. Please use a different email address.');
-      } else {
-        setError(errorMessage || 'Account activation failed. Please try again.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Helper to split full name
-  const getNames = (fullName: string) => {
-    const parts = fullName ? fullName.split(' ') : [];
-    if (parts.length === 0) return { firstName: '', otherName: '' };
-    return {
-      firstName: parts[0],
-      otherName: parts.slice(1).join(' ')
+    const onSubmit = (formData: ActivateAccountFormData) => {
+        activate(formData);
     };
-  };
 
-  const { firstName, otherName } = getNames(studentInfo?.fullName || '');
+    // Helper to split full name
+    const getNames = (fullName: string) => {
+        const parts = fullName ? fullName.split(' ') : [];
+        if (parts.length === 0) return { firstName: '', otherName: '' };
+        return {
+            firstName: parts[0],
+            otherName: parts.slice(1).join(' ')
+        };
+    };
 
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center relative font-['Inter'] py-10">
-      <AuthBackground />
-      <div className="relative z-10 w-full max-w-4xl bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 mx-4">
-        <div className="p-8 md:p-12">
-            <div className="flex flex-col items-center mb-8">
-                {/* Logo placeholder - replace with actual logo if available in assets, assuming consistent with other pages */}
-                 <img src={getAssetPath('assets/uphcscLG.png')} alt="University Logo" className="h-16 mb-4 object-contain" /> 
-            </div>
+    const { firstName, otherName } = getNames(studentInfo?.name || '');
 
-          {/* Student Information Section */}
-          <div className="mb-10">
-            <h2 className="text-[#1d76d2] font-bold text-lg mb-6">Student Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Reg No.</label>
-                <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  {studentInfo?.profile?.studentId || 'N/A'}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Mat No.</label>
-                 <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  {studentInfo?.profile?.studentId || 'N/A'}
-                </div>
-              </div>
+    const InfoItem = ({ label, value }: { label: string; value: string }) => (
+        <Stack gap="1">
+            <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider">
+                {label}
+            </Text>
+            <Box bg="gray.50" p="3" rounded="md" border="1px solid" borderColor="gray.100">
+                <Text fontSize="sm" fontWeight="semibold" color="fg.muted">
+                    {value || 'N/A'}
+                </Text>
+            </Box>
+        </Stack>
+    );
 
-               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">First Name</label>
-                <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  {firstName || 'N/A'}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Other Name</label>
-                 <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  {otherName || 'N/A'}
-                </div>
-              </div>
-
-               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Sex</label>
-                <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  {studentInfo?.sex || 'N/A'}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Admission Mode</label>
-                 <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  {studentInfo?.admissionMode || 'UTME'}
-                </div>
-              </div>
-
-               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Entry Qualification</label>
-                <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  {studentInfo?.entryQualification || 'Nil'}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Faculty Name</label>
-                 <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  COMPUTING
-                </div>
-              </div>
-
-               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Degree Course</label>
-                <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                   COMPUTER SCIENCE
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Department Name</label>
-                 <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  COMPUTER SCIENCE
-                </div>
-              </div>
-
-               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Degree Awarded</label>
-                <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  B.SC
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[#1e293b]">Course Duration</label>
-                 <div className="w-full bg-gray-200/50 border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-gray-600 uppercase">
-                  4
-                </div>
-              </div>
-            </div>
-          </div>
-        
-          <div className="w-full h-px bg-gray-200 my-8"></div>
-
-          {/* Form Section */}
-          <div>
-            <h2 className="text-[#1d76d2] font-bold text-lg mb-6">Input the following</h2>
+    return (
+        <Flex minH="100vh" w="full" bg="white" fontFamily="'Inter'"
+            bgImage={"url(/images/slider.jpeg)"}
+            bgSize={"cover"}
+            bgPos={"center"}
+            bgRepeat={"no-repeat"}
+            py="20"
+            justify={"center"}
+            align={"center"}
+        >
+            <AuthBackground />
             
-             {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-2">
-                    <AlertCircle size={20} className="shrink-0" />
-                    <p className="text-[13px] font-bold">{error}</p>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-8">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#1e293b]">Email Address</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (error) setError('');
-                        }}
-                        placeholder="Enter email address"
-                        className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
-                        disabled={isLoading}
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#1e293b]">Phone Number</label>
-                    <input
-                        type="tel"
-                        value={phone}
-                         onChange={(e) => {
-                            setPhone(e.target.value);
-                            if (error) setError('');
-                        }}
-                        placeholder="Enter phone number"
-                        className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
-                        disabled={isLoading}
-                    />
-                </div>
-
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#1e293b]">Password</label>
-                    <div className="relative">
-                        <input
-                            type={showPassword ? "text" : "password"}
-                             value={password}
-                            onChange={(e) => {
-                                setPassword(e.target.value);
-                                if (error) setError('');
-                            }}
-                            placeholder="Enter password"
-                            className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
-                            disabled={isLoading}
-                        />
-                         <button
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500"
-                            type="button"
-                        >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
-                </div>
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#1e293b]">Re-enter Password</label>
-                     <div className="relative">
-                        <input
-                            type={showConfirmPassword ? "text" : "password"}
-                             value={confirmPassword}
-                            onChange={(e) => {
-                                setConfirmPassword(e.target.value);
-                                if (error) setError('');
-                            }}
-                            placeholder="Re-enter password"
-                            className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm font-medium text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-[#1d76d2] focus:border-transparent transition-all placeholder:text-gray-400"
-                           disabled={isLoading}
-                           onKeyDown={(e) => e.key === 'Enter' && handleActivate()}
-                        />
-                         <button
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500"
-                            type="button"
-                        >
-                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <button
-                onClick={handleActivate}
-                disabled={isLoading}
-                 className="w-full bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-blue-300 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-lg shadow-blue-200/50 transition-all flex items-center justify-center gap-2"
+            <Card.Root 
+                variant="elevated" 
+                w="full" 
+                maxW="4xl" 
+                rounded="3xl" 
+                overflow="hidden" 
+                mx="4"
+                boxShadow="2xl"
+                bg="white/95"
+                backdropBlur="md"
             >
-                {isLoading ? (
-                    <>
-                    <Loader2 size={20} className="animate-spin" />
-                    <span>Activating...</span>
-                    </>
-                ) : (
-                    'Activate Account'
-                )}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+                <Card.Body p={{ base: "8", md: "12" }}>
+                    <Stack gap="10">
+                        {/* Header */}
+                        <Flex direction="column" align="center" gap="4">
+                            <Image
+                                src="/public/images/uphcscLG.png"
+                                alt="Logo"
+                                h="16"
+                                objectFit="contain"
+                            />
+                            <Box textAlign="center">
+                                <Heading size="2xl" fontWeight="black" color="accent">
+                                    Account Activation
+                                </Heading>
+                                <Text color="fg.subtle" fontSize="sm">
+                                    Please verify your information and set up your account credentials
+                                </Text>
+                            </Box>
+                        </Flex>
+
+                        <SimpleGrid columns={{ base: 1, md: 2 }} gap="12">
+                            {/* Student Info Section */}
+                            <Stack gap="6">
+                                <Heading size="md" color="accent" fontWeight="bold">
+                                    Student Information
+                                </Heading>
+                                <SimpleGrid columns={2} gap="4">
+                                    <InfoItem label="Reg No." value={studentInfo?.profile?.registrationNo} />
+                                    <InfoItem label="Mat No." value={studentInfo?.profile?.matricNumber} />
+                                    <InfoItem label="First Name" value={firstName} />
+                                    <InfoItem label="Other Name" value={otherName} />
+                                    <InfoItem label="Sex" value={studentInfo?.profile?.gender || studentInfo?.sex} />
+                                    <InfoItem label="Entry Mode" value={studentInfo?.profile?.admissionMode || studentInfo?.admissionMode || 'UTME'} />
+                                    <InfoItem label="Course" value="COMPUTER SCIENCE" />
+                                    <InfoItem label="Level" value="100" />
+                                </SimpleGrid>
+                            </Stack>
+
+                            {/* Form Section */}
+                            <Stack gap="6">
+                                <Heading size="md" color="accent" fontWeight="bold">
+                                    Account Setup
+                                </Heading>
+                                
+                                <form onSubmit={handleSubmit(onSubmit)}>
+                                    <Stack gap="5">
+                                        <Field.Root invalid={!!errors.email}>
+                                            <Field.Label>Email Address</Field.Label>
+                                            <Input
+                                                type="email"
+                                                placeholder="Enter Email"
+                                                {...register("email")}
+                                                disabled={isLoading}
+                                                size="lg"
+                                            />
+                                            <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                                        </Field.Root>
+
+                                        <Field.Root invalid={!!errors.phone}>
+                                            <Field.Label>Phone Number</Field.Label>
+                                            <Input
+                                                type="tel"
+                                                placeholder="Enter Phone Number"
+                                                {...register("phone")}
+                                                disabled={isLoading}
+                                                size="lg"
+                                            />
+                                            <Field.ErrorText>{errors.phone?.message}</Field.ErrorText>
+                                        </Field.Root>
+
+                                        <Field.Root invalid={!!errors.password}>
+                                            <Field.Label>Password</Field.Label>
+                                            <PasswordInput
+                                                placeholder="Create Password"
+                                                {...register("password")}
+                                                disabled={isLoading}
+                                                size="lg"
+                                            />
+                                            <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+                                        </Field.Root>
+
+                                        <Field.Root invalid={!!errors.confirmPassword}>
+                                            <Field.Label>Confirm Password</Field.Label>
+                                            <PasswordInput
+                                                placeholder="Confirm Password"
+                                                {...register("confirmPassword")}
+                                                disabled={isLoading}
+                                                size="lg"
+                                            />
+                                            <Field.ErrorText>{errors.confirmPassword?.message}</Field.ErrorText>
+                                        </Field.Root>
+
+                                        <Button
+                                            type="submit"
+                                            size="xl"
+                                            w="full"
+                                            loading={isLoading}
+                                            loadingText="Activating..."
+                                            disabled={isLoading}
+                                            mt="4"
+                                        >
+                                            Activate My Account
+                                        </Button>
+                                    </Stack>
+                                </form>
+                            </Stack>
+                        </SimpleGrid>
+
+                        <Separator />
+
+                        <Text color="fg.subtle" textAlign="center" fontSize="sm">
+                            Need help? Contact support or verify another registration number.
+                        </Text>
+                    </Stack>
+                </Card.Body>
+            </Card.Root>
+        </Flex>
+    );
 };
 
 export default ActivateAccountStep;

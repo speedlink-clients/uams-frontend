@@ -1,4 +1,7 @@
+import ForgotPasswordPage from "@app/auth/forgot-password/page";
 import LoginPage from "@app/auth/login/page";
+import OtpPage from "@app/auth/otp/page";
+import ResetPasswordPage from "@app/auth/reset-password/page";
 import RootLayout from "@app/layout";
 import type { RouteObject } from "react-router"
 
@@ -8,8 +11,9 @@ const authRoutes: RouteObject[] = [
         element: <RootLayout />,
         children: [
             { path: "/auth/login", element: <LoginPage /> },
-            // { path: "/auth/reset-password", element: <ResetPasswordPage /> },
-            // { path: "/auth/forgot-password", element: <ForgotPasswordPage /> },
+            { path: "/auth/forgot-password", element: <ForgotPasswordPage /> },
+            { path: "/auth/otp", element: <OtpPage /> },
+            { path: "/auth/reset-password", element: <ResetPasswordPage /> },
         ]
     }
 ]

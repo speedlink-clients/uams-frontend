@@ -1,101 +1,111 @@
 import React, { useState } from 'react';
-import { User, Loader2, AlertCircle } from 'lucide-react';
-import AuthBackground from '../components/AuthBackground';
-import AuthCard from '../components/AuthCard';
-import authService from '@services/auth.service';
+import { HiOutlineUser } from 'react-icons/hi';
+import { Box, Flex, Text, Button, Stack, Heading, Input, Field } from "@chakra-ui/react";
+import { useVerifyStudent } from '@hooks/auth.hook';
 import useAuthStore from '@stores/auth.store';
 
-interface RegNumberStepProps {
-  onNext: () => void;
-}
+import { type RegNumberStepProps } from '@type/auth.type';
 
 const RegNumberStep: React.FC<RegNumberStepProps> = ({ onNext }) => {
   const { setAuth } = useAuthStore();
   const [matricNumber, setMatricNumber] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleVerify = async () => {
-    if (!matricNumber.trim()) {
-      setError('Please enter your matriculation or reg. number');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const data = await authService.verifyStudent(matricNumber);
+  const { mutate: verifyStudent, isPending: isLoading } = useVerifyStudent({
+    onSuccess: (response) => {
       setAuth({
-        token: data.token,
-        user: data.user,
-        refreshToken: data.refreshToken || "",
-        expireAt: data.expireAt || "",
+        token: response.data.verificationToken,
+        user: {
+          name: `${response.data.profile.firstName} ${response.data.profile.lastName}`,
+          email: "", // Will be set in next step
+          role: "STUDENT",
+          profile: response.data.profile,
+        },
+        expireAt: "15m",
       });
       onNext();
-    } catch (err: any) {
-      setError(err.message || 'Verification failed. Please check your matriculation or reg. number.');
-    } finally {
-      setIsLoading(false);
     }
+  });
+
+  const handleVerify = () => {
+    if (!matricNumber.trim()) return;
+    verifyStudent(matricNumber);
   };
 
   return (
-    <div className="py-10 min-h-screen w-full flex items-center justify-center relative font-['Inter']">
-      <AuthBackground />
-      <AuthCard>
-        <div className="text-center mb-10">
-          <h1 className="text-2xl font-black text-[#1e293b] mb-3">
-            Verify Student
-          </h1>
-          <p className="text-[14px] font-medium text-gray-400">
-            Welcome! Please input your matriculation or reg. number to verify your account
-          </p>
-        </div>
-        
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-2">
-            <AlertCircle size={20} className="shrink-0" />
-            <p className="text-[13px] font-bold">{error}</p>
-          </div>
-        )}
+    <Flex 
+      minH="100vh" 
+      w="full" 
+      fontFamily="'Inter'"
+      bgImage={"url(/images/slider.jpeg)"}
+      bgSize={"cover"}
+      bgPos={"center"}
+      bgRepeat={"no-repeat"}
+      py="10"
+      justify={"center"}
+      align={"center"}
+    >
+      <Box
+        w={{ base: "full", lg: "450px" }}
+        bg="white"
+        p={{ base: "8", md: "12" }}
+        rounded="3xl"
+        boxShadow="2xl"
+        mx="4"
+      >
+        <Stack gap="10">
+          <Box textAlign="center">
+            <Heading size="2xl" fontWeight="black" color="fg.emphasized" mb="3">
+              Verify Student
+            </Heading>
+            <Text fontSize="14px" fontWeight="medium" color="fg.subtle">
+              Welcome! Please input your matriculation or reg. number to verify your account
+            </Text>
+          </Box>
+          
+          <Stack gap="6">
+            <Field.Root>
+              <Box position="relative">
+                <Input
+                  placeholder="Enter Matriculation or Reg. Number"
+                  value={matricNumber}
+                  onChange={(e) => setMatricNumber(e.target.value)}
+                  disabled={isLoading}
+                  onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
+                  size="xl"
+                  rounded="xl"
+                  pr="12"
+                  _focus={{ ring: "4", ringColor: "blue.100/50", borderColor: "blue.500" }}
+                />
+                <Box 
+                  position="absolute" 
+                  right="4" 
+                  top="50%" 
+                  transform="translateY(-50%)" 
+                  color="gray.400"
+                  pointerEvents="none"
+                >
+                  <HiOutlineUser size={20} />
+                </Box>
+              </Box>
+            </Field.Root>
 
-        <div className="space-y-6">
-          <div className="relative group">
-            <input
-              type="text"
-              value={matricNumber}
-              onChange={(e) => {
-                setMatricNumber(e.target.value);
-                if (error) setError('');
-              }}
-              placeholder="Enter Matriculation or Reg. Number"
-              className="w-full bg-white border border-gray-300 rounded-xl py-4 px-6 text-[15px] font-medium text-[#1e293b] focus:outline-none focus:ring-4 focus:ring-blue-100/50 focus:border-[#1d76d2] transition-all placeholder:text-gray-400"
-              disabled={isLoading}
-              onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
-            />
-            <User
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#1d76d2] transition-colors"
-              size={20}
-            />
-          </div>
-          <button
-            onClick={handleVerify}
-            disabled={isLoading}
-            className="w-full bg-[#1d76d2] hover:bg-[#1565c0] disabled:bg-blue-300 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-lg shadow-blue-200/50 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 size={20} className="animate-spin" />
-                <span>Verifying...</span>
-              </>
-            ) : (
-              'Verify'
-            )}
-          </button>
-        </div>
-      </AuthCard>
-    </div>
+            <Button
+              onClick={handleVerify}
+              loading={isLoading}
+              disabled={isLoading || !matricNumber.trim()}
+              size="xl"
+              w="full"
+              colorPalette="blue"
+              rounded="xl"
+              fontWeight="black"
+              boxShadow="lg"
+            >
+              Verify
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
+    </Flex>
   );
 };
 

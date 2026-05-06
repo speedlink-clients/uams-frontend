@@ -12,7 +12,7 @@ import {
     IconButton,
 } from "@chakra-ui/react";
 import { toaster } from "@components/ui/toaster";
-import { Search, ChevronRight, CircleChevronRight, ChevronLeft } from "lucide-react";
+import { LuSearch, LuChevronRight, LuCircleChevronRight, LuChevronLeft } from "react-icons/lu";
 import { motion } from "framer-motion";
 
 const programmes = [
@@ -52,7 +52,7 @@ const Programmes = () => {
                         <Box position="relative" maxW={{ base: "full", md: "xs" }} w="100%">
                             <Input placeholder="Find your Course" borderRadius="none" bg="white" borderColor="#000000" pr={10} />
                             <Box position="absolute" right={3} top="50%" transform="translateY(-50%)" pointerEvents="none">
-                                <Search size={18} color="#000000" />
+                                <LuSearch size={18} color="#000000" />
                             </Box>
                         </Box>
                     </Flex>
@@ -98,7 +98,7 @@ const Programmes = () => {
                                             <Text fontSize="xs" fontWeight="bold" color="#000000">{prog.courses} Courses</Text>
                                         </Box>
                                         <IconButton aria-label="View" variant="ghost" borderRadius="full" onClick={handleComingSoon}>
-                                            <CircleChevronRight size={20} />
+                                            <LuCircleChevronRight size={20} />
                                         </IconButton>
                                     </Flex>
                                 </MotionBox>
@@ -107,10 +107,10 @@ const Programmes = () => {
 
                         <Flex justify="flex-end" mt={6} gap={2}>
                             <IconButton aria-label="Previous" size="sm" variant="outline" borderColor="whiteAlpha.400" color="white" onClick={handleComingSoon}>
-                                <ChevronLeft size={24} />
+                                <LuChevronLeft size={24} />
                             </IconButton>
                             <IconButton aria-label="Next" size="sm" bg="#2AB0E8" color="white" _hover={{ bg: "#23a1d5" }} onClick={handleComingSoon}>
-                                <ChevronRight size={24} />
+                                <LuChevronRight size={24} />
                             </IconButton>
                         </Flex>
                     </MotionBox>

@@ -1,10 +1,6 @@
 import React from 'react';
 
-interface AuthCardProps {
-  children: React.ReactNode;
-  className?: string;
-  isPlainLogo?: boolean;
-}
+import { type AuthCardProps } from '@type/auth.type';
 
 const AuthCard: React.FC<AuthCardProps> = ({
   children,
