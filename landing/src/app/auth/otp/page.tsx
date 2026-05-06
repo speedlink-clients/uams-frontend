@@ -71,9 +71,10 @@ const OtpPage = () => {
             minH="100vh"
             w="full"
             bg="bg.subtle"
-            py="20"
+            py={{ base: "4", md: "20" }}
+            px={{ base: "4", md: 0 }}
             justify={"center"}
-            align={"center"}
+            align={{ base: "start", md: "center" }}
 
         >
 
@@ -81,12 +82,13 @@ const OtpPage = () => {
                 w={{ base: "full", lg: "xl" }}
                 align={"center"}
                 gap="12"
-                p="12"
+                p={{ base: "6", md: "12" }}
                 bg="bg"
                 rounded="md"
                 border="xs"
                 borderColor={"border.muted"}
             >
+
                 {/* Heading */}
                 <Stack align={"center"} gap="4">
                     <Icon
