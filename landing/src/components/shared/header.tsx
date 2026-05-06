@@ -2,8 +2,8 @@ import type { HeadProps } from "@type/index.type";
 
 
 export default function Head({
-  title = 'My App',
-  description = 'A React application',
+  title = 'Department of Computer Science',
+  description = 'Department of Computer Science',
   keywords = 'react, vite, app',
   author = '',
   viewport = 'width=device-width, initial-scale=1.0',

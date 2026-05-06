@@ -8,7 +8,7 @@ import {
     IconButton,
     Stack,
 } from "@chakra-ui/react";
-import { Menu, X } from "lucide-react";
+import { LuMenu, LuX } from "react-icons/lu";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 
@@ -108,7 +108,7 @@ const Navbar = () => {
                                 variant="ghost"
                                 onClick={toggleMenu}
                             >
-                                {isOpen ? <X size={24} /> : <Menu size={24} />}
+                                {isOpen ? <LuX size={24} /> : <LuMenu size={24} />}
                             </IconButton>
                         </HStack>
                     </Flex>

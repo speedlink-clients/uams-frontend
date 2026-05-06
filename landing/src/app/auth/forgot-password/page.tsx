@@ -1,29 +1,34 @@
-import { Link } from "react-router";
-import { AuthHooks } from "@hooks/auth.hook";
-import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
+import { useForgotPassword } from "@hooks/auth.hook";
+import { useForgotPasswordForm } from "@forms/auth.form";
 import { toaster } from "@components/ui/toaster";
+import { Box, Flex, Text, Input, Field, Button, Stack, Span, Heading, Icon } from "@chakra-ui/react";
 
-import { Box, Flex, Text, Image, Input, Field, Button, Stack, Span, Heading } from "@chakra-ui/react";
-
-interface ForgotPasswordFormData {
-    email: string;
-}
+import { type ForgotPasswordFormData } from "@type/auth.type";
+import { LuLock } from "react-icons/lu";
 
 const ForgotPasswordPage = () => {
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
+        getValues,
+        watch,
         formState: { errors },
-    } = useForm<ForgotPasswordFormData>();
+    } = useForgotPasswordForm();
 
-    const { mutate: forgotPassword, isPending: isLoading, isSuccess } = AuthHooks.useForgotPassword({
+    const { mutate: forgotPassword, isPending: isLoading } = useForgotPassword({
         onSuccess: (response) => {
             toaster.create({
                 title: "Success",
                 description: response.message || "A password reset link has been sent to your email.",
                 type: "success",
             });
-        },
+
+            // Redirect to OTP page with email in state and flow identifier
+            const email = getValues("email");
+            navigate("/auth/otp", { state: { email, flow: "reset" } });
+        }
     });
 
     const onSubmit = (formData: ForgotPasswordFormData) => {
@@ -31,114 +36,91 @@ const ForgotPasswordPage = () => {
     };
 
     return (
-        <Flex minH="100vh" w="full" bg="white" fontFamily="'Inter'">
-            {/* Left Side - Campus Image */}
-            <Box display={{ base: "none", lg: "block" }} w="65%" position="relative">
-                <Image
-                    src="/images/slider.jpeg"
-                    alt="Modern University Campus"
-                    position="absolute"
-                    inset="0"
-                    w="full"
-                    h="full"
-                    objectFit="cover"
-                />
-                <Box position="absolute" inset="0" bg="blackAlpha.100" />
-            </Box>
+        <Flex
+            minH="100vh"
+            w="full"
+            bg="bg.subtle"
+            py="20"
+            justify={"center"}
+            align={"center"}
 
-            {/* Right Side - Forgot Password Form */}
-            <Flex
-                w={{ base: "full", lg: "35%" }}
-                alignItems="center"
-                justifyContent="center"
-                p="6"
-                bg={{ base: "#f8fafc", lg: "white" }}
+        >
+
+            <Stack
+                w={{ base: "full", lg: "xl" }}
+                align={"center"}
+                gap="12"
+                p="12"
+                bg="bg"
+                rounded="md"
+                border="xs"
+                borderColor={"border.muted"}
             >
-                <Stack
-                    w="full"
-                    maxW="md"
-                    p={{ base: "8", lg: "12" }}
-                    gap="12"
-                >
-                    {/* Logo */}
-                    <Flex justifyContent="center" >
-                        <Image
-                            src="/public/images/uphcscLG.png"
-                            alt="Logo"
-                            h="12"
-                            w="auto"
-                            borderRadius="md"
-                        />
-                    </Flex>
 
-                    {/* Heading */}
-                    <Box textAlign="center" >
+                {/* Heading */}
+                <Stack gap="6" align={"center"} >
+                    <Icon
+                        as={LuLock}
+                        w={24}
+                        h={24}
+                        strokeWidth="1px"
+                    />
+                    <Box textAlign={"center"}>
                         <Heading size="3xl" fontWeight="black">
                             Forgot Password
                         </Heading>
                         <Text fontSize="14px" fontWeight="medium" color="fg.subtle">
-                            Enter your email to receive a password reset link
+                            Enter your email to receive a verification code
                         </Text>
                     </Box>
-
-                    {isSuccess ? (
-                        <Box p="6" bg="green.50" border="1px solid" borderColor="green.200" borderRadius="xl" textAlign="center">
-                            <Text color="green.700" fontWeight="medium" mb="4">
-                                If an account exists for that email, we have sent password reset instructions.
-                            </Text>
-                            <Button asChild variant="outline" w="full" size="lg">
-                                <Link to="/">Return to Login</Link>
-                            </Button>
-                        </Box>
-                    ) : (
-                        <Stack gap="6" asChild color="black" colorPalette={"accent"}>
-                            <form onSubmit={handleSubmit(onSubmit)}>
-                                {/* Email */}
-                                <Field.Root invalid={!!errors.email}>
-                                    <Field.Label>
-                                        Email Address
-                                    </Field.Label>
-                                    <Input
-                                        type="email"
-                                        placeholder="Enter Email"
-                                        {...register("email", { 
-                                            required: "Email is required",
-                                            pattern: {
-                                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                                message: "Invalid email address"
-                                            }
-                                        })}
-                                        disabled={isLoading}
-                                        size="xl"
-                                        _placeholder={{color:"fg.subtle"}}
-                                    />
-                                    <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                                </Field.Root>
-
-                                {/* Submit Button */}
-                                <Button
-                                    type="submit"
-                                    size="xl"
-                                    loading={isLoading}
-                                    loadingText="Sending..."
-                                    disabled={isLoading}
-                                    cursor={isLoading ? "not-allowed" : "pointer"}
-                                >
-                                    Send Reset Link
-                                </Button>
-                            </form>
-                        </Stack>
-                    )}
-
-                    <Text color="fg.subtle" textAlign={"center"}>
-                        Remember your password?{" "}
-                        <Span asChild color="blue.500" fontWeight="medium" textDecor={"underline"}>
-                            <Link to="/">Back to Login</Link>
-                        </Span>
-                    </Text>
-
                 </Stack>
-            </Flex>
+                <Stack gap="6" asChild color="black" colorPalette={"accent"} w="full">
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        {/* Email */}
+                        <Field.Root invalid={!!errors.email}>
+                            <Field.Label>
+                                Email Address
+                            </Field.Label>
+                            <Input
+                                type="email"
+                                placeholder="Enter Email"
+                                {...register("email", {
+                                    required: "Email is required",
+                                    pattern: {
+                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                        message: "Invalid email address"
+                                    }
+                                })}
+                                disabled={isLoading}
+                                size="xl"
+                                _placeholder={{ color: "fg.subtle" }}
+                            />
+                            <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                        </Field.Root>
+
+                        {/* Submit Button */}
+                        <Button
+                            type="submit"
+                            size="xl"
+                            w="full"
+                            loading={isLoading}
+                            loadingText="Sending..."
+                            disabled={isLoading || !watch("email")}
+                        >
+                            Send OTP
+                        </Button>
+                    </form>
+                </Stack>
+
+                <Text color="fg.subtle" textAlign={"center"}>
+                    Remember your password?{" "}
+                    <Span asChild color="accent" fontWeight="medium" textDecor={"underline"}>
+                        <Link to="/auth/login">Back to Login</Link>
+                    </Span>
+                </Text>
+
+            </Stack>
+
         </Flex >
     );
 };

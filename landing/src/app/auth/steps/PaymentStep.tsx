@@ -1,37 +1,20 @@
-import React, { useState, useEffect,useMemo } from "react";
-import { CreditCard, Loader2, AlertCircle } from "lucide-react";
-import AuthBackground from "../components/AuthBackground";
-import AuthCard from "../components/AuthCard";
-import authService from "@services/auth.service";
-import { useSearchParams } from "react-router";
+import React from "react";
+import { HiOutlineCreditCard, HiOutlineInformationCircle } from "react-icons/hi";
+import { Box, Flex, Text, Button, Stack, Heading, Separator, Spinner, Alert } from "@chakra-ui/react";
+import { useDepartmentAnnualDue, useInitializePayment } from "@hooks/auth.hook";
 
-import type { DepartmentDuesResponse } from "@type/auth.type";
+import { type PaymentStepProps } from "@type/auth.type";
 
-interface PaymentStepProps {
-  onNext: () => void;
-}
+const PaymentStep: React.FC<PaymentStepProps> = () => {
+  const { data: duesResponse, isLoading: isFetchingDues, error: duesError } = useDepartmentAnnualDue();
+  const duesData = duesResponse?.data;
 
-const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingDues, setIsFetchingDues] = useState(true);
-  const [error, setError] = useState("");
-  const [duesData, setDuesData] = useState<DepartmentDuesResponse["data"] | null>(null);
-
-
-  useEffect(() => {
-    const fetchDues = async () => {
-      try {
-        const response = await authService.getDepartmentAnnualDue();
-        setDuesData(response.data);
-      } catch (err: any) {
-        setError(err.message || "Failed to load dues information.");
-      } finally {
-        setIsFetchingDues(false);
-      }
-    };
-
-    fetchDues();
-  }, []);
+  const { mutate: initializePayment, isPending: isInitializing } = useInitializePayment({
+    onSuccess: (response) => {
+      // Redirect to Paystack checkout page
+      window.location.href = response.data.authorizationUrl;
+    }
+  });
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-NG", {
@@ -41,111 +24,128 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onNext }) => {
     }).format(amount);
   };
 
-  const handlePayNow = async () => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
-      localStorage.setItem("paymentCallbackUrl", callbackUrl);
-      const response = await authService.initializePayment();
-      // Redirect to Paystack checkout page
-      window.location.href = response.data.authorizationUrl;
-    } catch (err: any) {
-      setError(
-        err.message || "Payment initialization failed. Please try again.",
-      );
-      setIsLoading(false);
-    }
+  const handlePayNow = () => {
+    const callbackUrl = import.meta.env.VITE_CALLBACK_URL;
+    localStorage.setItem("paymentCallbackUrl", callbackUrl);
+    initializePayment(callbackUrl);
   };
 
   return (
-    <div className="py-10 min-h-screen w-full flex items-center justify-center relative font-['Inter']">
-      <AuthBackground />
-      <AuthCard>
-        <div className="text-center mb-10">
-          <h1 className="text-2xl font-black text-[#1e293b] mb-3">
-            Pay Department Annual Dues
-          </h1>
-          <p className="text-[14px] font-medium text-gray-400">
-            Complete your payment to activate your account
-          </p>
-        </div>
+    <Flex 
+      minH="100vh" 
+      w="full" 
+      fontFamily="'Inter'"
+      bgImage={"url(/images/slider.jpeg)"}
+      bgSize={"cover"}
+      bgPos={"center"}
+      bgRepeat={"no-repeat"}
+      py="10"
+      justify={"center"}
+      align={"center"}
+    >
+      <Box
+        w={{ base: "full", lg: "500px" }}
+        bg="white"
+        p={{ base: "8", md: "12" }}
+        rounded="3xl"
+        boxShadow="2xl"
+        mx="4"
+      >
+        <Stack gap="10">
+          <Box textAlign="center">
+            <Heading size="2xl" fontWeight="black" color="fg.emphasized" mb="3">
+              Pay Department Annual Dues
+            </Heading>
+            <Text fontSize="14px" fontWeight="medium" color="fg.subtle">
+              Complete your payment to activate your account
+            </Text>
+          </Box>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-2">
-            <AlertCircle size={20} className="shrink-0" />
-            <p className="text-[13px] font-bold">{error}</p>
-          </div>
-        )}
-
-        <div className="space-y-6">
-          {isFetchingDues ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 flex items-center justify-center">
-              <Loader2 size={24} className="animate-spin text-gray-400" />
-              <span className="ml-3 text-[13px] font-medium text-gray-400">
-                Loading dues...
-              </span>
-            </div>
-          ) : duesData ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-gray-400">
-                  Department Dues
-                </span>
-                <span className="text-[15px] font-bold text-[#1e293b]">
-                  {formatCurrency(duesData.departmentDues)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-gray-400">
-                  Portal Access Fee
-                </span>
-                <span className="text-[15px] font-bold text-[#1e293b]">
-                  {formatCurrency(duesData.accessFee)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-gray-400">
-                  Merchant Fee
-                </span>
-                <span className="text-[15px] font-bold text-[#1e293b]">
-                  {formatCurrency(duesData.breakdown.summary.total_merchant_fees + duesData.breakdown.summary.transaction_charges)}
-                </span>
-              </div>
-              <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
-                <span className="text-[13px] font-bold text-gray-500 uppercase tracking-wide">
-                  Total Fee
-                </span>
-                <span className="text-2xl font-black text-[#1d76d2]">
-                  {formatCurrency(duesData.totalFee)}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
-              <p className="text-[13px] text-gray-400 text-center">
-                Unable to load dues information
-              </p>
-            </div>
+          {duesError && (
+            <Alert.Root status="error" variant="subtle" rounded="xl">
+              <Alert.Indicator>
+                <HiOutlineInformationCircle />
+              </Alert.Indicator>
+              <Alert.Title fontSize="13px" fontWeight="bold">
+                {(duesError as any).message || "Failed to load dues information."}
+              </Alert.Title>
+            </Alert.Root>
           )}
-          <button
-            onClick={handlePayNow}
-            disabled={isLoading || isFetchingDues || !duesData}
-            className="w-full bg-[#2ecc71] hover:bg-[#27ae60] disabled:bg-green-300 disabled:cursor-not-allowed text-white py-4 rounded-xl text-[16px] font-black shadow-lg shadow-green-200/50 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 size={20} className="animate-spin" />
-                <span>Initializing Payment...</span>
-              </>
+
+          <Stack gap="6">
+            {isFetchingDues ? (
+              <Flex 
+                bg="gray.50" 
+                border="1px solid" 
+                borderColor="gray.200" 
+                rounded="xl" 
+                p="6" 
+                align="center" 
+                justify="center"
+              >
+                <Spinner size="sm" color="gray.400" />
+                <Text ml="3" fontSize="13px" fontWeight="medium" color="gray.400">
+                  Loading dues...
+                </Text>
+              </Flex>
+            ) : duesData ? (
+              <Box bg="gray.50" border="1px solid" borderColor="gray.200" rounded="xl" p="6">
+                <Stack gap="4">
+                  <Flex align="center" justify="between">
+                    <Text fontSize="13px" fontWeight="medium" color="gray.400">Department Dues</Text>
+                    <Text fontSize="15px" fontWeight="bold" color="fg.emphasized">
+                      {formatCurrency(duesData.departmentDues)}
+                    </Text>
+                  </Flex>
+                  <Flex align="center" justify="between">
+                    <Text fontSize="13px" fontWeight="medium" color="gray.400">Portal Access Fee</Text>
+                    <Text fontSize="15px" fontWeight="bold" color="fg.emphasized">
+                      {formatCurrency(duesData.accessFee)}
+                    </Text>
+                  </Flex>
+                  <Flex align="center" justify="between">
+                    <Text fontSize="13px" fontWeight="medium" color="gray.400">Merchant Fee</Text>
+                    <Text fontSize="15px" fontWeight="bold" color="fg.emphasized">
+                      {formatCurrency(duesData.breakdown.summary.total_merchant_fees + duesData.breakdown.summary.transaction_charges)}
+                    </Text>
+                  </Flex>
+                  <Separator borderColor="gray.200" />
+                  <Flex align="center" justify="between">
+                    <Text fontSize="13px" fontWeight="bold" color="gray.500" textTransform="uppercase" letterSpacing="wide">
+                      Total Fee
+                    </Text>
+                    <Text fontSize="2xl" fontWeight="black" color="blue.600">
+                      {formatCurrency(duesData.totalFee)}
+                    </Text>
+                  </Flex>
+                </Stack>
+              </Box>
             ) : (
-              "Pay Now"
+              <Box bg="gray.50" border="1px solid" borderColor="gray.200" rounded="xl" p="6">
+                <Text fontSize="13px" color="gray.400" textAlign="center">
+                  Unable to load dues information
+                </Text>
+              </Box>
             )}
-          </button>
-        </div>
-      </AuthCard>
-    </div>
+
+            <Button
+              onClick={handlePayNow}
+              loading={isInitializing}
+              disabled={isInitializing || isFetchingDues || !duesData}
+              size="xl"
+              w="full"
+              colorPalette="green"
+              rounded="xl"
+              fontWeight="black"
+              boxShadow="lg"
+            >
+              <HiOutlineCreditCard />
+              Pay Now
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
+    </Flex>
   );
 };
 

@@ -14,81 +14,56 @@ const config = defineConfig({
     theme: {
         tokens: {
             colors: {
-                test: {
-                    value: "pink"
-                },
                 accent: {
-                    DEFAULT: {
-                        value: "#1273D4", // main brand blue
-                    },
-                    50: {
-                        value: "#F0F7FF", // very light blue
-                    },
-                    100: {
-                        value: "#E0F0FF",
-                    },
-                    200: {
-                        value: "#BBDDFF",
-                    },
-                    300: {
-                        value: "#88C5FF",
-                    },
-                    400: {
-                        value: "#55ACFF",
-                    },
-                    500: {
-                        value: "#1273D4", // base blue from Figma
-                    },
-                    600: {
-                        value: "#0E5BA8",
-                    },
-                    700: {
-                        value: "#0B4A88",
-                    },
-                    800: {
-                        value: "#083968",
-                    },
-                    900: {
-                        value: "#052848",
-                    },
+                    DEFAULT: { value: "#1273D4" },
+                    50: { value: "#E7F1FB" },
+                    100: { value: "#CFE3F7" },
+                    200: { value: "#9FC7EF" },
+                    300: { value: "#6EABE7" },
+                    400: { value: "#3E8FDF" },
+                    500: { value: "#1273D4" }, // Base Color #1273D4
+                    600: { value: "#0E5CAA" },
+                    700: { value: "#0B4580" },
+                    800: { value: "#072E55" },
+                    900: { value: "#04172B" },
                 },
             },
 
             fonts: {
-                heading: { value: "sans-serif" },
-                body: { value: "sans-serif" },
+                heading: { value: "Oak Sans, sans-serif" },
+                body: { value: "Oak Sans, sans-serif" },
             },
         },
         semanticTokens: {
             colors: {
                 accent: {
                     solid: {
-                        value: "{colors.accent.600}", // main solid color for buttons, etc.
+                        value: "{colors.accent.500}", // Standard solid blue
                     },
                     muted: {
-                        value: "{colors.accent.400}", // lighter for hover or subtle accents
+                        value: "{colors.accent.200}",
                     },
                     subtle: {
-                        value: "{colors.accent.100}", // for light backgrounds
+                        value: "{colors.accent.50}",
                     },
                     contrast: {
-                        value: "{colors.accent.50}", // strong contrast areas
+                        value: "{colors.white}", // Blue usually needs white text
                     },
                     fg: {
-                        value: "{colors.accent.700}", // text accent color
+                        value: "{colors.accent.600}", 
                     },
                     emphasized: {
-                        value: "{colors.accent.800}", // stronger emphasis (headings, etc.)
+                        value: "{colors.accent.700}", 
                     },
                     focusRing: {
-                        value: "{colors.accent.500}", // focus outlines, inputs, etc.
+                        value: "{colors.accent.400}", 
                     },
                 },
                 border: {
                     default: {
                         value: {
                             base: "{colors.gray.200}",
-                            _dark: "{colors.gray.200}",
+                            _dark: "{colors.gray.700}", // Dark mode borders should be darker
                         },
                     },
                 },

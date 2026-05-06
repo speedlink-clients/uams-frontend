@@ -1,6 +1,6 @@
 import { Box, Button, Container, Flex, Heading, Stack, Image, Text } from "@chakra-ui/react";
 import { toaster } from "@components/ui/toaster";
-import { BadgePercent } from "lucide-react";
+import { LuBadgePercent } from "react-icons/lu";
 import { motion } from "framer-motion";
 
 const STUDENT_IMG = "/images/44ff80138d7e107798f043b8426e57d7a0f08f32.png";
@@ -17,10 +17,10 @@ const SecureFuture = () => {
         });
     };
     const features = [
-        { text: "Up to 100% Discount on Training Fees", icon: BadgePercent },
-        { text: "Tutor-Led Training at an Affordable Rate", icon: BadgePercent },
-        { text: "6-12 Months Access to Labs & Study Materials", icon: BadgePercent },
-        { text: "Earn Globally Recognized Certifications", icon: BadgePercent }
+        { text: "Up to 100% Discount on Training Fees", icon: LuBadgePercent },
+        { text: "Tutor-Led Training at an Affordable Rate", icon: LuBadgePercent },
+        { text: "6-12 Months Access to Labs & Study Materials", icon: LuBadgePercent },
+        { text: "Earn Globally Recognized Certifications", icon: LuBadgePercent }
     ];
 
     return (

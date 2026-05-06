@@ -1,171 +1,179 @@
-import { Link } from "react-router";
-import useAuthStore from "@stores/auth.store";
-import { AuthHooks } from "@hooks/auth.hook";
-import useLoginForm from "@forms/auth/login.form";
-import type { LoginFormData } from "@schemas/auth/login.schema";
-import { PasswordInput } from "@components/ui/password-input";
+import { useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { Controller } from "react-hook-form";
+import { useOtpForm } from "@forms/auth.form";
+import { toaster } from "@components/ui/toaster";
+import { Flex, Text, Button, Stack, Span, Heading, PinInput, Icon, Box } from "@chakra-ui/react";
+import { useVerifyOtp, useResendOtp } from "@hooks/auth.hook";
+import { type OtpFormData } from "@type/auth.type";
+import { LuMail, LuPencilLine } from "react-icons/lu";
 
-import { Box, Flex, Text, Image, Input, Field, Button, Stack, Span, Separator, Heading } from "@chakra-ui/react";
+const OtpPage = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
 
-const LoginPage = () => {
-    const { setAuth } = useAuthStore();
+    // Get context from navigation state
+    const email = location.state?.email || "";
+    const flow = location.state?.flow || "login"; // "login" or "reset"
 
     const {
-        register,
+        control,
         handleSubmit,
-        formState: { errors },
-    } = useLoginForm();
+        watch
+    } = useOtpForm();
 
-    const { mutate: login, isPending: isLoading } = AuthHooks.useLogin({
+    const { mutate: verifyOtp, isPending: isVerifying } = useVerifyOtp({
         onSuccess: (response) => {
-            setAuth({
-                token: response.data.token,
-                expireAt: response.data.expiresIn,
-                user: response.data.user,
-            });
-
-            const userRoles = response.data.user.roles || [response.data.user.role].filter(Boolean) as string[];
-
-            if (userRoles.includes("STUDENT")) {
-                window.location.href = "/student";
-            } else if (userRoles.includes("STAFF")) {
-                if (userRoles.includes("DEPARTMENT_ADMIN")) {
-                    window.location.href = "/departmental";
-                } else {
-                    window.location.href = "/lecturer";
-                }
-            } else {
-                window.location.href = "/";
+            if (flow === "reset") {
+                const token = response.data.token;
+                // Redirect to reset-password with Token and email in state
+                navigate(`/auth/reset-password`, { state: { token, email } });
+                return;
             }
+
+            // Standard login flow or other flows could be handled here if needed,
+            // but the user requested removal of L43-78 logic.
         },
     });
 
-    const onSubmit = (formData: LoginFormData) => {
-        login(formData);
-    };
+    const { mutate: resendOtp, isPending: isResending } = useResendOtp({
+        onSuccess: (response) => {
+            toaster.create({
+                title: "OTP Resent",
+                description: response.message || "A new code has been sent to your email.",
+                type: "success",
+            });
+        }
+    });
+
+    const onSubmit = useCallback((data: OtpFormData) => {
+        if (data.otp.length < 6) {
+            toaster.create({ title: "Error", description: "Please enter the full 6-digit code.", type: "error" });
+            return;
+        }
+        if (!email) {
+            toaster.create({ title: "Error", description: "Email context missing. Please go back and try again.", type: "error" });
+            return;
+        }
+        verifyOtp({ email, otp: data.otp });
+    }, [email, verifyOtp]);
+
+    const handleResend = useCallback(() => {
+        if (!email) {
+            toaster.create({ title: "Error", description: "Email context missing.", type: "error" });
+            return;
+        }
+        resendOtp({ email });
+    }, [email, resendOtp]);
 
     return (
-        <Flex minH="100vh" w="full" bg="white" fontFamily="'Inter'">
-            {/* Left Side - Campus Image */}
-            <Box display={{ base: "none", lg: "block" }} w="65%" position="relative">
-                <Image
-                    src="/public/images/slider.jpeg"
-                    alt="Modern University Campus"
-                    position="absolute"
-                    inset="0"
-                    w="full"
-                    h="full"
-                    objectFit="cover"
-                />
-                <Box position="absolute" inset="0" bg="blackAlpha.100" />
-            </Box>
+        <Flex
+            minH="100vh"
+            w="full"
+            bg="bg.subtle"
+            py="20"
+            justify={"center"}
+            align={"center"}
 
-            {/* Right Side - Login Form */}
-            <Flex
-                w={{ base: "full", lg: "35%" }}
-                alignItems="center"
-                justifyContent="center"
-                p="6"
-                bg={{ base: "#f8fafc", lg: "white" }}
+        >
+
+            <Stack
+                w={{ base: "full", lg: "xl" }}
+                align={"center"}
+                gap="12"
+                p="12"
+                bg="bg"
+                rounded="md"
+                border="xs"
+                borderColor={"border.muted"}
             >
-                <Stack
-                    w="full"
-                    maxW="md"
-                    p={{ base: "8", lg: "12" }}
-                    gap="12"
-                >
-                    {/* Logo */}
-                    <Flex justifyContent="center" >
-                        <Image
-                            src="/public/images/uphcscLG.png"
-                            alt="Logo"
-                            h="12"
-                            w="auto"
-                            borderRadius="md"
-                        />
-                    </Flex>
-
-                    {/* Heading */}
-                    <Box textAlign="center" >
+                {/* Heading */}
+                <Stack align={"center"} gap="4">
+                    <Icon
+                        as={LuMail}
+                        w={24}
+                        h={24}
+                        strokeWidth="1"
+                    // color="accent"
+                    />
+                    <Box textAlign={"center"} w="full">
                         <Heading size="3xl" fontWeight="black">
-                            Login
+                            Verify OTP
                         </Heading>
-                        <Text fontSize="14px" fontWeight="medium" color="fg.subtle">
-                            Welcome back please login to your account
+                        <Text fontSize="sm" fontWeight="medium" color="fg.subtle">
+                            A 6-digit code has been sent to {" "}
+                            <Flex asChild fontWeight="bold" color="black" align={"center"} gap="1">
+                                <Link to="/auth/forgot-password">{email || "your email"}<LuPencilLine /></Link>
+                            </Flex>
                         </Text>
                     </Box>
-
-                    <Stack gap="6" asChild color="black" colorPalette={"accent"}>
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            {/* Email */}
-                            <Field.Root invalid={!!errors.email}>
-                                <Field.Label>
-                                    Email Address
-                                </Field.Label>
-                                <Input
-                                    type="email"
-                                    placeholder="Enter Email"
-                                    {...register("email")}
-                                    disabled={isLoading}
-                                    size="xl"
-                                    _placeholder={{color:"fg.subtle"}}
-                                />
-                                <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                            </Field.Root>
-
-
-                            {/* Password */}
-                            <Field.Root invalid={!!errors.password}>
-                                <Field.Label>
-                                    Password
-                                </Field.Label>
-                                <PasswordInput
-                                    placeholder="Enter Password"
-                                    {...register("password")}
-                                    disabled={isLoading}
-                                    size="xl"
-                                     _placeholder={{color:"fg.subtle"}}
-                                />
-                                <Field.ErrorText>
-                                    {errors.password?.message}
-                                </Field.ErrorText>
-
-                                <Field.HelperText textAlign={"right"} w="full">Forgot Password?{" "}
-                                    <Span asChild color="blue.500" fontWeight="medium" textDecor={"underline"}>
-                                        <Link to="/forgot-password">Click Here</Link>
-                                    </Span>
-                                </Field.HelperText>
-                            </Field.Root>
-
-
-
-                            {/* Submit Button */}
-                            <Button
-                                type="submit"
-                                size="xl"
-                                loading={isLoading}
-                                loadingText="Logging in..."
-                                disabled={isLoading}
-                                cursor={isLoading ? "not-allowed" : "pointer"}
-                            >
-                                Login
-                            </Button>
-                        </form>
-                    </Stack>
-
-                    <Separator />
-
-                    <Text color="fg.subtle" textAlign={"center"}>
-                        Are you a student?{" "}
-                        <Span asChild color="blue.500" fontWeight="medium" textDecor={"underline"}>
-                            <Link to="/register">Verify your account</Link>
-                        </Span>
-                    </Text>
-
                 </Stack>
-            </Flex>
-        </Flex >
+
+                <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+                    <Stack gap="8" align="center" w="full">
+                        <Controller
+                            name="otp"
+                            control={control}
+                            rules={{ required: true, minLength: 6 }}
+                            render={({ field }) => (
+                                <PinInput.Root
+                                    attached
+                                    colorPalette={"accent"}
+                                    size="xl"
+                                    disabled={isVerifying || isResending || !email}
+                                    value={Array.from({ length: 6 }, (_, i) => (field.value || "")[i] || "")}
+                                    onValueChange={(e) => field.onChange(e.value.join(""))}
+                                >
+                                    <PinInput.HiddenInput />
+                                    <PinInput.Control>
+                                        <PinInput.Input index={0} />
+                                        <PinInput.Input index={1} />
+                                        <PinInput.Input index={2} />
+                                        <PinInput.Input index={3} />
+                                        <PinInput.Input index={4} />
+                                        <PinInput.Input index={5} />
+                                    </PinInput.Control>
+                                </PinInput.Root>
+                            )}
+                        />
+
+                        <Button
+                            type="submit"
+                            size="xl"
+                            w="full"
+                            colorPalette="accent"
+                            loading={isVerifying}
+                            loadingText="Verifying..."
+                            disabled={isVerifying || isResending || !email || watch("otp").length < 6}
+                        >
+                            Verify & Proceed
+                        </Button>
+                    </Stack>
+                </form>
+
+                <Text color="fg.subtle" textAlign={"center"}>
+                    Didn't receive the code?{" "}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        colorPalette="accent"
+                        fontWeight="bold"
+                        loading={isResending}
+                        onClick={handleResend}
+                    >
+                        Resend OTP
+                    </Button>
+                </Text>
+
+                <Text color="fg.subtle" textAlign={"center"}>
+                    <Span asChild color="accent" fontWeight="medium" textDecor={"underline"}>
+                        <Link to="/auth/login">Back to Login</Link>
+                    </Span>
+                </Text>
+            </Stack>
+
+        </Flex>
     );
 };
 
-export default LoginPage;
+export default OtpPage;

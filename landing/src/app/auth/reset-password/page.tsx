@@ -1,171 +1,144 @@
-import { Link } from "react-router";
-import useAuthStore from "@stores/auth.store";
-import { AuthHooks } from "@hooks/auth.hook";
-import useLoginForm from "@forms/auth/login.form";
-import type { LoginFormData } from "@schemas/auth/login.schema";
+import { Link, useNavigate, useLocation } from "react-router";
+import { useResetPasswordForm } from "@forms/auth.form";
+import { toaster } from "@components/ui/toaster";
+import { Box, Flex, Text, Button, Stack, Span, Heading, Field, Icon } from "@chakra-ui/react";
 import { PasswordInput } from "@components/ui/password-input";
+import { useResetPassword } from "@hooks/auth.hook";
+import { type ResetPasswordFormData } from "@type/auth.type";
+import { LuLockKeyhole } from "react-icons/lu";
 
-import { Box, Flex, Text, Image, Input, Field, Button, Stack, Span, Separator, Heading } from "@chakra-ui/react";
+const ResetPasswordPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-const LoginPage = () => {
-    const { setAuth } = useAuthStore();
+    // Get email and verification token from location state
+    const email = location.state?.email || "";
+    const token = location.state?.token || "";
 
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
-    } = useLoginForm();
+    } = useResetPasswordForm();
 
-    const { mutate: login, isPending: isLoading } = AuthHooks.useLogin({
-        onSuccess: (response) => {
-            setAuth({
-                token: response.data.token,
-                expireAt: response.data.expiresIn,
-                user: response.data.user,
+    const password = watch("password");
+
+    const { mutate: resetPassword, isPending: isLoading } = useResetPassword({
+        onSuccess: () => {
+            toaster.create({
+                title: "Success",
+                description: "Your password has been reset successfully.",
+                type: "success",
             });
-
-            const userRoles = response.data.user.roles || [response.data.user.role].filter(Boolean) as string[];
-
-            if (userRoles.includes("STUDENT")) {
-                window.location.href = "/student";
-            } else if (userRoles.includes("STAFF")) {
-                if (userRoles.includes("DEPARTMENT_ADMIN")) {
-                    window.location.href = "/departmental";
-                } else {
-                    window.location.href = "/lecturer";
-                }
-            } else {
-                window.location.href = "/";
-            }
-        },
+            // Redirect to login after successful reset
+            navigate("/auth/login");
+        }
     });
 
-    const onSubmit = (formData: LoginFormData) => {
-        login(formData);
+    const onSubmit = (data: ResetPasswordFormData) => {
+        if (!email) {
+            toaster.create({ title: "Error", description: "Email context missing. Please start over.", type: "error" });
+            return;
+        }
+        resetPassword({ email, token, password: data.password });
     };
 
     return (
-        <Flex minH="100vh" w="full" bg="white" fontFamily="'Inter'">
-            {/* Left Side - Campus Image */}
-            <Box display={{ base: "none", lg: "block" }} w="65%" position="relative">
-                <Image
-                    src="/public/images/slider.jpeg"
-                    alt="Modern University Campus"
-                    position="absolute"
-                    inset="0"
-                    w="full"
-                    h="full"
-                    objectFit="cover"
-                />
-                <Box position="absolute" inset="0" bg="blackAlpha.100" />
-            </Box>
+         <Flex
+            minH="100vh"
+            w="full"
+            bg="bg.subtle"
+            py="20"
+            justify={"center"}
+            align={"center"}
 
-            {/* Right Side - Login Form */}
-            <Flex
-                w={{ base: "full", lg: "35%" }}
-                alignItems="center"
-                justifyContent="center"
-                p="6"
-                bg={{ base: "#f8fafc", lg: "white" }}
+        >
+
+            <Stack
+                w={{ base: "full", lg: "xl" }}
+                align={"center"}
+                gap="12"
+                p="12"
+                bg="bg"
+                rounded="md"
+                border="xs"
+                borderColor={"border.muted"}
             >
-                <Stack
-                    w="full"
-                    maxW="md"
-                    p={{ base: "8", lg: "12" }}
-                    gap="12"
-                >
-                    {/* Logo */}
-                    <Flex justifyContent="center" >
-                        <Image
-                            src="/public/images/uphcscLG.png"
-                            alt="Logo"
-                            h="12"
-                            w="auto"
-                            borderRadius="md"
-                        />
-                    </Flex>
-
+                    <Icon
+                        as={LuLockKeyhole}
+                        w={24}
+                        h={24}
+                        strokeWidth="1"
+                    />
                     {/* Heading */}
                     <Box textAlign="center" >
                         <Heading size="3xl" fontWeight="black">
-                            Login
+                            Reset Password
                         </Heading>
-                        <Text fontSize="14px" fontWeight="medium" color="fg.subtle">
-                            Welcome back please login to your account
+                        <Text fontSize="sm" fontWeight="medium" color="fg.subtle">
+                            Create a new password for your account
                         </Text>
                     </Box>
 
-                    <Stack gap="6" asChild color="black" colorPalette={"accent"}>
+                    <Stack gap="6" asChild color="black" colorPalette={"accent"} w="full">
                         <form onSubmit={handleSubmit(onSubmit)}>
-                            {/* Email */}
-                            <Field.Root invalid={!!errors.email}>
-                                <Field.Label>
-                                    Email Address
-                                </Field.Label>
-                                <Input
-                                    type="email"
-                                    placeholder="Enter Email"
-                                    {...register("email")}
-                                    disabled={isLoading}
-                                    size="xl"
-                                    _placeholder={{color:"fg.subtle"}}
-                                />
-                                <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                            </Field.Root>
-
-
-                            {/* Password */}
+                            {/* New Password */}
                             <Field.Root invalid={!!errors.password}>
-                                <Field.Label>
-                                    Password
-                                </Field.Label>
+                                <Field.Label>New Password</Field.Label>
                                 <PasswordInput
-                                    placeholder="Enter Password"
-                                    {...register("password")}
+                                    placeholder="Enter New Password"
+                                    {...register("password", {
+                                        required: "Password is required",
+                                        minLength: { value: 8, message: "Password must be at least 8 characters" }
+                                    })}
                                     disabled={isLoading}
                                     size="xl"
-                                     _placeholder={{color:"fg.subtle"}}
+                                    _placeholder={{ color: "fg.subtle" }}
                                 />
-                                <Field.ErrorText>
-                                    {errors.password?.message}
-                                </Field.ErrorText>
-
-                                <Field.HelperText textAlign={"right"} w="full">Forgot Password?{" "}
-                                    <Span asChild color="blue.500" fontWeight="medium" textDecor={"underline"}>
-                                        <Link to="/forgot-password">Click Here</Link>
-                                    </Span>
-                                </Field.HelperText>
+                                <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
                             </Field.Root>
 
-
+                            {/* Confirm Password */}
+                            <Field.Root invalid={!!errors.confirmPassword}>
+                                <Field.Label>Confirm Password</Field.Label>
+                                <PasswordInput
+                                    placeholder="Confirm New Password"
+                                    {...register("confirmPassword", {
+                                        required: "Please confirm your password",
+                                        validate: (value) => value === password || "Passwords do not match"
+                                    })}
+                                    disabled={isLoading}
+                                    size="xl"
+                                    _placeholder={{ color: "fg.subtle" }}
+                                />
+                                <Field.ErrorText>{errors.confirmPassword?.message}</Field.ErrorText>
+                            </Field.Root>
 
                             {/* Submit Button */}
                             <Button
                                 type="submit"
                                 size="xl"
+                                w="full"
                                 loading={isLoading}
-                                loadingText="Logging in..."
-                                disabled={isLoading}
-                                cursor={isLoading ? "not-allowed" : "pointer"}
+                                loadingText="Resetting..."
+                                disabled={isLoading || !watch("password") || !watch("confirmPassword")}
                             >
-                                Login
+                                Reset Password
                             </Button>
                         </form>
                     </Stack>
 
-                    <Separator />
-
                     <Text color="fg.subtle" textAlign={"center"}>
-                        Are you a student?{" "}
-                        <Span asChild color="blue.500" fontWeight="medium" textDecor={"underline"}>
-                            <Link to="/register">Verify your account</Link>
+                        Remember your password?{" "}
+                        <Span asChild color="accent" fontWeight="medium" textDecor={"underline"}>
+                            <Link to="/auth/login">Back to Login</Link>
                         </Span>
                     </Text>
-
                 </Stack>
-            </Flex>
-        </Flex >
+
+        </Flex>
     );
 };
 
-export default LoginPage;
+export default ResetPasswordPage;

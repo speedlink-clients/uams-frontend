@@ -16,8 +16,11 @@ export const axiosClient = axios.create({
 
 // List of public endpoints that don't require auth token
 const PUBLIC_ENDPOINTS = [
-  "/v1/auth/login",
-  // Add any other public endpoints here
+  "/auth/login",
+  "/auth/signup",
+  "/auth/password",
+  "/verify",
+  "/activate-student/update",
 ];
 
 // Helper to check if endpoint is public
