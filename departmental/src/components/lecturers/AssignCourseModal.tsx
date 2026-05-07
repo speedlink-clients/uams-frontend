@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { CourseServices } from "@services/course.service";
 // import { toaster } from "@components/ui/toaster";
 import Select from "react-select";
-import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, Button } from "@chakra-ui/react";
 
 interface Props {
     isOpen: boolean;
@@ -78,9 +78,9 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
                 {/* Header */}
                 <Flex p="6" borderBottom="1px solid" borderColor="gray.100" alignItems="center" justifyContent="space-between">
                     <Text fontSize="xl" fontWeight="bold" color="#1D7AD9">Assign Course To Lecturer</Text>
-                    <Box as="button" onClick={onClose} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent">
+                    <Button onClick={onClose} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" color="slate.400" cursor="pointer" bg="transparent">
                         <X size={20} />
-                    </Box>
+                    </Button>
                 </Flex>
 
                 {/* Body */}
@@ -136,11 +136,13 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
 
                 {/* Footer */}
                 <Flex p="6" borderTop="1px solid" borderColor="gray.100" justifyContent="flex-end" gap="3">
-                    <Box as="button" onClick={onClose} px="6" py="2.5" borderRadius="lg" border="1px solid" borderColor="slate.300" color="slate.700" fontWeight="bold" fontSize="sm" cursor="pointer" _hover={{ bg: "slate.50" }}>Cancel</Box>
-                    <Flex as="button" onClick={handleSubmit} px="6" py="2.5" borderRadius="lg" bg="#1D7AD9" color="white" fontWeight="bold" fontSize="sm" cursor={(!courseId || isSubmitting) ? "not-allowed" : "pointer"} border="none" _hover={{ bg: "blue.600" }} boxShadow="lg" opacity={(!courseId || isSubmitting) ? 0.5 : 1} alignItems="center" gap="2">
+                    <Button onClick={onClose} px="6" py="2.5" borderRadius="lg" border="1px solid" borderColor="slate.300" color="slate.700" fontWeight="bold" fontSize="sm" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSubmit} px="6" py="2.5" borderRadius="lg" bg="#1D7AD9" color="white" fontWeight="bold" fontSize="sm" cursor={(!courseId || isSubmitting) ? "not-allowed" : "pointer"} _hover={{ bg: "blue.600" }} boxShadow="lg" opacity={(!courseId || isSubmitting) ? 0.5 : 1} alignItems="center" gap="2">
                         {isSubmitting && <Spinner size="sm" />}
                         Assign Course
-                    </Flex>
+                    </Button>
                 </Flex>
             </Box>
         </Flex>

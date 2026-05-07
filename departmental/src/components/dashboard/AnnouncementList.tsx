@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text, Button, Link } from "@chakra-ui/react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Announcement } from "@type/common.type";
@@ -14,26 +14,20 @@ export const AnnouncementList = ({ announcements }: Props) => {
         <Box bg="white" borderRadius="2xl" p="6" boxShadow="sm" border="1px solid" borderColor="gray.100" display="flex" flexDirection="column" h="full">
             <Flex alignItems="center" justifyContent="space-between" mb="6">
                 <Text fontWeight="bold" color="slate.800">Announcements</Text>
-                <Flex
-                    as="button"
+                <Button
                     bg="blue.600"
                     color="white"
                     px="3"
                     py="1.5"
-                    borderRadius="lg"
+                    borderRadius="sm"
                     fontSize="xs"
                     fontWeight="semibold"
-                    _hover={{ bg: "blue.700" }}
-                    transition="all 0.2s"
-                    alignItems="center"
-                    gap="1.5"
-                    border="none"
                     cursor="pointer"
                     onClick={() => navigate("/announcements")}
+                    size="xs"
                 >
-                    <Plus size={14} />
-                    Create New
-                </Flex>
+                <Plus /> Create New
+                </Button>
             </Flex>
 
             <Flex direction="column" gap="4" overflowY="auto" maxH="350px" pr="2">

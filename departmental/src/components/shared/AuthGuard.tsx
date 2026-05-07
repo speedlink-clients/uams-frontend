@@ -9,9 +9,9 @@ const SessionGuard = () => {
     // Check if we have a valid token
     const hasValidToken = isAuthenticated && !!token;
 
-    if (!hasValidToken) {
-        return <Navigate to="/login" state={{ from: location }} replace />;
-    }
+  //  if (!hasValidToken) {
+   //     return <Navigate to="/login" state={{ from: location }} replace />;
+   // }
 
     return <Outlet />;
 };

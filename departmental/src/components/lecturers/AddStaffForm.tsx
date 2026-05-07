@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Eye, EyeOff } from "lucide-react";
-import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
-import useAuthStore from "@stores/auth.store"; 
+import { Box, Flex, Text, Spinner, Select, Portal, createListCollection, Button } from "@chakra-ui/react";
+import useAuthStore from "@stores/auth.store";
 
 interface Props {
     isOpen: boolean;
@@ -10,8 +10,51 @@ interface Props {
     initialData?: any;
 }
 
+// Helper function 
+const capitalizeWords = (str: string) => {
+    return str.split(' ').map(word => {
+        if (/^[IVXLCDM]+$/i.test(word)) {
+            return word.toUpperCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(' ');
+};
+
+// Create collections for Select.Root
+const sexCollection = createListCollection({
+    items: [
+        { label: "Select", value: "" },
+        { label: "Male", value: "MALE" },
+        { label: "Female", value: "FEMALE" },
+    ],
+});
+
+const roleCollection = createListCollection({
+    items: [
+        { label: "Select", value: "" },
+        { label: "LECTURER", value: "LECTURER" },
+        { label: "ERO", value: "ERO" },
+        { label: "HOD", value: "HOD" },
+    ],
+});
+
+const categoryOptions = [
+    "Professor",
+    "Senior Lecturer",
+    "Lecturer II",
+    "Graduate Assistant",
+    "Associate Professor"
+];
+
+const categoryCollection = createListCollection({
+    items: [
+        { label: "Select Category", value: "" },
+        ...categoryOptions.map(opt => ({ label: capitalizeWords(opt), value: opt })),
+    ],
+});
+
 const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
-    const { departmentId: authDepartmentId } = useAuthStore(); 
+    const { departmentId: authDepartmentId } = useAuthStore();
     const [formData, setFormData] = useState({
         staffId: "",
         title: "",
@@ -27,25 +70,6 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-
-
-    const categoryOptions = [
-        "Professor",
-        "Senior Lecturer",
-        "Lecturer II",
-        "Graduate Assistant",
-        "Associate Professor"
-    ];
-
-    // Helper function to capitalize each word, preserving Roman numerals like II, III, IV
-    const capitalizeWords = (str: string) => {
-        return str.split(' ').map(word => {
-            if (/^[IVXLCDM]+$/i.test(word)) {
-                return word.toUpperCase();
-            }
-            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-        }).join(' ');
-    };
 
     useEffect(() => {
         if (initialData) {
@@ -71,7 +95,6 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
     }, [initialData, isOpen]);
 
     const handleSubmit = async () => {
-        // Use departmentId from authentication store
         if (!authDepartmentId && !initialData) {
             alert("Unable to determine department. Please contact support.");
             return;
@@ -88,8 +111,8 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
             phoneNumber: formData.phoneNumber,
             email: formData.email,
             role: formData.role,
-            category: formData.category, 
-            departmentId: authDepartmentId, 
+            category: formData.category,
+            departmentId: authDepartmentId,
             ...(formData.password ? { password: formData.password } : (!initialData ? { password: formData.phoneNumber } : {})),
         };
         try {
@@ -157,14 +180,35 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             <input value={formData.otherName} onChange={(e) => setFormData({ ...formData, otherName: e.target.value })} style={inputStyle} />
                         </Box>
 
-                        {/* Sex */}
+                        {/* Sex - Select.Root */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Sex</Text>
-                            <select value={formData.sex} onChange={(e) => setFormData({ ...formData, sex: e.target.value })} style={inputStyle}>
-                                <option value="">Select</option>
-                                <option value="MALE">Male</option>
-                                <option value="FEMALE">Female</option>
-                            </select>
+                            <Select.Root
+                                collection={sexCollection}
+                                value={[formData.sex]}
+                                onValueChange={(e) => setFormData({ ...formData, sex: e.value[0] })}
+                            >
+                                <Select.HiddenSelect />
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText placeholder="Select" />
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal>
+                                    <Select.Positioner>
+                                        <Select.Content>
+                                            {sexCollection.items.map((item) => (
+                                                <Select.Item key={item.value} item={item}>
+                                                    {item.label}
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
                         </Box>
 
                         {/* Highest Degree */}
@@ -199,40 +243,74 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         {/* Role */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Role</Text>
-                            <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} style={inputStyle}>
-                                <option value="">Select</option>
-                                <option value="LECTURER">LECTURER</option>
-                                <option value="ERO">ERO</option>
-                                <option value="HOD">HOD</option>
-                            </select>
+                            <Select.Root
+                                collection={roleCollection}
+                                value={[formData.role]}
+                                onValueChange={(e) => setFormData({ ...formData, role: e.value[0] })}
+                            >
+                                <Select.HiddenSelect />
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText placeholder="Select Role" />
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal>
+                                    <Select.Positioner>
+                                        <Select.Content>
+                                            {roleCollection.items.map((item) => (
+                                                <Select.Item key={item.value} item={item}>
+                                                    {item.label}
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
                         </Box>
 
-                        {/* Category - Dropdown with formatted display */}
+                        {/* Category */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Category</Text>
-                            <select 
-                                value={formData.category} 
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })} 
-                                style={inputStyle}
+                            <Select.Root
+                                collection={categoryCollection}
+                                value={[formData.category]}
+                                onValueChange={(e) => setFormData({ ...formData, category: e.value[0] })}
                             >
-                                <option value="">Select Category</option>
-                                {categoryOptions.map(opt => (
-                                    <option key={opt} value={opt}>
-                                        {capitalizeWords(opt)}
-                                    </option>
-                                ))}
-                            </select>
+                                <Select.HiddenSelect />
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText placeholder="Select Category" />
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal>
+                                    <Select.Positioner>
+                                        <Select.Content>
+                                            {categoryCollection.items.map((item) => (
+                                                <Select.Item key={item.value} item={item}>
+                                                    {item.label}
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
                         </Box>
                     </Flex>
 
                     <Flex justifyContent="flex-end" gap="3" mt="8" pt="6">
-                        <Box as="button" onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="slate.700" bg="white" border="1px solid" borderColor="slate.300" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                        <Button onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="slate.700" bg="white" border="1px solid" borderColor="slate.300" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
                             Cancel
-                        </Box>
-                        <Flex as="button" onClick={handleSubmit} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="lg" border="none" cursor={isLoading ? "not-allowed" : "pointer"} _hover={{ bg: "blue.700" }} boxShadow="lg" opacity={isLoading ? 0.7 : 1} alignItems="center" gap="2">
+                        </Button>
+                        <Button onClick={handleSubmit} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="lg" cursor={isLoading ? "not-allowed" : "pointer"} opacity={isLoading ? 0.7 : 1} alignItems="center" gap="2">
                             {isLoading && <Spinner size="sm" />}
                             {initialData ? "Save Changes" : "Add Lecturer"}
-                        </Flex>
+                        </Button>
                     </Flex>
                 </Box>
             </Box>

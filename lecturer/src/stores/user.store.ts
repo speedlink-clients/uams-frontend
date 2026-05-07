@@ -1,16 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { AuthUser, AuthPermissions } from "@type/auth.type";
-
-interface UserState {
-    user: AuthUser | null;
-    permissions: AuthPermissions | null;
-}
-
-interface UserActions {
-    setUser: (user: AuthUser, permissions: AuthPermissions) => void;
-    clearUser: () => void;
-}
+import type { UserState, UserActions } from "@type/user.type";
 
 type UserStoreType = UserState & UserActions;
 

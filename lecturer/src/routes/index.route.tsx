@@ -1,8 +1,5 @@
 import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router";
-import AuthRoutes from "@routes/auth.route";
-import ProtectedRoute from "@components/shared/ProtectedRoute";
-import PublicRoute from "@components/shared/PublicRoute";
 import TimeTable from "@pages/timetable/page";
 
 const DashboardLayout = lazy(() => import("@pages/layouts/DashboardLayout"));
@@ -19,30 +16,21 @@ const Announcement = lazy(() => import("@pages/announcement/Announcement"));
 
 const router = createBrowserRouter([
     {
-        element: <PublicRoute />,
-        children: AuthRoutes,
-    },
-    {
         path: "/",
-        element: <ProtectedRoute />,
+        element: <DashboardLayout />,
         children: [
-            {
-                element: <DashboardLayout />,
-                children: [
-                    { index: true, element: <Navigate to="dashboard" replace /> },
-                    { path: "dashboard", element: <Dashboard /> },
-                    { path: "students", element: <Students /> },
-                    { path: "lecturers", element: <Lecturers /> },
-                    { path: "courses", element: <Courses /> },
-                    { path: "courses/:courseId", element: <CourseDetail /> },
-                    { path: "courses/:courseId/students/:studentId", element: <CourseStudentDetail /> },
-                    { path: "results", element: <Results /> },
-                    { path: "results/:courseId", element: <ResultDetail /> },
-                    { path: "projects", element: <Projects /> },
-                    { path: "timetable", element: <TimeTable /> },
-                    { path: "announcement", element: <Announcement /> },
-                ],
-            },
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: "dashboard", element: <Dashboard /> },
+            { path: "students", element: <Students /> },
+            { path: "lecturers", element: <Lecturers /> },
+            { path: "courses", element: <Courses /> },
+            { path: "courses/:courseId", element: <CourseDetail /> },
+            { path: "courses/:courseId/students/:studentId", element: <CourseStudentDetail /> },
+            { path: "results", element: <Results /> },
+            { path: "results/:courseId", element: <ResultDetail /> },
+            { path: "projects", element: <Projects /> },
+            { path: "timetable", element: <TimeTable /> },
+            { path: "announcement", element: <Announcement /> },
         ],
     },
     {

@@ -1,5 +1,5 @@
 import useUserStore from "@stores/user.store";
-import type { AuthUser } from "@type/auth.type";
+import type { AuthUser } from "@type/user.type";
 
 export const useCurrentUser = () => {
     const user = useUserStore((state) => state.user) as AuthUser | null;

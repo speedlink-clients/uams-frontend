@@ -1,15 +1,6 @@
-import { Navigate, Outlet } from "react-router";
-import useAuthStore from "@stores/auth.store";
+import { Outlet } from "react-router";
 
 const ProtectedRoute = () => {
-    const { token } = useAuthStore();
-
-   // If no token, redirect to login
-    if (!token) {
-        return <Navigate to="/login" replace />;
-     }
-
-  //  If token exists, render the child routes
     return <Outlet />;
 };
 

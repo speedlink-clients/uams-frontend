@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { Plus, Download, Edit, Trash2, X } from "lucide-react";
+import { Plus, Download, Edit, Trash2, X, Search } from "lucide-react";
 import { ProgramServices } from "@services/program.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
-import { Box, Flex, Text, Input, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, Input, Spinner, Button, InputGroup } from "@chakra-ui/react";
 
 interface ProgramsTabProps {
     isCreatingRoute?: boolean;
@@ -155,18 +155,20 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
     return (
         <Flex direction="column" gap="8">
             <Flex justifyContent="flex-end" gap="4">
-                <Box as="button" onClick={handleExport} bg="white" color="blue.600" px="5" py="2.5" borderRadius="xl" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" boxShadow="lg" _hover={{ bg: "blue.50" }} border="none" cursor="pointer">
+                <Button onClick={handleExport} bg="white" color="blue.600" px="5" py="2.5" borderRadius="xl" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" _hover={{ bg: "blue.50" }} cursor="pointer">
                     <Download size={18} /> Export
-                </Box>
-                <Box as="button" onClick={() => navigate("/program-courses/programs/new")} bg="blue.600" color="white" px="5" py="2.5" borderRadius="xl" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" _hover={{ bg: "blue.700" }} border="none" cursor="pointer">
+                </Button>
+                <Button onClick={() => navigate("/program-courses/programs/new")} bg="blue.600" color="white" px="5" py="2.5" borderRadius="xl" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" cursor="pointer">
                     <Plus size={18} /> Create Program
-                </Box>
+                </Button>
             </Flex>
 
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
-                <Flex p="6" alignItems="center" justifyContent="space-between">
+            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100">
+                <Flex p="6" alignItems="center">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Created Programs ({filtered.length})</Text>
+                    <InputGroup startElement={<Search />} ml="auto" width="260px">
                     <Input placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} maxW="64" bg="white" border="1px solid" borderColor="slate.200" borderRadius="xl" fontSize="xs" px="4" py="2.5" />
+                    </InputGroup>
                 </Flex>
 
                 <Box overflowX="auto">
@@ -217,13 +219,13 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
                 <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
+                    <Button onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
                         <Trash2 size={16} /> Delete
-                    </Box>
+                    </Button>
                     <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent" title="Unselect all">
+                    <Button onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent" title="Unselect all">
                         <X size={20} />
-                    </Box>
+                    </Button>
                 </Flex>
             )}
         </Flex>
