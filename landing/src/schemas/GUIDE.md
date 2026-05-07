@@ -4,7 +4,7 @@ This directory contains Zod schemas for validation.
 
 ## Conventions
 
-- **Naming**: `*.schema.ts` (e.g., `login.schema.ts`).
+- **Naming**: `*.schema.ts` (e.g., `auth.schema.ts`).
 - **Structure**: Group schemas by feature / domain logic.
 
 ## Rules

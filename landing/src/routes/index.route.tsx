@@ -1,30 +1,25 @@
-import { createBrowserRouter } from "react-router";
-import AuthRoutes from "./auth.route";
-import ProfileRoutes from "./profile.route";
-import { lazy } from "react";
-import RootLayout from "@app/layouts/layout";
-import LandingLayout from "@app/layouts/LandingLayout";
+import { createBrowserRouter, RouterProvider } from "react-router";
+import authRoutes from "./auth.route";
+import RootLayout from "@app/layout";
+import LandingPage from "@app/page";
 
-const DashboardPage = lazy(() => import("../app/pages/dashboard/page"));
-const LandingPage = lazy(() => import("../app/pages/landing/page"));
 
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
         children: [
-            {
-                element: <LandingLayout />,
-                children: [
-                    { index: true, element: <LandingPage /> },
-                    { path: "/about", element: <p>About Us</p> },
-                    { path: "/contact", element: <p>Contact Support</p> },
-                ],
-            },
-            { path: "/dashboard", element: <DashboardPage /> },
-        ],
+            { path: "/", element: <LandingPage /> },
+        ]
     },
-    ...AuthRoutes,
-    ...ProfileRoutes,
+    {
+        children: [
+            ...authRoutes
+        ]
+    }
 ]);
 
-export default router;
+const Router = () => {
+    return <RouterProvider router={router} />;
+}
+
+export default Router;

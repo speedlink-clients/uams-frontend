@@ -4,7 +4,7 @@ This directory contains pure utility functions and helpers.
 
 ## Conventions
 
-- **Naming**: `*.util.ts` (e.g., `date.util.ts`, `format.util.ts`).
+- **Naming**: `*.util.ts` (e.g., `function.util.ts`, `format.util.ts`).
 - **Scope**: Generic, domain-agnostic helpers.
 
 ## Rules

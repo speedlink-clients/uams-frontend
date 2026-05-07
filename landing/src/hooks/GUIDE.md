@@ -5,7 +5,7 @@ This directory contains custom React hooks, primarily for data fetching and reus
 ## Conventions
 
 - **Naming**: `*.hook.ts` (e.g., `auth.hook.ts`).
-- **Export Pattern**: Use a grouping object for related hooks (e.g., `export const AuthHook = { ... }`).
+- **Export Pattern**: Use a grouping object for related hooks (e.g., `export const useLogin = () => useMutation(...)`).
 
 ## Rules
 
@@ -16,10 +16,13 @@ This directory contains custom React hooks, primarily for data fetching and reus
 ## Example
 
 ```typescript
-export const AuthHook = {
-    useLogin: (options?: UseMutationOptions<...>) => useMutation({
-        mutationFn: (payload) => AuthService.login(payload),
-        ...options
-    })
-}
+export const useLogin = (options?: UseMutationOptions<...>) => useMutation({
+    mutationFn: (payload) => loginApi(payload),
+    ...options
+})
+
+export const useSignup = (options?: UseMutationOptions<...>) => useMutation({
+    mutationFn: (payload) => signupApi(payload),
+    ...options
+})
 ```

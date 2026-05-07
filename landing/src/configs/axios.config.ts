@@ -16,8 +16,11 @@ export const axiosClient = axios.create({
 
 // List of public endpoints that don't require auth token
 const PUBLIC_ENDPOINTS = [
-  "/v1/auth/login",
-  // Add any other public endpoints here
+  "/auth/login",
+  "/auth/signup",
+  "/auth/password",
+  "/verify",
+  "/activate-student/update",
 ];
 
 // Helper to check if endpoint is public
@@ -27,15 +30,10 @@ const isPublicEndpoint = (url: string = ''): boolean => {
   );
 };
 
-interface ErrorResponse {
-  message?: string;
-  errors?: Array<{ field: string; message: string }>;
-}
-
 // Helper functions
-const getErrorMessage = (error: AxiosError<unknown>): string => {
+const getErrorMessage = (error: any): string => {
   if (error.response?.data) {
-    const { message, errors } = error.response.data as ErrorResponse;
+    const { message, errors } = error.response.data;
 
     if (errors && Array.isArray(errors) && errors.length > 0) {
       return errors.map(err => `${err.field}: ${err.message}`).join(', ');

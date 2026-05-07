@@ -1,18 +1,8 @@
+import type { UserStoreType } from "@type/user.type";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-interface UserState {
-    name: string;
-    email: string;
-    password: string;
-}
 
-interface UserActions {
-    setUser: (user: UserState) => void;
-    clearUser: () => void;
-}
-
-type UserStoreType = UserState & UserActions;
 
 const useUserStore = create<UserStoreType>()(
     persist(

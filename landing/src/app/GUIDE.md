@@ -6,8 +6,8 @@ This directory contains the main application structure, including pages and layo
 
 ```
 src/app/
-├── layouts/       # Shared layout wrappers
-└── pages/         # Route component definitions
+├── auth/       # Shared layout wrappers for authentication routes
+└── profile/         # Route component definitions for profile routes
 ```
 
 ## Conventions
