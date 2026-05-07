@@ -68,7 +68,7 @@ const LoginPage = () => {
             >
                 {/* Logo */}
                 <Image
-                    src="/public/images/uphcscLG.png"
+                    src="/images/uphcscLG.png"
                     alt="Logo"
                     h="auto"
                     w="80"
@@ -147,7 +147,7 @@ const LoginPage = () => {
                 <Text color="fg.subtle" textAlign={"center"}>
                     Are you a student?{" "}
                     <Span asChild color="accent" fontWeight="medium" textDecor={"underline"}>
-                        <Link to="/register">Verify your account</Link>
+                        <Link to="/auth/verify">Verify your account</Link>
                     </Span>
                 </Text>
 

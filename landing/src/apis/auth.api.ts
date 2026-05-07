@@ -47,7 +47,7 @@ export const initializePaymentApi = async (callbackUrl?: string): Promise<Initia
 }
 
 export const getDepartmentAnnualDueApi = async (): Promise<DepartmentDuesResponse> => {
-    const { data } = await axiosClient.get<DepartmentDuesResponse>("/configs/payment-types/ANNUAL_ACCESS_FEE_AND_DEPARTMENTAL_DUES.");
+    const { data } = await axiosClient.get<DepartmentDuesResponse>("/configurations/payment-types/ANNUAL_ACCESS_FEE_AND_DEPARTMENTAL_DUES");
     return data;
 }
 

@@ -59,9 +59,10 @@ export const useInitializePayment = (options?: UseMutationOptions<InitializePaym
     ...options
 })
 
-export const useDepartmentAnnualDue = () => useQuery<DepartmentDuesResponse, Error>({
+export const useDepartmentAnnualDue = (options?: any) => useQuery<DepartmentDuesResponse, Error>({
     queryKey: ["department-annual-due"],
     queryFn: () => getDepartmentAnnualDueApi(),
+    ...options
 })
 
 export const useChangePassword = (options?: UseMutationOptions<any, Error, any, unknown>) => useMutation<any, Error, any, unknown>({

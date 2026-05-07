@@ -164,4 +164,4 @@ export interface AuthCardProps {
     isPlainLogo?: boolean;
 }
 
-export type { LoginFormData, ActivateAccountFormData, ForgotPasswordFormData, OtpFormData, ResetPasswordFormData } from "@schemas/auth.schema"
+export type { LoginFormData, ActivateAccountFormData, ForgotPasswordFormData, OtpFormData, ResetPasswordFormData, VerifyStudentFormData } from "@schemas/auth.schema"
