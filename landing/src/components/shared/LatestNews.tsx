@@ -9,8 +9,8 @@ import {
     HStack,
     Center,
 } from "@chakra-ui/react";
-import { Calendar } from "lucide-react";
 import { motion } from "framer-motion";
+import { LuCalendar } from "react-icons/lu";
 
 const NEWS_IMG_1 = "/images/5ed7d0d339dcca3293a16471198e6e0fd0d1bb46.jpg";
 const NEWS_IMG_2 = "/images/3941bb7f924ec837957d353f2bb7fe7c091f261d.png";
@@ -102,7 +102,7 @@ const LatestNews = ({ id }: { id?: string }) => {
                                     {item.title}
                                 </Heading>
                                 <HStack fontSize="xs" color="#000000" mb={3}>
-                                    <Calendar size={14} />
+                                    <LuCalendar size={14} />
                                     <Text>{item.date}</Text>
                                 </HStack>
                                 <Text fontSize="sm" color="#000000" lineClamp={3} mb={4}>

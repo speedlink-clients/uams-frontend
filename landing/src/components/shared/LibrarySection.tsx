@@ -1,6 +1,7 @@
 import { Box, Flex, Heading, Text, Stack, Image, Container } from "@chakra-ui/react";
-import { CircleDot } from "lucide-react";
+
 import { motion } from "framer-motion";
+import { LuCircleDot } from "react-icons/lu";
 
 const LIBRARY_IMG = "/images/28efe5d2b49d90b5dbeeca9c4965f70da3420edb.jpg";
 
@@ -52,7 +53,7 @@ const LibrarySection = () => {
                                     transition={{ delay: 0.5 + (idx * 0.1), duration: 0.5 }}
                                 >
                                     <Box mt={1} flexShrink={0}>
-                                        <CircleDot size={20} color="#EC9A29" />
+                                        <LuCircleDot size={20} color="#EC9A29" />
                                     </Box>
                                     <Text fontSize="sm">{item}</Text>
                                 </MotionFlex>

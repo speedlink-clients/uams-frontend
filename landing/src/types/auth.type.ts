@@ -1,3 +1,5 @@
+import type React from 'react';
+
 // @type/auth.type.ts
 export interface User {
     id?: string;
@@ -10,6 +12,7 @@ export interface User {
 
 export interface AuthState {
     token: string;
+    refreshToken?: string;
     expireAt: string;
     user?: User;
     setAuth: (auth: Partial<AuthState>) => void;
@@ -28,6 +31,24 @@ export interface LoginResponse {
         token: string;
         expiresIn: string;
         user: User;
+    };
+}
+
+export interface VerifyStudentResponse {
+    status: string;
+    message?: string;
+    data: {
+        verificationToken: string;
+        profile: {
+            firstName: string;
+            lastName: string;
+            otherName: string | null;
+            matricNumber: string;
+            registrationNo: string;
+            level: string;
+            admissionYear: number;
+            currentSession: string;
+        };
     };
 }
 
@@ -107,3 +128,40 @@ export interface ConfirmIdCardPaymentResponse {
     paid_at: string;
   };
 }
+
+export interface ResetPasswordData {
+    email: string;
+    token: string;
+    password?: string;
+}
+
+// Form Data Types
+
+
+// Component Prop Types
+export interface ActivateAccountStepProps {
+    onNext: () => void;
+    onForgotPassword: () => void;
+}
+
+export interface ForgotPasswordFlowProps {
+    onBackToLogin: () => void;
+}
+
+export type RecoveryStep = 'forgot-password' | 'verify-code' | 'reset-password' | 'reset-success';
+
+export interface PaymentStepProps {
+    onNext: () => void;
+}
+
+export interface RegNumberStepProps {
+    onNext: () => void;
+}
+
+export interface AuthCardProps {
+    children: React.ReactNode;
+    className?: string;
+    isPlainLogo?: boolean;
+}
+
+export type { LoginFormData, ActivateAccountFormData, ForgotPasswordFormData, OtpFormData, ResetPasswordFormData, VerifyStudentFormData } from "@schemas/auth.schema"

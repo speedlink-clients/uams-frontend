@@ -8,21 +8,29 @@ import LatestNews from "@components/shared/LatestNews";
 import LibrarySection from "@components/shared/LibrarySection";
 import ResourcesSection from "@components/shared/ResourcesSection";
 import NewsletterSection from "@components/shared/NewsletterSection";
+import Head from "@components/shared/header";
+import Navbar from "@components/shared/Navbar";
+import Footer from "@components/shared/Footer";
 
 const LandingPage = () => {
 
   return (
-    <Box bg="white">
-      <Hero id="home" />
-      <Stats />
-      <About id="about" />
-      <SecureFuture />
-      <Programmes />
-      <LatestNews id="research" />
-      <LibrarySection />
-      <ResourcesSection />
-      <NewsletterSection />
-    </Box>
+    <>
+      <Head />
+      <Navbar />
+      <Box bg="white">
+        <Hero id="home" />
+        <Stats />
+        <About id="about" />
+        <SecureFuture />
+        <Programmes />
+        <LatestNews id="research" />
+        <LibrarySection />
+        <ResourcesSection />
+        <NewsletterSection />
+      </Box>
+      <Footer />
+    </>
   );
 };
 
