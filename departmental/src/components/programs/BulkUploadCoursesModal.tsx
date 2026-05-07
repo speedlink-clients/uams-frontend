@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { X, Upload, FileUp } from "lucide-react";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, Button, Input } from "@chakra-ui/react";
 import { CourseServices } from "@services/course.service";
 
 interface Props {
@@ -65,7 +65,7 @@ const BulkUploadCoursesModal = ({ isOpen, onClose, onUploaded }: Props) => {
             <Box bg="white" borderRadius="2xl" shadow="xl" w="full" maxW="lg" position="relative" animation="slideUp 0.3s ease-out">
                 {/* Header */}
                 <Box p="6" borderBottom="1px solid" borderColor="slate.100">
-                    <Box as="button" onClick={handleClose} position="absolute" top="4" right="4" p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400"><X size={20} /></Box>
+                    <Button onClick={handleClose} position="absolute" top="4" right="4" p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400"><X size={20} /></Button>
                     <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="2">Upload Courses</Text>
                     <Text fontSize="sm" color="slate.500" mb="4">Upload a CSV file containing the courses data. Download the sample file below to see the required format.</Text>
                     
@@ -90,7 +90,7 @@ const BulkUploadCoursesModal = ({ isOpen, onClose, onUploaded }: Props) => {
                         transition="all 0.2s"
                         onClick={() => fileInputRef.current?.click()}
                     >
-                        <input
+                        <Input
                             type="file"
                             accept=".csv,.xlsx,.xls"
                             ref={fileInputRef}

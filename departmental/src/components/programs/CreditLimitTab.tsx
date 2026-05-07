@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, X } from "lucide-react";
 import { ProgramServices } from "@services/program.service";
 import { AcademicServices } from "@services/academic.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, Button } from "@chakra-ui/react";
 
 const CreditLimitTab = () => {
     const [creditLimits, setCreditLimits] = useState<any[]>([]);
@@ -172,15 +172,15 @@ const CreditLimitTab = () => {
                                 <Trash2 size={16} /> Delete ({selectedIds.length})
                             </Box>
                         )}
-                        <Box
-                            as="button" onClick={() => setIsFormOpen(true)}
+                        <Button
+                            onClick={() => setIsFormOpen(true)}
                             display="flex" alignItems="center" gap="2"
                             bg="blue.600" color="white" px="4" py="2"
                             borderRadius="xl" fontSize="sm" fontWeight="bold"
                             _hover={{ bg: "blue.700" }} cursor="pointer" border="none"
                         >
                             <Plus size={16} /> Create Credit Limit
-                        </Box>
+                        </Button>
                     </Flex>
                 </Flex>
 
@@ -238,17 +238,17 @@ const CreditLimitTab = () => {
                                 </Box>
                             </Flex>
                             <Flex justifyContent="flex-end" gap="3" mt="4">
-                                <Box
-                                    as="button" onClick={handleCancelForm}
+                                <Button
+                                    onClick={handleCancelForm}
                                     px="4" py="2" borderRadius="md"
                                     border="1px solid" borderColor="gray.300"
                                     color="gray.700" cursor="pointer" fontSize="sm"
                                     _hover={{ bg: "gray.50" }}
                                 >
                                     Cancel
-                                </Box>
-                                <Flex
-                                    as="button" onClick={handleSave}
+                                </Button>
+                                <Button
+                                    onClick={handleSave}
                                     px="4" py="2" borderRadius="md"
                                     bg="green.600" color="white" cursor="pointer"
                                     fontSize="sm" fontWeight="bold" border="none"
@@ -257,7 +257,7 @@ const CreditLimitTab = () => {
                                     alignItems="center" gap="2"
                                 >
                                     {isSaving ? "Saving..." : editingId ? "Update" : "Create"}
-                                </Flex>
+                                </Button>
                             </Flex>
                         </Box>
                     </Box>
@@ -347,13 +347,13 @@ const CreditLimitTab = () => {
                 <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
+                    <Button onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
                         <Trash2 size={16} /> Delete
-                    </Box>
+                    </Button>
                     <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent">
+                    <Button onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent">
                         <X size={20} />
-                    </Box>
+                    </Button>
                 </Flex>
             )}
         </Flex>

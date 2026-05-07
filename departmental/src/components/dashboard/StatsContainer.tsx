@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Users, CreditCard, UserCheck } from "lucide-react";
 import { StatCard } from "@components/dashboard/StatCard";
 import axiosClient from "@configs/axios.config";
-import { Box, Flex, Text, Spinner, Grid } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, Grid, Button } from "@chakra-ui/react";
 
 const StatsContainer = () => {
     const [stats, setStats] = useState({
@@ -76,24 +76,23 @@ const StatsContainer = () => {
         return (
             <Box bg="red.50" border="1px solid" borderColor="red.200" borderRadius="2xl" p="6" textAlign="center">
                 <Text color="red.600" fontWeight="medium">{stats.error}</Text>
-                <Box
-                    as="button"
+                <Button
                     onClick={fetchData}
                     mt="3"
                     px="4"
                     py="2"
                     bg="red.100"
                     color="red.700"
-                    borderRadius="lg"
+                    borderRadius="sm"
                     _hover={{ bg: "red.200" }}
                     transition="all 0.2s"
                     fontSize="sm"
                     fontWeight="medium"
-                    border="none"
                     cursor="pointer"
+                    size="sm"
                 >
                     Retry
-                </Box>
+                </Button>
             </Box>
         );
     }

@@ -124,7 +124,7 @@ axiosClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && (originalRequest.url === "/auth/login" || originalRequest.url === "/auth/signin" || originalRequest.url?.includes("/auth/signin"))) {
+   /* if (error.response?.status === 401 && (originalRequest.url === "/auth/login" || originalRequest.url === "/auth/signin" || originalRequest.url?.includes("/auth/signin"))) {
       toaster.error({
         title: getErrorTitle(error),
         description: getErrorMessage(error),
@@ -146,8 +146,8 @@ axiosClient.interceptors.response.use(
       useAuthStore.getState().clearAuth();
       setTimeout(() => {
         window.location.href = "/departmental-admin/login";
-      }, 1000);
-    }
+      }, 1000);  
+    }  */
 
     // 🟡 Bad Request (400)
     if (error.response?.status === 400) {
