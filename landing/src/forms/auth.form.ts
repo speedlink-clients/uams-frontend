@@ -5,7 +5,8 @@ import {
     ActivateAccountSchema, type ActivateAccountFormData,
     ResetPasswordSchema, type ResetPasswordFormData,
     ForgotPasswordSchema, type ForgotPasswordFormData,
-    OtpSchema, type OtpFormData
+    OtpSchema, type OtpFormData,
+    VerifyStudentSchema, type VerifyStudentFormData
 } from "@schemas/auth.schema";
 
 
@@ -57,6 +58,15 @@ export const useOtpForm = () => {
         resolver: zodResolver(OtpSchema),
         defaultValues: {
             otp: "",
+        },
+    });
+};
+
+export const useVerifyStudentForm = () => {
+    return useForm<VerifyStudentFormData>({
+        resolver: zodResolver(VerifyStudentSchema),
+        defaultValues: {
+            matricNumber: "",
         },
     });
 };
