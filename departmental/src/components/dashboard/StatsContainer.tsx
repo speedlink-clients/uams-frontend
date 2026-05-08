@@ -62,7 +62,7 @@ const StatsContainer = () => {
         return (
             <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap="6">
                 {[1, 2, 3].map((i) => (
-                    <Box key={i} bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                    <Box key={i} bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
                         <Flex alignItems="center" justifyContent="center" h="20">
                             <Spinner size="md" color="blue.500" />
                         </Flex>
@@ -74,7 +74,7 @@ const StatsContainer = () => {
 
     if (stats.error) {
         return (
-            <Box bg="red.50" border="1px solid" borderColor="red.200" borderRadius="2xl" p="6" textAlign="center">
+            <Box bg="red.50" border="xs" borderColor="red.200" borderRadius="md" p="6" textAlign="center">
                 <Text color="red.600" fontWeight="medium">{stats.error}</Text>
                 <Button
                     onClick={fetchData}

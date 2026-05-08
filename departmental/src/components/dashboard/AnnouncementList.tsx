@@ -11,7 +11,7 @@ export const AnnouncementList = ({ announcements }: Props) => {
     const navigate = useNavigate();
 
     return (
-        <Box bg="white" borderRadius="2xl" p="6" boxShadow="sm" border="1px solid" borderColor="gray.100" display="flex" flexDirection="column" h="full">
+        <Box bg="bg" borderRadius="md" p="6" border="xs" borderColor="border.muted" display="flex" flexDirection="column" h="full">
             <Flex alignItems="center" justifyContent="space-between" mb="6">
                 <Text fontWeight="bold" color="slate.800">Announcements</Text>
                 <Button
