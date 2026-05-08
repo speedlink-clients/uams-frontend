@@ -86,7 +86,7 @@ const DashboardLayout = () => {
                     email={email}
                     onMenuClick={() => setIsSidebarOpen(true)}
                 />
-                <Box p={{ base: "4", md: "8" }} maxW="1600px" mx="auto">
+                <Box p={{ base: "4", md: "8" }}>
                     <Outlet />
                 </Box>
             </Box>

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Megaphone } from "lucide-react";
 import { AnnouncementServices } from "@services/announcement.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Spinner, Input } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, Input, EmptyState } from "@chakra-ui/react";
 import CreateAnnouncementModal from "@components/announcements/CreateAnnouncementModal";
 
 interface Announcement {
@@ -121,9 +121,17 @@ const AnnouncementsPage = () => {
                         <Text color="slate.500" fontWeight="medium">Loading Announcements...</Text>
                     </Flex>
                 ) : filteredAnnouncements.length === 0 ? (
-                    <Box textAlign="center" py="20" bg="slate.50" borderRadius="2xl" border="1px dashed" borderColor="slate.200">
-                        <Text color="slate.500" fontWeight="medium">No announcements found</Text>
-                    </Box>
+                    <EmptyState.Root>
+                        <EmptyState.Content>
+                            <EmptyState.Indicator>
+                                <Megaphone />
+                            </EmptyState.Indicator>
+                            <EmptyState.Title>No Announcements Found</EmptyState.Title>
+                            <EmptyState.Description>
+                                Try adjusting your date filters or create a new announcement
+                            </EmptyState.Description>
+                        </EmptyState.Content>
+                    </EmptyState.Root>
                 ) : (
                     filteredAnnouncements.map((item) => (
                         <Box key={item.id} bg="white" borderRadius="xl" p="6" boxShadow="sm" border="1px solid" borderColor="slate.100" _hover={{ boxShadow: "md" }} transition="all 0.2s">

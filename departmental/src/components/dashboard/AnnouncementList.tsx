@@ -1,5 +1,5 @@
-import { Box, Flex, Text, Button, Link } from "@chakra-ui/react";
-import { Plus } from "lucide-react";
+import { Box, Flex, Text, Button, EmptyState } from "@chakra-ui/react";
+import { Plus, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Announcement } from "@type/common.type";
 
@@ -32,9 +32,17 @@ export const AnnouncementList = ({ announcements }: Props) => {
 
             <Flex direction="column" gap="4" overflowY="auto" maxH="350px" pr="2">
                 {announcements.length === 0 ? (
-                    <Flex direction="column" alignItems="center" justifyContent="center" py="12" textAlign="center">
-                        <Text fontSize="sm" fontWeight="medium" color="slate.400">No New Announcements</Text>
-                    </Flex>
+                    <EmptyState.Root>
+                        <EmptyState.Content>
+                            <EmptyState.Indicator>
+                                <Megaphone />
+                            </EmptyState.Indicator>
+                            <EmptyState.Title>No Announcements</EmptyState.Title>
+                            <EmptyState.Description>
+                                There are no announcements yet
+                            </EmptyState.Description>
+                        </EmptyState.Content>
+                    </EmptyState.Root>
                 ) : (
                     announcements.map((item) => (
                         <Box key={item.id} borderBottom="1px solid" borderColor="gray.50" pb="4" _last={{ borderBottom: "none", pb: "0" }}>
