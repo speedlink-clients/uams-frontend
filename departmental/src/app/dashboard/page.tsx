@@ -154,7 +154,7 @@ const DashboardPage = () => {
             <Box bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
                 <Flex alignItems="center" justifyContent="space-between" mb="8">
                     <Box>
-                        <Text fontWeight="bold" color="slate.800">Enrollment Growth</Text>
+                        <Text fontWeight="bold" color="slate.800">Enrollment</Text>
                         <Text fontSize="xs" color="slate.400" mt="1">Student registration trends</Text>
                     </Box>
                 </Flex>
