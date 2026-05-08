@@ -123,7 +123,7 @@ const DashboardPage = () => {
                         <Box>
                             <Flex alignItems="center" gap="2" fontWeight="bold" color="slate.800">
                                 <TrendingUp size={20} color="#22c55e" />
-                                <Text>Department Performance</Text>
+                                <Text>Revenue</Text>
                             </Flex>
                             <Text fontSize="xs" color="slate.400" mt="1">
                                 Fee collection (Annual)

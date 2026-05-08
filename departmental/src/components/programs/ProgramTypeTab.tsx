@@ -582,20 +582,19 @@ const ProgramTypeTab = () => {
             fontSize="xs"
             fontWeight="bold"
             _hover={{ bg: "red.600" }}
-            leftIcon={<Trash2 size={16} />}
           >
-            Delete
+          <Trash2 size={16} />  Delete
           </Button>
           <Box w="px" h="6" bg="slate.200" />
-          <IconButton
+          <Button
             aria-label="Unselect all"
-            icon={<X size={20} />}
             variant="ghost"
             size="sm"
             color="slate.400"
             _hover={{ bg: "slate.100" }}
             onClick={() => setSelectedIds([])}
-          />
+          >
+            <X size={20} /> </Button>
         </Flex>
       )}
     </Flex>
