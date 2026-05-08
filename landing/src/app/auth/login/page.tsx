@@ -30,7 +30,7 @@ const LoginPage = () => {
                 window.location.href = "/student";
             } else if (userRoles.includes("STAFF")) {
                 if (userRoles.includes("DEPARTMENT_ADMIN")) {
-                    window.location.href = "/departmental";
+                    window.location.href = "/departmental-admin/";
                 } else {
                     window.location.href = "/lecturer";
                 }
