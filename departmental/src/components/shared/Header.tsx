@@ -1,7 +1,7 @@
 import { Bell, History, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import type { ViewType } from '@type/common.type';
-import { Box, Flex, Text, Image } from '@chakra-ui/react';
+import { Box, Flex, Text, Image, Button } from '@chakra-ui/react';
 
 interface HeaderProps {
     onViewChange: (view: ViewType) => void;
@@ -51,14 +51,15 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                     borderColor="gray.200"
                     pr="6"
                 >
-                    <Box
-                        as="button"
+                    <Button
                         onClick={() => navigate('/notifications')}
                         position="relative"
                         _hover={{ color: "blue.600" }}
                         transition="all 0.2s"
                         p="2"
                         borderRadius="lg"
+                        background="transparent"
+                        color="gray.600"
                     >
                         <Bell size={20} />
                         <Box
@@ -71,16 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                             borderRadius="full"
                             border="2px solid white"
                         />
-                    </Box>
-                    <Box
-                        as="button"
-                        _hover={{ color: "blue.600" }}
-                        transition="all 0.2s"
-                        p="2"
-                        borderRadius="lg"
-                    >
-                        <History size={20} />
-                    </Box>
+                    </Button>
                 </Flex>
 
                 <Box

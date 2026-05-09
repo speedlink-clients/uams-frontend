@@ -15,11 +15,11 @@ export const AnnouncementList = ({ announcements }: Props) => {
             <Flex alignItems="center" justifyContent="space-between" mb="6">
                 <Text fontWeight="bold" color="slate.800">Announcements</Text>
                 <Button
-                    bg="blue.600"
+                    bg="accent.500"
                     color="white"
                     px="3"
                     py="1.5"
-                    borderRadius="sm"
+                    borderRadius="round"
                     fontSize="xs"
                     fontWeight="semibold"
                     cursor="pointer"
