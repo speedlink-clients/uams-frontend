@@ -13,9 +13,9 @@ export const AnnouncementList = ({ announcements }: Props) => {
     return (
         <Box bg="white" borderRadius="2xl" p="6" boxShadow="sm" border="1px solid" borderColor="gray.100" display="flex" flexDirection="column" h="full">
             <Flex alignItems="center" justifyContent="space-between" mb="6">
-                <Text fontWeight="bold" color="slate.800">Announcements</Text>
+                <Text fontWeight="bold" color="fg">Announcements</Text>
                 <Button
-                    bg="accent.500"
+                    bg="accent"
                     color="white"
                     px="3"
                     py="1.5"
@@ -39,7 +39,7 @@ export const AnnouncementList = ({ announcements }: Props) => {
                     announcements.map((item) => (
                         <Box key={item.id} borderBottom="1px solid" borderColor="gray.50" pb="4" _last={{ borderBottom: "none", pb: "0" }}>
                             <Flex justifyContent="space-between" alignItems="flex-start" mb="1">
-                                <Text fontSize="sm" fontWeight="semibold" color="slate.800" _hover={{ color: "blue.600" }} transition="all 0.2s">
+                                <Text fontSize="sm" fontWeight="semibold" color="slate.600" _hover={{ color: "blue.600" }} transition="all 0.2s">
                                     {item.title}
                                 </Text>
                                 <Text fontSize="10px" fontWeight="medium" color="slate.400" bg="slate.50" px="1.5" py="0.5" borderRadius="sm" textTransform="uppercase" letterSpacing="tighter">

@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                     gap="4"
                     color="slate.500"
                     borderRight="1px solid"
-                    borderColor="gray.200"
+                    borderColor="border.subtle"
                     pr="6"
                 >
                     <Button

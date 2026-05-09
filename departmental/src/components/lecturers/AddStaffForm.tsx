@@ -150,9 +150,9 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         <Text fontSize="2xl" fontWeight="bold" color="#1D7AD9">
                             {initialData ? "Edit Lecturer" : "Add Lecturer"}
                         </Text>
-                        <Box as="button" onClick={onClose} p="2" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent">
+                        <Button onClick={onClose} p="2" borderRadius="full" cursor="pointer" bg="transparent">
                             <X size={24} color="#94a3b8" />
-                        </Box>
+                        </Button>
                     </Flex>
 
                     <Flex direction={{ base: "column", md: "row" }} gap="8" flexWrap="wrap">

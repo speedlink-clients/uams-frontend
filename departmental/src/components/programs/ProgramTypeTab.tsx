@@ -302,7 +302,6 @@ const ProgramTypeTab = () => {
                 borderRadius="lg"
                 fontSize="sm"
                 fontWeight="medium"
-                _hover={{ bg: "blue.50" }}
               >
                 Cancel
               </Button>
@@ -493,7 +492,6 @@ const ProgramTypeTab = () => {
                   <Box
                     as="tr"
                     key={pt.id}
-                    _hover={{ bg: "slate.50" }}
                     borderBottom="1px solid"
                     borderColor="gray.50"
                     fontSize="sm"
@@ -527,7 +525,6 @@ const ProgramTypeTab = () => {
                           size="sm"
                           variant="ghost"
                           color="slate.400"
-                          _hover={{ bg: "slate.100" }}
                           onClick={() => handleEdit(pt)}
                         >
                         <Edit size={16} />    </Button>
@@ -536,7 +533,6 @@ const ProgramTypeTab = () => {
                           size="sm"
                           variant="ghost"
                           color="red.400"
-                          _hover={{ bg: "red.50" }}
                           onClick={() => handleDelete(pt.id)}
                         >
                          <Trash2 size={16} />   </Button>
@@ -581,7 +577,6 @@ const ProgramTypeTab = () => {
             borderRadius="lg"
             fontSize="xs"
             fontWeight="bold"
-            _hover={{ bg: "red.600" }}
           >
           <Trash2 size={16} />  Delete
           </Button>
@@ -591,7 +586,6 @@ const ProgramTypeTab = () => {
             variant="ghost"
             size="sm"
             color="slate.400"
-            _hover={{ bg: "slate.100" }}
             onClick={() => setSelectedIds([])}
           >
             <X size={20} /> </Button>
