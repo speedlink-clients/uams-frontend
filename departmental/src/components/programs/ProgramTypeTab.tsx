@@ -598,10 +598,10 @@ const ProgramTypeTab = () => {
             fontWeight="bold"
             _hover={{ bg: "red.600" }}
           >
-            <Trash2 size={16} /> Delete
+          <Trash2 size={16} />  Delete
           </Button>
           <Box w="px" h="6" bg="slate.200" />
-          <IconButton
+          <Button
             aria-label="Unselect all"
             variant="ghost"
             size="sm"

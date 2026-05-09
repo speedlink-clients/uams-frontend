@@ -123,7 +123,7 @@ const DashboardPage = () => {
                         <Box>
                             <Flex alignItems="center" gap="2" fontWeight="bold" color="slate.800">
                                 <TrendingUp size={20} color="#22c55e" />
-                                <Text>Department Performance</Text>
+                                <Text>Revenue</Text>
                             </Flex>
                             <Text fontSize="xs" color="slate.400" mt="1">
                                 Fee collection (Annual)
@@ -154,7 +154,7 @@ const DashboardPage = () => {
             <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
                 <Flex alignItems="center" justifyContent="space-between" mb="8">
                     <Box>
-                        <Text fontWeight="bold" color="slate.800">Enrollment Growth</Text>
+                        <Text fontWeight="bold" color="slate.800">Enrollment</Text>
                         <Text fontSize="xs" color="slate.400" mt="1">Student registration trends</Text>
                     </Box>
                 </Flex>
