@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { X, Eye, EyeOff } from "lucide-react";
-import { Box, Flex, Text, Spinner, Select, Portal, createListCollection, Button } from "@chakra-ui/react";
+import { X } from "lucide-react";
+import { Box, Flex, Text, Spinner, Select, Portal, createListCollection, Button, Dialog, Input } from "@chakra-ui/react";
 import useAuthStore from "@stores/auth.store";
+import { PasswordInput } from "@components/ui/password-input";
 
 interface Props {
     isOpen: boolean;
@@ -69,7 +70,6 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
         category: "",
     });
     const [isLoading, setIsLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -124,28 +124,11 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
         }
     };
 
-    if (!isOpen) return null;
-
-    const inputStyle: React.CSSProperties = {
-        width: "100%",
-        padding: "10px 14px",
-        borderRadius: "8px",
-        border: "1px solid #e2e8f0",
-        fontSize: "14px",
-        background: "white",
-        outline: "none",
-    };
-
-    const inputStyleReadonly: React.CSSProperties = {
-        ...inputStyle,
-        background: "#f8fafc",
-        color: "#64748b",
-    };
-
     return (
-        <Flex position="fixed" top="0" left="0" right="0" bottom="0" bg="blackAlpha.600" zIndex="9999" alignItems="center" justifyContent="center" p="4" backdropFilter="blur(4px)">
-            <Box bg="white" borderRadius="2xl" shadow="xl" w="full" maxW="4xl" maxH="90vh" overflowY="auto">
-                <Box p="8">
+        <Dialog.Root open={isOpen} onOpenChange={(e) => { if (!e.open) onClose() }}>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+                <Dialog.Content bg="white" borderRadius="2xl" maxW="4xl" p="8">
                     <Flex justifyContent="space-between" alignItems="center" mb="8">
                         <Text fontSize="2xl" fontWeight="bold" color="#1D7AD9">
                             {initialData ? "Edit Lecturer" : "Add Lecturer"}
@@ -153,31 +136,36 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         <Button onClick={onClose} p="2" borderRadius="full" cursor="pointer" bg="transparent">
                             <X size={24} color="#94a3b8" />
                         </Button>
+                        <Dialog.CloseTrigger asChild>
+                            <Box as="button" p="2" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent">
+                                <X size={24} color="#94a3b8" />
+                            </Box>
+                        </Dialog.CloseTrigger>
                     </Flex>
 
                     <Flex direction={{ base: "column", md: "row" }} gap="8" flexWrap="wrap">
                         {/* Staff ID */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Staff ID</Text>
-                            <input value={formData.staffId} onChange={(e) => setFormData({ ...formData, staffId: e.target.value })} style={initialData ? inputStyleReadonly : inputStyle} />
+                            <Input value={formData.staffId} onChange={(e) => setFormData({ ...formData, staffId: e.target.value })} readOnly={!!initialData} bg={initialData ? "slate.50" : "white"} color={initialData ? "slate.500" : "inherit"} />
                         </Box>
 
                         {/* Title */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Title</Text>
-                            <input placeholder="E.g Dr, Mr etc" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} style={inputStyle} />
+                            <Input placeholder="E.g Dr, Mr etc" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} bg="white" />
                         </Box>
 
                         {/* First Name */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">First Name</Text>
-                            <input value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} style={inputStyle} />
+                            <Input value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Other Name */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Other Name</Text>
-                            <input value={formData.otherName} onChange={(e) => setFormData({ ...formData, otherName: e.target.value })} style={inputStyle} />
+                            <Input value={formData.otherName} onChange={(e) => setFormData({ ...formData, otherName: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Sex - Select.Root */}
@@ -185,7 +173,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Sex</Text>
                             <Select.Root
                                 collection={sexCollection}
-                                value={[formData.sex]}
+                                value={formData.sex ? [formData.sex] : []}
                                 onValueChange={(e) => setFormData({ ...formData, sex: e.value[0] })}
                             >
                                 <Select.HiddenSelect />
@@ -214,30 +202,25 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         {/* Highest Degree */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Highest Degree</Text>
-                            <input placeholder="PhD" value={formData.highestDegree} onChange={(e) => setFormData({ ...formData, highestDegree: e.target.value })} style={inputStyle} />
+                            <Input placeholder="PhD" value={formData.highestDegree} onChange={(e) => setFormData({ ...formData, highestDegree: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Phone Number */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Phone Number</Text>
-                            <input placeholder="Enter Phone Number" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} style={inputStyle} />
+                            <Input placeholder="Enter Phone Number" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Email */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Email</Text>
-                            <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} style={inputStyle} />
+                            <Input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Password */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Password</Text>
-                            <Box position="relative">
-                                <input type={showPassword ? "text" : "password"} placeholder="Use Phone Number as Default Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} style={{ ...inputStyle, paddingRight: "40px" }} />
-                                <Box as="button" onClick={() => setShowPassword(!showPassword)} position="absolute" right="10px" top="50%" transform="translateY(-50%)" bg="transparent" border="none" cursor="pointer" color="slate.400" display="flex" alignItems="center" p="0" _hover={{ color: "slate.600" }}>
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </Box>
-                            </Box>
+                            <PasswordInput placeholder="Use Phone Number as Default Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Role */}
@@ -245,7 +228,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Role</Text>
                             <Select.Root
                                 collection={roleCollection}
-                                value={[formData.role]}
+                                value={formData.role ? [formData.role] : []}
                                 onValueChange={(e) => setFormData({ ...formData, role: e.value[0] })}
                             >
                                 <Select.HiddenSelect />
@@ -276,7 +259,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Category</Text>
                             <Select.Root
                                 collection={categoryCollection}
-                                value={[formData.category]}
+                                value={formData.category ? [formData.category] : []}
                                 onValueChange={(e) => setFormData({ ...formData, category: e.value[0] })}
                             >
                                 <Select.HiddenSelect />
@@ -312,9 +295,9 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             {initialData ? "Save Changes" : "Add Lecturer"}
                         </Button>
                     </Flex>
-                </Box>
-            </Box>
-        </Flex>
+                </Dialog.Content>
+            </Dialog.Positioner>
+        </Dialog.Root>
     );
 };
 

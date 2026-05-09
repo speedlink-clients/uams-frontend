@@ -120,9 +120,9 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
+   /* const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
-    };
+    }; */
 
    /* if (error.response?.status === 401 && (originalRequest.url === "/auth/login" || originalRequest.url === "/auth/signin" || originalRequest.url?.includes("/auth/signin"))) {
       toaster.error({

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Plus, FileDown, FileUp, MoreHorizontal, UserCog, Pencil, Trash2, Download, X, Search } from "lucide-react";
+import { Plus, FileDown, FileUp, MoreHorizontal, UserCog, Pencil, Trash2, Download, X, Search, GraduationCap } from "lucide-react";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
 import {
@@ -14,6 +14,7 @@ import {
   Portal,
   createListCollection,
 } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, EmptyState } from "@chakra-ui/react";
 import BulkUploadStudentsModal from "@components/students/BulkUploadStudentsModal";
 import StudentDetailsSidebar from "@components/students/StudentDetailsSidebar";
 import AddStudentForm from "@components/students/AddStudentForm";
@@ -452,6 +453,85 @@ const StudentsPage = () => {
                               <Button onClick={(e: React.MouseEvent) => { e.stopPropagation(); setIdsToDelete([s.id]); setIsDeleteModalOpen(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="red.600" _hover={{ bg: "red.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
                                 <Trash2 size={16} /> Delete student
                               </Button>
+                    <Flex alignItems="center" gap="3" flexWrap="wrap">
+                        <select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)} style={selectStyle}>
+                            {levels.map((l) => (
+                                <option key={l} value={l}>{l === "all" ? "All Levels" : l}</option>
+                            ))}
+                        </select>
+                        <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} style={selectStyle}>
+                            <option value="all">All Programs</option>
+                        </select>
+                        <select value={selectedSession} onChange={(e) => setSelectedSession(e.target.value)} style={selectStyle}>
+                            <option value="all">All Sessions</option>
+                        </select>
+                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="1px solid" borderColor="slate.200" borderRadius="lg" fontSize="xs" fontWeight="semibold" color="slate.800" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                            <X size={16} /> Clear Filters
+                        </Box>
+                    </Flex>
+                </Flex>
+            </Box>
+
+            {/* Export Table header */}
+            <Flex alignItems="center" justifyContent="space-between" mb="4">
+                <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({filteredStudents.length})</Text>
+                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="1px solid" borderColor="slate.200" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                    <Download size={16} color="#94a3b8" /> Export Table
+                </Box>
+            </Flex>
+
+            {/* Table */}
+            {loading ? (
+                <Flex alignItems="center" justifyContent="center" minH="400px">
+                    <Flex direction="column" alignItems="center" gap="4">
+                        <Spinner size="xl" color="blue.500" borderWidth="3px" />
+                        <Text color="slate.500">Loading students...</Text>
+                    </Flex>
+                </Flex>
+            ) : paginatedStudents.length === 0 ? (
+                <EmptyState.Root>
+                    <EmptyState.Content>
+                        <EmptyState.Indicator>
+                            <GraduationCap />
+                        </EmptyState.Indicator>
+                        <EmptyState.Title>No Students Found</EmptyState.Title>
+                        <EmptyState.Description>
+                            Try changing your search or filter criteria
+                        </EmptyState.Description>
+                    </EmptyState.Content>
+                </EmptyState.Root>
+            ) : (
+                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
+                    <Box overflowX="auto">
+                        <Box as="table" w="full" textAlign="left">
+                            <Box as="thead">
+                                <Box as="tr" bg="slate.50" borderBottom="1px solid" borderColor="gray.100" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
+                                    <Box as="th" px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50">
+                                        <input
+                                            type="checkbox"
+                                            checked={filteredStudents.length > 0 && selectedIds.length > 0 && selectedIds.length === filteredStudents.length}
+                                            onChange={toggleSelectAll}
+                                            style={{ cursor: "pointer" }}
+                                        />
+                                    </Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Reg No.</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Mat. No.</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">First Name</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Other Names</Box>
+                                    <Box as="th" px="6" py="5" minW="200px">Email</Box>
+                                    <Box as="th" px="6" py="5" minW="140px">Phone No</Box>
+                                    <Box as="th" px="6" py="5" minW="100px">Gender</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Admission Mode</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Entry Qualification</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Faculty</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Department</Box>
+                                    <Box as="th" px="6" py="5" minW="100px">Level</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Degree Course</Box>
+                                    <Box as="th" px="6" py="5" minW="120px">Course Duration</Box>
+                                    <Box as="th" px="6" py="5" minW="150px">Degree Award Code</Box>
+                                    <Box as="th" px="6" py="5" minW="100px">Status</Box>
+                                    <Box as="th" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex="20" bg="slate.50">Action</Box>
+                                </Box>
                             </Box>
                           </Box>
                         )}

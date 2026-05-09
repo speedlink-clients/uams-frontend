@@ -101,7 +101,7 @@ const DashboardPage = () => {
     return (
         <Flex direction="column" gap="8">
             {/* Welcome banner */}
-            <Box bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+            <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
                 <Text fontSize="xl" fontWeight="bold" color="slate.800">
                     Welcome Back, {currentUser}
                 </Text>
@@ -118,7 +118,7 @@ const DashboardPage = () => {
             {/* Charts + Announcements Row */}
             <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap="8">
                 {/* Revenue Chart */}
-                <Box bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
                     <Flex alignItems="center" justifyContent="space-between" mb="8">
                         <Box>
                             <Flex alignItems="center" gap="2" fontWeight="bold" color="slate.800">
@@ -151,7 +151,7 @@ const DashboardPage = () => {
             </Grid>
 
             {/* Enrollment Growth */}
-            <Box bg="white" p="6" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+            <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
                 <Flex alignItems="center" justifyContent="space-between" mb="8">
                     <Box>
                         <Text fontWeight="bold" color="slate.800">Enrollment</Text>

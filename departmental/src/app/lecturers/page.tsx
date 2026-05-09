@@ -13,6 +13,18 @@ import {
   Portal,
   Button,
   InputGroup,
+import { Plus, FileUp, MoreHorizontal, UserCog, Pencil, Trash2, Download, X, Users, Search } from "lucide-react";
+import { toaster } from "@components/ui/toaster";
+import { exportToExcel } from "@utils/excel.util";
+import {
+  Box, Flex, Text, Input, Spinner,
+  Portal,
+  EmptyState,
+  Menu,
+  InputGroup,
+  Button,
+  VStack,
+  Table
 } from "@chakra-ui/react";
 import BulkUploadStaffModal from "@components/lecturers/BulkUploadStaffModal";
 import AssignCourseModal from "@components/lecturers/AssignCourseModal";
@@ -41,7 +53,7 @@ const StaffPage = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLTableCellElement>(null);
 
   // Filter states
   const [filterDepartment, setFilterDepartment] = useState<string>("");
@@ -105,6 +117,24 @@ const StaffPage = () => {
   const rankCollection = createListCollection({
     items: [{ label: "All Ranks", value: "" }, ...uniqueRanks.map((rank) => ({ label: rank, value: rank }))],
   });
+  // const uniqueDepartments = useMemo(() => {
+  //   const depts = new Set(staffList.map(s => s.department).filter(d => d && d !== "N/A"));
+  //   return Array.from(depts).sort();
+  // }, [staffList]);
+
+  // const uniqueRanks = useMemo(() => {
+  //   const ranks = new Set(staffList.map(s => s.level).filter(l => l && l !== "N/A"));
+  //   return Array.from(ranks).sort();
+  // }, [staffList]);
+
+  // Collections for Select components
+  // const departmentCollection = createListCollection({
+  //   items: uniqueDepartments.map(dept => ({ label: dept, value: dept }))
+  // });
+
+  // const rankCollection = createListCollection({
+  //   items: uniqueRanks.map(rank => ({ label: rank, value: rank }))
+  // });
 
   const filteredStaff = useMemo(() => {
     let result = staffList;
@@ -204,17 +234,18 @@ const StaffPage = () => {
     }
   };
 
-  const clearFilters = () => {
-    setSearchQuery("");
-    setFilterDepartment("");
-    setFilterRank("");
-    setCurrentPage(1);
-  };
+  // const clearFilters = () => {
+  //   setSearchQuery("");
+  //   setFilterDepartment("");
+  //   setFilterRank("");
+  //   setCurrentPage(1);
+  // };
 
   return (
     <Box>
       {/* Header */}
       <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="2" gap="4">
+      <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="6" gap="4">
         <Box>
           <Text fontSize="2xl" fontWeight="bold" color="slate.800">
             Lecturers
@@ -559,6 +590,121 @@ const StaffPage = () => {
                       {s.level}
                     </Box>
                     <Box as="td" px="6" py="5">
+        <Flex gap="3" flexWrap="nowrap" alignItems="center" w={{ base: "full", md: "auto" }}>
+          <InputGroup startElement={<Search size={18} color="#94a3b8" />} flex="1">
+            <Input
+              placeholder="Search by name, email or staff ID"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              bg="white"
+              border="1px solid"
+              borderColor="gray.200"
+              borderRadius="xl"
+              py="2.5"
+              pl="10"
+              pr="4"
+              fontSize="sm"
+              w="full"
+              maxW={{ base: "full", md: "320px" }}
+              _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3b82f6" }}
+            />
+          </InputGroup>
+          <Menu.Root>
+            <Menu.Trigger asChild>
+              <Box as="button" flexShrink={0} bg="#1D7AD9" color="white" px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" display="flex" alignItems="center" gap="2">
+                <Plus size={16} /> Add Lecturer
+              </Box>
+            </Menu.Trigger>
+            <Portal>
+              <Menu.Positioner>
+                <Menu.Content bg="white" borderRadius="lg" boxShadow="xl" border="1px solid" borderColor="gray.100" minW="150px" overflow="hidden" py="1" zIndex="popover">
+                  <Menu.Item value="single" asChild>
+                    <Box as="button" onClick={() => { setStaffToEdit(null); setShowAddEditForm(true); }} w="full" textAlign="left" px="4" py="2.5" fontSize="sm" fontWeight="medium" color="slate.700" _hover={{ bg: "slate.50" }} cursor="pointer" border="none" bg="transparent" display="flex" alignItems="center" gap="2">
+                      <UserCog size={16} /> Single
+                    </Box>
+                  </Menu.Item>
+                  <Menu.Item value="bulk" asChild>
+                    <Box as="button" onClick={() => setShowUploadModal(true)} w="full" textAlign="left" px="4" py="2.5" fontSize="sm" fontWeight="medium" color="slate.700" _hover={{ bg: "slate.50" }} cursor="pointer" border="none" bg="transparent" display="flex" alignItems="center" gap="2">
+                      <FileUp size={16} /> Bulk
+                    </Box>
+                  </Menu.Item>
+                </Menu.Content>
+              </Menu.Positioner>
+            </Portal>
+          </Menu.Root>
+        </Flex>
+      </Flex>
+
+      {/* Table */}
+      <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
+        <Box overflowX="auto">
+          <Table.Root w="full" textAlign="left">
+            <Table.Header>
+              <Table.Row bg="slate.50" borderBottom="1px solid" borderColor="gray.100">
+                <Table.ColumnHeader px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
+                  <input
+                    type="checkbox"
+                    checked={filteredStaff.length > 0 && selectedIds.length > 0 && selectedIds.length === filteredStaff.length}
+                    onChange={toggleSelectAll}
+                    style={{ cursor: "pointer" }}
+                  />
+                </Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Staff ID</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Name</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" minW="200px" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Email</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" minW="140px" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Phone No</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Department</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Rank</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" minW="200px" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Course(s)</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex="20" bg="slate.50" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Action</Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body fontSize="xs">
+              {loading ? (
+                <Table.Row>
+                  <Table.Cell colSpan={9} py="12" textAlign="center">
+                    <Flex direction="column" alignItems="center" gap="4">
+                      <Spinner size="xl" color="blue.500" borderWidth="3px" />
+                      <Text color="slate.500">Loading lecturers...</Text>
+                    </Flex>
+                  </Table.Cell>
+                </Table.Row>
+              ) : paginatedStaff.length === 0 ? (
+                <Table.Row>
+                  <Table.Cell colSpan={9} py="12">
+                    <EmptyState.Root>
+                        <EmptyState.Content>
+                            <EmptyState.Indicator>
+                                <Users />
+                            </EmptyState.Indicator>
+                            <VStack textAlign="center">
+                                <EmptyState.Title>No Lecturers Found</EmptyState.Title>
+                                <EmptyState.Description>
+                                    {searchQuery ? "Try adjusting your search criteria" : "Add a new lecturer to get started"}
+                                </EmptyState.Description>
+                            </VStack>
+                            {!searchQuery && (
+                                <Button onClick={() => { setStaffToEdit(null); setShowAddEditForm(true); }} bg="#1D7AD9" color="white" _hover={{ bg: "blue.700" }} px="6" borderRadius="lg" fontSize="sm" fontWeight="bold">
+                                    Add Lecturer
+                                </Button>
+                            )}
+                        </EmptyState.Content>
+                    </EmptyState.Root>
+                  </Table.Cell>
+                </Table.Row>
+              ) : (
+                paginatedStaff.map((s) => (
+                  <Table.Row key={s.id} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"} cursor="pointer" whiteSpace="nowrap">
+                    <Table.Cell px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50">
+                      <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
+                    </Table.Cell>
+                    <Table.Cell px="6" py="5" color="slate.400" fontWeight="medium">{s.staffNumber}</Table.Cell>
+                    <Table.Cell px="6" py="5" fontWeight="bold" color="slate.700">{s.fullName}</Table.Cell>
+                    <Table.Cell px="6" py="5" color="slate.500">{s.email}</Table.Cell>
+                    <Table.Cell px="6" py="5" color="slate.500">{s.phone || "—"}</Table.Cell>
+                    <Table.Cell px="6" py="5" color="slate.500">{s.department}</Table.Cell>
+                    <Table.Cell px="6" py="5" color="slate.500">{s.level}</Table.Cell>
+                    <Table.Cell px="6" py="5">
                       <Flex gap="1.5" wrap="wrap" maxW="200px">
                         {s.courses?.split(", ").map((course, idx) => (
                           <Text
@@ -595,6 +741,8 @@ const StaffPage = () => {
                       borderColor="border.subtle"
                       ref={dropdownRef}
                     >
+                    </Table.Cell>
+                    <Table.Cell px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" ref={dropdownRef}>
                       <Box position="relative">
                         <Button
                           onClick={(e: React.MouseEvent) => toggleDropdown(s.id, e)}
@@ -699,12 +847,13 @@ const StaffPage = () => {
                           </Box>
                         )}
                       </Box>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          </Box>
+                    </Table.Cell>
+                  </Table.Row>
+                ))
+              )}
+            </Table.Body>
+          </Table.Root>
+        </Box>
 
           {/* Pagination */}
           {totalPages > 0 && (
@@ -718,6 +867,8 @@ const StaffPage = () => {
               p="4"
               mt="4"
             >
+        {totalPages > 0 && (
+            <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="4" mt="4">
               <Text fontSize="sm" color="slate.500">
                 Showing{" "}
                 <Text as="span" fontWeight="semibold">
@@ -796,7 +947,6 @@ const StaffPage = () => {
             </Flex>
           )}
         </Box>
-      )}
 
       {/* Floating Action Bar */}
       {selectedIds.length > 1 && (
