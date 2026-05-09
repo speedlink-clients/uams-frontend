@@ -78,7 +78,7 @@ const DashboardLayout = () => {
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}
             />
-            <Box as="main" flex="1" ml={{ base: "0", lg: "64" }} bg="#F8FAFC" transition="margin-left 0.2s">
+            <Box as="main" flex="1" ml={{ base: "0", lg: "64" }} bg="bg.subtle" transition="margin-left 0.2s">
                 <Toaster />
                 <Header
                     onViewChange={handleViewChange}
@@ -86,7 +86,7 @@ const DashboardLayout = () => {
                     email={email}
                     onMenuClick={() => setIsSidebarOpen(true)}
                 />
-                <Box p={{ base: "4", md: "8" }} maxW="1600px" mx="auto">
+                <Box p={{ base: "4", md: "8" }}>
                     <Outlet />
                 </Box>
             </Box>

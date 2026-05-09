@@ -13,20 +13,19 @@ export const StatCard = ({ label, value, icon, bgColor, description }: StatCardP
         <Flex
             bg={bgColor}
             p="6"
-            borderRadius="2xl"
+            borderRadius="md"
             alignItems="center"
             gap="5"
             transition="transform 0.2s"
             _hover={{ transform: "scale(1.02)" }}
             cursor="default"
-            border="1px solid"
-            borderColor="blackAlpha.50"
+            border="xs"
+            borderColor="border.muted"
         >
             <Flex
                 bg="whiteAlpha.400"
                 p="3"
                 borderRadius="xl"
-                boxShadow="sm"
                 color="slate.800"
             >
                 {icon}

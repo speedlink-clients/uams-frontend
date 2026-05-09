@@ -5,68 +5,13 @@ import { toaster } from "@components/ui/toaster";
 
 type PaymentTab = "Access Fee" | "ID Card" | "Transcript";
 
-interface TransactionsListProps {
-    onBack: () => void;
-    programTypeId?: string | null;
-    programTypeName?: string;
-}
-
-interface TransactionItem {
-    transactionReference: string;
-    transactionId: string;
-    paymentFrom: string;
-    studentName: string;
-    studentRegNumber: string;
-    paymentFor: string;
-    paymentType: string;
-    amount: string;
-    currency: string;
-    date: string;
-    status: string;
-    sessionId: string;
-    sessionName: string;
-    statusBadge: string;
-}
-
-interface ProgramPayments {
-    programInfo: { id: string; name: string; code: string };
-    accessFee: TransactionItem[];
-    idCardFee: TransactionItem[];
-    transcriptFee: TransactionItem[];
-    otherPayments: TransactionItem[];
-}
-
-interface ProgramTypeSummary {
-    id: string;
-    name: string;
-    code: string;
-    accessFee: { amount: number };
-    idCardFee: { amount: number };
-    transcriptFee: { amount: number };
-}
-
-// Updated to match actual backend response
-interface TranscriptApplication {
-    id: string;
-    status: string;
-    paymentStatus: string;
-    recipientName: string;
-    recipientEmail: string;
-    deliveryMethod: string;
-    purpose: string;
-    feeAmount: string;
-    institutionName: string;
-    createdAt: string;
-    paidAt: string | null;
-    student: {
-        id: string;
-        fullName: string;
-        email: string;
-        registrationNo: string;
-        studentId: string;
-        department: string;
-    };
-}
+import type {
+    ProgramPayments,
+    ProgramTypeSummary,
+    TranscriptApplication,
+    TransactionsListProps,
+    TransactionItem
+} from "@type/payment.type";
 
 const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
     const [activeTab, setActiveTab] = useState<PaymentTab>("Access Fee");
@@ -274,7 +219,7 @@ const TransactionsList = ({ onBack, programTypeId }: TransactionsListProps) => {
 
     return (
         <div style={{ minHeight: "100vh", background: "#F8FAFC" }}>
-            <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "8px 8px" }}>
+            <div style={{ margin: "0 auto", padding: "8px 8px" }}>
                 {/* Back Button */}
                 <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: "8px", color: "#64748b", background: "none", border: "none", cursor: "pointer", marginBottom: "16px", fontSize: "14px", fontWeight: 500 }}>
                     <ArrowLeft size={20} />

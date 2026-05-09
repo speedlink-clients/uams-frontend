@@ -1,31 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Search, Camera, Download, X, Upload, Loader2 } from "lucide-react";
+import { Search, Camera, Download, X, Upload, Loader2, IdCard } from "lucide-react";
 import axiosClient from "@configs/axios.config";
 import { IDCardServices } from "@services/idcard.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
-import { Box, Flex, Text, Button } from "@chakra-ui/react";
+import { Box, Flex, Text, Button, EmptyState, Table } from "@chakra-ui/react";
 
-interface Student {
-    id: string;
-    idNo: string;
-    name: string;
-    matric: string;
-    faculty: string;
-    department: string;
-    level: string;
-    graduationDate: string;
-    hasPaidIDCardFee: boolean;
-    avatar: string;
-}
-
-interface IDCardSettings {
-    backTemplate?: string;
-    frontTemplate?: string;
-    backDescription?: string;
-    backDisclaimer?: string;
-    signature?: string;
-}
+import type { Student, IDCardSettings } from "@type/idCard.type";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -405,55 +386,68 @@ const IDCardPage = () => {
 
                 {/* Scrollable Table Area - Only the table scrolls horizontally */}
                 <Box overflowX="auto" overflowY="visible" w="100%">
-                    <Box as="table" w="full" textAlign="left" minW="800px" style={{ borderCollapse: 'collapse' }}>
-                        <Box as="thead" bg="slate.50" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">
-                            <Box as="tr">
-                                <Box as="th" px="6" py="4" w="12" textAlign="center" whiteSpace="nowrap"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Box>
-                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Student Name</Box>
-                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Matric No</Box>
-                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Department</Box>
-                                <Box as="th" px="6" py="4" whiteSpace="nowrap">Level</Box>
-                                <Box as="th" px="6" py="4" textAlign="center" whiteSpace="nowrap">Status</Box>
-                                <Box as="th" px="6" py="4" textAlign="center" whiteSpace="nowrap">Action</Box>
-                            </Box>
-                        </Box>
-                        <Box as="tbody" fontSize="sm">
+                    <Table.Root w="full" textAlign="left" minW="800px">
+                        <Table.Header bg="slate.50">
+                            <Table.Row>
+                                <Table.ColumnHeader px="6" py="4" w="12" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Student Name</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Matric No</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Department</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Level</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Status</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Action</Table.ColumnHeader>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body fontSize="sm">
                             {loading ? (
-                                <Box as="tr"><td colSpan={7} style={{ padding: "48px 24px", textAlign: "center" }}>
+                                <Table.Row><Table.Cell colSpan={7} py="12" px="6" textAlign="center">
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", color: "#64748b" }}>
                                         <Loader2 size={20} style={{ animation: "spin 1s linear infinite" }} />
                                         <span style={{ fontSize: "14px", fontWeight: 500 }}>Fetching students…</span>
                                     </div>
-                                </td></Box>
+                                </Table.Cell></Table.Row>
                             ) : paginatedStudents.length === 0 ? (
-                                <Box as="tr"><td colSpan={7} style={{ padding: "48px 24px", textAlign: "center", color: "#94a3b8" }}>
-                                    {statusFilter === "all" ? "No students found" : `No ${statusFilter} students found`}
-                                </td></Box>
+                                <Table.Row><Table.Cell colSpan={7} py="12" px="6">
+                                    <EmptyState.Root>
+                                        <EmptyState.Content>
+                                            <EmptyState.Indicator>
+                                                <IdCard />
+                                            </EmptyState.Indicator>
+                                            <EmptyState.Title>
+                                                {statusFilter === "all" ? "No Students Found" : `No ${statusFilter} students found`}
+                                            </EmptyState.Title>
+                                            <EmptyState.Description>
+                                                Try adjusting your search or filter criteria
+                                            </EmptyState.Description>
+                                        </EmptyState.Content>
+                                    </EmptyState.Root>
+                                </Table.Cell></Table.Row>
                             ) : paginatedStudents.map((s) => (
-                                <Box
-                                    as="tr" key={s.id}
+                                <Table.Row
+                                    key={s.id}
                                     _hover={{ bg: "slate.50" }}
                                     borderBottom="1px solid" borderColor="slate.50" color="slate.600"
                                     bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"}
                                     cursor="pointer"
                                     onClick={() => toggleSelection(s.id)}
+                                    transition="background 0.2s"
                                 >
-                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} />
-                                    </Box>
-                                    <Box as="td" px="6" py="4" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{s.name}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.matric}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.department}</Box>
-                                    <Box as="td" px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.level}</Box>
-                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap">
+                                    </Table.Cell>
+                                    <Table.Cell px="6" py="4" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{s.name}</Table.Cell>
+                                    <Table.Cell px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.matric}</Table.Cell>
+                                    <Table.Cell px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.department}</Table.Cell>
+                                    <Table.Cell px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.level}</Table.Cell>
+                                    <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap">
                                         <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold"
                                             bg={s.hasPaidIDCardFee ? "green.100" : "red.100"}
                                             color={s.hasPaidIDCardFee ? "green.700" : "red.700"}
                                         >
                                             {s.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
                                         </Text>
-                                    </Box>
-                                    <Box as="td" px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    </Table.Cell>
+                                    <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         <button
                                             onClick={() => handleIssueCard(s)}
                                             disabled={!s.hasPaidIDCardFee}
@@ -467,11 +461,11 @@ const IDCardPage = () => {
                                         >
                                             Issue Card
                                         </button>
-                                    </Box>
-                                </Box>
+                                    </Table.Cell>
+                                </Table.Row>
                             ))}
-                        </Box>
-                    </Box>
+                        </Table.Body>
+                    </Table.Root>
                 </Box>
             </Box>
 

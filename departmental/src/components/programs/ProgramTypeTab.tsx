@@ -13,15 +13,18 @@ import {
   Portal,
   createListCollection,
   IconButton,
+  Table,
+  Dialog,
 } from "@chakra-ui/react";
 import { Edit, Trash2, X, Plus, GraduationCap } from "lucide-react";
+import { Checkbox } from "@components/ui/checkbox";
 
 const typeCollection = createListCollection({
   items: [
-    { label: "Undergraduate", value: "UNDERGRADUATE" },
-    { label: "Post-Graduate", value: "POST-GRADUATE" },
     { label: "Diploma", value: "DIPLOMA" },
-    { label: "Certificate", value: "CERTIFICATE" },
+    { label: "Undergraduate", value: "UNDERGRADUATE" },
+    { label: "Postgraduate", value: "POSTGRADUATE" },
+    { label: "Sandwich", value: "SANDWICH" },
   ],
 });
 
@@ -190,260 +193,295 @@ const ProgramTypeTab = () => {
         </Flex>
       )}
 
-      {/* Create Form */}
-      {isCreating && (
-        <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" overflow="hidden">
-          <Flex p="6" borderBottom="1px solid" borderColor="gray.100" alignItems="center" gap="3">
-            <Flex bg="blue.50" p="2" borderRadius="lg">
-              <GraduationCap size={20} color="#2563eb" />
-            </Flex>
-            <Box>
-              <Text fontSize="lg" fontWeight="bold" color="slate.800">
-                Create Program Type
-              </Text>
-              <Text fontSize="sm" color="slate.500">
-                Add a new program type to the system (e.g., Bachelor of Science, Master of Arts)
-              </Text>
-            </Box>
-          </Flex>
-          <Box p="8">
-            <Flex direction={{ base: "column", lg: "row" }} gap="8">
-              <Flex direction="column" gap="6" flex="1">
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                    Name
-                  </Text>
-                  <Input
-                    value={createFormData.name}
-                    onChange={(e) => setCreateFormData((p) => ({ ...p, name: e.target.value }))}
-                    placeholder="e.g. Bachelor of Science"
-                    bg="slate.50"
-                    border="1px solid"
-                    borderColor="gray.200"
+      {/* Create Form Dialog */}
+      <Dialog.Root
+        open={isCreating}
+        onOpenChange={(e) => {
+          setIsCreating(e.open);
+          if (!e.open) handleCancelCreate();
+        }}
+        size="xl"
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content borderRadius="2xl" overflow="hidden">
+              <Dialog.CloseTrigger />
+              <Dialog.Header p="6" borderBottom="1px solid" borderColor="gray.100">
+                <Flex alignItems="center" gap="3">
+                  <Flex bg="blue.50" p="2" borderRadius="lg">
+                    <GraduationCap size={20} color="#2563eb" />
+                  </Flex>
+                  <Box>
+                    <Dialog.Title fontSize="lg" fontWeight="bold" color="slate.800">
+                      Create Program Type
+                    </Dialog.Title>
+                    <Text fontSize="sm" color="slate.500" mt="1">
+                      Add a new program type to the system (e.g., Bachelor of Science, Master of Arts)
+                    </Text>
+                  </Box>
+                </Flex>
+              </Dialog.Header>
+              <Dialog.Body p="8">
+                <Flex direction={{ base: "column", lg: "row" }} gap="8">
+                  <Flex direction="column" gap="6" flex="1">
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Name
+                      </Text>
+                      <Input
+                        value={createFormData.name}
+                        onChange={(e) => setCreateFormData((p) => ({ ...p, name: e.target.value }))}
+                        placeholder="e.g. Bachelor of Science"
+                        bg="slate.50"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="lg"
+                      />
+                    </Box>
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Code
+                      </Text>
+                      <Input
+                        value={createFormData.code}
+                        onChange={(e) => setCreateFormData((p) => ({ ...p, code: e.target.value }))}
+                        placeholder="e.g. BSC"
+                        bg="slate.50"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="lg"
+                      />
+                    </Box>
+                  </Flex>
+                  <Flex direction="column" gap="6" flex="1">
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Type
+                      </Text>
+                      <Select.Root
+                        collection={typeCollection}
+                        value={createFormData.type ? [createFormData.type] : []}
+                        onValueChange={(e) =>
+                          setCreateFormData((p) => ({ ...p, type: e.value[0] }))
+                        }
+                        size="sm"
+                        width="full"
+                      >
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                          <Select.Trigger>
+                            <Select.ValueText placeholder="Select type" />
+                          </Select.Trigger>
+                          <Select.IndicatorGroup>
+                            <Select.Indicator />
+                          </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal>
+                          <Select.Positioner>
+                            <Select.Content>
+                              {typeCollection.items.map((item) => (
+                                <Select.Item key={item.value} item={item}>
+                                  {item.label}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select.Positioner>
+                        </Portal>
+                      </Select.Root>
+                    </Box>
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Description
+                      </Text>
+                      <Textarea
+                        value={createFormData.description}
+                        onChange={(e) => setCreateFormData((p) => ({ ...p, description: e.target.value }))}
+                        rows={3}
+                        bg="slate.50"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="lg"
+                        placeholder="Optional description"
+                      />
+                    </Box>
+                  </Flex>
+                </Flex>
+              </Dialog.Body>
+              <Dialog.Footer p="6" pt="0" borderTop="1px solid" borderColor="gray.100" mt="4">
+                <Flex wrap="wrap" justifyContent="flex-end" gap="3" w="full" pt="4">
+                  <Button
+                    onClick={handleCancelCreate}
+                    variant="outline"
+                    borderColor="#1D7AD9"
+                    color="#1D7AD9"
+                    px="8"
+                    py="2.5"
                     borderRadius="lg"
-                  />
-                </Box>
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                    Code
-                  </Text>
-                  <Input
-                    value={createFormData.code}
-                    onChange={(e) => setCreateFormData((p) => ({ ...p, code: e.target.value }))}
-                    placeholder="e.g. BSC"
-                    bg="slate.50"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    borderRadius="lg"
-                  />
-                </Box>
-              </Flex>
-              <Flex direction="column" gap="6" flex="1">
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                    Type
-                  </Text>
-                  <Select.Root
-                    collection={typeCollection}
-                    value={createFormData.type ? [createFormData.type] : []}
-                    onValueChange={(e) =>
-                      setCreateFormData((p) => ({ ...p, type: e.value[0] }))
-                    }
-                    size="sm"
-                    width="full"
+                    fontSize="sm"
+                    fontWeight="medium"
+                    _hover={{ bg: "blue.50" }}
                   >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                      <Select.Trigger>
-                        <Select.ValueText placeholder="Select type" />
-                      </Select.Trigger>
-                      <Select.IndicatorGroup>
-                        <Select.Indicator />
-                      </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                      <Select.Positioner>
-                        <Select.Content>
-                          {typeCollection.items.map((item) => (
-                            <Select.Item key={item.value} item={item}>
-                              {item.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                </Box>
-                <Box>
-                  <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                    Description
-                  </Text>
-                  <Textarea
-                    value={createFormData.description}
-                    onChange={(e) => setCreateFormData((p) => ({ ...p, description: e.target.value }))}
-                    rows={3}
-                    bg="slate.50"
-                    border="1px solid"
-                    borderColor="gray.200"
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleCreate}
+                    loading={isSaving}
+                    loadingText="Creating..."
+                    px="8"
+                    py="2.5"
                     borderRadius="lg"
-                    placeholder="Optional description"
-                  />
-                </Box>
-              </Flex>
-            </Flex>
-            <Flex wrap="wrap" justifyContent="flex-end" gap="3" mt="8">
-              <Button
-                onClick={handleCancelCreate}
-                variant="outline"
-                borderColor="#1D7AD9"
-                color="#1D7AD9"
-                px="8"
-                py="2.5"
-                borderRadius="lg"
-                fontSize="sm"
-                fontWeight="medium"
-                _hover={{ bg: "blue.50" }}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreate}
-                loading={isSaving}
-                loadingText="Creating..."
-                px="8"
-                py="2.5"
-                borderRadius="lg"
-                fontSize="sm"
-                fontWeight="bold"
-                bg="#1D7AD9"
-                color="white"
-              >
-              <Plus size={16} />  Create Program Type
-              </Button>
-            </Flex>
-          </Box>
-        </Box>
-      )}
+                    fontSize="sm"
+                    fontWeight="bold"
+                    bg="#1D7AD9"
+                    color="white"
+                  >
+                    <Plus size={16} />  Create Program Type
+                  </Button>
+                </Flex>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
 
-      {/* Edit Form */}
-      {editingId && (
-        <Box bg="white" borderRadius="2xl" p="8" border="1px solid" borderColor="gray.100" boxShadow="sm">
-          <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">
-            Edit Program Type
-          </Text>
-          <Flex gap="6" direction={{ base: "column", lg: "row" }}>
-            <Flex direction="column" gap="6" flex="1">
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                  Name
-                </Text>
-                <Input
-                  value={formData.name}
-                  onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                  placeholder="e.g. Bachelor of Science"
-                  bg="slate.50"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  borderRadius="lg"
-                />
-              </Box>
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                  Code
-                </Text>
-                <Input
-                  value={formData.code}
-                  onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
-                  placeholder="e.g. UG"
-                  bg="slate.50"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  borderRadius="lg"
-                />
-              </Box>
-            </Flex>
-            <Flex direction="column" gap="6" flex="1">
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                  Type
-                </Text>
-                <Select.Root
-                  collection={typeCollection}
-                  value={[formData.type]}
-                  onValueChange={(e) => setFormData((p) => ({ ...p, type: e.value[0] }))}
-                  size="sm"
-                  width="full"
-                >
-                  <Select.HiddenSelect />
-                  <Select.Control>
-                    <Select.Trigger>
-                      <Select.ValueText placeholder="Select type" />
-                    </Select.Trigger>
-                    <Select.IndicatorGroup>
-                      <Select.Indicator />
-                    </Select.IndicatorGroup>
-                  </Select.Control>
-                  <Portal>
-                    <Select.Positioner>
-                      <Select.Content>
-                        {typeCollection.items.map((item) => (
-                          <Select.Item key={item.value} item={item}>
-                            {item.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Positioner>
-                  </Portal>
-                </Select.Root>
-              </Box>
-              <Box>
-                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                  Description
-                </Text>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
-                  rows={3}
-                  bg="slate.50"
-                  border="1px solid"
-                  borderColor="gray.200"
-                  borderRadius="lg"
-                />
-              </Box>
-            </Flex>
-          </Flex>
-          <Flex justifyContent="flex-end" gap="3" mt="6">
-            <Button
-              onClick={handleCancel}
-              variant="outline"
-              borderColor="slate.300"
-              color="slate.600"
-              px="6"
-              py="2"
-              borderRadius="lg"
-              fontSize="sm"
-              _hover={{ bg: "slate.50" }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              loading={isSaving}
-              loadingText="Saving..."
-              px="6"
-              py="2"
-              borderRadius="lg"
-              fontSize="sm"
-              fontWeight="bold"
-              bg="#00B01D"
-              color="white"
-              disabled={!formData.name || !formData.code}
-            >
-              Update Program Type
-            </Button>
-          </Flex>
-        </Box>
-      )}
+      {/* Edit Form Dialog */}
+      <Dialog.Root
+        open={!!editingId}
+        onOpenChange={(e) => {
+          if (!e.open) handleCancel();
+        }}
+        size="xl"
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content borderRadius="2xl" overflow="hidden">
+              <Dialog.CloseTrigger />
+              <Dialog.Header p="6" borderBottom="1px solid" borderColor="gray.100">
+                <Dialog.Title fontSize="lg" fontWeight="bold" color="slate.800">
+                  Edit Program Type
+                </Dialog.Title>
+              </Dialog.Header>
+              <Dialog.Body p="8">
+                <Flex gap="6" direction={{ base: "column", lg: "row" }}>
+                  <Flex direction="column" gap="6" flex="1">
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Name
+                      </Text>
+                      <Input
+                        value={formData.name}
+                        onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                        placeholder="e.g. Bachelor of Science"
+                        bg="slate.50"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="lg"
+                      />
+                    </Box>
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Code
+                      </Text>
+                      <Input
+                        value={formData.code}
+                        onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
+                        placeholder="e.g. UG"
+                        bg="slate.50"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="lg"
+                      />
+                    </Box>
+                  </Flex>
+                  <Flex direction="column" gap="6" flex="1">
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Type
+                      </Text>
+                      <Select.Root
+                        collection={typeCollection}
+                        value={[formData.type]}
+                        onValueChange={(e) => setFormData((p) => ({ ...p, type: e.value[0] }))}
+                        size="sm"
+                        width="full"
+                      >
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                          <Select.Trigger>
+                            <Select.ValueText placeholder="Select type" />
+                          </Select.Trigger>
+                          <Select.IndicatorGroup>
+                            <Select.Indicator />
+                          </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal>
+                          <Select.Positioner>
+                            <Select.Content>
+                              {typeCollection.items.map((item) => (
+                                <Select.Item key={item.value} item={item}>
+                                  {item.label}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select.Positioner>
+                        </Portal>
+                      </Select.Root>
+                    </Box>
+                    <Box>
+                      <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                        Description
+                      </Text>
+                      <Textarea
+                        value={formData.description}
+                        onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                        rows={3}
+                        bg="slate.50"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="lg"
+                      />
+                    </Box>
+                  </Flex>
+                </Flex>
+              </Dialog.Body>
+              <Dialog.Footer p="6" pt="0" borderTop="1px solid" borderColor="gray.100" mt="4">
+                <Flex justifyContent="flex-end" gap="3" w="full" pt="4">
+                  <Button
+                    onClick={handleCancel}
+                    variant="outline"
+                    borderColor="slate.300"
+                    color="slate.600"
+                    px="6"
+                    py="2"
+                    borderRadius="lg"
+                    fontSize="sm"
+                    _hover={{ bg: "slate.50" }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    loading={isSaving}
+                    loadingText="Saving..."
+                    px="6"
+                    py="2"
+                    borderRadius="lg"
+                    fontSize="sm"
+                    fontWeight="bold"
+                    bg="#00B01D"
+                    color="white"
+                    disabled={!formData.name || !formData.code}
+                  >
+                    Update Program Type
+                  </Button>
+                </Flex>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
 
       {/* Table */}
       <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
@@ -452,75 +490,50 @@ const ProgramTypeTab = () => {
             Program Types ({programTypes.length})
           </Text>
         </Box>
-        <Box overflowX="auto">
-          <Box as="table" w="full" textAlign="left">
-            <Box as="thead">
-              <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="gray.100">
-                <Box as="th" px="6" py="4" w="12" textAlign="center">
-                  <input
-                    type="checkbox"
+        <Table.ScrollArea>
+          <Table.Root size="sm" variant="outline">
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeader w="12" textAlign="center">
+                  <Checkbox
                     checked={programTypes.length > 0 && selectedIds.length === programTypes.length}
-                    onChange={toggleSelectAll}
-                    style={{ cursor: "pointer" }}
+                    onCheckedChange={toggleSelectAll}
+                    cursor="pointer"
                   />
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase">
-                  Name
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase">
-                  Type
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase">
-                  Code
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase">
-                  Description
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" textAlign="center">
-                  Action
-                </Box>
-              </Box>
-            </Box>
-            <Box as="tbody">
+                </Table.ColumnHeader>
+                <Table.ColumnHeader>S/N</Table.ColumnHeader>
+                <Table.ColumnHeader>Name</Table.ColumnHeader>
+                <Table.ColumnHeader>Code</Table.ColumnHeader>
+                <Table.ColumnHeader>Type</Table.ColumnHeader>
+                <Table.ColumnHeader textAlign="center">Action</Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
               {programTypes.length === 0 ? (
-                <Box as="tr">
-                  <td colSpan={6} style={{ padding: "48px 0", textAlign: "center", color: "#94a3b8" }}>
+                <Table.Row>
+                  <Table.Cell colSpan={6} textAlign="center" py="10" color="gray.500">
                     No program types found
-                  </td>
-                </Box>
+                  </Table.Cell>
+                </Table.Row>
               ) : (
-                programTypes.map((pt) => (
-                  <Box
-                    as="tr"
+                programTypes.map((pt, index) => (
+                  <Table.Row
                     key={pt.id}
-                    _hover={{ bg: "slate.50" }}
-                    borderBottom="1px solid"
-                    borderColor="gray.50"
-                    fontSize="sm"
-                    color="slate.600"
                     bg={selectedIds.includes(pt.id) ? "blue.50" : undefined}
+                    _hover={{ bg: "slate.50" }}
                   >
-                    <Box as="td" px="6" py="4" textAlign="center">
-                      <input
-                        type="checkbox"
+                    <Table.Cell textAlign="center">
+                      <Checkbox
                         checked={selectedIds.includes(pt.id)}
-                        onChange={() => toggleSelection(pt.id)}
-                        style={{ cursor: "pointer" }}
+                        onCheckedChange={() => toggleSelection(pt.id)}
+                        cursor="pointer"
                       />
-                    </Box>
-                    <Box as="td" px="6" py="4" fontWeight="medium">
-                      {pt.name}
-                    </Box>
-                    <Box as="td" px="6" py="4">
-                      {pt.type || "—"}
-                    </Box>
-                    <Box as="td" px="6" py="4">
-                      {pt.code || "—"}
-                    </Box>
-                    <Box as="td" px="6" py="4" maxW="xs" fontSize="xs" color="slate.500" lineClamp={1}>
-                      {pt.description || "—"}
-                    </Box>
-                    <Box as="td" px="6" py="4" textAlign="center">
+                    </Table.Cell>
+                    <Table.Cell>{index + 1}</Table.Cell>
+                    <Table.Cell fontWeight="medium">{pt.name}</Table.Cell>
+                    <Table.Cell>{pt.code || "—"}</Table.Cell>
+                    <Table.Cell>{pt.type || "—"}</Table.Cell>
+                    <Table.Cell textAlign="center">
                       <Flex justifyContent="center" gap="2">
                         <Button
                           aria-label="Edit"
@@ -530,7 +543,8 @@ const ProgramTypeTab = () => {
                           _hover={{ bg: "slate.100" }}
                           onClick={() => handleEdit(pt)}
                         >
-                        <Edit size={16} />    </Button>
+                          <Edit size={16} />
+                        </Button>
                         <Button
                           aria-label="Delete"
                           size="sm"
@@ -539,15 +553,16 @@ const ProgramTypeTab = () => {
                           _hover={{ bg: "red.50" }}
                           onClick={() => handleDelete(pt.id)}
                         >
-                         <Trash2 size={16} />   </Button>
+                          <Trash2 size={16} />
+                        </Button>
                       </Flex>
-                    </Box>
-                  </Box>
+                    </Table.Cell>
+                  </Table.Row>
                 ))
               )}
-            </Box>
-          </Box>
-        </Box>
+            </Table.Body>
+          </Table.Root>
+        </Table.ScrollArea>
       </Box>
 
       {/* Floating Action Bar */}
@@ -594,7 +609,8 @@ const ProgramTypeTab = () => {
             _hover={{ bg: "slate.100" }}
             onClick={() => setSelectedIds([])}
           >
-            <X size={20} /> </Button>
+            <X size={20} />
+          </IconButton>
         </Flex>
       )}
     </Flex>

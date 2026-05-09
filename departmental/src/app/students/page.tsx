@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Plus, FileDown, FileUp, MoreHorizontal, UserCog, Pencil, Trash2, Download, X, Search } from "lucide-react";
+import { Plus, FileDown, FileUp, MoreHorizontal, UserCog, Pencil, Trash2, Download, X, Search, GraduationCap } from "lucide-react";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
-import { Box, Flex, Text, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, EmptyState } from "@chakra-ui/react";
 import BulkUploadStudentsModal from "@components/students/BulkUploadStudentsModal";
 import StudentDetailsSidebar from "@components/students/StudentDetailsSidebar";
 import AddStudentForm from "@components/students/AddStudentForm";
@@ -286,10 +286,17 @@ const StudentsPage = () => {
                     </Flex>
                 </Flex>
             ) : paginatedStudents.length === 0 ? (
-                <Box textAlign="center" py="16" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
-                    <Text color="slate.400" fontWeight="bold" fontSize="lg" mb="2">No Students Found</Text>
-                    <Text color="slate.400" fontSize="sm">Try changing your search or filter criteria</Text>
-                </Box>
+                <EmptyState.Root>
+                    <EmptyState.Content>
+                        <EmptyState.Indicator>
+                            <GraduationCap />
+                        </EmptyState.Indicator>
+                        <EmptyState.Title>No Students Found</EmptyState.Title>
+                        <EmptyState.Description>
+                            Try changing your search or filter criteria
+                        </EmptyState.Description>
+                    </EmptyState.Content>
+                </EmptyState.Root>
             ) : (
                 <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
                     <Box overflowX="auto">

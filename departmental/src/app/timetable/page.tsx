@@ -1,9 +1,9 @@
-import { Badge, Box, Button, CloseButton, createListCollection, Dialog, DownloadTrigger, Drawer, Field, FileUpload, Flex, Heading, HStack, Input, Portal, Select, Stack, Table, Text, Wrap } from "@chakra-ui/react";
+import { Badge, Box, Button, CloseButton, createListCollection, Dialog, DownloadTrigger, Drawer, EmptyState, Field, FileUpload, Flex, Heading, HStack, Input, Portal, Select, Stack, Table, Text, Wrap } from "@chakra-ui/react";
 import { TimetableHook } from "@hooks/timetable.hook";
 import type { TimetableItem } from "@type/timetable.type";
 import { memo, useCallback, useMemo, useState } from "react";
 import { Toaster, toaster } from "@components/ui/toaster";
-import { Download, FileSpreadsheet, UploadCloud } from "lucide-react";
+import { CalendarX, Download, FileSpreadsheet, UploadCloud } from "lucide-react";
 import { TimetableService } from "@services/timetable.service";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -71,16 +71,34 @@ const TimeTable = () => {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {filterTimetables?.map((item) => (
-                                <Table.Row key={item.id}>
-                                    <Table.Cell>{item?.session?.name}</Table.Cell>
-                                    <Table.Cell>{item?.level?.name}</Table.Cell>
-                                    <Table.Cell >{item.semester?.name}</Table.Cell>
-                                    <Table.Cell >
-                                        <ScheduleDrawer item={item} />
+                            {filterTimetables && filterTimetables.length > 0 ? (
+                                filterTimetables.map((item) => (
+                                    <Table.Row key={item.id}>
+                                        <Table.Cell>{item?.session?.name}</Table.Cell>
+                                        <Table.Cell>{item?.level?.name}</Table.Cell>
+                                        <Table.Cell >{item.semester?.name}</Table.Cell>
+                                        <Table.Cell >
+                                            <ScheduleDrawer item={item} />
+                                        </Table.Cell>
+                                    </Table.Row>
+                                ))
+                            ) : (
+                                <Table.Row>
+                                    <Table.Cell colSpan={4}>
+                                        <EmptyState.Root>
+                                            <EmptyState.Content>
+                                                <EmptyState.Indicator>
+                                                    <CalendarX />
+                                                </EmptyState.Indicator>
+                                                <EmptyState.Title>No Timetables Found</EmptyState.Title>
+                                                <EmptyState.Description>
+                                                    Upload a timetable to get started
+                                                </EmptyState.Description>
+                                            </EmptyState.Content>
+                                        </EmptyState.Root>
                                     </Table.Cell>
                                 </Table.Row>
-                            ))}
+                            )}
                         </Table.Body>
                     </Table.Root>
                 </Table.ScrollArea>
@@ -248,9 +266,17 @@ const ScheduleDrawer = memo(({ item }: { item: TimetableItem }) => {
                                     </Table.Root>
                                 </Box>
                             ) : (
-                                <Box textAlign="center" py={10} color="gray.500">
-                                    No schedule available for this timetable
-                                </Box>
+                                <EmptyState.Root>
+                                    <EmptyState.Content>
+                                        <EmptyState.Indicator>
+                                            <CalendarX />
+                                        </EmptyState.Indicator>
+                                        <EmptyState.Title>No Schedule Available</EmptyState.Title>
+                                        <EmptyState.Description>
+                                            No schedule has been set for this timetable
+                                        </EmptyState.Description>
+                                    </EmptyState.Content>
+                                </EmptyState.Root>
                             )}
 
                             {/* Legend */}
