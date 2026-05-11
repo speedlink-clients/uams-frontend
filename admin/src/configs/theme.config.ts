@@ -67,8 +67,8 @@ const config = defineConfig({
             },
 
             fonts: {
-                heading: { value: "Oak Sans, sans-serif" },
-                body: { value: "Oak Sans, sans-serif" },
+                heading: { value: "Inter, sans-serif" },
+                body: { value: "Inter, sans-serif" },
             },
         },
         semanticTokens: {

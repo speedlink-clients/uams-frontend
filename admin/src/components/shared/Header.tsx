@@ -1,8 +1,7 @@
 import { Bell, History, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import type { ViewType } from '@type/common.type';
-import { Box, Flex, Text, Button } from '@chakra-ui/react';
-import { Avatar } from '@components/ui/avatar';
+import { Box, Flex, Text, Button, Avatar } from '@chakra-ui/react';
 
 interface HeaderProps {
     onViewChange: (view: ViewType) => void;
@@ -109,11 +108,10 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                             {email}
                         </Text>
                     </Box>
-                    <Avatar 
-                        name={currentUser} 
-                        size="sm"
-                        boxShadow="sm"
-                    />
+                    <Avatar.Root size="sm" boxShadow="sm">
+                        <Avatar.Fallback name={currentUser} />
+                        <Avatar.Image src="" />
+                    </Avatar.Root>
                 </Box>
             </Flex>
         </Flex>
