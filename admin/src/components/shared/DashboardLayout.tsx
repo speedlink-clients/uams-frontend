@@ -56,7 +56,7 @@ const DashboardLayout = () => {
         navigate(routeMap[view] || "/dashboard");
     };
 
-    const handleLogout = () => {
+    const handleLogout = () => { 
         clearAuth();
         window.location.href = "/auth/login";
     };
