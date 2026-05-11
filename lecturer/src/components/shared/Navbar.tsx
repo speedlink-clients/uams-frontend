@@ -1,4 +1,4 @@
-import { Flex, Text, Box, Icon, Avatar } from "@chakra-ui/react";
+import { Flex, Text, Box, Icon, Avatar, Separator } from "@chakra-ui/react";
 import { Bell } from "lucide-react";
 import useUserStore from "@stores/user.store";
 
@@ -15,22 +15,22 @@ const Navbar = () => {
       py="3"
       bg="white"
       borderBottom="1px solid"
-      borderColor="border.subtle"
+      borderColor="border.muted"
     >
       {/* Notification Bell */}
       <Icon as={Bell} boxSize="5" color="fg.muted" cursor="pointer" />
 
       {/* Divider */}
-      <Box h="38px" w="1px" bg="fg.subtle" mx="1" />
+       <Separator orientation="vertical" height="6" />
 
       {/* User Info + Avatar */}
       <Flex align="center" gap="3">
         {/* Name & Email */}
         <Box textAlign="right">
-          <Text fontSize="sm" fontWeight="600" color="gray.800" lineHeight="1.3">
+          <Text fontSize="sm" fontWeight="600" color="fg.muted" lineHeight="1.3">
             {user?.name || "N/A"}
           </Text>
-          <Text fontSize="xs" color="gray.500" lineHeight="1.3">
+          <Text fontSize="xs" color="fg.subtle" lineHeight="1.3">
             {user?.email || "N/A"}
           </Text>
         </Box>
