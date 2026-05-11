@@ -2,6 +2,7 @@
 import { toaster } from "@components/ui/toaster"
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios"
 import ENV from "@configs/env.config"
+import useAuthStore from "@stores/auth.store"
 
 
 export const axiosClient = axios.create({
@@ -12,6 +13,22 @@ export const axiosClient = axios.create({
     "Content-Type": "application/json",
   },
 })
+
+// List of public endpoints that don't require auth token
+const PUBLIC_ENDPOINTS = [
+  "/auth/login",
+  "/auth/signup",
+  "/auth/password",
+  "/verify",
+  "/activate-student/update",
+];
+
+// Helper to check if endpoint is public
+const isPublicEndpoint = (url: string = ''): boolean => {
+  return PUBLIC_ENDPOINTS.some(endpoint =>
+    url.endsWith(endpoint)
+  );
+};
 
 // Helper functions
 const getErrorMessage = (error: any): string => {
@@ -74,9 +91,21 @@ const getErrorTitle = (error: AxiosError): string => {
 // Token refresh queue management
 
 
-// Request interceptor
+// Request interceptor to add auth token - FIXED
 axiosClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // ✅ Skip auth header for public endpoints
+    const isPublic = isPublicEndpoint(config.url);
+
+    if (!isPublic) {
+      // ✅ Get fresh tokens from store for each request
+      // NEW:
+      const authToken = useAuthStore.getState().token;
+      if (authToken && config.headers) {
+        config.headers.Authorization = `Bearer ${authToken}`
+      }
+    }
+
     return config
   },
   (error: AxiosError) => {
@@ -89,25 +118,41 @@ axiosClient.interceptors.request.use(
   },
 )
 
-// Response interceptor
+// Response interceptor - FIXED
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    // � Unauthorized (401)
-    if (error.response?.status === 401) {
-      console.warn("🟠 Unauthorized:", error.config?.url);
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    if (error.response?.status === 401 && originalRequest.url === "/auth/login") {
       toaster.error({
         title: getErrorTitle(error),
-        description: getErrorMessage(error) || "Session expired. Please log in again.",
+        description: getErrorMessage(error),
         closable: true
       });
-      // Redirect to login
-    // setTimeout(() => {
-   //  window.location.href = "/login";
-  //   }, 1000);
     }
 
-    // �🟡 Bad Request (400)
+    // 🟠 Unauthorized (Token expired) - Skip for public endpoints
+    if (error.response?.status === 401 && !originalRequest._retry && !isPublicEndpoint(originalRequest.url)) {
+      console.warn("🟠 Unauthorized (Token expired):", error.config?.url);
+
+      toaster.error({
+        title: getErrorTitle(error),
+        description: getErrorMessage(error),
+        closable: true
+      });
+
+      // Clear auth and redirect to login
+      useAuthStore.getState().clearAuth();
+      setTimeout(() => {
+        window.location.href = "/auth/login";
+      }, 1000);
+
+    }
+
+    // 🟡 Bad Request (400)
     if (error.response?.status === 400) {
       console.warn("⚠️ Bad Request:", error.config?.url);
       toaster.error({
