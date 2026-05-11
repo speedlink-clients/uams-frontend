@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main   # or your deploy branch
+      - staging
     paths:
       - 'landing/**'   # only run when landing app changes
 
