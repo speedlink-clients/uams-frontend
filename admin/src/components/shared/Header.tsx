@@ -108,9 +108,8 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                             {email}
                         </Text>
                     </Box>
-                    <Avatar.Root size="sm" boxShadow="sm">
+                    <Avatar.Root size="sm">
                         <Avatar.Fallback name={currentUser} />
-                        <Avatar.Image src="" />
                     </Avatar.Root>
                 </Box>
             </Flex>
