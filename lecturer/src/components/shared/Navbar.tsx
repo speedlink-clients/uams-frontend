@@ -1,9 +1,9 @@
 import { Flex, Text, Box, Icon, Avatar, Separator } from "@chakra-ui/react";
 import { Bell } from "lucide-react";
-import useUserStore from "@stores/user.store";
+import useAuthStore from "@stores/auth.store";
 
 const Navbar = () => {
-  const { user } = useUserStore();
+  const { user } = useAuthStore();
 
   return (
     <Flex
@@ -38,7 +38,7 @@ const Navbar = () => {
         {/* Avatar */}
     
           <Avatar.Root size="md">
-            <Avatar.Fallback>{user?.name}</Avatar.Fallback>
+            <Avatar.Fallback name={user?.name} />
           </Avatar.Root>
       </Flex>
     </Flex>
