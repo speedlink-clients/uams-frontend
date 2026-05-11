@@ -1,7 +1,8 @@
 import { Bell, History, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import type { ViewType } from '@type/common.type';
-import { Box, Flex, Text, Image, Button } from '@chakra-ui/react';
+import { Box, Flex, Text, Button } from '@chakra-ui/react';
+import { Avatar } from '@components/ui/avatar';
 
 interface HeaderProps {
     onViewChange: (view: ViewType) => void;
@@ -63,16 +64,6 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                         title="Audit Log"
                     >
                         <History size={20} />
-                        <Box
-                            position="absolute"
-                            top="2"
-                            right="2"
-                            w="2"
-                            h="2"
-                            bg="blue.500"
-                            borderRadius="full"
-                            border="2px solid white"
-                        />
                     </Button>
                     <Button
                         onClick={() => navigate('/notifications')}
@@ -115,29 +106,14 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                             {currentUser}
                         </Text>
                         <Text fontSize="xs" color="slate.500" mt="1">
-                            {email || 'deptadmin@uniport.edu.ng'}
+                            {email}
                         </Text>
                     </Box>
-                    <Flex
-                        w="10"
-                        h="10"
-                        borderRadius="full"
-                        bg="slate.100"
-                        border="xs"
-                        borderColor="border.muted"
-                        alignItems="center"
-                        justifyContent="center"
-                        overflow="hidden"
+                    <Avatar 
+                        name={currentUser} 
+                        size="sm"
                         boxShadow="sm"
-                    >
-                        <Image
-                            src="https://picsum.photos/seed/admin/40/40"
-                            alt="Profile"
-                            w="full"
-                            h="full"
-                            objectFit="cover"
-                        />
-                    </Flex>
+                    />
                 </Box>
             </Flex>
         </Flex>

@@ -84,12 +84,6 @@ const DashboardPage = () => {
                 <Text fontSize="xl" fontWeight="bold" color="slate.800">
                     Welcome Back, {currentUser}
                 </Text>
-                <Text color="slate.500" mt="1">
-                    Logged in as{" "}
-                    <Text as="span" fontWeight="semibold" color="#1d76d2">
-                        DEPARTMENTAL ADMIN
-                    </Text>
-                </Text>
             </Box>
 
             <StatsContainer />
