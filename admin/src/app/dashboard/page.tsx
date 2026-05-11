@@ -18,7 +18,7 @@ import { DashboardServices } from "@services/dashboard.service";
 import { Box, Flex, Grid, Text } from "@chakra-ui/react";
 
 const DashboardPage = () => {
-    const { email, role } = useAuthStore();
+    const { user } = useAuthStore();
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [revenueData, setRevenueData] = useState<ChartDataItem[]>([]);
     const [growthData, setGrowthData] = useState<ChartDataItem[]>([]);
@@ -75,16 +75,11 @@ const DashboardPage = () => {
         }
     };
 
-    const currentUser = email ? email.split("@")[0] : role === "UNIVERSITYADMIN" ? "Admin" : "User";
-
     return (
         <Flex direction="column" gap="8">
-            {/* Welcome banner */}
-            <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
-                <Text fontSize="xl" fontWeight="bold" color="slate.800">
-                    Welcome Back, {currentUser}
-                </Text>
-            </Box>
+            <Text fontSize="xl" fontWeight="bold" color="slate.800">
+                Welcome Back, {user?.name || "N/A"}
+            </Text>
 
             <StatsContainer />
 
