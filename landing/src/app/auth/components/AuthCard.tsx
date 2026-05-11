@@ -5,7 +5,6 @@ import { type AuthCardProps } from '@type/auth.type';
 const AuthCard: React.FC<AuthCardProps> = ({
   children,
   className = "",
-  isPlainLogo = true,
 }) => (
   <div
     className={`relative z-10 w-full max-w-[500px] bg-white p-8 md:p-12 rounded-3xl shadow-2xl animate-in fade-in zoom-in-95 duration-500 mx-4 ${className}`}
