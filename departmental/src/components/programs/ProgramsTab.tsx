@@ -113,7 +113,7 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
 
     if (isCreatingRoute || isEditingRoute) {
         return (
-            <Box bg="white" borderRadius="2xl" p="8" border="1px solid" borderColor="gray.100" boxShadow="sm">
+            <Box bg="white" borderRadius="2xl" p="8" border="xs" borderColor="border.muted" boxShadow="sm">
                 <Text fontSize="xl" fontWeight="bold" color="slate.800" mb="8">
                     {isEditingRoute ? "Edit Program" : "Create Program"}
                 </Text>
@@ -121,11 +121,11 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
                     <Flex direction="column" gap="6" flex="1">
                         <Box>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Program Name</Text>
-                            <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} placeholder="e.g. Computer Science" bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" />
+                            <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} placeholder="e.g. Computer Science" bg="slate.50" border="xs" borderColor="border.muted" borderRadius="lg" />
                         </Box>
                         <Box>
                             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Program Code</Text>
-                            <Input value={formData.code} onChange={(e) => setFormData((prev) => ({ ...prev, code: e.target.value }))} placeholder="e.g. CSC" bg="slate.50" border="1px solid" borderColor="gray.200" borderRadius="lg" />
+                            <Input value={formData.code} onChange={(e) => setFormData((prev) => ({ ...prev, code: e.target.value }))} placeholder="e.g. CSC" bg="slate.50" border="xs" borderColor="border.muted" borderRadius="lg" />
                         </Box>
                     </Flex>
                     <Flex direction="column" gap="6" flex="1">
@@ -143,7 +143,7 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
                     </Flex>
                 </Flex>
                 <Flex justifyContent="flex-end" gap="3" mt="8">
-                    <Box as="button" onClick={() => navigate("/program-courses/programs")} px="8" py="2.5" borderRadius="lg" fontSize="sm" border="1px solid" borderColor="slate.300" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>Cancel</Box>
+                    <Box as="button" onClick={() => navigate("/program-courses/programs")} px="8" py="2.5" borderRadius="lg" fontSize="sm" border="xs" borderColor="border.muted" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>Cancel</Box>
                     <Flex as="button" onClick={handleSave} px="8" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#00B01D" color="white" cursor="pointer" border="none" _hover={{ bg: "green.700" }} opacity={isSaving ? 0.5 : 1}>
                         {isSaving ? "Saving..." : "Create Program"}
                     </Flex>
@@ -163,18 +163,18 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
                 </Button>
             </Flex>
 
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100">
+            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted">
                 <Flex p="6" alignItems="center">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Created Programs ({filtered.length})</Text>
                     <InputGroup startElement={<Search />} ml="auto" width="260px">
-                    <Input placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} maxW="64" bg="white" border="1px solid" borderColor="slate.200" borderRadius="xl" fontSize="xs" px="4" py="2.5" />
+                    <Input placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} maxW="64" bg="white" border="xs" borderColor="border.muted" borderRadius="xl" fontSize="xs" px="4" py="2.5" />
                     </InputGroup>
                 </Flex>
 
                 <Box overflowX="auto">
                     <Box as="table" w="full" textAlign="left">
                         <Box as="thead">
-                            <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="gray.100">
+                            <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="border.muted">
                                 <Box as="th" px="6" py="4" w="12" textAlign="center">
                                     <input type="checkbox" checked={filtered.length > 0 && selectedIds.length === filtered.length} onChange={toggleSelectAll} style={{ cursor: "pointer" }} />
                                 </Box>
@@ -189,7 +189,7 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
                             {filtered.length === 0 ? (
                                 <Box as="tr"><td colSpan={6} style={{ padding: "48px 0", textAlign: "center", color: "#94a3b8" }}>No programs found</td></Box>
                             ) : filtered.map((prog) => (
-                                <Box as="tr" key={prog.id} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" fontSize="sm" color="slate.600" bg={selectedIds.includes(prog.id) ? "blue.50" : undefined}>
+                                <Box as="tr" key={prog.id} _hover={{ bg: "slate.50" }} borderBottom="xs" borderColor="border.muted" fontSize="sm" color="slate.600" bg={selectedIds.includes(prog.id) ? "blue.50" : undefined}>
                                     <Box as="td" px="6" py="4" textAlign="center">
                                         <input type="checkbox" checked={selectedIds.includes(prog.id)} onChange={() => toggleSelection(prog.id)} style={{ cursor: "pointer" }} />
                                     </Box>
@@ -216,7 +216,7 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 0 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap="6" zIndex="50">
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
                     <Button onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">

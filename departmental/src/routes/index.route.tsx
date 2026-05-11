@@ -17,6 +17,7 @@ const AnnouncementsPage = lazy(() => import("@app/announcements/page"));
 const SettingsPage = lazy(() => import("@app/settings/page"));
 const NotificationsPage = lazy(() => import("@app/notifications/page"));
 const ProfilePage = lazy(() => import("@app/profile/page"));
+const AuditLogsPage = lazy(() => import("@app/audit-logs/page"));
 
 const router = createBrowserRouter([
     // Public Routes
@@ -84,6 +85,10 @@ const router = createBrowserRouter([
                     {
                         path: "profile",
                         element: <ProfilePage />,
+                    },
+                    {
+                        path: "audit-logs",
+                        element: <AuditLogsPage />,
                     },
                 ],
             },

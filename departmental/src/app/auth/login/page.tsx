@@ -78,8 +78,8 @@ const LoginPage = () => {
           bg="#f9fbff"
           p={{ base: "8", lg: "12" }}
           borderRadius="48px"
-          border="1px solid"
-          borderColor="gray.200"
+          border="xs"
+          borderColor="border.muted"
           boxShadow="2xl"
         >
           {/* Logo */}

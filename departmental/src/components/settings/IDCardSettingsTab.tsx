@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { Upload, Loader2, Edit2, Trash2, CheckCircle } from "lucide-react";
+import { Upload, Edit2, Trash2, CheckCircle } from "lucide-react";
 import { IDCardServices } from "@services/idcard.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Image, Spinner, Table, Button, Badge, Dialog, Portal, CloseButton } from "@chakra-ui/react";
+import { Box, Flex, Text, Image, Spinner, Table, Button, Badge, Dialog, Portal, CloseButton, EmptyState } from "@chakra-ui/react";
 
 const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: string; type: string; preview: string; fileRef: React.RefObject<HTMLInputElement | null>; onFileChange: (e: React.ChangeEvent<HTMLInputElement>, type: string) => void }) => {
     return (
         <Box>
             <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">{label}</Text>
             <Flex
-                border="2px dashed" borderColor="gray.200" borderRadius="xl" p="4"
+                border="2px dashed" borderColor="border.muted" borderRadius="xl" p="4"
                 alignItems="center" justifyContent="center" minH="120px" bg="slate.50"
                 cursor="pointer" _hover={{ borderColor: "blue.300", bg: "blue.50" }}
                 transition="all 0.2s" onClick={() => fileRef?.current?.click()} position="relative"
@@ -106,7 +106,6 @@ const IDCardSettingsTab = () => {
         setPreviews({});
         setFiles({});
         setIsFormVisible(true);
-        setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
     };
 
     const handleDelete = async (id: string) => {
@@ -226,18 +225,16 @@ const IDCardSettingsTab = () => {
     return (
         <Flex direction="column" gap="8">
             {/* Templates Table Section */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
+            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p={{ base: "4", md: "8" }}>
                 <Flex justifyContent="space-between" alignItems={{ base: "flex-start", sm: "center" }} direction={{ base: "column", sm: "row" }} mb="6" gap="4">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Available Templates</Text>
                     <Button
                         bg="#1D7AD9"
                         color="white"
                         fontWeight="700"
-                        borderRadius="8px"
                         fontSize="14px"
                         _hover={{ bg: "#0655a3ff" }}
                         border="none"
-                        boxShadow="0 4px 12px rgba(29,122,217,0.2)"
                         size="sm"
                         onClick={handleCreateNew}
                     >
@@ -322,8 +319,18 @@ const IDCardSettingsTab = () => {
                             ))}
                             {templates.length === 0 && (
                                 <Table.Row>
-                                    <Table.Cell colSpan={5} textAlign="center" py="4" color="gray.500">
-                                        No templates found
+                                    <Table.Cell colSpan={5}>
+                                        <EmptyState.Root>
+                                            <EmptyState.Content>
+                                                <EmptyState.Indicator>
+                                                    <Upload size={40} />
+                                                </EmptyState.Indicator>
+                                                <EmptyState.Title>No Templates Found</EmptyState.Title>
+                                                <EmptyState.Description>
+                                                    Create your first ID card template to get started
+                                                </EmptyState.Description>
+                                            </EmptyState.Content>
+                                        </EmptyState.Root>
                                     </Table.Cell>
                                 </Table.Row>
                             )}
@@ -332,138 +339,137 @@ const IDCardSettingsTab = () => {
                 </Box>
             </Box>
 
-            {/* Form Section */}
-            {isFormVisible && (
-                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
-                    <Flex justifyContent="space-between" alignItems={{ base: "flex-start", sm: "center" }} direction={{ base: "column", sm: "row" }} mb="6" gap="4">
-                        <Text fontSize="lg" fontWeight="bold" color="slate.800">
-                            {templateId ? "Edit Template Details" : "Create New Template"}
-                        </Text>
-                        <Button 
-                            bg="white"
-                            color="#1D7AD9"
-                            _hover={{ bg: "#e3f0fbff" }}
-                            borderRadius="8px"
-                            borderColor="#1D7AD9"
-                            size="sm" 
-                            onClick={() => setIsFormVisible(false)}>
-                            Cancel
-                        </Button>
-                    </Flex>
-                    <Flex direction="column" gap="5">
-                    <Flex gap="6" direction={{ base: "column", md: "row" }}>
-                        <Box flex="1">
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">School Name</Text>
-                            <input
-                                type="text" value={formData.schoolName}
-                                onChange={(e) => setFormData((p) => ({ ...p, schoolName: e.target.value }))}
-                                placeholder="University name"
-                                className="idcard-settings-input" style={inputStyle}
-                            />
-                        </Box>
-                        <Box flex="1">
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Faculty</Text>
-                            <input
-                                type="text" value={formData.faculty}
-                                onChange={(e) => setFormData((p) => ({ ...p, faculty: e.target.value }))}
-                                placeholder="Faculty name"
-                                className="idcard-settings-input" style={inputStyle}
-                            />
-                        </Box>
-                    </Flex>
-                    <Flex gap="6" direction={{ base: "column", md: "row" }}>
-                        <Box flex="1">
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Department</Text>
-                            <input
-                                type="text" value={formData.department}
-                                onChange={(e) => setFormData((p) => ({ ...p, department: e.target.value }))}
-                                placeholder="Department name"
-                                className="idcard-settings-input" style={inputStyle}
-                            />
-                        </Box>
-                        <Box flex="1">
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">School Address</Text>
-                            <input
-                                type="text" value={formData.schoolAddress}
-                                onChange={(e) => setFormData((p) => ({ ...p, schoolAddress: e.target.value }))}
-                                placeholder="School address"
-                                className="idcard-settings-input" style={inputStyle}
-                            />
-                        </Box>
-                </Flex>
+            <Dialog.Root 
+                open={isFormVisible} 
+                onOpenChange={(e) => setIsFormVisible(e.open)}
+                size="lg"
+            >
+                <Portal>
+                    <Dialog.Backdrop />
+                    <Dialog.Positioner>
+                        <Dialog.Content maxH="90vh" overflowY="auto">
+                            <Dialog.Header>
+                                <Dialog.Title>
+                                    {templateId ? "Edit Template Details" : "Create New Template"}
+                                </Dialog.Title>
+                            </Dialog.Header>
+                            <Dialog.Body>
+                                <Flex direction="column" gap="5">
+                                    <Flex gap="6" direction={{ base: "column", md: "row" }}>
+                                        <Box flex="1">
+                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">School Name</Text>
+                                            <input
+                                                type="text" value={formData.schoolName}
+                                                onChange={(e) => setFormData((p) => ({ ...p, schoolName: e.target.value }))}
+                                                placeholder="University name"
+                                                className="idcard-settings-input" style={inputStyle}
+                                            />
+                                        </Box>
+                                        <Box flex="1">
+                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Faculty</Text>
+                                            <input
+                                                type="text" value={formData.faculty}
+                                                onChange={(e) => setFormData((p) => ({ ...p, faculty: e.target.value }))}
+                                                placeholder="Faculty name"
+                                                className="idcard-settings-input" style={inputStyle}
+                                            />
+                                        </Box>
+                                    </Flex>
+                                    <Flex gap="6" direction={{ base: "column", md: "row" }}>
+                                        <Box flex="1">
+                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Department</Text>
+                                            <input
+                                                type="text" value={formData.department}
+                                                onChange={(e) => setFormData((p) => ({ ...p, department: e.target.value }))}
+                                                placeholder="Department name"
+                                                className="idcard-settings-input" style={inputStyle}
+                                            />
+                                        </Box>
+                                        <Box flex="1">
+                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">School Address</Text>
+                                            <input
+                                                type="text" value={formData.schoolAddress}
+                                                onChange={(e) => setFormData((p) => ({ ...p, schoolAddress: e.target.value }))}
+                                                placeholder="School address"
+                                                className="idcard-settings-input" style={inputStyle}
+                                            />
+                                        </Box>
+                                    </Flex>
 
-            {/* Templates */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
-                <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Card Templates</Text>
-                <Flex direction={{ base: "column", md: "row" }} gap="6">
-                    <Box flex="1"><UploadBox label="Front Template" type="frontTemplate" preview={previews.frontTemplate || existingUrls.frontTemplate} fileRef={fileInputRefs.frontTemplate} onFileChange={handleFileChange} /></Box>
-                    <Box flex="1"><UploadBox label="Back Template" type="backTemplate" preview={previews.backTemplate || existingUrls.backTemplate} fileRef={fileInputRefs.backTemplate} onFileChange={handleFileChange} /></Box>
-                </Flex>
-            </Box>
+                                    {/* Templates */}
+                                    <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
+                                        <Text fontSize="md" fontWeight="bold" color="slate.800" mb="6">Card Templates</Text>
+                                        <Flex direction={{ base: "column", md: "row" }} gap="6">
+                                            <Box flex="1"><UploadBox label="Front Template" type="frontTemplate" preview={previews.frontTemplate || existingUrls.frontTemplate} fileRef={fileInputRefs.frontTemplate} onFileChange={handleFileChange} /></Box>
+                                            <Box flex="1"><UploadBox label="Back Template" type="backTemplate" preview={previews.backTemplate || existingUrls.backTemplate} fileRef={fileInputRefs.backTemplate} onFileChange={handleFileChange} /></Box>
+                                        </Flex>
+                                    </Box>
 
-            {/* Branding */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
-                <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Branding</Text>
-                <Flex direction={{ base: "column", md: "row" }} gap="6">
-                    <Box flex="1"><UploadBox label="University Logo" type="logo" preview={previews.logo || existingUrls.logo} fileRef={fileInputRefs.logo} onFileChange={handleFileChange} /></Box>
-                    <Box flex="1"><UploadBox label="HOD Signature" type="signature" preview={previews.signature || existingUrls.signature} fileRef={fileInputRefs.signature} onFileChange={handleFileChange} /></Box>
-                </Flex>
-            </Box>
+                                    {/* Branding */}
+                                    <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
+                                        <Text fontSize="md" fontWeight="bold" color="slate.800" mb="6">Branding</Text>
+                                        <Flex direction={{ base: "column", md: "row" }} gap="6">
+                                            <Box flex="1"><UploadBox label="University Logo" type="logo" preview={previews.logo || existingUrls.logo} fileRef={fileInputRefs.logo} onFileChange={handleFileChange} /></Box>
+                                            <Box flex="1"><UploadBox label="HOD Signature" type="signature" preview={previews.signature || existingUrls.signature} fileRef={fileInputRefs.signature} onFileChange={handleFileChange} /></Box>
+                                        </Flex>
+                                    </Box>
 
-            {/* Back Card Text */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p={{ base: "4", md: "8" }}>
-                <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="6">Back Card Content</Text>
-                <Flex direction="column" gap="6">
-                    <Box>
-                        <Flex justifyContent="space-between" mb="2">
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700">Description</Text>
-                            <Text fontSize="xs" color="slate.400">{formData.backDescription.length}/120</Text>
-                        </Flex>
-                        <textarea
-                            value={formData.backDescription}
-                            onChange={(e) => setFormData((p) => ({ ...p, backDescription: e.target.value.slice(0, 120) }))}
-                            maxLength={120} rows={3}
-                            className="idcard-settings-input"
-                            style={{ ...inputStyle, resize: "none", fontFamily: "inherit" }}
-                        />
-                    </Box>
-                    <Box>
-                        <Flex justifyContent="space-between" mb="2">
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700">Disclaimer</Text>
-                            <Text fontSize="xs" color="slate.400">{formData.backDisclaimer.length}/95</Text>
-                        </Flex>
-                        <textarea
-                            value={formData.backDisclaimer}
-                            onChange={(e) => setFormData((p) => ({ ...p, backDisclaimer: e.target.value.slice(0, 95) }))}
-                            maxLength={95} rows={3}
-                            className="idcard-settings-input"
-                            style={{ ...inputStyle, resize: "none", fontFamily: "inherit" }}
-                        />
-                    </Box>
-                </Flex>
-            </Box>
-
-            {/* Save */}
-            <Flex justifyContent="flex-end">
-                <button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    style={{
-                        padding: "10px 32px", background: "#1D7AD9", color: "white", fontWeight: 700,
-                        borderRadius: "8px", fontSize: "14px", border: "none",
-                        cursor: isSaving ? "not-allowed" : "pointer",
-                        opacity: isSaving ? 0.7 : 1,
-                        display: "flex", alignItems: "center", gap: "8px",
-                        boxShadow: "0 4px 12px rgba(29,122,217,0.2)",
-                    }}
-                >
-                        {isSaving && <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />}
-                        {isSaving ? "Saving..." : "Save Changes"}
-                    </button>
-                </Flex>
-            </Flex>
-        </Box>
-        )}
+                                    {/* Back Card Text */}
+                                    <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
+                                        <Text fontSize="md" fontWeight="bold" color="slate.800" mb="6">Back Card Content</Text>
+                                        <Flex direction="column" gap="6">
+                                            <Box>
+                                                <Flex justifyContent="space-between" mb="2">
+                                                    <Text fontSize="sm" fontWeight="medium" color="slate.700">Description</Text>
+                                                    <Text fontSize="xs" color="slate.400">{formData.backDescription.length}/120</Text>
+                                                </Flex>
+                                                <textarea
+                                                    value={formData.backDescription}
+                                                    onChange={(e) => setFormData((p) => ({ ...p, backDescription: e.target.value.slice(0, 120) }))}
+                                                    maxLength={120} rows={3}
+                                                    className="idcard-settings-input"
+                                                    style={{ ...inputStyle, resize: "none", fontFamily: "inherit" }}
+                                                />
+                                            </Box>
+                                            <Box>
+                                                <Flex justifyContent="space-between" mb="2">
+                                                    <Text fontSize="sm" fontWeight="medium" color="slate.700">Disclaimer</Text>
+                                                    <Text fontSize="xs" color="slate.400">{formData.backDisclaimer.length}/95</Text>
+                                                </Flex>
+                                                <textarea
+                                                    value={formData.backDisclaimer}
+                                                    onChange={(e) => setFormData((p) => ({ ...p, backDisclaimer: e.target.value.slice(0, 95) }))}
+                                                    maxLength={95} rows={3}
+                                                    className="idcard-settings-input"
+                                                    style={{ ...inputStyle, resize: "none", fontFamily: "inherit" }}
+                                                />
+                                            </Box>
+                                        </Flex>
+                                    </Box>
+                                </Flex>
+                            </Dialog.Body>
+                            <Dialog.Footer gap="3">
+                                <Dialog.ActionTrigger asChild>
+                                    <Button variant="outline" size="sm">Cancel</Button>
+                                </Dialog.ActionTrigger>
+                                <Button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    bg="#1D7AD9"
+                                    color="white"
+                                    size="sm"
+                                    _hover={{ bg: "#1565c0" }}
+                                >
+                                    {isSaving ? <><Spinner size="xs" mr="2" /> Saving...</> : "Save Changes"}
+                                </Button>
+                            </Dialog.Footer>
+                            <Dialog.CloseTrigger asChild>
+                                <CloseButton size="sm" />
+                            </Dialog.CloseTrigger>
+                        </Dialog.Content>
+                    </Dialog.Positioner>
+                </Portal>
+            </Dialog.Root>
 
         <style>{`
             @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

@@ -76,7 +76,7 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
         <Flex position="fixed" top="0" left="0" right="0" bottom="0" bg="blackAlpha.600" zIndex="9999" alignItems="center" justifyContent="center" p="4" backdropFilter="blur(4px)">
             <Box bg="white" borderRadius="2xl" shadow="2xl" w="full" maxW="lg" overflow="hidden">
                 {/* Header */}
-                <Flex p="6" borderBottom="1px solid" borderColor="gray.100" alignItems="center" justifyContent="space-between">
+                <Flex p="6" borderBottom="xs" borderColor="border.muted" alignItems="center" justifyContent="space-between">
                     <Text fontSize="xl" fontWeight="bold" color="#1D7AD9">Assign Course To Lecturer</Text>
                     <Button onClick={onClose} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" color="slate.400" cursor="pointer" bg="transparent">
                         <X size={20} />
@@ -135,8 +135,8 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
                 </Box>
 
                 {/* Footer */}
-                <Flex p="6" borderTop="1px solid" borderColor="gray.100" justifyContent="flex-end" gap="3">
-                    <Button onClick={onClose} px="6" py="2.5" borderRadius="lg" border="1px solid" borderColor="slate.300" color="slate.700" fontWeight="bold" fontSize="sm" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                <Flex p="6" borderTop="xs" borderColor="border.muted" justifyContent="flex-end" gap="3">
+                    <Button onClick={onClose} px="6" py="2.5" borderRadius="lg" border="xs" borderColor="border.muted" color="slate.700" fontWeight="bold" fontSize="sm" cursor="pointer" _hover={{ bg: "slate.50" }}>
                         Cancel
                     </Button>
                     <Button onClick={handleSubmit} px="6" py="2.5" borderRadius="lg" bg="#1D7AD9" color="white" fontWeight="bold" fontSize="sm" cursor={(!courseId || isSubmitting) ? "not-allowed" : "pointer"} _hover={{ bg: "blue.600" }} boxShadow="lg" opacity={(!courseId || isSubmitting) ? 0.5 : 1} alignItems="center" gap="2">

@@ -63,8 +63,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                 w="64"
             bg="white"
             h="100vh"
-            borderRight="1px solid"
-            borderColor="gray.200"
+            borderRight="xs"
+            borderColor="border.muted"
             display="flex"
             flexDirection="column"
             position="fixed"
@@ -74,7 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
             transform={{ base: isOpen ? "translateX(0)" : "translateX(-100%)", lg: "translateX(0)" }}
             transition="transform 0.3s ease-in-out"
         >
-            <Flex p="3" alignItems="center" justifyContent="space-between" gap="3" borderBottom={{ base: "1px solid", lg: "none" }} borderColor="gray.100">
+            <Flex p="3" alignItems="center" justifyContent="space-between" gap="3" borderBottom={{ base: "xs", lg: "none" }} borderColor="border.muted">
                 <Image
                     src="/departmental-admin/assets/uphcscLG.png"
                     alt="UNIPORT Computer Science"
@@ -109,9 +109,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                             py="2.5"
                             borderRadius="lg"
                             transition="all 0.2s"
-                            bg={activeView === item.label ? "slate.100" : "transparent"}
-                            color={activeView === item.label ? "slate.900" : "slate.500"}
-                            fontWeight={activeView === item.label ? "semibold" : "normal"}
+                            bg={activeView === item.label ? "accent.subtle" : "transparent"}
+                            color={activeView === item.label ? "accent" : "fg.subtle"}
+                            fontWeight="semibold"
                             _hover={{
                                 bg: activeView === item.label ? "slate.100" : "gray.50",
                                 color: "slate.900",
@@ -119,7 +119,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                         >
                             <item.icon
                                 size={20}
-                                color={activeView === item.label ? "#2563eb" : "#94a3b8"}
                             />
                             <Text fontSize="sm">{item.label}</Text>
                         </Box>
@@ -128,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
             </Box>
 
             {onLogout && (
-                <Box p="4" borderTop="1px solid" borderColor="gray.200">
+                <Box p="4" borderTop="xs" borderColor="border.muted">
                     <Box
                         as="button"
                         onClick={onLogout}

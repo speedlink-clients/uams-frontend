@@ -56,7 +56,7 @@ const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
             <Dialog.Positioner>
                 <Dialog.Content bg="white" borderRadius="2xl" shadow="xl" w="full" maxW="lg" position="relative" animation="slideUp 0.3s ease-out">
                     {/* Header */}
-                    <Box p="6" borderBottom="1px solid" borderColor="slate.100">
+                    <Box p="6" borderBottom="xs" borderColor="border.muted">
                         <Dialog.CloseTrigger asChild>
                             <Box as="button" onClick={handleClose} position="absolute" top="4" right="4" p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400"><X size={20} /></Box>
                         </Dialog.CloseTrigger>
@@ -108,7 +108,7 @@ const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
                     </Box>
 
                     {/* Actions */}
-                    <Flex p="6" borderTop="1px solid" borderColor="slate.100" justifyContent="flex-end" gap="3">
+                    <Flex p="6" borderTop="xs" borderColor="border.muted" justifyContent="flex-end" gap="3">
                         <Button variant="subtle" onClick={handleClose} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold">Cancel</Button>
                         <Flex as="button" onClick={handleUpload} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#1D7AD9" color="white" cursor={(!file || isUploading) ? "not-allowed" : "pointer"} border="none" _hover={{ bg: (!file || isUploading) ? "#1D7AD9" : "blue.700" }} opacity={(!file || isUploading) ? 0.5 : 1} alignItems="center" gap="2">
                             {isUploading && <Spinner size="sm" />}
