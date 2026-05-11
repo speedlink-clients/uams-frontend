@@ -8,14 +8,10 @@ import { Toaster } from "@components/ui/toaster";
 import { Box, Flex } from "@chakra-ui/react";
 
 const DashboardLayout = () => {
-    const { user, email: storeEmail, clearAuth } = useAuthStore();
+    const { user, clearAuth } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    // Get user display name
-    const currentUser = user?.name || "N/A";
-    const userEmail = user?.email || storeEmail || "N/A";
 
     const getActiveViewFromPath = (pathname: string): ViewType => {
         const routeMap: Record<string, ViewType> = {
@@ -81,8 +77,8 @@ const DashboardLayout = () => {
                 <Toaster />
                 <Header
                     onViewChange={handleViewChange}
-                    currentUser={currentUser}
-                    email={userEmail}
+                    currentUser={user?.name || "N/A"}
+                    email={user?.email || "N/A"}
                     onMenuClick={() => setIsSidebarOpen(true)}
                 />
                 <Box p={{ base: "4", md: "8" }}>
