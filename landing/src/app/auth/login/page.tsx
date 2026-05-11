@@ -10,6 +10,8 @@ import type { LoginFormData } from "@type/auth.type";
 const LoginPage = () => {
     const { setAuth } = useAuthStore();
 
+    
+
     const {
         register,
         handleSubmit,
