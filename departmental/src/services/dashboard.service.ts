@@ -1,13 +1,18 @@
 import axiosClient from "@configs/axios.config";
 
 export const DashboardServices = {
-    getUsers: async () => {
-        const response = await axiosClient.get("/university-admin/users");
-        return response.data;
+    getDashboardStats: async () => {
+        const { data } = await axiosClient.get("/stats/totals");
+        return data;
     },
 
-    getAllTransactions: async () => {
-        const response = await axiosClient.get("/annual-access-fee/transactions-all");
-        return response.data;
+    getAnnualRevenueStats: async () => {
+        const { data } = await axiosClient.get("/stats/annual-revenue");
+        return data;
+    },
+
+    getRegistrationGrowthStats: async () => {
+        const { data } = await axiosClient.get("/stats/registration-growth");
+        return data;
     },
 };

@@ -1,23 +1,14 @@
 import axiosClient from "@configs/axios.config"
 import type { Course, CreateCourseData, CoursesApiResponse } from "@type/course.type"
-import { getCurrentDepartmentId, getCurrentUniversityId } from "@utils/auth.util"
 
 export const CourseServices = {
-    getCoursesByDepartment: async (): Promise<CoursesApiResponse> => {
-        const departmentId = getCurrentDepartmentId();
-        if (!departmentId) throw new Error("No department ID found in token");
-
-        const { data } = await axiosClient.get<CoursesApiResponse>("/courses/my-department");
+    getCourses: async (filters?: { level?: string; semester?: string }): Promise<CoursesApiResponse> => {
+        const { data } = await axiosClient.get<CoursesApiResponse>("/courses", { params: filters });
         return data;
     },
 
     createCourse: async (courseData: CreateCourseData): Promise<Course> => {
-        const payload = {
-            ...courseData,
-            universityId: getCurrentUniversityId(),
-            departmentId: getCurrentDepartmentId(),
-        };
-        const { data } = await axiosClient.post<Course>("/courses", payload);
+        const { data } = await axiosClient.post<Course>("/courses", courseData);
         return data;
     },
 
@@ -26,7 +17,7 @@ export const CourseServices = {
     },
 
     updateCourse: async (courseId: string, courseData: Record<string, unknown>): Promise<Course> => {
-        const { data } = await axiosClient.put<Course>(`/courses/${courseId}`, courseData);
+        const { data } = await axiosClient.patch<Course>(`/courses/${courseId}`, courseData);
         return data;
     },
 
@@ -36,7 +27,7 @@ export const CourseServices = {
     },
 
     bulkUploadCourses: async (formData: FormData): Promise<unknown> => {
-        const { data } = await axiosClient.post("/courses/course-bulk-upload", formData, {
+        const { data } = await axiosClient.post("/courses/bulk-upload", formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
         return data;

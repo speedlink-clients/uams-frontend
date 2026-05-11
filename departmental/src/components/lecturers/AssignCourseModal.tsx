@@ -3,12 +3,12 @@ import { X } from "lucide-react";
 import { CourseServices } from "@services/course.service";
 // import { toaster } from "@components/ui/toaster";
 import Select from "react-select";
-import { Box, Flex, Text, Spinner, Button } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, Button, Input } from "@chakra-ui/react";
 
 interface Props {
     isOpen: boolean;
     onClose: () => void;
-    onAssign: (data: { courseId: string; role: string }) => Promise<void>;
+    onAssign: (data: { courseId: string; session: string }) => Promise<void>;
     staffName?: string;
 }
 
@@ -19,7 +19,7 @@ interface CourseOption {
 
 const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
     const [courseId, setCourseId] = useState("");
-    const [role, setRole] = useState("MAIN");
+    const [session, setSession] = useState("2025/2026");
     const [courses, setCourses] = useState<any[]>([]);
     const [isLoadingCourses, setIsLoadingCourses] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +32,7 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
     useEffect(() => {
         if (isOpen) {
             setCourseId("");
-            setRole("MAIN");
+            setSession("2025/2026");
             fetchCourses();
         }
     }, [isOpen]);
@@ -40,8 +40,8 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
     const fetchCourses = async () => {
         try {
             setIsLoadingCourses(true);
-            const response = await CourseServices.getCoursesByDepartment();
-            const list = response?.courses || (Array.isArray(response) ? response : []);
+            const response = await CourseServices.getCourses();
+            const list = Array.isArray(response) ? response : (response as any)?.data || (response as any)?.courses || [];
             setCourses(list);
         } catch (err) {
             console.error("Failed to fetch courses:", err);
@@ -51,10 +51,10 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
     };
 
     const handleSubmit = async () => {
-        if (!courseId || !role) return;
+        if (!courseId || !session) return;
         setIsSubmitting(true);
         try {
-            await onAssign({ courseId, role });
+            await onAssign({ courseId, session });
             onClose();
         } catch (err) {
             console.error("Failed to assign course:", err);
@@ -64,12 +64,6 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
     };
 
     if (!isOpen) return null;
-
-    const roleOptions = [
-        { value: "MAIN", label: "Main Lecturer" },
-        { value: "ASSISTANT", label: "Assistant Lecturer" },
-        { value: "LAB_ASSISTANT", label: "Lab Instructor" },
-    ];
 
 
     return (
@@ -113,22 +107,16 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
                         </Box>
 
                         <Box>
-                            <Text fontSize="sm" fontWeight="bold" color="slate.700" mb="2">Role</Text>
-                            <Select 
-                                value={roleOptions.find((r) => r.value === role)}
-                                onChange={(selected) => setRole(selected?.value || "")}
-                                options={roleOptions} 
-                                styles={{
-                                     control: (base) => ({
-                                    ...base,
-                                    backgroundColor: "#F8FAFC",
-                                    borderColor: "#E2E8F0",
-                                    borderRadius: "8px",
-                                    minHeight: "40px",
-                                    boxShadow: "none",
-                                    "&:hover": { borderColor: "#CBD5E1" },
-                                    }),
-                                }}
+                            <Text fontSize="sm" fontWeight="bold" color="slate.700" mb="2">Academic Session</Text>
+                            <Input
+                                value={session}
+                                onChange={(e) => setSession(e.target.value)}
+                                placeholder="e.g. 2025/2026"
+                                bg="#F8FAFC"
+                                borderColor="#E2E8F0"
+                                borderRadius="8px"
+                                minHeight="40px"
+                                fontSize="sm"
                             />
                         </Box>
                     </Flex>

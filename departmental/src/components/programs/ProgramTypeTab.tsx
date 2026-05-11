@@ -87,7 +87,8 @@ const ProgramTypeTab = () => {
     try {
       setIsSaving(true);
       await ProgramServices.createProgramType({
-        ...createFormData,
+        code: createFormData.code,
+        name: createFormData.name,
         type: createFormData.type.toUpperCase(),
       });
       toaster.success({ title: "Program Type created successfully" });
