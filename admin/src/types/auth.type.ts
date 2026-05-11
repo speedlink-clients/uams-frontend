@@ -35,22 +35,12 @@ export interface UserDepartment {
 
 export interface UserData {
     id: string;
-    firstName: string;
-    lastName: string;
-    middleNames: string | null;
-    fullName: string;
     email: string;
-    phone: string | null;
-    avatar: string | null;
+    name: string;
     role: string;
-    gender: string | null;
-    isActive: boolean;
-    universityId: string;
-    tenantId: string;
-    createdAt: string;
-    profile: UserProfile;
-    university: UserUniversity;
-    department: UserDepartment;
+    roles?: string[];
+    phone?: string | null;
+    avatar?: string | null;
 }
 
 // ── Auth store state ────────────────────────────────────────────────
