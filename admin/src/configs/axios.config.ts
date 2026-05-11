@@ -120,11 +120,11 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-   /* const originalRequest = error.config as InternalAxiosRequestConfig & {
+   const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
-    }; */
+    };
 
-   /* if (error.response?.status === 401 && (originalRequest.url === "/auth/login" || originalRequest.url === "/auth/signin" || originalRequest.url?.includes("/auth/signin"))) {
+   if (error.response?.status === 401 && (originalRequest.url === "/auth/login" || originalRequest.url === "/auth/signin" || originalRequest.url?.includes("/auth/signin"))) {
       toaster.error({
         title: getErrorTitle(error),
         description: getErrorMessage(error),
@@ -145,9 +145,9 @@ axiosClient.interceptors.response.use(
       // Clear auth and redirect to login
       useAuthStore.getState().clearAuth();
       setTimeout(() => {
-        window.location.href = "/departmental-admin/login";
+        window.location.href = "/auth/login";
       }, 1000);  
-    }  */
+    } 
 
     // 🟡 Bad Request (400)
     if (error.response?.status === 400) {
