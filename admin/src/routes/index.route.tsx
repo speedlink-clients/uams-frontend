@@ -3,9 +3,6 @@ import { lazy } from "react";
 import SessionGuard from "@components/shared/AuthGuard";
 import DashboardLayout from "@components/shared/DashboardLayout";
 
-// Lazy-loaded pages
-const LoginPage = lazy(() => import("@app/auth/login/page"));
-const ForgotPasswordPage = lazy(() => import("@components/shared/ForgotPasswordFlow"));
 const DashboardPage = lazy(() => import("@app/dashboard/page"));
 const ProgramCoursesPage = lazy(() => import("@app/programs/page"));
 const StudentsPage = lazy(() => import("@app/students/page"));
@@ -20,15 +17,6 @@ const ProfilePage = lazy(() => import("@app/profile/page"));
 const AuditLogsPage = lazy(() => import("@app/audit-logs/page"));
 
 const router = createBrowserRouter([
-    // Public Routes
-    {
-        path: "/login",
-        element: <LoginPage />,
-    },
-    {
-        path: "/forgot-password",
-        element: <ForgotPasswordPage />,
-    },
 
     // Protected Routes
     {
