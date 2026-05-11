@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main   # or your deploy branch
+      - staging
     paths:
       - 'super-admin/**'   # only run when super-admin app changes
 
