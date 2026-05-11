@@ -2,13 +2,13 @@ import { Box, Flex, Image, Text, Icon } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router";
 import { LogOut } from "lucide-react";
 import sidebarItems from "@configs/sidebar.config";
-import useUserStore from "@stores/user.store";
 import { useMemo } from "react";
+import useAuthStore from "@stores/auth.store";
 
 const Sidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, clearUser } = useUserStore();
+    const { user, clearAuth } = useAuthStore();
 
     const userRole = useMemo(() => user?.role, [user]);
 
@@ -24,8 +24,7 @@ const Sidebar = () => {
     }, [userRole]);
 
     const handleLogout = () => {
-        clearUser();
-        localStorage.removeItem("lecturer-user-store");
+        clearAuth();
         navigate("/auth/login");
     };
 
