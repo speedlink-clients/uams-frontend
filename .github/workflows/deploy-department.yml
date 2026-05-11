@@ -6,7 +6,7 @@ on:
       - main   # or your deploy branch
       - staging
     paths:
-      - 'departmental/**'   # only run when departmental app changes
+      - 'admin/**'   # only run when departmental app changes
 
 jobs:
   deploy:
@@ -23,11 +23,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-        working-directory: ./departmental
+        working-directory: ./admin
 
       - name: Build project
         run: npm run build
-        working-directory: ./departmental
+        working-directory: ./admin
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
           VITE_CALLBACK_URL: ${{ vars.VITE_CALLBACK_URL }}
@@ -40,5 +40,5 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./departmental/dist/
-          server-dir: /departmental-admin/   # adjust if needed
+          local-dir: ./admin/dist/
+          server-dir: /admin/   # adjust if needed
