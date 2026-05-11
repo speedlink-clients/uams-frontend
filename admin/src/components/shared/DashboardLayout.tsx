@@ -58,10 +58,10 @@ const DashboardLayout = () => {
 
     const handleLogout = () => {
         clearAuth();
-        localStorage.removeItem("departmental-auth-store");
-        localStorage.removeItem("departmental-user-profile-store");
+        localStorage.removeItem("auth-store");
+        localStorage.removeItem("user-store");
         sessionStorage.clear();
-        window.location.href = "/landing/auth/login";
+        window.location.href = "/auth/login";
     };
 
     return (
