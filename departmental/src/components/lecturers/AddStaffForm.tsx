@@ -284,7 +284,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                     </Flex>
 
                     <Flex justifyContent="flex-end" gap="3" mt="8" pt="6">
-                        <Button onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="slate.700" bg="white" border="1px solid" borderColor="slate.300" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                        <Button onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="slate.700" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
                             Cancel
                         </Button>
                         <Button onClick={handleSubmit} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="lg" cursor={isLoading ? "not-allowed" : "pointer"} opacity={isLoading ? 0.7 : 1} alignItems="center" gap="2">

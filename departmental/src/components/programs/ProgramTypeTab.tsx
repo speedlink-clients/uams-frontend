@@ -207,7 +207,7 @@ const ProgramTypeTab = () => {
           <Dialog.Positioner>
             <Dialog.Content borderRadius="2xl" overflow="hidden">
               <Dialog.CloseTrigger />
-              <Dialog.Header p="6" borderBottom="1px solid" borderColor="gray.100">
+              <Dialog.Header p="6" borderBottom="xs" borderColor="border.muted">
                 <Flex alignItems="center" gap="3">
                   <Flex bg="blue.50" p="2" borderRadius="lg">
                     <GraduationCap size={20} color="#2563eb" />
@@ -234,8 +234,8 @@ const ProgramTypeTab = () => {
                         onChange={(e) => setCreateFormData((p) => ({ ...p, name: e.target.value }))}
                         placeholder="e.g. Bachelor of Science"
                         bg="slate.50"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        border="xs"
+                        borderColor="border.muted"
                         borderRadius="lg"
                       />
                     </Box>
@@ -248,8 +248,8 @@ const ProgramTypeTab = () => {
                         onChange={(e) => setCreateFormData((p) => ({ ...p, code: e.target.value }))}
                         placeholder="e.g. BSC"
                         bg="slate.50"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        border="xs"
+                        borderColor="border.muted"
                         borderRadius="lg"
                       />
                     </Box>
@@ -299,8 +299,8 @@ const ProgramTypeTab = () => {
                         onChange={(e) => setCreateFormData((p) => ({ ...p, description: e.target.value }))}
                         rows={3}
                         bg="slate.50"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        border="xs"
+                        borderColor="border.muted"
                         borderRadius="lg"
                         placeholder="Optional description"
                       />
@@ -308,7 +308,7 @@ const ProgramTypeTab = () => {
                   </Flex>
                 </Flex>
               </Dialog.Body>
-              <Dialog.Footer p="6" pt="0" borderTop="1px solid" borderColor="gray.100" mt="4">
+              <Dialog.Footer p="6" pt="0" borderTop="xs" borderColor="border.muted" mt="4">
                 <Flex wrap="wrap" justifyContent="flex-end" gap="3" w="full" pt="4">
                   <Button
                     onClick={handleCancelCreate}
@@ -358,7 +358,7 @@ const ProgramTypeTab = () => {
           <Dialog.Positioner>
             <Dialog.Content borderRadius="2xl" overflow="hidden">
               <Dialog.CloseTrigger />
-              <Dialog.Header p="6" borderBottom="1px solid" borderColor="gray.100">
+              <Dialog.Header p="6" borderBottom="xs" borderColor="border.muted">
                 <Dialog.Title fontSize="lg" fontWeight="bold" color="slate.800">
                   Edit Program Type
                 </Dialog.Title>
@@ -375,8 +375,8 @@ const ProgramTypeTab = () => {
                         onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                         placeholder="e.g. Bachelor of Science"
                         bg="slate.50"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        border="xs"
+                        borderColor="border.muted"
                         borderRadius="lg"
                       />
                     </Box>
@@ -389,8 +389,8 @@ const ProgramTypeTab = () => {
                         onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
                         placeholder="e.g. UG"
                         bg="slate.50"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        border="xs"
+                        borderColor="border.muted"
                         borderRadius="lg"
                       />
                     </Box>
@@ -438,20 +438,20 @@ const ProgramTypeTab = () => {
                         onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
                         rows={3}
                         bg="slate.50"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        border="xs"
+                        borderColor="border.muted"
                         borderRadius="lg"
                       />
                     </Box>
                   </Flex>
                 </Flex>
               </Dialog.Body>
-              <Dialog.Footer p="6" pt="0" borderTop="1px solid" borderColor="gray.100" mt="4">
+              <Dialog.Footer p="6" pt="0" borderTop="xs" borderColor="border.muted" mt="4">
                 <Flex justifyContent="flex-end" gap="3" w="full" pt="4">
                   <Button
                     onClick={handleCancel}
                     variant="outline"
-                    borderColor="slate.300"
+                    borderColor="border.muted"
                     color="slate.600"
                     px="6"
                     py="2"
@@ -484,7 +484,7 @@ const ProgramTypeTab = () => {
       </Dialog.Root>
 
       {/* Table */}
-      <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
+      <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm">
         <Box p="6">
           <Text fontSize="lg" fontWeight="bold" color="slate.800">
             Program Types ({programTypes.length})
@@ -577,8 +577,8 @@ const ProgramTypeTab = () => {
           py="3"
           borderRadius="xl"
           boxShadow="2xl"
-          border="1px solid"
-          borderColor="gray.100"
+          border="xs"
+          borderColor="border.muted"
           alignItems="center"
           gap="6"
           zIndex="50"
@@ -610,7 +610,7 @@ const ProgramTypeTab = () => {
             onClick={() => setSelectedIds([])}
           >
             <X size={20} />
-          </IconButton>
+          </Button>
         </Flex>
       )}
     </Flex>

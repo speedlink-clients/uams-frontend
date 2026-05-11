@@ -66,7 +66,7 @@ const DashboardLayout = () => {
         localStorage.removeItem("departmental-auth-store");
         localStorage.removeItem("departmental-user-profile-store");
         sessionStorage.clear();
-        window.location.href = "/departmental-admin/login";
+        window.location.href = "/landing/auth/login";
     };
 
     return (

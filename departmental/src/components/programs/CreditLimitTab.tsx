@@ -155,7 +155,7 @@ const CreditLimitTab = () => {
 
     return (
         <Flex direction="column" gap="8">
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
+            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm">
                 <Flex p="6" alignItems="center" justifyContent="space-between">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">
                         Credit Limits ({creditLimits.length})
@@ -187,7 +187,7 @@ const CreditLimitTab = () => {
                 {/* Inline Form */}
                 {isFormOpen && (
                     <Box px="6" pb="6">
-                        <Box bg="slate.50" borderRadius="xl" p="6" border="1px solid" borderColor="slate.200">
+                        <Box bg="slate.50" borderRadius="xl" p="6" border="xs" borderColor="border.muted">
                             <Text fontSize="md" fontWeight="semibold" color="slate.700" mb="4">
                                 {editingId ? "Edit Credit Limit" : "New Credit Limit"}
                             </Text>
@@ -241,7 +241,7 @@ const CreditLimitTab = () => {
                                 <Button
                                     onClick={handleCancelForm}
                                     px="4" py="2" borderRadius="md"
-                                    border="1px solid" borderColor="gray.300"
+                                    border="xs" borderColor="border.muted"
                                     color="gray.700" cursor="pointer" fontSize="sm"
                                     _hover={{ bg: "gray.50" }}
                                 >
@@ -267,7 +267,7 @@ const CreditLimitTab = () => {
                 <Box overflowX="auto">
                     <Box as="table" w="full" textAlign="left">
                         <Box as="thead">
-                            <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="gray.100">
+                            <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="border.muted">
                                 <Box as="th" px="6" py="4" w="12" textAlign="center">
                                     <input type="checkbox" checked={creditLimits.length > 0 && selectedIds.length === creditLimits.length} onChange={toggleSelectAll} style={{ cursor: "pointer" }} />
                                 </Box>
@@ -287,7 +287,7 @@ const CreditLimitTab = () => {
                                 <Box
                                     as="tr" key={cl.id}
                                     _hover={{ bg: "slate.50" }}
-                                    borderBottom="1px solid" borderColor="gray.50"
+                                    borderBottom="xs" borderColor="border.muted"
                                     fontSize="sm" color="slate.600"
                                     bg={selectedIds.includes(cl.id) ? "blue.50" : undefined}
                                 >
@@ -344,7 +344,7 @@ const CreditLimitTab = () => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 0 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap="6" zIndex="50">
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap="6" zIndex="50">
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
                     <Button onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">

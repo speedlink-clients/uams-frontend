@@ -224,8 +224,8 @@ const StaffPage = () => {
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               bg="white"
-              border="1px solid"
-              borderColor="gray.200"
+              border="xs"
+              borderColor="border.muted"
               borderRadius="xl"
               py="2.5"
               pl="10"
@@ -238,13 +238,13 @@ const StaffPage = () => {
           </InputGroup>
           <Menu.Root>
             <Menu.Trigger asChild>
-              <Box as="button" flexShrink={0} bg="#1D7AD9" color="white" px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" display="flex" alignItems="center" gap="2">
+              <Box as="button" flexShrink={0} bg="#1D7AD9" color="white" px="5" py="2.5" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" display="flex" alignItems="center" gap="2">
                 <Plus size={16} /> Add Lecturer
               </Box>
             </Menu.Trigger>
             <Portal>
               <Menu.Positioner>
-                <Menu.Content bg="white" borderRadius="lg" boxShadow="xl" border="1px solid" borderColor="gray.100" minW="150px" overflow="hidden" py="1" zIndex="popover">
+                <Menu.Content bg="white" borderRadius="lg" boxShadow="xl" border="xs" borderColor="border.muted" minW="150px" overflow="hidden" py="1" zIndex="popover">
                   <Menu.Item value="single" asChild>
                     <Box as="button" onClick={() => { setStaffToEdit(null); setShowAddEditForm(true); }} w="full" textAlign="left" px="4" py="2.5" fontSize="sm" fontWeight="medium" color="slate.700" _hover={{ bg: "slate.50" }} cursor="pointer" border="none" bg="transparent" display="flex" alignItems="center" gap="2">
                       <UserCog size={16} /> Single
@@ -263,11 +263,11 @@ const StaffPage = () => {
       </Flex>
 
       {/* Table */}
-      <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
+      <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
         <Box overflowX="auto">
           <Table.Root w="full" textAlign="left">
             <Table.Header>
-              <Table.Row bg="slate.50" borderBottom="1px solid" borderColor="gray.100">
+              <Table.Row bg="slate.50" borderBottom="xs" borderColor="border.muted">
                 <Table.ColumnHeader px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
                   <input
                     type="checkbox"
@@ -311,7 +311,7 @@ const StaffPage = () => {
                                 </EmptyState.Description>
                             </VStack>
                             {!searchQuery && (
-                                <Button onClick={() => { setStaffToEdit(null); setShowAddEditForm(true); }} bg="#1D7AD9" color="white" _hover={{ bg: "blue.700" }} px="6" borderRadius="lg" fontSize="sm" fontWeight="bold">
+                                <Button onClick={() => { setStaffToEdit(null); setShowAddEditForm(true); }} bg="#1D7AD9" color="white" _hover={{ bg: "blue.700" }} px="6" fontSize="sm" fontWeight="bold">
                                     Add Lecturer
                                 </Button>
                             )}
@@ -321,8 +321,8 @@ const StaffPage = () => {
                 </Table.Row>
               ) : (
                 paginatedStaff.map((s) => (
-                  <Table.Row key={s.id} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"} cursor="pointer" whiteSpace="nowrap">
-                    <Table.Cell px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50">
+                  <Table.Row key={s.id} _hover={{ bg: "slate.50" }} borderBottom="xs" borderColor="border.muted" bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"} cursor="pointer" whiteSpace="nowrap">
+                    <Table.Cell px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted">
                       <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
                     </Table.Cell>
                     <Table.Cell px="6" py="5" color="slate.400" fontWeight="medium">{s.staffNumber}</Table.Cell>
@@ -340,13 +340,13 @@ const StaffPage = () => {
                         ))}
                       </Flex>
                     </Table.Cell>
-                    <Table.Cell px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" ref={dropdownRef}>
+                    <Table.Cell px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted" ref={dropdownRef}>
                       <Box position="relative">
                         <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.id, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
                           <MoreHorizontal size={20} />
                         </Box>
                         {activeDropdownId === s.id && (
-                          <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="1px solid" borderColor="gray.100" zIndex="50" overflow="hidden" textAlign="left">
+                          <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="xs" borderColor="border.muted" zIndex="50" overflow="hidden" textAlign="left">
                             <Box p="1">
                               <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignCourse(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
                                 <UserCog size={16} /> Assign Course
@@ -370,7 +370,7 @@ const StaffPage = () => {
         </Box>
 
         {totalPages > 0 && (
-            <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="4" mt="4">
+            <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" p="4" mt="4">
               <Text fontSize="sm" color="slate.500">
                 Showing{" "}
                 <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStaff.length)}</Text>
@@ -393,7 +393,7 @@ const StaffPage = () => {
                     pageNum = currentPage - 2 + i;
                   }
                   return (
-                    <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="slate.200" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
+                    <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
                       {pageNum}
                     </Box>
                   );
@@ -407,7 +407,7 @@ const StaffPage = () => {
         </Box>
 
       {selectedIds.length > 1 && (
-        <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
+        <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
           <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
           <Box w="px" h="6" bg="slate.200" />
           <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.id)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Courses: s.courses })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">

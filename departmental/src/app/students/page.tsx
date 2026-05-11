@@ -223,10 +223,10 @@ const StudentsPage = () => {
                     </Text>
                 </Box>
                 <Flex alignItems="center" gap="3" flexWrap="wrap">
-                    <Box as="button" onClick={handleDownloadTemplate} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="1px solid" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
+                    <Box as="button" onClick={handleDownloadTemplate} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="xs" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
                         <FileDown size={18} /> Download Sample File
                     </Box>
-                    <Box as="button" onClick={() => setShowUpload(true)} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="1px solid" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
+                    <Box as="button" onClick={() => setShowUpload(true)} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="xs" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
                         <FileUp size={18} /> Upload CSV
                     </Box>
                     <Box as="button" onClick={() => { setStudentToEdit(null); setShowAddForm(true); }} bg="#1D7AD9" color="white" px="6" py="2.5" borderRadius="lg" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" boxShadow="lg" cursor="pointer" _hover={{ bg: "blue.700" }} border="none">
@@ -236,7 +236,7 @@ const StudentsPage = () => {
             </Flex>
 
             {/* Search & Filters Card */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="6" mb="4">
+            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" p="6" mb="4">
                 <Flex alignItems="center" justifyContent="space-between" gap="4" flexWrap="wrap">
                     <Box position="relative" flex="1" maxW="md">
                         <input
@@ -262,7 +262,7 @@ const StudentsPage = () => {
                         <select value={selectedSession} onChange={(e) => setSelectedSession(e.target.value)} style={selectStyle}>
                             <option value="all">All Sessions</option>
                         </select>
-                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="1px solid" borderColor="slate.200" borderRadius="lg" fontSize="xs" fontWeight="semibold" color="slate.800" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" fontSize="xs" fontWeight="semibold" color="slate.800" cursor="pointer" _hover={{ bg: "slate.50" }}>
                             <X size={16} /> Clear Filters
                         </Box>
                     </Flex>
@@ -272,7 +272,7 @@ const StudentsPage = () => {
             {/* Export Table header */}
             <Flex alignItems="center" justifyContent="space-between" mb="4">
                 <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({filteredStudents.length})</Text>
-                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="1px solid" borderColor="slate.200" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>
                     <Download size={16} color="#94a3b8" /> Export Table
                 </Box>
             </Flex>
@@ -298,11 +298,11 @@ const StudentsPage = () => {
                     </EmptyState.Content>
                 </EmptyState.Root>
             ) : (
-                <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
+                <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
                     <Box overflowX="auto">
                         <Box as="table" w="full" textAlign="left">
                             <Box as="thead">
-                                <Box as="tr" bg="slate.50" borderBottom="1px solid" borderColor="gray.100" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
+                                <Box as="tr" bg="slate.50" borderBottom="xs" borderColor="border.muted" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
                                     <Box as="th" px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50">
                                         <input
                                             type="checkbox"
@@ -332,8 +332,8 @@ const StudentsPage = () => {
                             </Box>
                             <Box as="tbody" fontSize="xs">
                                 {paginatedStudents.map((s) => (
-                                    <Box as="tr" key={s.id} _hover={{ bg: "slate.50" }} borderBottom="1px solid" borderColor="gray.50" bg={selectedIds.includes(s.id) ? "blue.50" : undefined} cursor="pointer" whiteSpace="nowrap">
-                                        <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50">
+                                    <Box as="tr" key={s.id} _hover={{ bg: "slate.50" }} borderBottom="xs" borderColor="border.muted" bg={selectedIds.includes(s.id) ? "blue.50" : undefined} cursor="pointer" whiteSpace="nowrap">
+                                        <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted">
                                             <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
                                         </Box>
                                         <Box as="td" px="6" py="5" color="slate.400" fontWeight="medium">{s.regNo}</Box>
@@ -356,14 +356,14 @@ const StudentsPage = () => {
                                                 {s.isActive ? "Active" : "Inactive"}
                                             </Text>
                                         </Box>
-                                        <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="1px solid" borderColor="gray.50" ref={dropdownRef}>
+                                        <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted" ref={dropdownRef}>
                                             <Box position="relative">
                                                 <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.id, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
                                                     <MoreHorizontal size={20} />
                                                 </Box>
 
                                                 {activeDropdownId === s.id && (
-                                                    <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="1px solid" borderColor="gray.100" zIndex="50" overflow="hidden" textAlign="left">
+                                                    <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="xs" borderColor="border.muted" zIndex="50" overflow="hidden" textAlign="left">
                                                         <Box p="1">
                                                             <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStudent(s); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
                                                                 <UserCog size={16} /> Assign Role
@@ -390,7 +390,7 @@ const StudentsPage = () => {
 
             {/* Pagination - separate card below table */}
             {totalPages > 1 && (
-                <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm" p="4" mt="4">
+                <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" p="4" mt="4">
                     <Text fontSize="sm" color="slate.500">
                         Showing{" "}
                         <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)}</Text>
@@ -413,7 +413,7 @@ const StudentsPage = () => {
                                 pageNum = currentPage - 2 + i;
                             }
                             return (
-                                <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="slate.200" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
+                                <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
                                     {pageNum}
                                 </Box>
                             );
@@ -427,7 +427,7 @@ const StudentsPage = () => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
                     <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="slate.200" />
                     <Box as="button" onClick={handleBulkDownload} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
