@@ -1,52 +1,39 @@
 export interface Course {
     id: string;
-    universityId: string;
-    departmentId: string;
-    levelId: string;
-    semesterId: string;
     code: string;
     title: string;
-    creditUnits: number;
-    learningHours: number;
-    practicalHours: number;
-    status: string;
+    description: string;
+    units: number;
+    level: string;
+    semester: "FIRST" | "SECOND" | "SUMMER";
+    courseType: "CORE" | "ELECTIVE";
+    programTypeId: string;
+    isCarryoverAllowed: boolean;
     createdAt: string;
     updatedAt: string;
-    semester: {
-        name: string;
-        isActive: boolean;
-    };
-    level: {
-        name: string;
-    };
 }
 
 export interface CreateCourseData {
-    universityId: string;
-    departmentId: string;
-    semesterId: string;
     code: string;
     title: string;
-    creditUnits: number;
-    learningHours: number;
-    practicalHours: number;
-    status: string;
-    levelId?: string;
+    description: string;
+    units: number;
+    semester: "FIRST" | "SECOND" | "SUMMER";
+    level: string;
     programTypeId: string;
+    isElective: boolean;
 }
 
 export interface CoursesApiResponse {
     status: string;
-    count: number;
-    courses: Course[];
+    count?: number;
+    data?: Course | Course[];
+    courses?: Course[];
     message?: string;
 }
 
-export interface CourseAssignment {
-    courseId: string;
-    role: "MAIN" | "ASSISTANT" | "LAB_ASSISTANT";
-}
-
 export interface AssignCoursePayload {
-    courseAssignments: CourseAssignment[];
+    courseId: string;
+    lecturerId: string;
+    session: string;
 }

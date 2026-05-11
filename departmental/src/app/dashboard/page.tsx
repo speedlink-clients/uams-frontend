@@ -48,48 +48,27 @@ const DashboardPage = () => {
 
     const fetchChartData = async () => {
         try {
-            const [usersRes, transactionsRes] = await Promise.all([
-                DashboardServices.getUsers(),
-                DashboardServices.getAllTransactions(),
+            const [revenueRes, growthRes] = await Promise.all([
+                DashboardServices.getAnnualRevenueStats(),
+                DashboardServices.getRegistrationGrowthStats(),
             ]);
 
-            const transactions = transactionsRes.success ? transactionsRes.data : [];
-            const revenueByYear: Record<string, number> = {};
-
-            transactions.forEach((t: any) => {
-                if (t.status === "success") {
-                    const year = new Date(t.createdAt).getFullYear().toString();
-                    revenueByYear[year] = (revenueByYear[year] || 0) + t.amount;
-                }
-            });
-
-            const currentYear = new Date().getFullYear();
-            for (let i = currentYear - 2; i <= currentYear + 1; i++) {
-                const y = i.toString();
-                if (!revenueByYear[y]) revenueByYear[y] = 0;
-            }
-
+            // Revenue Data from new endpoint
+            const revData = revenueRes?.data || [];
             setRevenueData(
-                Object.keys(revenueByYear).sort().map((year) => ({ year, value: revenueByYear[year] }))
+                revData.map((item: any) => ({ 
+                    year: item.year.toString(), 
+                    value: item.revenue 
+                }))
             );
 
-            const users = usersRes.users || [];
-            const growthByYear: Record<string, number> = {};
-
-            users.forEach((u: any) => {
-                if (u.role === "STUDENT") {
-                    const year = new Date(u.createdAt).getFullYear().toString();
-                    growthByYear[year] = (growthByYear[year] || 0) + 1;
-                }
-            });
-
-            for (let i = currentYear - 2; i <= currentYear + 1; i++) {
-                const y = i.toString();
-                if (!growthByYear[y]) growthByYear[y] = 0;
-            }
-
+            // Enrollment Data from new endpoint
+            const growthDataApi = growthRes?.data || [];
             setGrowthData(
-                Object.keys(growthByYear).sort().map((year) => ({ year, value: growthByYear[year] }))
+                growthDataApi.map((item: any) => ({
+                    year: item.year.toString(),
+                    value: item.count
+                }))
             );
         } catch (error) {
             console.error("Failed to fetch dashboard chart data", error);

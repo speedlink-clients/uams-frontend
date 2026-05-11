@@ -10,7 +10,7 @@ export const ProgramServices = {
     },
 
     createProgramType: async (payload: Record<string, unknown>): Promise<ProgramTypeResponse> => {
-        const { data } = await axiosClient.post<ProgramTypeResponse>("/program-types", payload);
+        const { data } = await axiosClient.post<ProgramTypeResponse>("/programmes", payload);
         return data;
     },
 

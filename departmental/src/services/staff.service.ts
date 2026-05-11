@@ -1,6 +1,5 @@
 import axiosClient from "@configs/axios.config"
 import type { CreateLecturerPayload } from "@type/staff.type"
-import type { AssignCoursePayload } from "@type/course.type"
 
 export const StaffServices = {
     addLecturer: async (payload: CreateLecturerPayload) => {
@@ -13,11 +12,8 @@ export const StaffServices = {
         return data;
     },
 
-    assignCourses: async (lecturerId: string, payload: AssignCoursePayload) => {
-        const { data } = await axiosClient.post(
-            `/university-admin/lecturers/${lecturerId}/courses`,
-            payload
-        );
+    assignCourse: async (payload: { courseId: string; lecturerId: string; session: string }) => {
+        const { data } = await axiosClient.post("/courses/assignments", payload);
         return data;
     },
 

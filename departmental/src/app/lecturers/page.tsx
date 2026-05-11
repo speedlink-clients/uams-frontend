@@ -40,10 +40,6 @@ const StaffPage = () => {
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLTableCellElement>(null);
 
-  // Filter states
-  const [filterDepartment, setFilterDepartment] = useState<string>("");
-  const [filterRank, setFilterRank] = useState<string>("");
-
   // Action modals state
   const [showAssignCourse, setShowAssignCourse] = useState(false);
   const [showAddEditForm, setShowAddEditForm] = useState(false);
@@ -84,25 +80,6 @@ const StaffPage = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // const uniqueDepartments = useMemo(() => {
-  //   const depts = new Set(staffList.map(s => s.department).filter(d => d && d !== "N/A"));
-  //   return Array.from(depts).sort();
-  // }, [staffList]);
-
-  // const uniqueRanks = useMemo(() => {
-  //   const ranks = new Set(staffList.map(s => s.level).filter(l => l && l !== "N/A"));
-  //   return Array.from(ranks).sort();
-  // }, [staffList]);
-
-  // Collections for Select components
-  // const departmentCollection = createListCollection({
-  //   items: uniqueDepartments.map(dept => ({ label: dept, value: dept }))
-  // });
-
-  // const rankCollection = createListCollection({
-  //   items: uniqueRanks.map(rank => ({ label: rank, value: rank }))
-  // });
-
   const filteredStaff = useMemo(() => {
     let result = staffList;
     if (searchQuery) {
@@ -114,14 +91,8 @@ const StaffPage = () => {
           s.staffNumber?.toLowerCase().includes(q)
       );
     }
-    if (filterDepartment) {
-      result = result.filter((s) => s.department === filterDepartment);
-    }
-    if (filterRank) {
-      result = result.filter((s) => s.level === filterRank);
-    }
     return result;
-  }, [staffList, searchQuery, filterDepartment, filterRank]);
+  }, [staffList, searchQuery]);
 
   const totalPages = Math.ceil(filteredStaff.length / ITEMS_PER_PAGE);
   const paginatedStaff = filteredStaff.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -169,13 +140,15 @@ const StaffPage = () => {
     }
   };
 
-  const handleAssignCourse = async (data: { courseId: string; role: string }) => {
+  const handleAssignCourse = async (data: { courseId: string; session: string }) => {
     if (!selectedStaff) return;
     try {
       const payload = {
-        courseAssignments: [{ courseId: data.courseId, role: data.role as "MAIN" | "ASSISTANT" | "LAB_ASSISTANT" }],
+        courseId: data.courseId,
+        lecturerId: selectedStaff.id,
+        session: data.session
       };
-      await StaffServices.assignCourses(selectedStaff.id, payload);
+      await StaffServices.assignCourse(payload);
       toaster.success({ title: "Course assigned successfully" });
     } catch (err: any) {
       console.error("Failed to assign course:", err);

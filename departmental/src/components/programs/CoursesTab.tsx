@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Plus, Download, Upload, Edit, Trash2, X, Search } from "lucide-react";
 import { CourseServices } from "@services/course.service";
+import { ProgramServices } from "@services/program.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
 import {
@@ -17,6 +18,7 @@ import {
   Portal,
   createListCollection,
 } from "@chakra-ui/react";
+import { Checkbox } from "@components/ui/checkbox";
 import BulkUploadCoursesModal from "@components/programs/BulkUploadCoursesModal";
 
 interface CoursesTabProps {
@@ -31,6 +33,43 @@ const creditUnitCollection = createListCollection({
   })),
 });
 
+const semesterCollection = createListCollection({
+  items: [
+    { label: "First Semester", value: "FIRST" },
+    { label: "Second Semester", value: "SECOND" },
+    { label: "Summer Semester", value: "SUMMER" },
+  ],
+});
+
+const levelCollection = createListCollection({
+  items: [
+    { label: "100 Level", value: "L100" },
+    { label: "200 Level", value: "L200" },
+    { label: "300 Level", value: "L300" },
+    { label: "400 Level", value: "L400" },
+    { label: "500 Level", value: "L500" },
+    { label: "600 Level", value: "L600" },
+  ],
+});
+
+const semesterFilterCollection = createListCollection({
+  items: [
+    { label: "All Semesters", value: "" },
+    { label: "First Semester", value: "FIRST" },
+    { label: "Second Semester", value: "SECOND" },
+  ],
+});
+
+const levelFilterCollection = createListCollection({
+  items: [
+    { label: "All Levels", value: "" },
+    { label: "100 Level", value: "L100" },
+    { label: "200 Level", value: "L200" },
+    { label: "300 Level", value: "L300" },
+    { label: "400 Level", value: "L400" },
+  ],
+});
+
 const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState<any[]>([]);
@@ -39,21 +78,44 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [programTypes, setProgramTypes] = useState<any[]>([]);
+  const [filters, setFilters] = useState({ level: "", semester: "" });
+  const [formData, setFormData] = useState({ 
+    title: "", 
+    code: "", 
+    units: "3", 
+    description: "",
+    semester: "FIRST",
+    level: "L100",
+    programTypeId: "",
+    isElective: false
+  });
 
-  const [formData, setFormData] = useState({ name: "", code: "", creditUnit: "3", description: "" });
+  const programTypeCollection = createListCollection({
+    items: programTypes.map(pt => ({ label: pt.name, value: pt.id }))
+  });
 
   useEffect(() => {
     fetchCourses();
-  }, []);
+  }, [filters]);
 
   const fetchCourses = async () => {
     try {
       setIsLoading(true);
-      const data = await CourseServices.getCoursesByDepartment();
-      const list = Array.isArray(data) ? data : (data as any)?.data || (data as any)?.courses || [];
+      const apiFilters = {
+        level: filters.level || undefined,
+        semester: filters.semester || undefined,
+      };
+      const [coursesData, typesData] = await Promise.all([
+        CourseServices.getCourses(apiFilters),
+        ProgramServices.getProgramTypes()
+      ]);
+      const list = Array.isArray(coursesData) ? coursesData : (coursesData as any)?.data || (coursesData as any)?.courses || [];
+      const types = Array.isArray(typesData) ? typesData : (typesData as any)?.data || [];
       setCourses(list);
+      setProgramTypes(types);
     } catch (err) {
-      toaster.error({ title: "Failed to load courses" });
+      toaster.error({ title: "Failed to load courses data" });
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +124,10 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      await CourseServices.createCourse({ ...formData, creditUnits: Number(formData.creditUnit) } as any);
+      await CourseServices.createCourse({ 
+        ...formData, 
+        units: Number(formData.units) 
+      } as any);
       toaster.success({ title: "Course created" });
       await fetchCourses();
       navigate("/program-courses/courses");
@@ -160,11 +225,11 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
           <Flex direction="column" gap="6" flex="1">
             <Box>
               <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                Course Name
+                Course Title
               </Text>
               <Input
-                value={formData.name}
-                onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                value={formData.title}
+                onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
                 placeholder="e.g. Data Structures"
                 bg="slate.50"
                 border="xs"
@@ -186,24 +251,21 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                 borderRadius="lg"
               />
             </Box>
-          </Flex>
-          <Flex direction="column" gap="6" flex="1">
-            {/* Credit Units - Chakra Select.Root */}
             <Box>
               <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
-                Credit Units
+                Program Type
               </Text>
               <Select.Root
-                collection={creditUnitCollection}
-                value={[formData.creditUnit]}
-                onValueChange={(e) => setFormData((p) => ({ ...p, creditUnit: e.value[0] }))}
+                collection={programTypeCollection}
+                value={[formData.programTypeId]}
+                onValueChange={(e) => setFormData((p) => ({ ...p, programTypeId: e.value[0] }))}
                 size="sm"
                 width="full"
               >
                 <Select.HiddenSelect />
                 <Select.Control>
                   <Select.Trigger>
-                    <Select.ValueText placeholder="Select credit units" />
+                    <Select.ValueText placeholder="Select program type" />
                   </Select.Trigger>
                   <Select.IndicatorGroup>
                     <Select.Indicator />
@@ -212,7 +274,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                 <Portal>
                   <Select.Positioner>
                     <Select.Content>
-                      {creditUnitCollection.items.map((item) => (
+                      {programTypeCollection.items.map((item) => (
                         <Select.Item key={item.value} item={item}>
                           {item.label}
                         </Select.Item>
@@ -222,6 +284,120 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                 </Portal>
               </Select.Root>
             </Box>
+          </Flex>
+          <Flex direction="column" gap="6" flex="1">
+            <Flex gap="4">
+              <Box flex="1">
+                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                  Level
+                </Text>
+                <Select.Root
+                  collection={levelCollection}
+                  value={[formData.level]}
+                  onValueChange={(e) => setFormData((p) => ({ ...p, level: e.value[0] }))}
+                  size="sm"
+                  width="full"
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Select level" />
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Portal>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {levelCollection.items.map((item) => (
+                          <Select.Item key={item.value} item={item}>
+                            {item.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Portal>
+                </Select.Root>
+              </Box>
+              <Box flex="1">
+                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                  Semester
+                </Text>
+                <Select.Root
+                  collection={semesterCollection}
+                  value={[formData.semester]}
+                  onValueChange={(e) => setFormData((p) => ({ ...p, semester: e.value[0] }))}
+                  size="sm"
+                  width="full"
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Select semester" />
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Portal>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {semesterCollection.items.map((item) => (
+                          <Select.Item key={item.value} item={item}>
+                            {item.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Portal>
+                </Select.Root>
+              </Box>
+            </Flex>
+            <Flex gap="4">
+              <Box flex="1">
+                <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
+                  Units
+                </Text>
+                <Select.Root
+                  collection={creditUnitCollection}
+                  value={[formData.units]}
+                  onValueChange={(e) => setFormData((p) => ({ ...p, units: e.value[0] }))}
+                  size="sm"
+                  width="full"
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Select units" />
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Portal>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {creditUnitCollection.items.map((item) => (
+                          <Select.Item key={item.value} item={item}>
+                            {item.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Portal>
+                </Select.Root>
+              </Box>
+              <Flex alignItems="flex-end" pb="1">
+                 <Checkbox 
+                  id="isElective"
+                  checked={formData.isElective}
+                  onCheckedChange={(e: any) => setFormData(p => ({ ...p, isElective: !!e.checked }))}
+                 >
+                   Is Elective Course
+                 </Checkbox>
+              </Flex>
+            </Flex>
 
             <Box>
               <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">
@@ -230,7 +406,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
               <Textarea
                 value={formData.description}
                 onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
-                rows={3}
+                rows={2}
                 bg="slate.50"
                 border="xs"
                 borderColor="border.muted"
@@ -331,20 +507,80 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
           <Text fontSize="lg" fontWeight="bold" color="slate.800">
             Created Courses ({filtered.length})
           </Text>
-          <InputGroup startElement={<Search />} ml="auto" width="260px">
-            <Input
-              placeholder="Search by Title, Code, or Level..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              bg="white"
-              border="xs"
-              borderColor="border.muted"
-              borderRadius="sm"
-              fontSize="sm"
-              px="4"
-              py="2.5"
-            />
-          </InputGroup>
+          <Flex gap="3" ml="auto">
+            <Select.Root
+              collection={levelFilterCollection}
+              value={[filters.level]}
+              onValueChange={(e) => setFilters(p => ({ ...p, level: e.value[0] }))}
+              size="sm"
+              width="150px"
+            >
+              <Select.HiddenSelect />
+              <Select.Control>
+                <Select.Trigger bg="white" border="xs" borderColor="border.muted" borderRadius="lg">
+                  <Select.ValueText placeholder="Level" />
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {levelFilterCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        {item.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+
+            <Select.Root
+              collection={semesterFilterCollection}
+              value={[filters.semester]}
+              onValueChange={(e) => setFilters(p => ({ ...p, semester: e.value[0] }))}
+              size="sm"
+              width="150px"
+            >
+              <Select.HiddenSelect />
+              <Select.Control>
+                <Select.Trigger bg="white" border="xs" borderColor="border.muted" borderRadius="lg">
+                  <Select.ValueText placeholder="Semester" />
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {semesterFilterCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        {item.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+
+            <InputGroup startElement={<Search />} width="260px">
+              <Input
+                placeholder="Search Title or Code..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                bg="white"
+                border="xs"
+                borderColor="border.muted"
+                borderRadius="xs"
+                fontSize="sm"
+                px="4"
+                py="2.5"
+              />
+            </InputGroup>
+          </Flex>
         </Flex>
 
         <Box overflowX="auto">
