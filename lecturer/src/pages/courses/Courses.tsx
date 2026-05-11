@@ -48,7 +48,6 @@ const Courses = () => {
 
   const courses = isHOD ? allCourses : assignedCourses;
   const isLoading = allLoading || assignedLoading;
-  const hasCourses = courses.length > 0;
 
   const filteredCourses = useMemo(() => {
     let filtered = courses;
@@ -87,9 +86,7 @@ const Courses = () => {
               onChange={(e) => setSearch(e.target.value)}
               fontSize="13px"
               width="300px"
-              borderColor="gray.200"
-              _hover={{ borderColor: "gray.300" }}
-              _focus={{ borderColor: "accent.500", boxShadow: "none" }}
+              borderColor="border.subtle"
             />
           </InputGroup>
 
@@ -101,7 +98,6 @@ const Courses = () => {
               onValueChange={(e) => setLevel(e.value[0])}
               size="md"
               width="100px"
-              disabled={!hasCourses}
             >
               <Select.HiddenSelect />
               <Select.Control>
@@ -132,7 +128,6 @@ const Courses = () => {
               onValueChange={(e) => setSemester(e.value[0])}
               size="md"
               width="140px"
-              disabled={!hasCourses}
             >
               <Select.HiddenSelect />
               <Select.Control>

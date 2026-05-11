@@ -30,16 +30,6 @@ const Navbar = () => {
                 boxSize="5"
                 color="gray.500"
                 cursor="pointer"
-                _hover={{ color: "gray.700" }}
-            />
-
-            {/* History / Clock */}
-            <Icon
-                as={ClockFading}
-                boxSize="5"
-                color="gray.500"
-                cursor="pointer"
-                _hover={{ color: "gray.700" }}
             />
 
             {/* Divider */}
