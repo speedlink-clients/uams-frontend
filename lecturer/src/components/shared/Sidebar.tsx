@@ -26,7 +26,7 @@ const Sidebar = () => {
     const handleLogout = () => {
         clearUser();
         localStorage.removeItem("lecturer-user-store");
-        navigate("/login");
+        navigate("/auth/login");
     };
 
     const isActive = (path: string) => {
