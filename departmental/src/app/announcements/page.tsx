@@ -2,23 +2,30 @@ import { useState, useEffect } from "react";
 import { X, Plus, Megaphone } from "lucide-react";
 import { AnnouncementServices } from "@services/announcement.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Flex, Text, Spinner, Input, EmptyState } from "@chakra-ui/react";
+import { Box, Flex, Text, Spinner, EmptyState, Button, Portal } from "@chakra-ui/react";
 import CreateAnnouncementModal from "@components/announcements/CreateAnnouncementModal";
-
-interface Announcement {
-    id: string;
-    title: string;
-    content: string;
-    createdAt: string;
-    isFor: string;
-    isRead: boolean;
-}
+import type { Announcement } from "@type/announcement.type";
+import { LuCalendar } from "react-icons/lu";
+import type { DateValue } from "@internationalized/date";
+import { 
+    DatePickerRoot, 
+    DatePickerControl, 
+    DatePickerInput, 
+    DatePickerIndicatorGroup, 
+    DatePickerTrigger, 
+    DatePickerContent, 
+    DatePickerView, 
+    DatePickerHeader, 
+    DatePickerDayTable, 
+    DatePickerMonthTable, 
+    DatePickerYearTable, 
+    DatePickerPositioner
+} from "@components/ui/date-picker";
 
 const AnnouncementsPage = () => {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [loading, setLoading] = useState(true);
-    const [dateFrom, setDateFrom] = useState("");
-    const [dateTo, setDateTo] = useState("");
+    const [dateRange, setDateRange] = useState<DateValue[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchAnnouncements = async () => {
@@ -55,18 +62,19 @@ const AnnouncementsPage = () => {
     };
 
     const filteredAnnouncements = announcements.filter((item) => {
-        if (!dateFrom && !dateTo) return true;
+        if (dateRange.length === 0) return true;
+        
         const itemDate = new Date(item.createdAt).setHours(0, 0, 0, 0);
-        const from = dateFrom ? new Date(dateFrom).setHours(0, 0, 0, 0) : null;
-        const to = dateTo ? new Date(dateTo).setHours(0, 0, 0, 0) : null;
+        const from = dateRange[0] ? dateRange[0].toDate("UTC").getTime() : null;
+        const to = dateRange[1] ? dateRange[1].toDate("UTC").getTime() : null;
+        
         if (from && itemDate < from) return false;
         if (to && itemDate > to) return false;
         return true;
     });
 
     const handleClearFilters = () => {
-        setDateFrom("");
-        setDateTo("");
+        setDateRange([]);
     };
 
     return (
@@ -74,42 +82,71 @@ const AnnouncementsPage = () => {
             {/* Header */}
             <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="6" gap="4">
                 <Text fontSize="2xl" fontWeight="bold" color="slate.900">Announcement</Text>
-                <Flex
-                    as="button"
+                <Button
                     onClick={() => setIsModalOpen(true)}
-                    bg="blue.600"
+                    bg="#1D7AD9"
                     color="white"
-                    px="4"
-                    py="2.5"
-                    borderRadius="xl"
+                    size="md"
                     fontSize="sm"
                     fontWeight="semibold"
                     _hover={{ bg: "blue.700" }}
-                    transition="all 0.2s"
-                    alignItems="center"
                     gap="2"
-                    border="none"
-                    cursor="pointer"
                 >
                     <Plus size={18} />
                     Create Announcement
-                </Flex>
+                </Button>
             </Flex>
 
             {/* Date Filters */}
-            <Flex justifyContent={{ base: "flex-start", md: "flex-end" }} alignItems="center" mb="8" gap="3" flexWrap="wrap">
-                <Text fontSize="sm" fontWeight="medium" color="slate.700">From</Text>
-                <Box bg="#eff3f6" borderRadius="xl" px="4" py="2.5">
-                    <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} bg="transparent" fontSize="sm" fontWeight="medium" color="slate.700" border="none" outline="none" cursor="pointer" p="0" />
-                </Box>
-                <Text fontSize="sm" fontWeight="medium" color="slate.700" ml="2">To</Text>
-                <Box bg="#eff3f6" borderRadius="xl" px="4" py="2.5">
-                    <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} bg="transparent" fontSize="sm" fontWeight="medium" color="slate.700" border="none" outline="none" cursor="pointer" p="0" />
-                </Box>
-                {(dateFrom || dateTo) && (
-                    <Box as="button" onClick={handleClearFilters} bg="#eff3f6" _hover={{ bg: "slate.200" }} p="2.5" borderRadius="xl" transition="all 0.2s" color="slate.700" ml="2" border="none" cursor="pointer">
+            <Flex justifyContent={{ base: "flex-start", md: "flex-end" }} alignItems="flex-end" mb="8" gap="3" flexWrap="wrap">
+                <DatePickerRoot 
+                    selectionMode="range" 
+                    maxWidth="24rem" 
+                    value={dateRange}
+                    onValueChange={(e) => setDateRange(e.value)}
+                >
+                    <DatePickerControl>
+                        <DatePickerInput index={0} />
+                        <DatePickerInput index={1} />
+                        <DatePickerIndicatorGroup>
+                            <DatePickerTrigger>
+                                <LuCalendar />
+                            </DatePickerTrigger>
+                        </DatePickerIndicatorGroup>
+                    </DatePickerControl>
+                    <Portal>
+                        <DatePickerPositioner>
+                            <DatePickerContent>
+                                <DatePickerView view="day">
+                                    <DatePickerHeader />
+                                    <DatePickerDayTable />
+                                </DatePickerView>
+                                <DatePickerView view="month">
+                                    <DatePickerHeader />
+                                    <DatePickerMonthTable />
+                                </DatePickerView>
+                                <DatePickerView view="year">
+                                    <DatePickerHeader />
+                                    <DatePickerYearTable />
+                                </DatePickerView>
+                            </DatePickerContent>
+                        </DatePickerPositioner>
+                    </Portal>
+                </DatePickerRoot>
+
+                {dateRange.length > 0 && (
+                    <Button 
+                        variant="ghost" 
+                        onClick={handleClearFilters} 
+                        bg="#eff3f6" 
+                        _hover={{ bg: "slate.200" }} 
+                        h="10"
+                        px="4"
+                        borderRadius="xl" 
+                        color="slate.700" 
+                    >
                         <X size={18} />
-                    </Box>
+                    </Button>
                 )}
             </Flex>
 
@@ -134,7 +171,7 @@ const AnnouncementsPage = () => {
                     </EmptyState.Root>
                 ) : (
                     filteredAnnouncements.map((item) => (
-                        <Box key={item.id} bg="white" borderRadius="xl" p="6" boxShadow="sm" border="1px solid" borderColor="slate.100" _hover={{ boxShadow: "md" }} transition="all 0.2s">
+                        <Box key={item.id} bg="white" borderRadius="xl" p="6" boxShadow="sm" border="xs" borderColor="border.muted" _hover={{ boxShadow: "md" }} transition="all 0.2s">
                             <Flex justifyContent="space-between" alignItems="flex-start" mb="2">
                                 <Text fontSize="sm" fontWeight="bold" color="slate.800">{item.title}</Text>
                                 <Text fontSize="10px" fontWeight="medium" color="slate.400">{formatDate(item.createdAt)}</Text>

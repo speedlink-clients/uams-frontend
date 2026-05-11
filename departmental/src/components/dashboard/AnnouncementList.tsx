@@ -45,7 +45,7 @@ export const AnnouncementList = ({ announcements }: Props) => {
                     </EmptyState.Root>
                 ) : (
                     announcements.map((item) => (
-                        <Box key={item.id} borderBottom="1px solid" borderColor="gray.50" pb="4" _last={{ borderBottom: "none", pb: "0" }}>
+                        <Box key={item.id} borderBottom="xs" borderColor="border.muted" pb="4" _last={{ borderBottom: "none", pb: "0" }}>
                             <Flex justifyContent="space-between" alignItems="flex-start" mb="1">
                                 <Text fontSize="sm" fontWeight="semibold" color="slate.800" _hover={{ color: "blue.600" }} transition="all 0.2s">
                                     {item.title}

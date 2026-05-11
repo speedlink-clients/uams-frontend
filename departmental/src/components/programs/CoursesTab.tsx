@@ -152,7 +152,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
 
   if (isCreatingRoute || isEditingRoute) {
     return (
-      <Box bg="white" borderRadius="2xl" p="8" border="1px solid" borderColor="gray.100" boxShadow="sm">
+      <Box bg="white" borderRadius="2xl" p="8" border="xs" borderColor="border.muted" boxShadow="sm">
         <Text fontSize="xl" fontWeight="bold" color="slate.800" mb="8">
           {isEditingRoute ? "Edit Course" : "Create Course"}
         </Text>
@@ -167,8 +167,8 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                 onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                 placeholder="e.g. Data Structures"
                 bg="slate.50"
-                border="1px solid"
-                borderColor="gray.200"
+                border="xs"
+                borderColor="border.muted"
                 borderRadius="lg"
               />
             </Box>
@@ -181,8 +181,8 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                 onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))}
                 placeholder="e.g. CSC 201"
                 bg="slate.50"
-                border="1px solid"
-                borderColor="gray.200"
+                border="xs"
+                borderColor="border.muted"
                 borderRadius="lg"
               />
             </Box>
@@ -232,8 +232,8 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                 onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
                 rows={3}
                 bg="slate.50"
-                border="1px solid"
-                borderColor="gray.200"
+                border="xs"
+                borderColor="border.muted"
                 borderRadius="lg"
               />
             </Box>
@@ -243,7 +243,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
           <Button
             onClick={() => navigate("/program-courses/courses")}
             variant="outline"
-            borderColor="slate.300"
+            borderColor="border.muted"
             color="slate.600"
             px="8"
             py="2.5"
@@ -326,7 +326,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
         </Button>
       </Flex>
 
-      <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="gray.100" boxShadow="sm">
+      <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm">
         <Flex p="6" alignItems="center">
           <Text fontSize="lg" fontWeight="bold" color="slate.800">
             Created Courses ({filtered.length})
@@ -337,8 +337,8 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               bg="white"
-              border="1px solid"
-              borderColor="slate.200"
+              border="xs"
+              borderColor="border.muted"
               borderRadius="sm"
               fontSize="sm"
               px="4"
@@ -350,7 +350,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
         <Box overflowX="auto">
           <Box as="table" w="full" textAlign="left">
             <Box as="thead">
-              <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="gray.100">
+              <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="border.muted">
                 <Box as="th" px="6" py="4" w="12" textAlign="center">
                   <input
                     type="checkbox"
@@ -401,8 +401,8 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                     as="tr"
                     key={course.id}
                     _hover={{ bg: "slate.50" }}
-                    borderBottom="1px solid"
-                    borderColor="gray.50"
+                    borderBottom="xs"
+                    borderColor="border.muted"
                     fontSize="sm"
                     color="slate.600"
                     bg={selectedIds.includes(course.id) ? "blue.50" : undefined}
@@ -487,8 +487,8 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
           py="3"
           borderRadius="xl"
           boxShadow="2xl"
-          border="1px solid"
-          borderColor="gray.100"
+          border="xs"
+          borderColor="border.muted"
           alignItems="center"
           gap="6"
           zIndex="50"

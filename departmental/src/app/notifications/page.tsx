@@ -48,17 +48,17 @@ const NotificationsPage = () => {
                     <Text fontSize="3xl" fontWeight="bold" color="slate.900">Notifications</Text>
                     <Text color="slate.500" mt="1" fontSize="sm">Stay updated with the latest activities across the department.</Text>
                 </Box>
-                <Flex as="button" fontSize="xs" fontWeight="bold" color="blue.600" _hover={{ color: "blue.700" }} bg="blue.50" px="6" py="3" borderRadius="xl" border="1px solid" borderColor="blue.100" alignItems="center" gap="2" transition="all 0.2s" cursor="pointer">
+                <Flex as="button" fontSize="xs" fontWeight="bold" color="blue.600" _hover={{ color: "blue.700" }} bg="blue.50" px="6" py="3" borderRadius="xl" border="xs" borderColor="blue.100" alignItems="center" gap="2" transition="all 0.2s" cursor="pointer">
                     <Check size={16} /> Mark all as read
                 </Flex>
             </Flex>
 
-            <Box borderRadius="2xl" overflow="hidden" boxShadow="sm" border="1px solid" borderColor="slate.100">
+            <Box borderRadius="2xl" overflow="hidden" boxShadow="sm" border="xs" borderColor="border.muted">
                 {NOTIFICATIONS.map((n) => {
                     const styles = getTypeColor(n.type);
                     return (
-                        <Flex key={n.id} px="10" py="8" transition="all 0.2s" position="relative" borderBottom="1px solid" borderColor="slate.50" _last={{ borderBottom: "none" }} bg={n.bgType === "blue" ? "#F4FAFF" : "white"} gap="6" role="group">
-                            <Flex shrink={0} w="12" h="12" borderRadius="xl" alignItems="center" justifyContent="center" bg="white" color={styles.color} border="1px solid" borderColor={styles.borderColor} boxShadow="sm">
+                        <Flex key={n.id} px="10" py="8" transition="all 0.2s" position="relative" borderBottom="xs" borderColor="border.muted" _last={{ borderBottom: "none" }} bg={n.bgType === "blue" ? "#F4FAFF" : "white"} gap="6" role="group">
+                            <Flex shrink={0} w="12" h="12" borderRadius="xl" alignItems="center" justifyContent="center" bg="white" color={styles.color} border="xs" borderColor={styles.borderColor} boxShadow="sm">
                                 {getIcon(n.type)}
                             </Flex>
                             <Box flex="1">

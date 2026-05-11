@@ -6,8 +6,8 @@ export const PaymentServices = {
         return data;
     },
 
-    getPaymentConfig: async (sessionId: string, programTypeId: string) => {
-        const { data } = await axiosClient.get(`/university-admin/payment-config?academic_session_id=${sessionId}&program_type_id=${programTypeId}`);
+    getPaymentConfig: async (programTypeId: string) => {
+        const { data } = await axiosClient.get(`/university-admin/payment-config?program_type_id=${programTypeId}`);
         return data;
     },
 

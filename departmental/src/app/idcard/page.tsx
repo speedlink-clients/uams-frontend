@@ -374,9 +374,9 @@ const IDCardPage = () => {
             </Flex>
 
             {/* Table Container */}
-            <Box bg="white" borderRadius="2xl" border="1px solid" borderColor="slate.100" boxShadow="sm" overflow="hidden">
+            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden">
                 {/* Table Header (Fixed - Not Scrolling) */}
-                <Flex p={{ base: "4", md: "6" }} alignItems="center" justifyContent="space-between" borderBottom="1px solid" borderColor="slate.100" flexWrap="wrap" gap="4">
+                <Flex p={{ base: "4", md: "6" }} alignItems="center" justifyContent="space-between" borderBottom="xs" borderColor="border.muted" flexWrap="wrap" gap="4">
                     <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({allFiltered.length})</Text>
                     <Button onClick={handleExportStudents} 
                         display="flex" alignItems="center" gap="6px" padding="6px 10px" background="white" border="1px solid #e2e8f0" borderRadius="12px" fontSize="12px" fontWeight="600" color="#475569" cursor="pointer" _hover={{ background: "#f8f9faff" }}>
@@ -426,7 +426,7 @@ const IDCardPage = () => {
                                 <Table.Row
                                     key={s.id}
                                     _hover={{ bg: "slate.50" }}
-                                    borderBottom="1px solid" borderColor="slate.50" color="slate.600"
+                                    borderBottom="xs" borderColor="border.muted" color="slate.600"
                                     bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"}
                                     cursor="pointer"
                                     onClick={() => toggleSelection(s.id)}
@@ -630,7 +630,7 @@ const IDCardPage = () => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom={{ base: "4", md: "8" }} left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py={{ base: "3", md: "3" }} borderRadius="xl" boxShadow="2xl" border="1px solid" borderColor="gray.100" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" w={{ base: "calc(100% - 32px)", md: "auto" }} flexWrap={{ base: "wrap", md: "nowrap" }} justifyContent="center">
+                <Flex position="fixed" bottom={{ base: "4", md: "8" }} left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py={{ base: "3", md: "3" }} borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" w={{ base: "calc(100% - 32px)", md: "auto" }} flexWrap={{ base: "wrap", md: "nowrap" }} justifyContent="center">
                     <Text fontSize="sm" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{selectedIds.length} items</Text>
                     <Box w="px" h="6" bg="slate.200" display={{ base: "none", md: "block" }} />
                     <Box as="button" onClick={handleBulkDownloadBanner} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
