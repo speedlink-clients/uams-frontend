@@ -18,8 +18,8 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
             as="header"
             h="16"
             bg="white"
-            borderBottom="1px solid"
-            borderColor="gray.200"
+            borderBottom="xs"
+            borderColor="border.muted"
             alignItems="center"
             justifyContent="space-between"
             px={{ base: "4", md: "8" }}
@@ -47,10 +47,33 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                     alignItems="center"
                     gap="4"
                     color="slate.500"
-                    borderRight="1px solid"
-                    borderColor="gray.200"
+                    borderRight="xs"
+                    borderColor="border.muted"
                     pr="6"
                 >
+                    <Button
+                        onClick={() => navigate('/audit-logs')}
+                        position="relative"
+                        _hover={{ color: "blue.600" }}
+                        transition="all 0.2s"
+                        p="2"
+                        borderRadius="lg"
+                        background="transparent"
+                        color="gray.600"
+                        title="Audit Log"
+                    >
+                        <History size={20} />
+                        <Box
+                            position="absolute"
+                            top="2"
+                            right="2"
+                            w="2"
+                            h="2"
+                            bg="blue.500"
+                            borderRadius="full"
+                            border="2px solid white"
+                        />
+                    </Button>
                     <Button
                         onClick={() => navigate('/notifications')}
                         position="relative"
@@ -100,8 +123,8 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                         h="10"
                         borderRadius="full"
                         bg="slate.100"
-                        border="1px solid"
-                        borderColor="gray.200"
+                        border="xs"
+                        borderColor="border.muted"
                         alignItems="center"
                         justifyContent="center"
                         overflow="hidden"

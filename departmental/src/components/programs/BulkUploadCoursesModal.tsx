@@ -64,7 +64,7 @@ const BulkUploadCoursesModal = ({ isOpen, onClose, onUploaded }: Props) => {
         >
             <Box bg="white" borderRadius="2xl" shadow="xl" w="full" maxW="lg" position="relative" animation="slideUp 0.3s ease-out">
                 {/* Header */}
-                <Box p="6" borderBottom="1px solid" borderColor="slate.100">
+                <Box p="6" borderBottom="xs" borderColor="border.muted">
                     <Button onClick={handleClose} position="absolute" top="4" right="4" p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400"><X size={20} /></Button>
                     <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="2">Upload Courses</Text>
                     <Text fontSize="sm" color="slate.500" mb="4">Upload a CSV file containing the courses data. Download the sample file below to see the required format.</Text>
@@ -114,8 +114,8 @@ const BulkUploadCoursesModal = ({ isOpen, onClose, onUploaded }: Props) => {
                 </Box>
 
                 {/* Actions */}
-                <Flex p="6" borderTop="1px solid" borderColor="slate.100" justifyContent="flex-end" gap="3">
-                    <Box as="button" onClick={handleClose} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="slate.100" color="slate.600" border="1px solid" borderColor="slate.200" cursor="pointer" _hover={{ bg: "slate.200" }}>Cancel</Box>
+                <Flex p="6" borderTop="xs" borderColor="border.muted" justifyContent="flex-end" gap="3">
+                    <Box as="button" onClick={handleClose} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="slate.100" color="slate.600" border="xs" borderColor="border.muted" cursor="pointer" _hover={{ bg: "slate.200" }}>Cancel</Box>
                     <Flex as="button" onClick={handleUpload} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#1D7AD9" color="white" cursor={(!file || isUploading) ? "not-allowed" : "pointer"} border="none" _hover={{ bg: (!file || isUploading) ? "#1D7AD9" : "blue.700" }} opacity={(!file || isUploading) ? 0.5 : 1} alignItems="center" gap="2">
                         {isUploading && <Spinner size="sm" />}
                         {isUploading ? "Uploading..." : "Upload"}

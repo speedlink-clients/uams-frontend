@@ -1,47 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { toaster } from "@components/ui/toaster";
 import { Loader2 } from "lucide-react";
-import { AcademicServices } from "@services/academic.service";
+// import { AcademicServices } from "@services/academic.service";
 import { ProgramServices } from "@services/program.service";
 import { PaymentServices } from "@services/payment.service";
 import { useAsync } from "react-use";
-import { z } from "zod";  
+import { paymentConfigSchema, type PaymentConfigData } from "@schemas/payment.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Flex, Text } from "@chakra-ui/react";
-
-const paymentConfigSchema = z.object({
-  academic_session_id: z.string().min(1,"Academic session is required").optional(),
-  program_type_id: z.string().min(1,"Program type is required").optional(),
-  paystack_public_key: z.string().min(1,"Paystack public key is required").optional(),
-  paystack_secret_key: z.string().min(1,"Paystack secret key is required").optional(),
-  annual_access_fee: z.number().min(1,"Annual access fee is required").optional(),
-  annual_access_merchant_fee: z.number().min(1,"Annual access merchant fee is required").optional(),
-  annual_access_split_key: z.string().min(1,"Annual access split key is required").optional(),
-  department_annual_access_dues: z.number().min(1,"Department annual access dues is required").optional(),
-  department_annual_access_merchant_fee: z.number().min(1,"Department annual access merchant fee is required").optional(),
-  department_annual_access_split_key: z.string().min(1,"Department annual access split key is required").optional(),
-  id_card_payment: z.number().min(1,"ID card payment is required").optional(),
-  id_card_merchant_fee: z.number().min(1,"ID card merchant fee is required").optional(),
-  id_card_split_key: z.string().min(1,"ID card split key is required").optional(),
-  transcript_fee: z.number().min(1,"Transcript fee is required").optional(),
-  transcript_merchant_fee: z.number().min(1,"Transcript merchant fee is required").optional(),
-  transcript_split_key: z.string().min(1,"Transcript split key is required").optional(),
-  transcript_digital_fee: z.number().min(0).optional(),
-  transcript_digital_merchant_fee: z.number().min(0).optional(),
-  transcript_courier_fee: z.number().min(0).optional(),
-  transcript_courier_merchant_fee: z.number().min(0).optional(),
-  transcript_pickup_fee: z.number().min(0).optional(),
-  transcript_pickup_merchant_fee: z.number().min(0).optional()
-})
-
-type PaymentConfigData = z.infer<typeof paymentConfigSchema>;
 
 const usePaymentConfigForm = () => {
   return useForm<PaymentConfigData>({
     resolver: zodResolver(paymentConfigSchema),
     defaultValues: {
-      academic_session_id: "",
       program_type_id: "",
       paystack_public_key: "",
       paystack_secret_key: "",
@@ -68,25 +40,10 @@ const usePaymentConfigForm = () => {
 }
 
 const PaymentSettingsTab = () => {
-  const [activeSessionId, setActiveSessionId] = useState<string>("");
   const [activeProgramType, setActiveProgramType] = useState<{id:string,name:string}>({id:"",name:""});
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Fetch API data
-  const sessions = useAsync(async () => {
-    try {
-        const data = await AcademicServices.getSessions();
-        const raw = data;
-        const sessionArray: any[] = Array.isArray(raw) ? raw : raw ? [raw] : [];
-        const activeSessions = sessionArray.filter((s) => s.isActive);
-        if (activeSessions.length > 0) setActiveSessionId(activeSessions[0].id);
-        return activeSessions;
-      } catch (error) {
-        console.error("Failed to fetch session:", error);
-        toaster.error({ title: "Failed to fetch active session" });
-      }
-  }, []);
 
   const programTypes = useAsync(async () => {
       try {
@@ -98,19 +55,19 @@ const PaymentSettingsTab = () => {
       } catch (err) {
         console.error("Failed to fetch program types:", err);
       }
-  }, [sessions.value])
+  }, [])
 
   const getCredentials = useAsync(async () => {
     try {
-      if(!activeSessionId || !activeProgramType.id) return null;
-      const data = await PaymentServices.getPaymentConfig(activeSessionId, activeProgramType.id);
+      if(!activeProgramType.id) return null;
+      const data = await PaymentServices.getPaymentConfig(activeProgramType.id);
       return data;
     } catch (error) {
       console.error("Failed to fetch credentials:", error);
       toaster.error({ title: "Failed to fetch credentials" });
       return null;
     }
-  }, [activeSessionId, activeProgramType.id]); 
+  }, [activeProgramType.id]); 
 
   const paymentConfigForm = usePaymentConfigForm();
   const annualAccessSplitKey = paymentConfigForm.watch("annual_access_split_key");
@@ -123,7 +80,6 @@ const PaymentSettingsTab = () => {
     if (getCredentials.value) {
       const data = getCredentials.value;
       paymentConfigForm.reset({
-        academic_session_id: data.metadata?.academic_session_id,
         program_type_id: data.metadata?.program_type_id,
         paystack_public_key: data.paystack_config?.public_key,
         paystack_secret_key: data.paystack_config?.secret_key,
@@ -158,11 +114,10 @@ const PaymentSettingsTab = () => {
         transcript_pickup_fee: 0, transcript_pickup_merchant_fee: 0
       });
     }
-  }, [getCredentials.value, activeSessionId, activeProgramType.id, paymentConfigForm]);
+  }, [getCredentials.value, activeProgramType.id, paymentConfigForm]);
 
   const patchPaymentConfig = useCallback(async () => {
     const payload = {
-      academic_session_id: activeSessionId,
       program_type_id: activeProgramType.id,
       paystack_public_key: paymentConfigForm.getValues("paystack_public_key")?.trim(),
       paystack_secret_key: paymentConfigForm.getValues("paystack_secret_key")?.trim(),
@@ -208,7 +163,7 @@ const PaymentSettingsTab = () => {
     } finally {
       setIsSaving(false);
     }
-  }, [activeSessionId, activeProgramType.id, paymentConfigForm]); 
+  }, [activeProgramType.id, paymentConfigForm]); 
 
   const inputStyle: React.CSSProperties = {
       width: "100%", padding: "8px 12px", border: "1px solid #e2e8f0", 
@@ -220,7 +175,7 @@ const PaymentSettingsTab = () => {
   });
 
   return (
-    <Box bg="white" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.200" p="10">
+    <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p="10">
       <Flex wrap="wrap" gap="4" justifyContent="space-between" alignItems="flex-start" mb="6">
         <Text fontSize="xl" fontWeight="bold">Payment Settings</Text>
         <button 
@@ -236,30 +191,7 @@ const PaymentSettingsTab = () => {
         </button>
       </Flex>
 
-      {/* sessions */}
-      <Box mb="10" pb="8" borderBottom="1px solid" borderColor="gray.200">
-        <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: "#374151", marginBottom: "12px" }}>
-          Active Academic Session
-        </label>
-        <Box position="relative" maxW="400px">
-          <select 
-            value={activeSessionId} 
-            onChange={(e) => setActiveSessionId(e.target.value)} 
-            disabled={sessions.loading}
-            style={{ width: "100%", padding: "10px 16px", border: "1px solid #d1d5db", borderRadius: "8px", background: "#f9fafb" }}
-          >
-            {sessions.loading && <option value="">Loading sessions...</option>}
-            {!sessions.loading && (!sessions.value || sessions.value.length === 0) && (
-              <option value="">No active session found</option>
-            )}
-            {!sessions.loading && sessions.value?.map((session) => (
-              <option key={session.id} value={session.id}>
-                {session.name}
-              </option>
-            ))}
-          </select>
-        </Box>
-      </Box>
+
 
       {/* program types */}
       <Flex mt="6" borderRadius="md" bg="gray.100" p="2" gap="2" w="fit" alignItems="center">
@@ -288,9 +220,9 @@ const PaymentSettingsTab = () => {
 
       <form onSubmit={paymentConfigForm.handleSubmit(patchPaymentConfig)}>
       {/* public /private keys */}
-      <Flex direction="column" gap="4" p="4" borderRadius="lg" border="1px solid" borderColor="gray.200" mt="12">
+      <Flex direction="column" gap="4" p="4" borderRadius="lg" border="xs" borderColor="border.muted" mt="12">
           <Text fontWeight="semibold">Paystack keys</Text>
-          <Box as="hr" borderColor="gray.200" />
+          <Box as="hr" borderColor="border.muted" />
           <Flex gap="4" w="full" direction={{ base: "column", md: "row" }}>
              {/* public key */}
               <Flex direction="column" gap="2" flex="1">
@@ -318,9 +250,9 @@ const PaymentSettingsTab = () => {
       <Box display="grid" gridTemplateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap="4" mt="10">
         
         {/* annual access fee */}
-        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="1px solid" borderColor="gray.200">
+        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="xs" borderColor="border.muted">
           <Text fontWeight="semibold">Annual Access Fee</Text>
-          <Box as="hr" borderColor="gray.200" />
+          <Box as="hr" borderColor="border.muted" />
 
           <Flex direction="column" gap="2">
             <label htmlFor="annual_access_fee_split_key" style={{ fontSize: "14px" }}>Split key</label>
@@ -343,9 +275,9 @@ const PaymentSettingsTab = () => {
         </Flex>
 
         {/* annual department dues fee */}
-        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="1px solid" borderColor="gray.200">
+        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="xs" borderColor="border.muted">
           <Text fontWeight="semibold">Annual Department Dues</Text>
-          <Box as="hr" borderColor="gray.200" />
+          <Box as="hr" borderColor="border.muted" />
   
           <Flex direction="column" gap="2">
             <label htmlFor="annual_department_dues_split_key" style={{ fontSize: "14px" }}>Split key</label>
@@ -368,9 +300,9 @@ const PaymentSettingsTab = () => {
         </Flex>
 
         {/* ID CARD payment */}
-        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="1px solid" borderColor="gray.200">
+        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="xs" borderColor="border.muted">
           <Text fontWeight="semibold">ID Card Payment</Text>
-          <Box as="hr" borderColor="gray.200" />
+          <Box as="hr" borderColor="border.muted" />
 
           <Flex direction="column" gap="2">
             <label htmlFor="id_card_payment_split_key" style={{ fontSize: "14px" }}>Split key</label>
@@ -393,9 +325,9 @@ const PaymentSettingsTab = () => {
         </Flex>
 
         {/* transcript */}
-        <Flex direction="column" gap="4" p="4" borderRadius="lg" border="1px solid" borderColor="gray.200" gridColumn={{ base: "1", lg: "1 / -1" }}>
+        <Flex direction="column" gap="4" p="4" borderRadius="lg" border="xs" borderColor="border.muted" gridColumn={{ base: "1", lg: "1 / -1" }}>
           <Text fontWeight="semibold">Transcript Delivery Options</Text>
-          <Box as="hr" borderColor="gray.200" mb="2" />
+          <Box as="hr" borderColor="border.muted" mb="2" />
   
           <Flex direction={{ base: "column", md: "row" }} gap="4" maxW="800px" mb="6">
             <Flex direction="column" gap="2" flex="1">
@@ -416,7 +348,7 @@ const PaymentSettingsTab = () => {
           </Flex>
 
           <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr 1fr" }} gap="6">
-            <Box bg="slate.50" p="4" borderRadius="md" border="1px solid" borderColor="slate.200">
+            <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
               <Text fontSize="sm" fontWeight="bold" color="slate.800" mb="3">Digital Delivery</Text>
               <Text fontSize="xs" color="slate.500" mb="4">Email delivery</Text>
               <Flex direction="column" gap="3">
@@ -431,7 +363,7 @@ const PaymentSettingsTab = () => {
               </Flex>
             </Box>
 
-            <Box bg="slate.50" p="4" borderRadius="md" border="1px solid" borderColor="slate.200">
+            <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
               <Text fontSize="sm" fontWeight="bold" color="slate.800" mb="3">Courier Service</Text>
               <Text fontSize="xs" color="slate.500" mb="4">Doorstep delivery</Text>
               <Flex direction="column" gap="3">
@@ -446,7 +378,7 @@ const PaymentSettingsTab = () => {
               </Flex>
             </Box>
 
-            <Box bg="slate.50" p="4" borderRadius="md" border="1px solid" borderColor="slate.200">
+            <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
               <Text fontSize="sm" fontWeight="bold" color="slate.800" mb="3">Physical Pickup</Text>
               <Text fontSize="xs" color="slate.500" mb="4">Pick up at registry</Text>
               <Flex direction="column" gap="3">

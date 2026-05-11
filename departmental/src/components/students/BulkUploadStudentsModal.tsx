@@ -130,7 +130,7 @@ const BulkUploadStudentsModal = ({ isOpen, onClose, onUploaded }: Props) => {
 
                 {/* Actions */}
                 <Flex justifyContent="flex-end" gap="3">
-                    <Box as="button" onClick={handleClose} px="6" py="2.5" borderRadius="lg" fontSize="sm" border="1px solid" borderColor="slate.300" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>Close</Box>
+                    <Box as="button" onClick={handleClose} px="6" py="2.5" borderRadius="lg" fontSize="sm" border="xs" borderColor="border.muted" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>Close</Box>
                     <Flex as="button" onClick={handleUpload} px="6" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#00B01D" color="white" cursor="pointer" border="none" _hover={{ bg: "green.700" }} opacity={(!file || isUploading) ? 0.5 : 1} display="flex" alignItems="center" gap="2">
                         {isUploading ? <><Spinner size="sm" /> Uploading...</> : <><Upload size={16} /> Upload</>}
                     </Flex>
