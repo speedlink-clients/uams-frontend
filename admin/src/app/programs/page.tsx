@@ -1,87 +1,70 @@
-import { useNavigate, useLocation, Routes, Route } from "react-router";
+import { useState } from "react";
+import { Box, Flex, Text, Tabs } from "@chakra-ui/react";
 import { BookOpen, Layers } from "lucide-react";
-// import { Calendar, CreditCard } from "lucide-react";
-import { Box, Flex, Text } from "@chakra-ui/react";
-// import StructureTab from "@components/programs/StructureTab";
-// import ProgramsTab from "@components/programs/ProgramsTab";
+import { Routes, Route } from "react-router";
 import CoursesTab from "@components/programs/CoursesTab";
 import ProgramTypeTab from "@components/programs/ProgramTypeTab";
-// import CreditLimitTab from "@components/programs/CreditLimitTab";
-
-interface TabButtonProps {
-    active: boolean;
-    onClick: () => void;
-    icon: React.ReactNode;
-    label: string;
-}
-
-const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
-    <Box
-        as="button"
-        onClick={onClick}
-        display="flex"
-        alignItems="center"
-        gap="2"
-        px="4"
-        py="2"
-        borderRadius="lg"
-        fontSize="sm"
-        fontWeight={active ? "bold" : "medium"}
-        bg={active ? "white" : "transparent"}
-        color={active ? "#1D7AD9" : "slate.500"}
-        boxShadow={active ? "sm" : "none"}
-        border={active ? "1px solid" : "1px solid transparent"}
-        borderColor={active ? "slate.200" : "transparent"}
-        transition="all 0.2s"
-        cursor="pointer"
-        _hover={{ color: active ? "#1D7AD9" : "slate.700", bg: active ? "white" : "slate.100" }}
-    >
-        {icon}
-        {label}
-    </Box>
-);
 
 const ProgramCoursesPage = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const getActiveTab = (pathname: string) => {
-        if (pathname.includes("/program-types")) return "Program Types";
-        // if (pathname.includes("/credit-limits")) return "Credit Limits";
-        // if (pathname.includes("/programs")) return "Programs";
-        if (pathname.includes("/courses")) return "Courses";
-        return "Courses";
-    };
-
-    const activeTab = getActiveTab(location.pathname);
+    const [activeTab, setActiveTab] = useState("courses");
 
     return (
         <Flex direction="column" gap="6">
-            <Flex alignItems="center" justifyContent="space-between" flexWrap="wrap" gap="4">
-                <Text fontSize="2xl" fontWeight="bold" color="slate.800">Programs & Courses</Text>
-                <Flex bg="slate.100" p="1" borderRadius="xl" overflowX="auto">
-                    {/* <TabButton active={activeTab === "Structure"} onClick={() => navigate("/program-courses")} icon={<Calendar size={16} />} label="Setup & Sessions" /> */}
-                    {/* <TabButton active={activeTab === "Programs"} onClick={() => navigate("/program-courses/programs")} icon={<Layers size={16} />} label="Programs" /> */}
-                    <TabButton active={activeTab === "Courses"} onClick={() => navigate("/program-courses/courses")} icon={<BookOpen size={16} />} label="Courses" />
-                    {/* <TabButton active={activeTab === "Credit Limits"} onClick={() => navigate("/program-courses/credit-limits")} icon={<CreditCard size={16} />} label="Credit Limits" /> */}
-                    <TabButton active={activeTab === "Program Types"} onClick={() => navigate("/program-courses/program-types")} icon={<Layers size={16} />} label="Program Types" />
-                </Flex>
-            </Flex>
+            <Box>
+                <Text fontSize="2xl" fontWeight="bold" color="slate.800" mb="2">
+                    Programs & Courses
+                </Text>
+                
+                <Tabs.Root value={activeTab} onValueChange={(e) => setActiveTab(e.value)} variant="plain">
+                    <Flex justifyContent="flex-start" mb="8">
+                        <Tabs.List bg="slate.50" p="1.5" borderRadius="lg" border="xs" borderColor="border.muted" display="flex" gap="2">
+                            <Tabs.Trigger 
+                                value="courses" 
+                                color="slate.500" 
+                                fontWeight="bold" 
+                                borderRadius="md" 
+                                px="4" 
+                                py="2.5" 
+                                gap="2"
+                                _selected={{ bg: "white", color: "#1D7AD9", border: "1px solid", borderColor: "slate.200" }}
+                                _hover={{ color: "slate.700", bg: "slate.100", _selected: { color: "#1D7AD9", bg: "white" } }}
+                                transition="all 0.2s"
+                                border="1px solid transparent"
+                            >
+                                <BookOpen size={16} /> Courses
+                            </Tabs.Trigger>
+                            
+                            <Tabs.Trigger 
+                                value="program-types" 
+                                color="slate.500" 
+                                fontWeight="bold" 
+                                borderRadius="md" 
+                                px="4" 
+                                py="2.5" 
+                                gap="2"
+                                _selected={{ bg: "white", color: "#1D7AD9", border: "1px solid", borderColor: "slate.200" }}
+                                _hover={{ color: "slate.700", bg: "slate.100", _selected: { color: "#1D7AD9", bg: "white" } }}
+                                transition="all 0.2s"
+                                border="1px solid transparent"
+                            >
+                                <Layers size={16} /> Program Types
+                            </Tabs.Trigger>
+                        </Tabs.List>
+                    </Flex>
 
-            <Routes>
-                <Route index element={<CoursesTab />} />
-                {/* <Route path="sessions" element={<StructureTab />} /> */}
-                {/* <Route path="sessions/new" element={<StructureTab isCreatingRoute />} /> */}
-                {/* <Route path="sessions/edit/:id" element={<StructureTab isEditingRoute />} /> */}
-                {/* <Route path="programs" element={<ProgramsTab />} /> */}
-                {/* <Route path="programs/new" element={<ProgramsTab isCreatingRoute />} /> */}
-                {/* <Route path="programs/edit/:id" element={<ProgramsTab isEditingRoute />} /> */}
-                <Route path="courses" element={<CoursesTab />} />
-                <Route path="courses/new" element={<CoursesTab isCreatingRoute />} />
-                <Route path="courses/edit/:id" element={<CoursesTab isEditingRoute />} />
-                {/* <Route path="credit-limits" element={<CreditLimitTab />} /> */}
-                <Route path="program-types" element={<ProgramTypeTab />} />
-            </Routes>
+                    <Tabs.Content value="courses" p={0}>
+                        <Routes>
+                            <Route index element={<CoursesTab />} />
+                            <Route path="courses" element={<CoursesTab />} />
+                            <Route path="courses/new" element={<CoursesTab isCreatingRoute />} />
+                            <Route path="courses/edit/:id" element={<CoursesTab isEditingRoute />} />
+                        </Routes>
+                    </Tabs.Content>
+                    <Tabs.Content value="program-types" p={0}>
+                        <ProgramTypeTab />
+                    </Tabs.Content>
+                </Tabs.Root>
+            </Box>
         </Flex>
     );
 };
