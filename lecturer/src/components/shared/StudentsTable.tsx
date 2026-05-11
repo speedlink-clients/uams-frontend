@@ -70,7 +70,7 @@ const StudentsTable = ({ students, isLoading }: StudentsTableProps) => {
             overflowX="auto"
             borderRadius="lg"
             border="1px solid"
-            borderColor="gray.100"
+            borderColor="border.subtle"
             bg="white"
             maxW="calc(100vw - 260px - 48px)"
         >

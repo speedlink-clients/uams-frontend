@@ -102,9 +102,9 @@ axiosClient.interceptors.response.use(
         closable: true
       });
       // Redirect to login
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 1000);
+    // setTimeout(() => {
+   //  window.location.href = "/login";
+  //   }, 1000);
     }
 
     // �🟡 Bad Request (400)

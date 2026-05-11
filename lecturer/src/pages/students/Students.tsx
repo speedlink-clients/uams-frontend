@@ -70,7 +70,6 @@ const Students = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
 
-  const hasNoStudents = students.length === 0;
 
   return (
     <Box>
@@ -103,7 +102,6 @@ const Students = () => {
           onValueChange={(e) => setLevel(e.value[0])}
           size="md"
           width="160px"
-          disabled={hasNoStudents} // Disable when no students
         >
           <Select.HiddenSelect />
           <Select.Control>
@@ -135,8 +133,7 @@ const Students = () => {
           bg="white"
           borderRadius="2xl"
           border="1px solid"
-          borderColor="gray.100"
-          boxShadow="sm"
+          borderColor="border.subtle"
           p="4"
           mt="4"
         >
@@ -154,11 +151,10 @@ const Students = () => {
               disabled={currentPage === 1}
               size="sm"
               variant="outline"
-              borderColor="gray.200"
+              borderColor="border.subtle"
               bg="white"
               color="gray.700"
               fontWeight="500"
-              _hover={{ bg: "gray.50" }}
             >
               Previous
             </Button>
@@ -186,9 +182,6 @@ const Students = () => {
                   borderColor={isActive ? "transparent" : "gray.200"}
                   fontWeight="medium"
                   minW="36px"
-                  _hover={{
-                    bg: isActive ? "#1D7AD9" : "gray.50",
-                  }}
                 >
                   {pageNum}
                 </Button>
@@ -200,11 +193,10 @@ const Students = () => {
               disabled={currentPage === totalPages}
               size="sm"
               variant="outline"
-              borderColor="gray.200"
+              borderColor="border.subtle"
               bg="white"
               color="gray.700"
               fontWeight="500"
-              _hover={{ bg: "gray.50" }}
             >
               Next
             </Button>

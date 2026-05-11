@@ -9,11 +9,10 @@ import {
   createListCollection,
   InputGroup,
   Input,
-  Button,  
 } from "@chakra-ui/react";
 import { LecturerHook } from "@hooks/lecturer.hook";
 import LecturersTable from "@components/shared/LecturersTable";
-import { LuSearch, LuX } from "react-icons/lu";
+import { LuSearch } from "react-icons/lu";
 
 const Lecturers = () => {
   const [search, setSearch] = useState("");
@@ -32,10 +31,22 @@ const Lecturers = () => {
     return Array.from(roles).sort();
   }, [lecturers]);
 
-  // Create collection for Select.Root
-  const roleCollection = createListCollection({
-    items: uniqueRoles.map((role) => ({ label: role, value: role })),
-  });
+  // Create collection for Select.Root:
+  // - If roles exist, show "All Roles" + the roles.
+  // - If no roles, show "No roles" as a placeholder.
+  const roleCollection = useMemo(() => {
+    if (uniqueRoles.length === 0) {
+      return createListCollection({
+        items: [{ label: "No roles", value: "" }],
+      });
+    }
+    return createListCollection({
+      items: [
+        { label: "All Roles", value: "" },
+        ...uniqueRoles.map((role) => ({ label: role, value: role })),
+      ],
+    });
+  }, [uniqueRoles]);
 
   // Client-side search + role filter
   const filteredLecturers = useMemo(() => {
@@ -57,7 +68,7 @@ const Lecturers = () => {
       );
     }
 
-    // Apply role filter
+    // Apply role filter (empty value means no filter)
     if (roleFilter) {
       result = result.filter((l) => l.currentAdminRole === roleFilter);
     }
@@ -67,14 +78,6 @@ const Lecturers = () => {
 
   const totalCount = lecturers?.length ?? 0;
   const filteredCount = filteredLecturers.length;
-
-  // Clear all filters
-  const clearFilters = () => {
-    setSearch("");
-    setRoleFilter("");
-  };
-
-   const hasNoRoles = uniqueRoles.length === 0;
 
   return (
     <Box>
@@ -98,19 +101,18 @@ const Lecturers = () => {
           />
         </InputGroup>
 
-        {/* Role Filter */}
+        {/* Role Filter Select - no disabled prop */}
         <Select.Root
           collection={roleCollection}
           value={roleFilter ? [roleFilter] : []}
           onValueChange={(e) => setRoleFilter(e.value[0] || "")}
           size="md"
           width="120px"
-          disabled={hasNoRoles}
         >
           <Select.HiddenSelect />
           <Select.Control>
             <Select.Trigger>
-              <Select.ValueText placeholder={hasNoRoles ? "No Roles" : "All Roles"} />
+              <Select.ValueText placeholder="All Roles" />
             </Select.Trigger>
             <Select.IndicatorGroup>
               <Select.Indicator />
@@ -128,21 +130,6 @@ const Lecturers = () => {
             </Select.Positioner>
           </Portal>
         </Select.Root>
-
-        {/* Clear Filters Button */}
-        <Button
-          onClick={clearFilters}
-          size="md"
-          variant="outline"
-          borderColor="gray.200"
-          bg="white"
-          color="gray.700"
-          fontWeight="500"
-          fontSize="xs"
-          _hover={{ bg: "gray.50" }}
-        >
-        <LuX />  Clear Filters
-        </Button>
       </Flex>
 
       {/* Lecturers Table */}
