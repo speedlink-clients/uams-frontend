@@ -9,8 +9,11 @@ import {
   Select,
   Portal,
   createListCollection,
+  EmptyState,
+  VStack,
 } from "@chakra-ui/react";
 import { Search } from "lucide-react";
+import { LuBookOpen } from "react-icons/lu";
 import { CourseHook } from "@hooks/course.hook";
 import CourseList from "@components/shared/CourseList";
 import { useCurrentUser } from "@hooks/currentUser.hook";
@@ -39,7 +42,6 @@ const Courses = () => {
 
   const { isHOD } = useCurrentUser();
 
-  
   const { data: allCourses = [], isLoading: allLoading } = CourseHook.useAllCourses();
   const { data: assignedCourses = [], isLoading: assignedLoading } = CourseHook.useAllCourses();
 
@@ -55,11 +57,9 @@ const Courses = () => {
       );
     }
     if (level !== "All") {
-      // API level format: "L100", "L200", etc.
       filtered = filtered.filter((c) => c.level === `L${level}`);
     }
     if (semester !== "All") {
-      // API semester format: "FIRST", "SECOND"
       const semesterMap = { "First Semester": "FIRST", "Second Semester": "SECOND" };
       filtered = filtered.filter((c) => c.semester === semesterMap[semester]);
     }
@@ -67,10 +67,11 @@ const Courses = () => {
   }, [courses, search, level, semester]);
 
   const totalCount = courses.length;
+  const hasNoCourses = filteredCourses.length === 0 && !isLoading;
 
   return (
     <Box>
-      <Heading  color="fg.muted" mb="5" fontSize="24px">
+      <Heading color="fg.muted" mb="5" fontSize="24px">
         Courses{" "}
         <Text as="span" color="fg.subtle" fontSize="lg">
           ({totalCount})
@@ -91,7 +92,6 @@ const Courses = () => {
           </InputGroup>
 
           <Flex gap="3">
-            {/* Level Filter */}
             <Select.Root
               collection={levelCollection}
               value={[level]}
@@ -121,7 +121,6 @@ const Courses = () => {
               </Portal>
             </Select.Root>
 
-            {/* Semester Filter */}
             <Select.Root
               collection={semesterCollection}
               value={[semester]}
@@ -153,7 +152,25 @@ const Courses = () => {
           </Flex>
         </Flex>
 
-        <CourseList courses={filteredCourses} isLoading={isLoading} />
+        {hasNoCourses ? (
+          <EmptyState.Root>
+            <EmptyState.Content>
+              <EmptyState.Indicator>
+                <LuBookOpen />
+              </EmptyState.Indicator>
+              <VStack textAlign="center">
+                <EmptyState.Title>No courses found</EmptyState.Title>
+                <EmptyState.Description>
+                  {courses.length === 0
+                    ? "No courses have been assigned yet."
+                    : "Try adjusting your search or filters to see more results."}
+                </EmptyState.Description>
+              </VStack>
+            </EmptyState.Content>
+          </EmptyState.Root>
+        ) : (
+          <CourseList courses={filteredCourses} isLoading={isLoading} />
+        )}
       </Box>
     </Box>
   );

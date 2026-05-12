@@ -27,9 +27,6 @@ const Dashboard = () => {
                     <Heading size="xl" fontWeight="700" color="fg.subtle" fontSize="24px">
                         Hello <Text as="span" color="fg.muted" fontWeight="700">{displayName},</Text>
                     </Heading>
-                    <Text color="fg.subtle" fontSize="15px">
-                        Welcome back
-                    </Text>
                 </Box>
 
                 <Flex gap="5" mb="8">
@@ -89,9 +86,8 @@ const Dashboard = () => {
                           </EmptyState.Root>
                         ) : (
                             <TimetablePanel
-                                timetable={timetableData}
-                                selectedFilter={timetableFilter}
-                                onFilterChange={setTimetableFilter}
+                               selectedFilter={timetableFilter}
+                               onFilterChange={setTimetableFilter}
                             />
                         )}
                     </Box>
