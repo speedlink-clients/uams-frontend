@@ -66,10 +66,10 @@ const BulkUploadStudentsModal = ({ isOpen, onClose, onUploaded }: Props) => {
     return (
         <Box position="fixed" inset="0" bg="blackAlpha.600" display="flex" alignItems="center" justifyContent="center" zIndex="100" p="4">
             <Box bg="white" borderRadius="2xl" p="8" maxW="lg" w="full" boxShadow="2xl" position="relative">
-                <Box as="button" onClick={handleClose} position="absolute" top="4" right="4" p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400"><X size={20} /></Box>
+                <Box as="button" onClick={handleClose} position="absolute" top="4" right="4" p="1" _hover={{ bg: "fg.subtle" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="fg.subtle"><X size={20} /></Box>
 
-                <Text fontSize="lg" fontWeight="bold" color="slate.800" mb="2">Bulk Upload Students</Text>
-                <Text fontSize="sm" color="slate.500" mb="6">Upload a CSV or Excel file with student data</Text>
+                <Text fontSize="lg" fontWeight="bold" color="fg.muted" mb="2">Bulk Upload Students</Text>
+                <Text fontSize="sm" color="fg.muted" mb="6">Upload a CSV or Excel file with student data</Text>
 
                 {/* Download Sample */}
                 <Box as="button" onClick={handleDownloadSample} display="flex" alignItems="center" gap="2" mb="6" px="4" py="2" bg="blue.50" color="blue.600" borderRadius="lg" fontSize="sm" fontWeight="medium" border="none" cursor="pointer" _hover={{ bg: "blue.100" }}>
@@ -98,14 +98,14 @@ const BulkUploadStudentsModal = ({ isOpen, onClose, onUploaded }: Props) => {
                             <FileSpreadsheet size={24} color="#16a34a" />
                             <Box>
                                 <Text fontSize="sm" fontWeight="medium" color="green.700">{file.name}</Text>
-                                <Text fontSize="xs" color="slate.500">{(file.size / 1024).toFixed(1)} KB</Text>
+                                <Text fontSize="xs" color="fg.muted">{(file.size / 1024).toFixed(1)} KB</Text>
                             </Box>
                         </Flex>
                     ) : (
                         <>
                             <Upload size={28} color="#94a3b8" />
-                            <Text fontSize="sm" color="slate.500" mt="2">Click to select a file or drag and drop</Text>
-                            <Text fontSize="xs" color="slate.400" mt="1">CSV or XLSX files only</Text>
+                            <Text fontSize="sm" color="fg.muted" mt="2">Click to select a file or drag and drop</Text>
+                            <Text fontSize="xs" color="fg.subtle" mt="1">CSV or XLSX files only</Text>
                         </>
                     )}
                 </Flex>
@@ -122,7 +122,7 @@ const BulkUploadStudentsModal = ({ isOpen, onClose, onUploaded }: Props) => {
                                 {result.errors.slice(0, 5).map((err, i) => (
                                     <Text key={i} fontSize="xs" color="red.600">• {err}</Text>
                                 ))}
-                                {result.errors.length > 5 && <Text fontSize="xs" color="slate.500">...and {result.errors.length - 5} more errors</Text>}
+                                {result.errors.length > 5 && <Text fontSize="xs" color="fg.muted">...and {result.errors.length - 5} more errors</Text>}
                             </Box>
                         )}
                     </Box>
@@ -130,7 +130,7 @@ const BulkUploadStudentsModal = ({ isOpen, onClose, onUploaded }: Props) => {
 
                 {/* Actions */}
                 <Flex justifyContent="flex-end" gap="3">
-                    <Box as="button" onClick={handleClose} px="6" py="2.5" borderRadius="lg" fontSize="sm" border="xs" borderColor="border.muted" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>Close</Box>
+                    <Box as="button" onClick={handleClose} px="6" py="2.5" borderRadius="lg" fontSize="sm" border="xs" borderColor="border.muted" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>Close</Box>
                     <Flex as="button" onClick={handleUpload} px="6" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#00B01D" color="white" cursor="pointer" border="none" _hover={{ bg: "green.700" }} opacity={(!file || isUploading) ? 0.5 : 1} display="flex" alignItems="center" gap="2">
                         {isUploading ? <><Spinner size="sm" /> Uploading...</> : <><Upload size={16} /> Upload</>}
                     </Flex>

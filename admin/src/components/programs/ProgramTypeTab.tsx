@@ -184,7 +184,7 @@ const ProgramTypeTab = () => {
       <Flex alignItems="center" justifyContent="center" minH="400px">
         <Flex direction="column" alignItems="center" gap="4">
           <Spinner size="xl" color="blue.500" borderWidth="3px" />
-          <Text color="slate.500">Loading program types...</Text>
+          <Text color="fg.muted">Loading program types...</Text>
         </Flex>
       </Flex>
     );
@@ -231,11 +231,11 @@ const ProgramTypeTab = () => {
                     <Dialog.Title
                       fontSize="lg"
                       fontWeight="bold"
-                      color="slate.800"
+                      color="fg.muted"
                     >
                       Create Program Type
                     </Dialog.Title>
-                    <Text fontSize="sm" color="slate.500" mt="1">
+                    <Text fontSize="sm" color="fg.muted" mt="1">
                       Add a new program type to the system (e.g., Bachelor of
                       Science, Master of Arts)
                     </Text>
@@ -246,7 +246,7 @@ const ProgramTypeTab = () => {
                 <Flex direction="column" gap="6">
                   <Flex gap="4">
                     <Field.Root flex="6.5">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Name</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Name</Field.Label>
                       <Input
                         value={createFormData.name}
                         onChange={(e) =>
@@ -261,7 +261,7 @@ const ProgramTypeTab = () => {
                       />
                     </Field.Root>
                     <Field.Root flex="3.5">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Code</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Code</Field.Label>
                       <Input
                         value={createFormData.code}
                         onChange={(e) =>
@@ -279,7 +279,7 @@ const ProgramTypeTab = () => {
 
                   <Flex gap="4">
                     <Field.Root flex="1">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Type</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Type</Field.Label>
                       <Select.Root
                         collection={typeCollection}
                         value={createFormData.type ? [createFormData.type] : []}
@@ -312,7 +312,7 @@ const ProgramTypeTab = () => {
                     </Field.Root>
 
                     <Field.Root flex="1">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Description</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Description</Field.Label>
                       <Textarea
                         value={createFormData.description}
                         onChange={(e) =>
@@ -335,7 +335,7 @@ const ProgramTypeTab = () => {
                   <Button
                     variant="outline"
                     borderColor="border.muted"
-                    color="slate.600"
+                    color="fg.muted"
                     px="8"
                     fontWeight="bold"
                     fontSize="sm"
@@ -380,10 +380,10 @@ const ProgramTypeTab = () => {
                     <GraduationCap size={20} color="#2563eb" />
                   </Flex>
                   <Box>
-                    <Dialog.Title fontSize="lg" fontWeight="bold" color="slate.800">
+                    <Dialog.Title fontSize="lg" fontWeight="bold" color="fg.muted">
                       Edit Program Type
                     </Dialog.Title>
-                    <Text fontSize="sm" color="slate.500" mt="1">
+                    <Text fontSize="sm" color="fg.muted" mt="1">
                       Update the details of the existing program type.
                     </Text>
                   </Box>
@@ -393,7 +393,7 @@ const ProgramTypeTab = () => {
                 <Flex direction="column" gap="6">
                   <Flex gap="4">
                     <Field.Root flex="6.5">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Name</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Name</Field.Label>
                       <Input
                         value={formData.name}
                         onChange={(e) =>
@@ -405,7 +405,7 @@ const ProgramTypeTab = () => {
                       />
                     </Field.Root>
                     <Field.Root flex="3.5">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Code</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Code</Field.Label>
                       <Input
                         value={formData.code}
                         onChange={(e) =>
@@ -420,7 +420,7 @@ const ProgramTypeTab = () => {
 
                   <Flex gap="4">
                     <Field.Root flex="1">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Type</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Type</Field.Label>
                       <Select.Root
                         collection={typeCollection}
                         value={formData.type ? [formData.type] : []}
@@ -453,7 +453,7 @@ const ProgramTypeTab = () => {
                     </Field.Root>
 
                     <Field.Root flex="1">
-                      <Field.Label fontSize="sm" fontWeight="medium" color="slate.700">Description</Field.Label>
+                      <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Description</Field.Label>
                       <Textarea
                         value={formData.description}
                         onChange={(e) =>
@@ -476,7 +476,7 @@ const ProgramTypeTab = () => {
                   <Button
                     variant="outline"
                     borderColor="border.muted"
-                    color="slate.600"
+                    color="fg.muted"
                     px="8"
                     fontWeight="bold"
                     fontSize="sm"
@@ -505,7 +505,7 @@ const ProgramTypeTab = () => {
       {/* Table */}
       <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" overflow="hidden">
         <Box p="6" borderBottom="1px solid" borderColor="border.muted">
-          <Text fontSize="lg" fontWeight="bold" color="slate.800">
+          <Text fontSize="lg" fontWeight="bold" color="fg.muted">
             Program Types ({programTypes.length})
           </Text>
         </Box>
@@ -523,11 +523,11 @@ const ProgramTypeTab = () => {
                     cursor="pointer"
                   />
                 </Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="slate.500" textTransform="uppercase">S/N</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="slate.500" textTransform="uppercase">NAME</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="slate.500" textTransform="uppercase">CODE</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="slate.500" textTransform="uppercase">TYPE</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="slate.500" textTransform="uppercase" textAlign="center">ACTIONS</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase">S/N</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase">NAME</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase">CODE</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase">TYPE</Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase" textAlign="center">ACTIONS</Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -570,7 +570,7 @@ const ProgramTypeTab = () => {
                     _hover={{ bg: "slate.50" }}
                     borderColor="border.muted"
                     fontSize="sm"
-                    color="slate.600"
+                    color="fg.muted"
                   >
                     <Table.Cell px="6" py="4" textAlign="center">
                       <Checkbox
@@ -589,8 +589,8 @@ const ProgramTypeTab = () => {
                           aria-label="Edit"
                           size="sm"
                           variant="ghost"
-                          color="slate.400"
-                          _hover={{ bg: "slate.100" }}
+                          color="fg.subtle"
+                          _hover={{ bg: "fg.subtle" }}
                           onClick={() => handleEdit(pt)}
                           borderRadius="full"
                           minW="auto"
@@ -639,10 +639,10 @@ const ProgramTypeTab = () => {
           gap="6"
           zIndex="50"
         >
-          <Text fontSize="sm" fontWeight="bold" color="slate.700">
+          <Text fontSize="sm" fontWeight="bold" color="fg.muted">
             {selectedIds.length} items selected
           </Text>
-          <Box w="px" h="6" bg="slate.200" />
+          <Box w="px" h="6" bg="fg.subtle" />
           <Button
             onClick={handleBulkDelete}
             bg="red.500"
@@ -656,13 +656,13 @@ const ProgramTypeTab = () => {
           >
             <Trash2 size={16} /> Delete
           </Button>
-          <Box w="px" h="6" bg="slate.200" />
+          <Box w="px" h="6" bg="fg.subtle" />
           <Button
             aria-label="Unselect all"
             variant="ghost"
             size="sm"
-            color="slate.400"
-            _hover={{ bg: "slate.100" }}
+            color="fg.subtle"
+            _hover={{ bg: "fg.subtle" }}
             onClick={() => setSelectedIds([])}
           >
             <X size={20} />

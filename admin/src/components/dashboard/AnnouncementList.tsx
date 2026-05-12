@@ -13,7 +13,7 @@ export const AnnouncementList = ({ announcements }: Props) => {
     return (
         <Box bg="bg" borderRadius="md" p="6" border="xs" borderColor="border.muted" display="flex" flexDirection="column" h="full">
             <Flex alignItems="center" justifyContent="space-between" mb="6">
-                <Text fontWeight="bold" color="slate.800">Announcements</Text>
+                <Text fontWeight="bold" color="fg.muted">Announcements</Text>
                 <Button
                     bg="accent.500"
                     color="white"
@@ -47,14 +47,14 @@ export const AnnouncementList = ({ announcements }: Props) => {
                     announcements.map((item) => (
                         <Box key={item.id} borderBottom="xs" borderColor="border.muted" pb="4" _last={{ borderBottom: "none", pb: "0" }}>
                             <Flex justifyContent="space-between" alignItems="flex-start" mb="1">
-                                <Text fontSize="sm" fontWeight="semibold" color="slate.800" _hover={{ color: "blue.600" }} transition="all 0.2s">
+                                <Text fontSize="sm" fontWeight="semibold" color="fg.muted" _hover={{ color: "blue.600" }} transition="all 0.2s">
                                     {item.title}
                                 </Text>
-                                <Text fontSize="10px" fontWeight="medium" color="slate.400" bg="slate.50" px="1.5" py="0.5" borderRadius="sm" textTransform="uppercase" letterSpacing="tighter">
+                                <Text fontSize="10px" fontWeight="medium" color="fg.subtle" bg="slate.50" px="1.5" py="0.5" borderRadius="sm" textTransform="uppercase" letterSpacing="tighter">
                                     {item.date}
                                 </Text>
                             </Flex>
-                            <Text fontSize="xs" color="slate.500" lineHeight="relaxed" lineClamp={2}>
+                            <Text fontSize="xs" color="fg.muted" lineHeight="relaxed" lineClamp={2}>
                                 {item.description}
                             </Text>
                         </Box>

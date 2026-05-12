@@ -217,8 +217,8 @@ const StudentsPage = () => {
             {/* Header */}
             <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="10" gap="4">
                 <Box maxW="xl">
-                    <Text fontSize="3xl" fontWeight="bold" color="slate.900">Students</Text>
-                    <Text color="slate.500" mt="2">
+                    <Text fontSize="3xl" fontWeight="bold" color="fg.muted">Students</Text>
+                    <Text color="fg.muted" mt="2">
                         {students.length} total students • {filteredStudents.length} filtered
                     </Text>
                 </Box>
@@ -246,7 +246,7 @@ const StudentsPage = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{ width: "100%", background: "white", border: "1px solid #e2e8f0", fontSize: "12px", padding: "8px 12px 8px 36px", borderRadius: "8px", outline: "none", color: "#334155" }}
                         />
-                        <Box position="absolute" left="3" top="50%" transform="translateY(-50%)" color="slate.400" pointerEvents="none">
+                        <Box position="absolute" left="3" top="50%" transform="translateY(-50%)" color="fg.subtle" pointerEvents="none">
                             <Search size={16} />
                         </Box>
                     </Box>
@@ -262,7 +262,7 @@ const StudentsPage = () => {
                         <select value={selectedSession} onChange={(e) => setSelectedSession(e.target.value)} style={selectStyle}>
                             <option value="all">All Sessions</option>
                         </select>
-                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" fontSize="xs" fontWeight="semibold" color="slate.800" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" fontSize="xs" fontWeight="semibold" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>
                             <X size={16} /> Clear Filters
                         </Box>
                     </Flex>
@@ -271,8 +271,8 @@ const StudentsPage = () => {
 
             {/* Export Table header */}
             <Flex alignItems="center" justifyContent="space-between" mb="4">
-                <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({filteredStudents.length})</Text>
-                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="slate.600" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                <Text fontSize="lg" fontWeight="bold" color="fg.muted">Students ({filteredStudents.length})</Text>
+                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>
                     <Download size={16} color="#94a3b8" /> Export Table
                 </Box>
             </Flex>
@@ -282,7 +282,7 @@ const StudentsPage = () => {
                 <Flex alignItems="center" justifyContent="center" minH="400px">
                     <Flex direction="column" alignItems="center" gap="4">
                         <Spinner size="xl" color="blue.500" borderWidth="3px" />
-                        <Text color="slate.500">Loading students...</Text>
+                        <Text color="fg.muted">Loading students...</Text>
                     </Flex>
                 </Flex>
             ) : paginatedStudents.length === 0 ? (
@@ -302,7 +302,7 @@ const StudentsPage = () => {
                     <Box overflowX="auto">
                         <Box as="table" w="full" textAlign="left">
                             <Box as="thead">
-                                <Box as="tr" bg="slate.50" borderBottom="xs" borderColor="border.muted" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
+                                <Box as="tr" bg="slate.50" borderBottom="xs" borderColor="border.muted" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
                                     <Box as="th" px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50">
                                         <input
                                             type="checkbox"
@@ -336,21 +336,21 @@ const StudentsPage = () => {
                                         <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted">
                                             <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
                                         </Box>
-                                        <Box as="td" px="6" py="5" color="slate.400" fontWeight="medium">{s.regNo}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.matNo}</Box>
-                                        <Box as="td" px="6" py="5" fontWeight="bold" color="slate.700">{s.surname}</Box>
-                                        <Box as="td" px="6" py="5" fontWeight="medium" color="slate.600">{s.otherNames}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.email}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.phoneNo}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500" textTransform="capitalize">{s.sex}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500" textTransform="capitalize">{s.admissionMode}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.entryQualification}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.faculty}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.department}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.level}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.degreeCourse}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.programDuration}</Box>
-                                        <Box as="td" px="6" py="5" color="slate.500">{s.degreeAwardCode}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.subtle" fontWeight="medium">{s.regNo}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.matNo}</Box>
+                                        <Box as="td" px="6" py="5" fontWeight="bold" color="fg.muted">{s.surname}</Box>
+                                        <Box as="td" px="6" py="5" fontWeight="medium" color="fg.muted">{s.otherNames}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.email}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.phoneNo}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted" textTransform="capitalize">{s.sex}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted" textTransform="capitalize">{s.admissionMode}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.entryQualification}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.faculty}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.department}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.level}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.degreeCourse}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.programDuration}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.degreeAwardCode}</Box>
                                         <Box as="td" px="6" py="5">
                                             <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold" bg={s.isActive ? "green.100" : "red.100"} color={s.isActive ? "green.700" : "red.700"}>
                                                 {s.isActive ? "Active" : "Inactive"}
@@ -358,7 +358,7 @@ const StudentsPage = () => {
                                         </Box>
                                         <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted" ref={dropdownRef}>
                                             <Box position="relative">
-                                                <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.id, e)} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="slate.400">
+                                                <Box as="button" onClick={(e: React.MouseEvent) => toggleDropdown(s.id, e)} p="1" _hover={{ bg: "fg.subtle" }} borderRadius="full" cursor="pointer" border="none" bg="transparent" color="fg.subtle">
                                                     <MoreHorizontal size={20} />
                                                 </Box>
 
@@ -391,7 +391,7 @@ const StudentsPage = () => {
             {/* Pagination - separate card below table */}
             {totalPages > 1 && (
                 <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" p="4" mt="4">
-                    <Text fontSize="sm" color="slate.500">
+                    <Text fontSize="sm" color="fg.muted">
                         Showing{" "}
                         <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)}</Text>
                         {" "}of <Text as="span" fontWeight="semibold">{filteredStudents.length}</Text> students
@@ -413,7 +413,7 @@ const StudentsPage = () => {
                                 pageNum = currentPage - 2 + i;
                             }
                             return (
-                                <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
+                                <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "fg.muted"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
                                     {pageNum}
                                 </Box>
                             );
@@ -428,16 +428,16 @@ const StudentsPage = () => {
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
                 <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
-                    <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
-                    <Box w="px" h="6" bg="slate.200" />
+                    <Text fontSize="sm" fontWeight="bold" color="fg.muted">{selectedIds.length} items selected</Text>
+                    <Box w="px" h="6" bg="fg.subtle" />
                     <Box as="button" onClick={handleBulkDownload} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
                         <Download size={16} /> Bulk Download
                     </Box>
                     <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
                         <Trash2 size={16} /> Bulk Delete
                     </Box>
-                    <Box w="px" h="6" bg="slate.200" />
-                    <Box as="button" onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "slate.100" }} borderRadius="full" color="slate.400" cursor="pointer" border="none" bg="transparent" title="Unselect all">
+                    <Box w="px" h="6" bg="fg.subtle" />
+                    <Box as="button" onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "fg.subtle" }} borderRadius="full" color="fg.subtle" cursor="pointer" border="none" bg="transparent" title="Unselect all">
                         <X size={20} />
                     </Box>
                 </Flex>

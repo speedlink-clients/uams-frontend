@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                     display={{ base: "block", lg: "none" }}
                     p="2"
                     borderRadius="md"
-                    _hover={{ bg: "slate.100" }}
+                    _hover={{ bg: "fg.subtle" }}
                 >
                     <Menu size={24} color="#64748b" />
                 </Box>
@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                 <Flex
                     alignItems="center"
                     gap="4"
-                    color="slate.500"
+                    color="fg.muted"
                     borderRight="xs"
                     borderColor="border.muted"
                     pr="6"
@@ -101,10 +101,10 @@ export const Header: React.FC<HeaderProps> = ({ onViewChange, currentUser = 'Dep
                     transition="all 0.2s"
                 >
                     <Box textAlign="right" display={{ base: "none", sm: "block" }}>
-                        <Text fontSize="sm" fontWeight="semibold" color="slate.900" lineHeight="none">
+                        <Text fontSize="sm" fontWeight="semibold" color="fg.muted" lineHeight="none">
                             {currentUser}
                         </Text>
-                        <Text fontSize="xs" color="slate.500" mt="1">
+                        <Text fontSize="xs" color="fg.muted" mt="1">
                             {email}
                         </Text>
                     </Box>
