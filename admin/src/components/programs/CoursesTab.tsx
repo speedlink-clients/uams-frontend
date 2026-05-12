@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 import { Plus, Download, Edit, Trash2, X, Search } from "lucide-react";
 import { CourseServices } from "@services/course.service";
 import { ProgramServices } from "@services/program.service";
@@ -22,6 +21,7 @@ import {
   VStack,
   Menu,
   Dialog,
+  CloseButton,
   Field,
 } from "@chakra-ui/react";
 import { Switch } from "@components/ui/switch";
@@ -33,10 +33,17 @@ import {
 } from "react-icons/lu";
 import BulkUploadCoursesModal from "@components/programs/BulkUploadCoursesModal";
 
-interface CoursesTabProps {
-  isCreatingRoute?: boolean;
-  isEditingRoute?: boolean;
-}
+const defaultFormData = {
+  title: "",
+  code: "",
+  units: "3",
+  description: "",
+  semester: "FIRST",
+  level: "L100",
+  programTypeId: "",
+  courseType: "CORE",
+  allowCarryover: true,
+};
 
 const creditUnitCollection = createListCollection({
   items: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map((value) => ({
@@ -90,44 +97,16 @@ const levelFilterCollection = createListCollection({
   ],
 });
 
-const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
-  const navigate = useNavigate();
+const CoursesTab = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [programTypes, setProgramTypes] = useState<any[]>([]);
   const [filters, setFilters] = useState({ level: "", semester: "" });
-  const [formData, setFormData] = useState({
-    title: "",
-    code: "",
-    units: "3",
-    description: "",
-    semester: "FIRST",
-    level: "L100",
-    programTypeId: "",
-    courseType: "CORE",
-    allowCarryover: true,
-  });
-
-  const isFormOpen = isCreatingRoute || isEditingRoute;
-
-  const handleCloseForm = () => {
-    navigate("/program-courses/courses");
-    setFormData({
-      title: "",
-      code: "",
-      programTypeId: "",
-      level: "L100",
-      semester: "FIRST",
-      description: "",
-      units: "3",
-      courseType: "CORE",
-      allowCarryover: true,
-    });
-  };
+  const [formData, setFormData] = useState(defaultFormData);
+  const [isEditing, setIsEditing] = useState(false);
 
   const programTypeCollection = createListCollection({
     items: programTypes.map((pt) => ({ label: pt.name, value: pt.id })),
@@ -172,7 +151,6 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
       } as any);
       toaster.success({ title: "Course created" });
       await fetchCourses();
-      navigate("/program-courses/courses");
     } catch (error: any) {
       toaster.error({
         title: error.response?.data?.message || "Failed to create course",
@@ -180,6 +158,21 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleEditClick = (course: any) => {
+    setIsEditing(true);
+    setFormData({
+      title: course.title || course.name || "",
+      code: course.code || "",
+      units: String(course.creditUnits || course.creditUnit || "3"),
+      description: course.description || "",
+      semester: course.semester?.name || "FIRST",
+      level: course.level?.name || "L100",
+      programTypeId: course.programTypeId || "",
+      courseType: course.courseType || "CORE",
+      allowCarryover: course.allowCarryover ?? true,
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -308,6 +301,7 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
   }
 
   return (
+    <Dialog.Root size="lg" role="alertdialog" onExitComplete={() => { setFormData(defaultFormData); setIsEditing(false); }}>
     <Flex direction="column" gap="8">
       <Flex justifyContent="flex-end" gap="4">
         <Menu.Root>
@@ -395,32 +389,37 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                 borderColor="border.muted"
                 minW="180px"
               >
-                <Menu.Item
-                  value="single"
-                  onClick={() => navigate("/program-courses/courses/new")}
-                  cursor="pointer"
-                  py="3"
-                  px="4"
-                  _hover={{ bg: "slate.50" }}
-                >
-                  <LuPlus size={18} color="slate.50" />
-                  <Box flex="1" ml="2">
-                    Single Course
-                  </Box>
-                </Menu.Item>
-                <Menu.Item
-                  value="bulk"
-                  onClick={() => setIsUploadOpen(true)}
-                  cursor="pointer"
-                  py="3"
-                  px="4"
-                  _hover={{ bg: "slate.50" }}
-                >
-                  <LuFileUp size={18} color="slate.50" />
-                  <Box flex="1" ml="2">
-                    Bulk Upload (Excel)
-                  </Box>
-                </Menu.Item>
+                <Dialog.Trigger asChild>
+                  <Menu.Item
+                    value="single"
+                    closeOnSelect={false}
+                    onClick={() => { setIsEditing(false); setFormData(defaultFormData); }}
+                    cursor="pointer"
+                    py="3"
+                    px="4"
+                    _hover={{ bg: "slate.50" }}
+                  >
+                    <LuPlus size={18} color="slate.50" />
+                    <Box flex="1" ml="2">
+                      Single Course
+                    </Box>
+                  </Menu.Item>
+                </Dialog.Trigger>
+                <BulkUploadCoursesModal onUploaded={() => fetchCourses()}>
+                  <Menu.Item
+                    value="bulk"
+                    closeOnSelect={false}
+                    cursor="pointer"
+                    py="3"
+                    px="4"
+                    _hover={{ bg: "slate.50" }}
+                  >
+                    <LuFileUp size={18} color="slate.50" />
+                    <Box flex="1" ml="2">
+                      Bulk Upload (Excel)
+                    </Box>
+                  </Menu.Item>
+                </BulkUploadCoursesModal>
               </Menu.Content>
             </Menu.Positioner>
           </Portal>
@@ -721,22 +720,20 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                     </Table.Cell>
                     <Table.Cell px="6" py="4" textAlign="center">
                       <Flex justifyContent="center" gap="2">
-                        <Button
-                          onClick={() =>
-                            navigate(
-                              `/program-courses/courses/edit/${course.id}`,
-                            )
-                          }
-                          p="1"
-                          variant="ghost"
-                          size="sm"
-                          color="slate.400"
-                          _hover={{ bg: "slate.100" }}
-                          borderRadius="full"
-                          minW="auto"
-                        >
-                          <Edit size={16} />
-                        </Button>
+                        <Dialog.Trigger asChild>
+                          <Button
+                            onClick={() => handleEditClick(course)}
+                            p="1"
+                            variant="ghost"
+                            size="sm"
+                            color="slate.400"
+                            _hover={{ bg: "slate.100" }}
+                            borderRadius="full"
+                            minW="auto"
+                          >
+                            <Edit size={16} />
+                          </Button>
+                        </Dialog.Trigger>
                         <Button
                           onClick={() => handleDelete(course.id)}
                           p="1"
@@ -809,26 +806,10 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
         </Flex>
       )}
 
-      {/* Bulk Upload Modal */}
-      <BulkUploadCoursesModal
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-        onUploaded={() => {
-          setIsUploadOpen(false);
-          fetchCourses();
-        }}
-      />
-
-      <Dialog.Root
-        open={isFormOpen}
-        onOpenChange={(e) => !e.open && handleCloseForm()}
-        size="lg"
-      >
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
             <Dialog.Content borderRadius="sm" overflow="hidden">
-              <Dialog.CloseTrigger />
               <Dialog.Header p="6" borderBottom="xs" borderColor="border.muted">
                 <VStack align="start" gap={1}>
                   <Dialog.Title
@@ -836,22 +817,25 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                     fontWeight="bold"
                     color="slate.800"
                   >
-                    {isEditingRoute ? "Edit Course" : "Add New Course"}
+                    {isEditing ? "Edit Course" : "Add New Course"}
                   </Dialog.Title>
 
                   <Dialog.Description fontSize="sm" color="slate.500">
                     Fill in the details below to{" "}
-                    {isEditingRoute
+                    {isEditing
                       ? "update the course"
                       : "create a new course"}
                     .
                   </Dialog.Description>
                 </VStack>
+                <Dialog.CloseTrigger asChild>
+                  <CloseButton />
+                </Dialog.CloseTrigger>
               </Dialog.Header>
 
               <Dialog.Body p="8">
-                <Flex direction="column" gap="6">
-                  <Flex gap="4">
+                                <Flex direction="column" gap="6">
+                                  <Flex gap="4">
                     <Field.Root flex="6.5">
                       <Field.Label
                         fontSize="sm"
@@ -1169,14 +1153,14 @@ const CoursesTab = ({ isCreatingRoute, isEditingRoute }: CoursesTabProps) => {
                   px="10"
                   fontWeight="bold"
                 >
-                  {isEditingRoute ? "Update Course" : "Create Course"}
+                  {isEditing ? "Update Course" : "Create Course"}
                 </Button>
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Positioner>
         </Portal>
-      </Dialog.Root>
     </Flex>
+    </Dialog.Root>
   );
 };
 
