@@ -81,7 +81,7 @@ const AnnouncementsPage = () => {
         <Box maxW="1400px" mx="auto" pb="20">
             {/* Header */}
             <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="6" gap="4">
-                <Text fontSize="2xl" fontWeight="bold" color="slate.900">Announcement</Text>
+                <Text fontSize="2xl" fontWeight="bold" color="fg.muted">Announcement</Text>
                 <Button
                     onClick={() => setIsModalOpen(true)}
                     bg="#1D7AD9"
@@ -139,11 +139,11 @@ const AnnouncementsPage = () => {
                         variant="ghost" 
                         onClick={handleClearFilters} 
                         bg="#eff3f6" 
-                        _hover={{ bg: "slate.200" }} 
+                        _hover={{ bg: "fg.subtle" }} 
                         h="10"
                         px="4"
                         borderRadius="xl" 
-                        color="slate.700" 
+                        color="fg.muted" 
                     >
                         <X size={18} />
                     </Button>
@@ -155,7 +155,7 @@ const AnnouncementsPage = () => {
                 {loading ? (
                     <Flex justifyContent="center" py="20" gap="3">
                         <Spinner size="md" color="#1D7AD9" />
-                        <Text color="slate.500" fontWeight="medium">Loading Announcements...</Text>
+                        <Text color="fg.muted" fontWeight="medium">Loading Announcements...</Text>
                     </Flex>
                 ) : filteredAnnouncements.length === 0 ? (
                     <EmptyState.Root>
@@ -173,10 +173,10 @@ const AnnouncementsPage = () => {
                     filteredAnnouncements.map((item) => (
                         <Box key={item.id} bg="white" borderRadius="xl" p="6" boxShadow="sm" border="xs" borderColor="border.muted" _hover={{ boxShadow: "md" }} transition="all 0.2s">
                             <Flex justifyContent="space-between" alignItems="flex-start" mb="2">
-                                <Text fontSize="sm" fontWeight="bold" color="slate.800">{item.title}</Text>
-                                <Text fontSize="10px" fontWeight="medium" color="slate.400">{formatDate(item.createdAt)}</Text>
+                                <Text fontSize="sm" fontWeight="bold" color="fg.muted">{item.title}</Text>
+                                <Text fontSize="10px" fontWeight="medium" color="fg.subtle">{formatDate(item.createdAt)}</Text>
                             </Flex>
-                            <Text fontSize="xs" color="slate.500" lineHeight="relaxed" lineClamp={2}>{item.content}</Text>
+                            <Text fontSize="xs" color="fg.muted" lineHeight="relaxed" lineClamp={2}>{item.content}</Text>
                         </Box>
                     ))
                 )}

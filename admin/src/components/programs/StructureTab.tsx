@@ -182,14 +182,14 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
   if (isCreatingRoute || isEditingRoute) {
     return (
       <Box bg="white" borderRadius="2xl" p="8" border="xs" borderColor="border.muted" boxShadow="sm">
-        <Text fontSize="xl" fontWeight="bold" color="slate.800" mb="8">
+        <Text fontSize="xl" fontWeight="bold" color="fg.muted" mb="8">
           {isEditingRoute ? "Edit Session" : "Create Session"}
         </Text>
 
         <Flex direction={{ base: "column", lg: "row" }} gap="8">
           <Flex direction="column" gap="6" flex="1">
             <Box>
-              <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Session Name</Text>
+              <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Session Name</Text>
               <Input
                 value={formData.name}
                 onChange={(e) => handleFormChange("name", e.target.value)}
@@ -201,7 +201,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
               />
             </Box>
             <Box>
-              <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Semesters</Text>
+              <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Semesters</Text>
               <Select.Root
                 collection={semesterCollection}
                 value={[formData.semesters]}
@@ -238,7 +238,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                 />
-                <Text fontSize="sm" fontWeight="medium" color="slate.700" as="label" htmlFor="isActive">
+                <Text fontSize="sm" fontWeight="medium" color="fg.muted" as="label" htmlFor="isActive">
                   Activate Session
                 </Text>
               </Flex>
@@ -246,7 +246,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
           </Flex>
           <Flex direction="column" gap="6" flex="1">
             <Box>
-              <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Duration</Text>
+              <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Duration</Text>
               <Select.Root
                 collection={durationCollection}
                 value={[formData.duration]}
@@ -277,7 +277,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
               </Select.Root>
             </Box>
             <Box>
-              <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Start Date</Text>
+              <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Start Date</Text>
               <Input
                 type="date"
                 value={formData.startDate}
@@ -289,7 +289,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
               />
             </Box>
             <Box>
-              <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Description</Text>
+              <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Description</Text>
               <Textarea
                 value={formData.description}
                 onChange={(e) => handleFormChange("description", e.target.value)}
@@ -313,7 +313,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
             fontWeight="medium"
             variant="outline"
             borderColor="border.muted"
-            color="slate.600"
+            color="fg.muted"
             _hover={{ bg: "slate.50" }}
           >
             Cancel
@@ -344,7 +344,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
       <Flex alignItems="center" justifyContent="center" minH="400px">
         <Flex direction="column" alignItems="center" gap="4">
           <Spinner size="xl" color="blue.500" borderWidth="3px" />
-          <Text color="slate.500">Loading sessions...</Text>
+          <Text color="fg.muted">Loading sessions...</Text>
         </Flex>
       </Flex>
     );
@@ -382,7 +382,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
 
       <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm">
         <Flex p="6" alignItems="center" gap="4">
-          <Text fontSize="lg" fontWeight="bold" color="slate.800">Created Sessions</Text>
+          <Text fontSize="lg" fontWeight="bold" color="fg.muted">Created Sessions</Text>
           <InputGroup startElement={<Search />} ml="auto" width="260px">
             <Input
               placeholder="Search sessions..."
@@ -410,19 +410,19 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                     onChange={toggleSelectAll}
                   />
                 </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">
+                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Session Name
                 </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">
+                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Duration
                 </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">
+                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Start Date
                 </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider">
+                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Status
                 </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="wider" textAlign="center">
+                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" textAlign="center">
                   Action
                 </Box>
               </Box>
@@ -443,7 +443,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                     borderBottom="xs"
                     borderColor="border.muted"
                     fontSize="sm"
-                    color="slate.600"
+                    color="fg.muted"
                   >
                     <Box as="td" px="6" py="4" textAlign="center">
                       <input
@@ -475,8 +475,8 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                           aria-label="Edit session"
                           size="sm"
                           variant="ghost"
-                          color="slate.400"
-                          _hover={{ bg: "slate.100" }}
+                          color="fg.subtle"
+                          _hover={{ bg: "fg.subtle" }}
                           onClick={() => navigate(`/program-courses/sessions/edit/${session.id}`)}
                         >
                         <Edit size={16} />    </Button>
@@ -517,8 +517,8 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
           gap="6"
           zIndex="50"
         >
-          <Text fontSize="sm" fontWeight="bold" color="slate.700">{selectedIds.length} items selected</Text>
-          <Box w="px" h="6" bg="slate.200" />
+          <Text fontSize="sm" fontWeight="bold" color="fg.muted">{selectedIds.length} items selected</Text>
+          <Box w="px" h="6" bg="fg.subtle" />
           <Button
             onClick={handleBulkDelete}
             colorScheme="red"
@@ -530,13 +530,13 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
           >
           <Trash2 size={16} />  Delete
           </Button>
-          <Box w="px" h="6" bg="slate.200" />
+          <Box w="px" h="6" bg="fg.subtle" />
           <Button
             aria-label="Unselect all"
             variant="ghost"
             size="sm"
-            color="slate.400"
-            _hover={{ bg: "slate.100" }}
+            color="fg.subtle"
+            _hover={{ bg: "fg.subtle" }}
             onClick={() => setSelectedIds([])}
           >
          <X size={20} />   </Button>

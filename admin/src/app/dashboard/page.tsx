@@ -22,7 +22,7 @@ const DashboardPage = () => {
 
     return (
         <Flex direction="column" gap="8">
-            <Heading size="xl" color="slate.800">
+            <Heading size="xl" color="fg.muted">
                 Welcome Back, {user?.name || "N/A"}
             </Heading>
 
@@ -34,11 +34,11 @@ const DashboardPage = () => {
                 <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
                     <Flex alignItems="center" justifyContent="space-between" mb="8">
                         <Box>
-                            <Flex alignItems="center" gap="2" fontWeight="bold" color="slate.800">
+                            <Flex alignItems="center" gap="2" fontWeight="bold" color="fg.muted">
                                 <TrendingUp size={20} color="#22c55e" />
                                 <Text>Revenue</Text>
                             </Flex>
-                            <Text fontSize="xs" color="slate.400" mt="1">
+                            <Text fontSize="xs" color="fg.subtle" mt="1">
                                 Fee collection (Annual)
                             </Text>
                         </Box>
@@ -83,8 +83,8 @@ const DashboardPage = () => {
             <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
                 <Flex alignItems="center" justifyContent="space-between" mb="8">
                     <Box>
-                        <Text fontWeight="bold" color="slate.800">Enrollment</Text>
-                        <Text fontSize="xs" color="slate.400" mt="1">Student registration trends</Text>
+                        <Text fontWeight="bold" color="fg.muted">Enrollment</Text>
+                        <Text fontSize="xs" color="fg.subtle" mt="1">Student registration trends</Text>
                     </Box>
                 </Flex>
                 <Box h="250px" w="full">

@@ -68,14 +68,14 @@ const ProfilePage = () => {
 
     return (
         <Box>
-            <Text fontSize="2xl" fontWeight="bold" color="slate.800" mb="6">Profile</Text>
+            <Text fontSize="2xl" fontWeight="bold" color="fg.muted" mb="6">Profile</Text>
 
             <Flex direction={{ base: "column", xl: "row" }} gap="6" alignItems="flex-start">
                 {/* Account Details Card */}
                 <Box flex="5" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p="8">
                             <Flex alignItems="center" gap="2" mb="6">
                                 <User size={20} color="#1D7AD9" />
-                                <Text fontSize="lg" fontWeight="bold" color="slate.800">Account Details</Text>
+                                <Text fontSize="lg" fontWeight="bold" color="fg.muted">Account Details</Text>
                             </Flex>
 
                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="5">
@@ -94,14 +94,14 @@ const ProfilePage = () => {
                 <Box flex="4" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p="8">
                             <Flex alignItems="center" gap="2" mb="2">
                                 <Lock size={20} color="#1D7AD9" />
-                                <Text fontSize="lg" fontWeight="bold" color="slate.800">Change Password</Text>
+                                <Text fontSize="lg" fontWeight="bold" color="fg.muted">Change Password</Text>
                             </Flex>
-                            <Text fontSize="sm" color="slate.400" mb="6">Update your password to keep your account secure.</Text>
+                            <Text fontSize="sm" color="fg.subtle" mb="6">Update your password to keep your account secure.</Text>
 
                             <Flex direction="column" gap="5">
                                 {/* Current Password */}
                                 <Box>
-                                    <Text fontSize="xs" fontWeight="bold" color="slate.400" textTransform="uppercase" letterSpacing="wider" mb="2">Current Password</Text>
+                                    <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">Current Password</Text>
                                     <PasswordInput
                                         placeholder="Enter current password"
                                         value={currentPassword}
@@ -114,14 +114,14 @@ const ProfilePage = () => {
                                         borderRadius="xl"
                                         fontSize="sm"
                                         fontWeight="medium"
-                                        color="slate.800"
+                                        color="fg.muted"
                                         _focus={{ borderColor: "blue.500" }}
                                     />
                                 </Box>
 
                                 {/* New Password */}
                                 <Box>
-                                    <Text fontSize="xs" fontWeight="bold" color="slate.400" textTransform="uppercase" letterSpacing="wider" mb="2">New Password</Text>
+                                    <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">New Password</Text>
                                     <PasswordInput
                                         placeholder="Enter new password"
                                         value={newPassword}
@@ -134,7 +134,7 @@ const ProfilePage = () => {
                                         borderRadius="xl"
                                         fontSize="sm"
                                         fontWeight="medium"
-                                        color="slate.800"
+                                        color="fg.muted"
                                         _focus={{ borderColor: "blue.500" }}
                                     />
                                     {newPassword && (
@@ -149,7 +149,7 @@ const ProfilePage = () => {
 
                                 {/* Confirm Password */}
                                 <Box>
-                                    <Text fontSize="xs" fontWeight="bold" color="slate.400" textTransform="uppercase" letterSpacing="wider" mb="2">Confirm New Password</Text>
+                                    <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">Confirm New Password</Text>
                                     <PasswordInput
                                         placeholder="Re-enter new password"
                                         value={confirmPassword}
@@ -162,7 +162,7 @@ const ProfilePage = () => {
                                         borderRadius="xl"
                                         fontSize="sm"
                                         fontWeight="medium"
-                                        color="slate.800"
+                                        color="fg.muted"
                                         _focus={{ borderColor: "blue.500" }}
                                     />
                                     {confirmPassword && newPassword && (
@@ -211,17 +211,17 @@ const ProfilePage = () => {
 
 const ReadOnlyField = ({ label, value }: { label: string; value: string }) => (
     <Box>
-        <Text fontSize="xs" fontWeight="bold" color="slate.400" textTransform="uppercase" letterSpacing="wider" mb="2">{label}</Text>
+        <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">{label}</Text>
         <Input
             type="text"
             value={value}
             readOnly
-            bg="slate.100"
+            bg="fg.subtle"
             border="xs"
             borderColor="border.muted"
             borderRadius="xl"
             fontSize="sm"
-            color="slate.800"
+            color="fg.muted"
             fontWeight="medium"
             cursor="not-allowed"
             _readOnly={{ opacity: 0.8 }}

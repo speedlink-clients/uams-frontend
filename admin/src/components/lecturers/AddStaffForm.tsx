@@ -134,7 +134,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                             {initialData ? "Edit Lecturer" : "Add Lecturer"}
                         </Text>
                         <Dialog.CloseTrigger asChild>
-                            <Box as="button" p="2" _hover={{ bg: "slate.100" }} borderRadius="full" cursor="pointer" border="none" bg="transparent">
+                            <Box as="button" p="2" _hover={{ bg: "fg.subtle" }} borderRadius="full" cursor="pointer" border="none" bg="transparent">
                                 <X size={24} color="#94a3b8" />
                             </Box>
                         </Dialog.CloseTrigger>
@@ -143,31 +143,31 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                     <Flex direction={{ base: "column", md: "row" }} gap="8" flexWrap="wrap">
                         {/* Staff ID */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Staff ID</Text>
-                            <Input value={formData.staffId} onChange={(e) => setFormData({ ...formData, staffId: e.target.value })} readOnly={!!initialData} bg={initialData ? "slate.50" : "white"} color={initialData ? "slate.500" : "inherit"} />
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Staff ID</Text>
+                            <Input value={formData.staffId} onChange={(e) => setFormData({ ...formData, staffId: e.target.value })} readOnly={!!initialData} bg={initialData ? "slate.50" : "white"} color={initialData ? "fg.muted" : "inherit"} />
                         </Box>
 
                         {/* Title */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Title</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Title</Text>
                             <Input placeholder="E.g Dr, Mr etc" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} bg="white" />
                         </Box>
 
                         {/* First Name */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">First Name</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">First Name</Text>
                             <Input value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Other Name */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Other Name</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Other Name</Text>
                             <Input value={formData.otherName} onChange={(e) => setFormData({ ...formData, otherName: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Sex - Select.Root */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Sex</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Sex</Text>
                             <Select.Root
                                 collection={sexCollection}
                                 value={formData.sex ? [formData.sex] : []}
@@ -198,31 +198,31 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
 
                         {/* Highest Degree */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Highest Degree</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Highest Degree</Text>
                             <Input placeholder="PhD" value={formData.highestDegree} onChange={(e) => setFormData({ ...formData, highestDegree: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Phone Number */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Phone Number</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Phone Number</Text>
                             <Input placeholder="Enter Phone Number" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Email */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Email</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Email</Text>
                             <Input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Password */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Password</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Password</Text>
                             <PasswordInput placeholder="Use Phone Number as Default Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} bg="white" />
                         </Box>
 
                         {/* Role */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Role</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Role</Text>
                             <Select.Root
                                 collection={roleCollection}
                                 value={formData.role ? [formData.role] : []}
@@ -253,7 +253,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
 
                         {/* Category */}
                         <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Category</Text>
+                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Category</Text>
                             <Select.Root
                                 collection={categoryCollection}
                                 value={formData.category ? [formData.category] : []}
@@ -284,7 +284,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                     </Flex>
 
                     <Flex justifyContent="flex-end" gap="3" mt="8" pt="6">
-                        <Button onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="slate.700" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                        <Button onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="fg.muted" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
                             Cancel
                         </Button>
                         <Button onClick={handleSubmit} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="lg" cursor={isLoading ? "not-allowed" : "pointer"} opacity={isLoading ? 0.7 : 1} alignItems="center" gap="2">
