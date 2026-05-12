@@ -4,6 +4,7 @@ import type { Course, CourseLecturer } from "@type/course.type";
 import type { AttendanceDataPoint } from "@type/dashboard.type";
 import AttendanceChart from "@components/shared/AttendanceChart";
 import { useState } from "react";
+import { LuArrowRight } from "react-icons/lu";
 
 interface CourseInfoPanelProps {
     course: Course;
@@ -32,10 +33,10 @@ const CourseInfoPanel = ({ course, lecturers }: CourseInfoPanelProps) => {
 
     return (
         <Box
-            bg="white"
-            borderRadius="xl"
+            bg="accent.50"
+            rounded="md"
             border="1px solid"
-            borderColor="gray.100"
+            borderColor="border.muted"
             p="8"
         >
             <Flex gap="6" direction={{ base: "column", lg: "row" }}>
@@ -44,68 +45,62 @@ const CourseInfoPanel = ({ course, lecturers }: CourseInfoPanelProps) => {
                     {/* Info Cards */}
                     <Flex gap="4" mb="6" wrap="wrap">
                         <Box
-                            bg="#f8fafc"
-                            borderRadius="lg"
+                            bg="accent.50"
+                            rounded="md"
                             px="5"
                             py="4"
                             flex="1"
                             minW="130px"
                         >
-                            <Text fontSize="xs" color="gray.500" mb="1">Course Title</Text>
-                            <Text fontSize="sm" fontWeight="600" color="gray.800">
+                            <Text fontSize="xs" color="fg.muted" mb="1">Course Title</Text>
+                            <Text fontSize="sm" color="fg.muted">
                                 {course.title}
                             </Text>
                         </Box>
                         <Box
-                            bg="#f8fafc"
-                            borderRadius="lg"
+                            bg="accent.50"
+                            rounded="md"
                             px="5"
                             py="4"
                             flex="1"
                             minW="110px"
                         >
-                            <Text fontSize="xs" color="gray.500" mb="1">Course Code</Text>
-                            <Text fontSize="sm" fontWeight="600" color="gray.800">
+                            <Text fontSize="xs" color="fg.muted" mb="1">Course Code</Text>
+                            <Text fontSize="sm" color="fg.muted">
                                 {course.code}
                             </Text>
                         </Box>
                         <Box
-                            bg="#f8fafc"
-                            borderRadius="lg"
+                            bg="accent.50"
+                            rounded="md"
                             px="5"
                             py="4"
                             flex="1"
                             minW="100px"
                         >
-                            <Text fontSize="xs" color="gray.500" mb="1">Credit Unit</Text>
-                            <Text fontSize="sm" fontWeight="600" color="gray.800">
-                                {course.creditUnits}
+                            <Text fontSize="xs" color="fg.muted" mb="1">Credit Unit</Text>
+                            <Text fontSize="sm" color="fg.muted">
+                                {course.units}
                             </Text>
                         </Box>
                     </Flex>
 
                     {/* Lecturers Section */}
                     <Box>
-                        <Text fontSize="md" fontWeight="600" color="gray.800" mb="4">
+                        <Text fontSize="md" color="fg.muted" mb="4">
                             Lecturers
                         </Text>
                         <Grid templateColumns="repeat(auto-fill, minmax(120px, 1fr))" gap="4">
                             {lecturers.map((lec) => (
                                 <Box
                                     key={lec.id}
-                                    bg="white"
+                                    bg="accent.50"
                                     border="1px solid"
-                                    borderColor="gray.100"
-                                    borderRadius="lg"
+                                    borderColor="border.muted"
+                                    rounded="md"
                                     p="4"
                                     textAlign="center"
                                     cursor="pointer"
-                                    transition="all 0.2s ease"
-                                    _hover={{
-                                        boxShadow: "md",
-                                        borderColor: "gray.200",
-                                        transform: "translateY(-2px)",
-                                    }}
                                 >
                                     <Flex
                                         justify="center"
@@ -114,12 +109,12 @@ const CourseInfoPanel = ({ course, lecturers }: CourseInfoPanelProps) => {
                                         h="12"
                                         mx="auto"
                                         mb="2"
-                                        bg="gray.100"
-                                        borderRadius="full"
+                                        bg="fg.subtle"
+                                        rounded="md"
                                     >
-                                        <User size={20} color="#718096" />
+                                        <User size={20} color="fg.subtle" />
                                     </Flex>
-                                    <Text fontSize="xs" fontWeight="600" color="gray.800" mb="2">
+                                    <Text fontSize="xs" color="fg.muted" mb="2">
                                         {lec.name}
                                     </Text>
                                     <Flex
@@ -128,15 +123,12 @@ const CourseInfoPanel = ({ course, lecturers }: CourseInfoPanelProps) => {
                                         bg="accent.500"
                                         color="white"
                                         fontSize="10px"
-                                        fontWeight="500"
-                                        borderRadius="full"
+                                        rounded="md"
                                         px="3"
                                         py="1"
                                         cursor="pointer"
-                                        _hover={{ bg: "accent.600" }}
-                                        transition="background 0.15s"
                                     >
-                                        See Info →
+                                        See Info <LuArrowRight />
                                     </Flex>
                                 </Box>
                             ))}
