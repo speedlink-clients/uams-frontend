@@ -1,26 +1,83 @@
-import { CourseServices } from "@services/course.service"
-import { useQuery, useMutation, type UseQueryOptions, type UseMutationOptions } from "@tanstack/react-query"
-import type { Course, CreateCourseData, CoursesApiResponse } from "@type/course.type"
+import { CourseServices } from "@services/course.service";
+import { ProgramServices } from "@services/program.service";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toaster } from "@components/ui/toaster";
 
-export const CourseHooks = {
-    useCourses: (options?: Partial<UseQueryOptions<CoursesApiResponse>>) => useQuery<CoursesApiResponse>({
-        queryKey: ["courses"],
-        queryFn: CourseServices.getCoursesByDepartment,
-        ...options,
-    }),
+export const CourseHook = {
+    useCourses: (filters: { level?: string; semester?: string }) =>
+        useQuery({
+            queryKey: ["courses", filters],
+            queryFn: async () => {
+                const response = await CourseServices.getCourses(filters);
+                const data = Array.isArray(response)
+                    ? response
+                    : (response as any)?.data || (response as any)?.courses || [];
+                return data;
+            },
+        }),
 
-    useCreateCourse: (options?: UseMutationOptions<Course, Error, CreateCourseData>) =>
-        useMutation({ mutationFn: CourseServices.createCourse, ...options }),
+    useProgramTypes: () =>
+        useQuery({
+            queryKey: ["program-types"],
+            queryFn: async () => {
+                const response = await ProgramServices.getProgramTypes();
+                const data = Array.isArray(response)
+                    ? response
+                    : (response as any)?.data || [];
+                return data;
+            },
+        }),
 
-    useUpdateCourse: (options?: UseMutationOptions<Course, Error, { id: string; data: Record<string, unknown> }>) =>
-        useMutation({ mutationFn: ({ id, data }) => CourseServices.updateCourse(id, data), ...options }),
+    useCreateCourse: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: async (formData: any) => {
+                return await CourseServices.createCourse({
+                    ...formData,
+                    units: Number(formData.units),
+                } as any);
+            },
+            onSuccess: () => {
+                toaster.success({ title: "Course created successfully" });
+                queryClient.invalidateQueries({ queryKey: ["courses"] });
+            },
+            onError: (error: any) => {
+                toaster.error({
+                    title: error.response?.data?.message || "Failed to create course",
+                });
+            },
+        });
+    },
 
-    useUpdateCourseStatus: (options?: UseMutationOptions<Course, Error, { id: string; isActive: boolean }>) =>
-        useMutation({ mutationFn: ({ id, isActive }) => CourseServices.updateCourseStatus(id, isActive), ...options }),
+    useDeleteCourse: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: async (id: string) => {
+                return await CourseServices.deleteCourse(id);
+            },
+            onSuccess: () => {
+                toaster.success({ title: "Course deleted successfully" });
+                queryClient.invalidateQueries({ queryKey: ["courses"] });
+            },
+            onError: () => {
+                toaster.error({ title: "Failed to delete course" });
+            },
+        });
+    },
 
-    useDeleteCourse: (options?: UseMutationOptions<void, Error, string>) =>
-        useMutation({ mutationFn: CourseServices.deleteCourse, ...options }),
-
-    useBulkUploadCourses: (options?: UseMutationOptions<unknown, Error, FormData>) =>
-        useMutation({ mutationFn: CourseServices.bulkUploadCourses, ...options }),
-}
+    useBulkUploadCourses: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: async (formData: FormData) => {
+                return await CourseServices.bulkUploadCourses(formData);
+            },
+            onSuccess: () => {
+                toaster.success({ title: "Courses uploaded successfully!" });
+                queryClient.invalidateQueries({ queryKey: ["courses"] });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to upload courses" });
+            },
+        });
+    },
+};
