@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, CreditCard, UserCheck, GraduationCap } from "lucide-react";
+import { Users, CreditCard, UserCog, GraduationCap } from "lucide-react";
 import { StatCard } from "@components/dashboard/StatCard";
 import { DashboardServices } from "@services/dashboard.service";
 import { Box, Flex, Text, Spinner, Grid, Button } from "@chakra-ui/react";
@@ -96,32 +96,32 @@ const StatsContainer = () => {
     return (
         <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", xl: "repeat(4, 1fr)" }} gap="6">
             <StatCard
+                label="Total Revenue"
+                value={formatCurrency(stats.totalRevenue)}
+                icon={<CreditCard size={24} />}
+                bgColor="none"
+                description="Aggregated collection"
+            />
+            <StatCard
                 label="Active Students"
                 value={stats.totalActiveStudents.toLocaleString()}
                 icon={<Users size={24} />}
-                bgColor="orange.50"
+                bgColor="none"
                 description={`${stats.totalActiveStudents} students in session`}
             />
             <StatCard
                 label="Alumni"
                 value={stats.totalAlumni.toLocaleString()}
                 icon={<GraduationCap size={24} />}
-                bgColor="purple.50"
+                bgColor="none"
                 description={`${stats.totalAlumni} total graduates`}
             />
             <StatCard
-                label="Staff Strength"
+                label="Total Staff"
                 value={stats.totalStaffs.toLocaleString()}
-                icon={<UserCheck size={24} />}
-                bgColor="blue.50"
-                description={`${stats.totalStaffs} active personnel`}
-            />
-            <StatCard
-                label="Total Revenue"
-                value={formatCurrency(stats.totalRevenue)}
-                icon={<CreditCard size={24} />}
-                bgColor="green.50"
-                description="Aggregated collection"
+                icon={<UserCog size={24} />}
+                bgColor="none"
+                description={`${stats.totalStaffs} total staff`}
             />
         </Grid>
     );
