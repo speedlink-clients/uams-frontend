@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Download, Edit, Trash2, X, Search } from "lucide-react";
+import { CourseHook } from "@hooks/course.hook";
 import { CourseServices } from "@services/course.service";
-import { ProgramServices } from "@services/program.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
 import {
@@ -98,66 +99,26 @@ const levelFilterCollection = createListCollection({
 });
 
 const CoursesTab = () => {
-  const [courses, setCourses] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
-  const [programTypes, setProgramTypes] = useState<any[]>([]);
   const [filters, setFilters] = useState({ level: "", semester: "" });
   const [formData, setFormData] = useState(defaultFormData);
   const [isEditing, setIsEditing] = useState(false);
 
+  const { data: courses = [], isLoading } = CourseHook.useCourses(filters);
+  const { data: programTypes = [] } = CourseHook.useProgramTypes();
+  const { mutate: createCourse, isPending: isSaving } = CourseHook.useCreateCourse();
+  const { mutate: deleteCourse } = CourseHook.useDeleteCourse();
+
   const programTypeCollection = createListCollection({
-    items: programTypes.map((pt) => ({ label: pt.name, value: pt.id })),
+    items: programTypes.map((pt: any) => ({ label: pt.name, value: pt.id })),
   });
 
-  useEffect(() => {
-    fetchCourses();
-  }, [filters]);
 
-  const fetchCourses = async () => {
-    try {
-      setIsLoading(true);
-      const apiFilters = {
-        level: filters.level || undefined,
-        semester: filters.semester || undefined,
-      };
-      const [coursesData, typesData] = await Promise.all([
-        CourseServices.getCourses(apiFilters),
-        ProgramServices.getProgramTypes(),
-      ]);
-      const list = Array.isArray(coursesData)
-        ? coursesData
-        : (coursesData as any)?.data || (coursesData as any)?.courses || [];
-      const types = Array.isArray(typesData)
-        ? typesData
-        : (typesData as any)?.data || [];
-      setCourses(list);
-      setProgramTypes(types);
-    } catch (err) {
-      toaster.error({ title: "Failed to load courses data" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSave = async () => {
-    try {
-      setIsSaving(true);
-      await CourseServices.createCourse({
-        ...formData,
-        units: Number(formData.units),
-      } as any);
-      toaster.success({ title: "Course created" });
-      await fetchCourses();
-    } catch (error: any) {
-      toaster.error({
-        title: error.response?.data?.message || "Failed to create course",
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    createCourse(formData);
   };
 
   const handleEditClick = (course: any) => {
@@ -177,13 +138,7 @@ const CoursesTab = () => {
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Delete this course?")) {
-      try {
-        await CourseServices.deleteCourse(id);
-        toaster.success({ title: "Course deleted" });
-        await fetchCourses();
-      } catch (err) {
-        toaster.error({ title: "Failed to delete" });
-      }
+      deleteCourse(id);
     }
   };
 
@@ -195,7 +150,7 @@ const CoursesTab = () => {
 
   const toggleSelectAll = () => {
     setSelectedIds(
-      selectedIds.length === filtered.length ? [] : filtered.map((c) => c.id),
+      selectedIds.length === filtered.length ? [] : filtered.map((c: any) => c.id),
     );
   };
 
@@ -212,7 +167,7 @@ const CoursesTab = () => {
         );
         toaster.success({ title: `${selectedIds.length} courses deleted` });
         setSelectedIds([]);
-        await fetchCourses();
+        queryClient.invalidateQueries({ queryKey: ["courses"] });
       } catch (err) {
         toaster.error({ title: "Failed to delete some courses" });
       }
@@ -221,7 +176,7 @@ const CoursesTab = () => {
 
   const handleExportExcel = () => {
     exportToExcel(
-      courses.map((c) => ({
+      courses.map((c: any) => ({
         Code: c.code,
         "Course Title": c.title || c.name,
         Level: c.level?.name || "N/A",
@@ -254,7 +209,7 @@ const CoursesTab = () => {
       doc.line(14, y + 2, 200, y + 2);
       y += 10;
 
-      courses.forEach((c, i) => {
+      courses.forEach((c: any, i: number) => {
         if (y > 280) {
           doc.addPage();
           y = 20;
@@ -281,7 +236,7 @@ const CoursesTab = () => {
   };
 
   const filtered = courses.filter(
-    (c) =>
+    (c: any) =>
       !searchTerm ||
       (c.title || c.name || "")
         .toLowerCase()
@@ -405,7 +360,7 @@ const CoursesTab = () => {
                     </Box>
                   </Menu.Item>
                 </Dialog.Trigger>
-                <BulkUploadCoursesModal onUploaded={() => fetchCourses()}>
+                <BulkUploadCoursesModal>
                   <Menu.Item
                     value="bulk"
                     closeOnSelect={false}
@@ -674,7 +629,7 @@ const CoursesTab = () => {
                   </Table.Cell>
                 </Table.Row>
               ) : (
-                filtered.map((course, index) => (
+                filtered.map((course: any, index: number) => (
                   <Table.Row
                     key={course.id}
                     _hover={{ bg: "slate.50" }}
