@@ -1,8 +1,8 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 
 interface StatCardProps {
     label: string;
-    value: number;
+    value: number | string;
     colorScheme?: "green" | "pink"; 
 }
 
