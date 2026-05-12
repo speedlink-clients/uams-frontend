@@ -40,7 +40,7 @@ const Sidebar = () => {
             minH="100vh"
             bg="white"
             borderRight="1px solid"
-            borderColor="gray.200"
+            borderColor="border.muted"
             position="fixed"
             top="8px"
             left="0"
@@ -69,7 +69,7 @@ const Sidebar = () => {
                             gap="3"
                             px="3"
                             py="2.5"
-                            borderRadius="md"
+                            rounded="md"
                             cursor="pointer"
                             bg={active ? "#f8fafc" : "transparent"}
                             color={active ? "accent.500" : "gray.600"}
@@ -100,7 +100,7 @@ const Sidebar = () => {
                     gap="3"
                     px="4"
                     py="2.5"
-                    borderRadius="md"
+                    rounded="md"
                     cursor="pointer"
                     color="red.500"
                     fontWeight="700"

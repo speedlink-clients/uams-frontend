@@ -1,42 +1,32 @@
-export interface TimetableItem {
+export type DayOfWeek = 
+  | "MONDAY" 
+  | "TUESDAY" 
+  | "WEDNESDAY" 
+  | "THURSDAY" 
+  | "FRIDAY" 
+  | "SATURDAY" 
+  | "SUNDAY";
+
+export type Semester = "FIRST" | "SECOND";
+
+export type Level = "L100" | "L200" | "L300" | "L400" | "L500" | "MSC" | "PHD";
+
+export interface TimetableEntry {
   id: string;
-  title: string;
-  semester: {
-    id: string;
-    name: string;
-  };
-  level: {
-    id: string;
-    name: string;
-  };
-  session: {
-    id: string;
-    name: string;
-  };
-  programme: {
-    id: string;
-    name: string;
-  };
-  schedule: {
-    monday?: CourseSlot[];
-    tuesday?: CourseSlot[];
-    wednesday?: CourseSlot[];
-    thursday?: CourseSlot[];
-    friday?: CourseSlot[];
-    saturday?: CourseSlot[];
-    sunday?: CourseSlot[];
-  };
-}
-
-export interface CourseSlot {
-  endTime: string;
   courseId: string;
-  startTime: string;
-  courseCode: string;
-  originalText: string;
+  dayOfWeek: DayOfWeek;
+  startTime: string;  
+  endTime: string;     
+  venue: string;
+  session: string;     
+  semester: Semester;
+  level: Level;
 }
 
-export interface TimetableResponse {
-  success: boolean;
-  data: TimetableItem[];
+export interface ApiResponse<T> {
+  status: "success" | "error";
+  message: string;
+  data: T;
 }
+
+export type TimetableResponse = ApiResponse<TimetableEntry[]>;
