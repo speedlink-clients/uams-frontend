@@ -14,24 +14,23 @@ import {
   Icon,
   FileUpload
 } from "@chakra-ui/react";
-import { CourseServices } from "@services/course.service";
-import axiosClient from "@configs/axios.config";
+import { CourseHook } from "@hooks/course.hook";
+import axios from "axios";
 
 interface Props {
-    onUploaded: () => void;
     children: React.ReactNode;
 }
 
-const BulkUploadCoursesModal = ({ onUploaded, children }: Props) => {
+const BulkUploadCoursesModal = ({ children }: Props) => {
     const [file, setFile] = useState<File | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
+    const { mutate: uploadCourses, isPending: isUploading } = CourseHook.useBulkUploadCourses();
 
     const handleDownloadSample = async () => {
         try {
-            const { data } = await axiosClient.get("/departmental-admin/documents/Course_Sample_File.xlsx", {
+            const response = await axios.get("/sample-courses-upload.xlsx", {
                 responseType: "blob",
             });
-            return data;
+            return response.data;
         } catch (err) {
             toaster.error({ title: "Failed to download sample file" });
             throw err;
@@ -43,22 +42,9 @@ const BulkUploadCoursesModal = ({ onUploaded, children }: Props) => {
             toaster.error({ title: "Please select a file first" });
             return;
         }
-
-        try {
-            setIsUploading(true);
-            const formData = new FormData();
-            formData.append("file", file);
-
-            await CourseServices.bulkUploadCourses(formData);
-
-            toaster.success({ title: "Courses uploaded successfully!" });
-            onUploaded();
-        } catch (err: any) {
-            console.error("Bulk upload failed", err);
-            toaster.error({ title: err.response?.data?.message || "Failed to upload courses" });
-        } finally {
-            setIsUploading(false);
-        }
+        const formData = new FormData();
+        formData.append("file", file);
+        uploadCourses(formData);
     };
 
 
