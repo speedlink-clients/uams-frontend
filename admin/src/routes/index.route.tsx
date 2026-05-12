@@ -17,7 +17,6 @@ const ProfilePage = lazy(() => import("@app/profile/page"));
 const AuditLogsPage = lazy(() => import("@app/audit-logs/page"));
 
 const router = createBrowserRouter([
-
     // Protected Routes
     {
         path: "/",

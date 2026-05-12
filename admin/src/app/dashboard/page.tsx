@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, BarChart3, Users } from "lucide-react";
 import {
     LineChart,
     Line,
@@ -9,82 +8,23 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-import type { Announcement, ChartDataItem } from "@type/common.type";
 import { AnnouncementList } from "@components/dashboard/AnnouncementList";
-import { AnnouncementServices } from "@services/announcement.service";
 import StatsContainer from "@components/dashboard/StatsContainer";
 import useAuthStore from "@stores/auth.store";
-import { DashboardServices } from "@services/dashboard.service";
-import { Box, Flex, Grid, Text } from "@chakra-ui/react";
+import { DashboardHook } from "@hooks/dashboard.hook";
+import { Box, EmptyState, Flex, Grid, Heading, Text } from "@chakra-ui/react";
 
 const DashboardPage = () => {
-    const { email, role } = useAuthStore();
-    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-    const [revenueData, setRevenueData] = useState<ChartDataItem[]>([]);
-    const [growthData, setGrowthData] = useState<ChartDataItem[]>([]);
-
-    useEffect(() => {
-        fetchChartData();
-        fetchAnnouncements();
-    }, []);
-
-    const fetchAnnouncements = async () => {
-        try {
-            const response = await AnnouncementServices.getAnnouncements();
-            const data = response?.data || [];
-            const mapped: Announcement[] = data.map((item: any) => ({
-                id: item.id,
-                title: item.title,
-                description: item.body,
-                date: new Date(item.createdAt).toLocaleDateString("en-CA"),
-                isFor: item.isFor,
-                isRead: item.isRead,
-            }));
-            setAnnouncements(mapped);
-        } catch (err) {
-            console.error("Failed to fetch announcements", err);
-        }
-    };
-
-    const fetchChartData = async () => {
-        try {
-            const [revenueRes, growthRes] = await Promise.all([
-                DashboardServices.getAnnualRevenueStats(),
-                DashboardServices.getRegistrationGrowthStats(),
-            ]);
-
-            // Revenue Data from new endpoint
-            const revData = revenueRes?.data || [];
-            setRevenueData(
-                revData.map((item: any) => ({ 
-                    year: item.year.toString(), 
-                    value: item.revenue 
-                }))
-            );
-
-            // Enrollment Data from new endpoint
-            const growthDataApi = growthRes?.data || [];
-            setGrowthData(
-                growthDataApi.map((item: any) => ({
-                    year: item.year.toString(),
-                    value: item.count
-                }))
-            );
-        } catch (error) {
-            console.error("Failed to fetch dashboard chart data", error);
-        }
-    };
-
-    const currentUser = email ? email.split("@")[0] : role === "UNIVERSITYADMIN" ? "Admin" : "User";
+    const { user } = useAuthStore();
+    const { data: revenueData = [] } = DashboardHook.useRevenueStats();
+    const { data: growthData = [] } = DashboardHook.useEnrollmentGrowth();
+    const { data: announcements = [] } = DashboardHook.useAnnouncements();
 
     return (
         <Flex direction="column" gap="8">
-            {/* Welcome banner */}
-            <Box bg="bg" p="6" borderRadius="md" border="xs" borderColor="border.muted">
-                <Text fontSize="xl" fontWeight="bold" color="slate.800">
-                    Welcome Back, {currentUser}
-                </Text>
-            </Box>
+            <Heading size="xl" color="slate.800">
+                Welcome Back, {user?.name || "N/A"}
+            </Heading>
 
             <StatsContainer />
 
@@ -104,18 +44,34 @@ const DashboardPage = () => {
                         </Box>
                     </Flex>
                     <Box h="300px" w="full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={revenueData.length > 0 ? revenueData : [{ year: "2024", value: 0 }]}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(val) => `₦${val / 1000}k`} />
-                                <Tooltip
-                                    formatter={(value: number | undefined) => [`₦${(value ?? 0).toLocaleString()}`, "Revenue"]}
-                                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-                                />
-                                <Line type="monotone" dataKey="value" stroke="#22c55e" strokeWidth={2.5} dot={{ r: 4, fill: "#22c55e", strokeWidth: 2, stroke: "#fff" }} />
-                            </LineChart>
-                        </ResponsiveContainer>
+                        {revenueData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={revenueData}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(val) => `₦${val / 1000}k`} />
+                                    <Tooltip
+                                        formatter={(value: number | undefined) => [`₦${(value ?? 0).toLocaleString()}`, "Revenue"]}
+                                        contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                                    />
+                                    <Line type="monotone" dataKey="value" stroke="#22c55e" strokeWidth={2.5} dot={{ r: 4, fill: "#22c55e", strokeWidth: 2, stroke: "#fff" }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <Flex h="full" alignItems="center" justifyContent="center">
+                                <EmptyState.Root>
+                                    <EmptyState.Content>
+                                        <EmptyState.Indicator>
+                                            <BarChart3 />
+                                        </EmptyState.Indicator>
+                                        <EmptyState.Title>No Revenue Data</EmptyState.Title>
+                                        <EmptyState.Description>
+                                            Revenue statistics will appear here once fee collections are recorded.
+                                        </EmptyState.Description>
+                                    </EmptyState.Content>
+                                </EmptyState.Root>
+                            </Flex>
+                        )}
                     </Box>
                 </Box>
 
@@ -132,19 +88,36 @@ const DashboardPage = () => {
                     </Box>
                 </Flex>
                 <Box h="250px" w="full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={growthData.length > 0 ? growthData : [{ year: "2024", value: 0 }]}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                            <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} allowDecimals={false} />
-                            <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
-                            <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }} />
-                        </LineChart>
-                    </ResponsiveContainer>
+                    {growthData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={growthData}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} allowDecimals={false} />
+                                <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
+                                <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <Flex h="full" alignItems="center" justifyContent="center">
+                            <EmptyState.Root>
+                                <EmptyState.Content>
+                                    <EmptyState.Indicator>
+                                        <Users />
+                                    </EmptyState.Indicator>
+                                    <EmptyState.Title>No Enrollment Data</EmptyState.Title>
+                                    <EmptyState.Description>
+                                        Student registration trends will appear here once enrollments are recorded.
+                                    </EmptyState.Description>
+                                </EmptyState.Content>
+                            </EmptyState.Root>
+                        </Flex>
+                    )}
                 </Box>
             </Box>
         </Flex>
     );
 };
+
 
 export default DashboardPage;
