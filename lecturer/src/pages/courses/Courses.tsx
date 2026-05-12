@@ -39,12 +39,9 @@ const Courses = () => {
 
   const { isHOD } = useCurrentUser();
 
-  const { data: allCourses = [], isLoading: allLoading } = CourseHook.useCourses({
-    enabled: isHOD,
-  });
-  const { data: assignedCourses = [], isLoading: assignedLoading } = CourseHook.useAssignedCourses({
-    enabled: !isHOD,
-  });
+  
+  const { data: allCourses = [], isLoading: allLoading } = CourseHook.useAllCourses();
+  const { data: assignedCourses = [], isLoading: assignedLoading } = CourseHook.useAllCourses();
 
   const courses = isHOD ? allCourses : assignedCourses;
   const isLoading = allLoading || assignedLoading;
@@ -58,10 +55,13 @@ const Courses = () => {
       );
     }
     if (level !== "All") {
-      filtered = filtered.filter((c) => c.level?.name?.includes(level));
+      // API level format: "L100", "L200", etc.
+      filtered = filtered.filter((c) => c.level === `L${level}`);
     }
     if (semester !== "All") {
-      filtered = filtered.filter((c) => c.semester?.name === semester);
+      // API semester format: "FIRST", "SECOND"
+      const semesterMap = { "First Semester": "FIRST", "Second Semester": "SECOND" };
+      filtered = filtered.filter((c) => c.semester === semesterMap[semester]);
     }
     return filtered;
   }, [courses, search, level, semester]);
@@ -70,14 +70,14 @@ const Courses = () => {
 
   return (
     <Box>
-      <Heading size="lg" fontWeight="600" color="#000000" mb="5" fontSize="24px">
+      <Heading  color="fg.muted" mb="5" fontSize="24px">
         Courses{" "}
-        <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
+        <Text as="span" color="fg.subtle" fontSize="lg">
           ({totalCount})
         </Text>
       </Heading>
 
-      <Box bg="white" borderRadius="lg" border="1px solid" borderColor="gray.100" p="5">
+      <Box bg="white" rounded="md" border="1px solid" borderColor="border.muted" p="5">
         <Flex align="center" justify="flex-end" mb="5" gap="4">
           <InputGroup startElement={<Search />}>
             <Input
@@ -86,7 +86,7 @@ const Courses = () => {
               onChange={(e) => setSearch(e.target.value)}
               fontSize="13px"
               width="300px"
-              borderColor="border.subtle"
+              borderColor="border.muted"
             />
           </InputGroup>
 

@@ -30,8 +30,8 @@ const config = defineConfig({
             },
 
             fonts: {
-                heading: { value: "Oak Sans, sans-serif" },
-                body: { value: "Oak Sans, sans-serif" },
+                heading: { value: "inter" },
+                body: { value: "inter" },
             },
         },
         semanticTokens: {

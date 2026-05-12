@@ -14,7 +14,7 @@ const CourseList = ({ courses, isLoading }: CourseListProps) => {
     if (isLoading) {
         return (
             <Flex justify="center" py="12">
-                <Text color="gray.500" fontSize="sm">Loading courses...</Text>
+                <Text color="fg.muted" fontSize="sm">Loading courses...</Text>
             </Flex>
         );
     }
@@ -22,24 +22,24 @@ const CourseList = ({ courses, isLoading }: CourseListProps) => {
     if (courses.length === 0) {
         return (
             <Flex justify="center" py="12">
-                <Text color="gray.500" fontSize="sm">No courses found.</Text>
+                <Text color="fg.muted" fontSize="sm">No courses found.</Text>
             </Flex>
         );
     }
 
     return (
-        <Box bg="white" borderRadius="lg" border="1px solid" borderColor="gray.100">
+        <Box bg="white" rounded="md" border="1px solid" borderColor="border.muted">
             {/* Table Header */}
             <Flex
                 px="6"
                 py="3"
                 borderBottom="1px solid"
-                borderColor="gray.100"
-                bg="gray.50"
+                borderColor="border.muted"
+                bg="fg.subtle"
             >
-                <Text fontSize="xs" fontWeight="600" color="gray.600" w="60px">S/N</Text>
-                <Text fontSize="xs" fontWeight="600" color="gray.600" w="120px">Code</Text>
-                <Text fontSize="xs" fontWeight="600" color="gray.600" flex="1">Course Title</Text>
+                <Text fontSize="xs"  color="fg.muted" w="60px">S/N</Text>
+                <Text fontSize="xs"  color="fg.muted" w="120px">Code</Text>
+                <Text fontSize="xs"  color="fg,muted" flex="1">Course Title</Text>
                 <Box w="30px" />
             </Flex>
 
@@ -51,17 +51,15 @@ const CourseList = ({ courses, isLoading }: CourseListProps) => {
                     px="6"
                     py="4"
                     borderBottom="1px solid"
-                    borderColor="gray.50"
+                    borderColor="border.muted"
                     cursor="pointer"
-                    _hover={{ bg: "gray.50" }}
-                    transition="background 0.15s"
                     onClick={() => navigate(`/courses/${course.id}`, { state: { course } })}
                 >
-                    <Text fontSize="xs" color="gray.600" w="60px">{index + 1}</Text>
-                    <Text fontSize="xs" color="gray.700" w="120px">{course.code}</Text>
-                    <Text fontSize="xs" color="gray.700" flex="1">{course.title}</Text>
+                    <Text fontSize="xs" color="fg.muted" w="60px">{index + 1}</Text>
+                    <Text fontSize="xs" color="fg.muted" w="120px">{course.code}</Text>
+                    <Text fontSize="xs" color="fg.muted" flex="1">{course.title}</Text>
                     <Box w="30px" textAlign="right">
-                        <ChevronRight size={14} color="#A0AEC0" />
+                        <ChevronRight size={14} color="fg.muted" />
                     </Box>
                 </Flex>
             ))}
