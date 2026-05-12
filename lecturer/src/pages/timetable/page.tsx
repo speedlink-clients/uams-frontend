@@ -1,5 +1,4 @@
 import {
-  Badge,
   Box,
   Button,
   Center,
@@ -18,9 +17,10 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { TimetableHook } from "@hooks/timetable.hooks";
-import type { TimetableItem } from "@type/timetable.type";
+import type { TimetableEntry } from "@type/timetable.type";
 import { memo, useMemo, useState } from "react";
-import { LuCircleAlert } from "react-icons/lu";
+import { LuCircleAlert, LuCalendarX } from "react-icons/lu";
+import useAuthStore from "@stores/auth.store";
 
 const formatTime = (isoString: string) => {
   return new Date(isoString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -46,22 +46,28 @@ const semesterOptions = createListCollection({
 });
 
 const Timetable = () => {
-  const { data: timetables = [], isLoading, error } = TimetableHook.useTimetable();
+  const { user } = useAuthStore();
+
+  const session = user?.currentSession;
+  const semester = user?.currentSemester;
+
+  const { data: timetables = [], isLoading, error } = TimetableHook.useTimetable({ session, semester });
+
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
 
   const filteredTimetables = useMemo(() => {
     let filtered = timetables;
     if (selectedLevel) {
-      filtered = filtered.filter((t: TimetableItem) => t.level === selectedLevel);
+      filtered = filtered.filter((t: TimetableEntry) => t.level === selectedLevel);
     }
     if (selectedSemester) {
-      filtered = filtered.filter((t: TimetableItem) => t.semester === selectedSemester);
+      filtered = filtered.filter((t: TimetableEntry) => t.semester === selectedSemester);
     }
     return filtered;
   }, [timetables, selectedLevel, selectedSemester]);
 
-  // Loading state – centered in full page
+  
   if (isLoading) {
     return (
       <Center minH="100vh">
@@ -70,7 +76,7 @@ const Timetable = () => {
     );
   }
 
-  // Error state – centered in full page
+  
   if (error) {
     return (
       <Center minH="100vh">
@@ -172,21 +178,43 @@ const Timetable = () => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {filteredTimetables.map((item: TimetableItem) => (
-                <Table.Row key={item.id}>
-                  <Table.Cell>{item.dayOfWeek}</Table.Cell>
-                  <Table.Cell>{formatTime(item.startTime)}</Table.Cell>
-                  <Table.Cell>{formatTime(item.endTime)}</Table.Cell>
-                  <Table.Cell>{item.venue}</Table.Cell>
-                  <Table.Cell>{item.level}</Table.Cell>
-                  <Table.Cell>{item.semester}</Table.Cell>
-                  <Table.Cell>{item.session}</Table.Cell>
-                  <Table.Cell>{item.courseId}</Table.Cell>
-                  <Table.Cell>
-                    <DetailsDrawer item={item} />
+              {filteredTimetables.length === 0 ? (
+                <Table.Row>
+                  <Table.Cell colSpan={9} textAlign="center" py={10}>
+                    <EmptyState.Root>
+                      <EmptyState.Content>
+                        <EmptyState.Indicator>
+                          <LuCalendarX />
+                        </EmptyState.Indicator>
+                        <VStack textAlign="center">
+                          <EmptyState.Title>No timetable entries found</EmptyState.Title>
+                          <EmptyState.Description>
+                            {timetables.length === 0
+                              ? "No timetable data available for the selected session and semester."
+                              : "Try adjusting your filters to see more results."}
+                          </EmptyState.Description>
+                        </VStack>
+                      </EmptyState.Content>
+                    </EmptyState.Root>
                   </Table.Cell>
                 </Table.Row>
-              ))}
+              ) : (
+                filteredTimetables.map((item: TimetableEntry) => (
+                  <Table.Row key={item.id}>
+                    <Table.Cell>{item.dayOfWeek}</Table.Cell>
+                    <Table.Cell>{formatTime(item.startTime)}</Table.Cell>
+                    <Table.Cell>{formatTime(item.endTime)}</Table.Cell>
+                    <Table.Cell>{item.venue}</Table.Cell>
+                    <Table.Cell>{item.level}</Table.Cell>
+                    <Table.Cell>{item.semester}</Table.Cell>
+                    <Table.Cell>{item.session}</Table.Cell>
+                    <Table.Cell>{item.courseId}</Table.Cell>
+                    <Table.Cell>
+                      <DetailsDrawer item={item} />
+                    </Table.Cell>
+                  </Table.Row>
+                ))
+              )}
             </Table.Body>
           </Table.Root>
         </Table.ScrollArea>
@@ -195,7 +223,7 @@ const Timetable = () => {
   );
 };
 
-const DetailsDrawer = memo(({ item }: { item: TimetableItem }) => {
+const DetailsDrawer = memo(({ item }: { item: TimetableEntry }) => {
   return (
     <Drawer.Root size="md">
       <Drawer.Trigger asChild>
