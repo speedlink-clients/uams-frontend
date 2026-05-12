@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Upload, FileUp, Download } from "lucide-react";
 import { toaster } from "@components/ui/toaster";
 import { 
@@ -6,35 +6,32 @@ import {
   Flex, 
   Text,
   Button, 
-  Input,
   Dialog,
   Portal,
   VStack,
-  DownloadTrigger
+  DownloadTrigger,
+  CloseButton,
+  Icon,
+  FileUpload
 } from "@chakra-ui/react";
 import { CourseServices } from "@services/course.service";
+import axiosClient from "@configs/axios.config";
 
 interface Props {
-    isOpen: boolean;
-    onClose: () => void;
     onUploaded: () => void;
+    children: React.ReactNode;
 }
 
-const BulkUploadCoursesModal = ({ isOpen, onClose, onUploaded }: Props) => {
+const BulkUploadCoursesModal = ({ onUploaded, children }: Props) => {
     const [file, setFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = e.target.files?.[0];
-        if (selected) setFile(selected);
-    };
 
     const handleDownloadSample = async () => {
         try {
-            const response = await fetch("/departmental-admin/documents/Course_Sample_File.xlsx");
-            if (!response.ok) throw new Error("Failed to download template");
-            return await response.blob();
+            const { data } = await axiosClient.get("/departmental-admin/documents/Course_Sample_File.xlsx", {
+                responseType: "blob",
+            });
+            return data;
         } catch (err) {
             toaster.error({ title: "Failed to download sample file" });
             throw err;
@@ -64,29 +61,30 @@ const BulkUploadCoursesModal = ({ isOpen, onClose, onUploaded }: Props) => {
         }
     };
 
-    const handleClose = () => {
-        setFile(null);
-        onClose();
-    };
 
     return (
-        <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && handleClose()} size="lg">
+        <Dialog.Root size="lg" role="alertdialog" onExitComplete={() => setFile(null)}>
+            <Dialog.Trigger asChild>
+                {children}
+            </Dialog.Trigger>
             <Portal>
                 <Dialog.Backdrop />
                 <Dialog.Positioner>
-                    <Dialog.Content borderRadius="2xl" overflow="hidden">
-                        <Dialog.CloseTrigger />
+                    <Dialog.Content rounded="md" overflow="hidden">
                         <Dialog.Header p="6" borderBottom="xs" borderColor="border.muted">
                             <Flex alignItems="center" gap="3">
-                                <Flex bg="blue.50" p="2.5" borderRadius="lg">
-                                    <Upload size={20} color="#2563eb" />
-                                </Flex>
+                                <Icon bg="blue.50" p="2.5" rounded="lg" boxSize="10">
+                                    <Upload />
+                                </Icon>
                                 <Box>
                                     <Dialog.Title fontSize="lg" fontWeight="bold" color="slate.800">Bulk Upload Courses</Dialog.Title>
-                                    <Dialog.Description fontSize="sm" color="slate.500" mt="1">
+                                    <Dialog.Description fontSize="sm" color="fg.muted" mt="1">
                                         Upload an Excel file containing courses data.
                                     </Dialog.Description>
                                 </Box>
+                                <Dialog.CloseTrigger asChild>
+                                    <CloseButton />
+                                </Dialog.CloseTrigger>
                             </Flex>
                         </Dialog.Header>
 
@@ -119,41 +117,56 @@ const BulkUploadCoursesModal = ({ isOpen, onClose, onUploaded }: Props) => {
                                     </Flex>
                                 </Box>
 
-                                <Flex
-                                    direction="column"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    border="2px dashed"
-                                    borderColor={file ? "blue.400" : "slate.200"}
-                                    bg={file ? "blue.50/30" : "transparent"}
-                                    borderRadius="xl"
-                                    p="10"
-                                    cursor="pointer"
-                                    _hover={{ borderColor: "blue.400", bg: "blue.50/30" }}
-                                    transition="all 0.2s"
-                                    onClick={() => fileInputRef.current?.click()}
+                                <FileUpload.Root
+                                    onFileChange={(details) => setFile(details.acceptedFiles[0] || null)}
+                                    accept={[".xlsx", ".xls"]}
+                                    maxFiles={1}
+                                    maxFileSize={5 * 1024 * 1024}
                                 >
-                                    <Input
-                                        type="file"
-                                        accept=".xlsx,.xls"
-                                        ref={fileInputRef}
-                                        onChange={handleFileChange}
-                                        style={{ display: "none" }}
-                                    />
-                                    {file ? (
-                                        <VStack gap="2">
-                                            <FileUp size={32} color="#3b82f6" />
-                                            <Text fontSize="sm" fontWeight="bold" color="slate.800">{file.name}</Text>
-                                            <Text fontSize="xs" color="slate.500">{(file.size / 1024).toFixed(1)} KB</Text>
-                                        </VStack>
-                                    ) : (
-                                        <VStack gap="2">
-                                            <Upload size={32} color="#94a3b8" />
-                                            <Text fontSize="sm" fontWeight="bold" color="slate.600">Click to select file</Text>
-                                            <Text fontSize="xs" color="slate.400">Supports .XLSX, .XLS</Text>
-                                        </VStack>
-                                    )}
-                                </Flex>
+                                    <FileUpload.Dropzone
+                                        border="2px dashed"
+                                        borderColor={file ? "blue.400" : "slate.200"}
+                                        bg={file ? "blue.50/30" : "transparent"}
+                                        borderRadius="xl"
+                                        p="10"
+                                        cursor="pointer"
+                                        _hover={{ borderColor: "blue.400", bg: "blue.50/30" }}
+                                        transition="all 0.2s"
+                                        flexDirection="column"
+                                        width="100%"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                        display="flex"
+                                    >
+                                        <FileUpload.HiddenInput />
+                                        {file ? (
+                                            <VStack gap="2">
+                                                <FileUp size={32} color="#3b82f6" />
+                                                <Text fontSize="sm" fontWeight="bold" color="slate.800">{file.name}</Text>
+                                                <Text fontSize="xs" color="slate.500">{(file.size / 1024).toFixed(1)} KB</Text>
+                                                <Button
+                                                    size="xs"
+                                                    variant="ghost"
+                                                    color="red.500"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setFile(null);
+                                                    }}
+                                                >
+                                                    Remove file
+                                                </Button>
+                                            </VStack>
+                                        ) : (
+                                            <VStack gap="2">
+                                                <Upload size={32} color="#94a3b8" />
+                                                <VStack gap="0">
+                                                    <Text fontSize="sm" fontWeight="bold" color="slate.800">Click or drag to upload</Text>
+                                                    <Text fontSize="xs" color="slate.500">Excel files only (.xlsx, .xls)</Text>
+                                                </VStack>
+                                            </VStack>
+                                        )}
+                                    </FileUpload.Dropzone>
+                                </FileUpload.Root>
                             </VStack>
                         </Dialog.Body>
 

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { TrendingUp, BarChart3, Users } from "lucide-react";
 import {
     LineChart,
@@ -9,77 +8,23 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-import type { Announcement, ChartDataItem } from "@type/common.type";
 import { AnnouncementList } from "@components/dashboard/AnnouncementList";
-import { AnnouncementServices } from "@services/announcement.service";
 import StatsContainer from "@components/dashboard/StatsContainer";
 import useAuthStore from "@stores/auth.store";
-import { DashboardServices } from "@services/dashboard.service";
-import { Box, EmptyState, Flex, Grid, Text } from "@chakra-ui/react";
+import { DashboardHook } from "@hooks/dashboard.hook";
+import { Box, EmptyState, Flex, Grid, Heading, Text } from "@chakra-ui/react";
 
 const DashboardPage = () => {
     const { user } = useAuthStore();
-    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-    const [revenueData, setRevenueData] = useState<ChartDataItem[]>([]);
-    const [growthData, setGrowthData] = useState<ChartDataItem[]>([]);
-
-    useEffect(() => {
-        fetchChartData();
-        fetchAnnouncements();
-    }, []);
-
-    const fetchAnnouncements = async () => {
-        try {
-            const response = await AnnouncementServices.getAnnouncements();
-            const data = response?.data || [];
-            const mapped: Announcement[] = data.map((item: any) => ({
-                id: item.id,
-                title: item.title,
-                description: item.body,
-                date: new Date(item.createdAt).toLocaleDateString("en-CA"),
-                isFor: item.isFor,
-                isRead: item.isRead,
-            }));
-            setAnnouncements(mapped);
-        } catch (err) {
-            console.error("Failed to fetch announcements", err);
-        }
-    };
-
-    const fetchChartData = async () => {
-        try {
-            const [revenueRes, growthRes] = await Promise.all([
-                DashboardServices.getAnnualRevenueStats(),
-                DashboardServices.getRegistrationGrowthStats(),
-            ]);
-
-            // Revenue Data from new endpoint
-            const revData = revenueRes?.data || [];
-            setRevenueData(
-                revData.map((item: any) => ({ 
-                    year: item.year.toString(), 
-                    value: item.revenue 
-                }))
-            );
-
-            // Enrollment Data from new endpoint
-            const growthDataApi = growthRes?.data || [];
-            setGrowthData(
-                growthDataApi.map((item: any) => ({
-                    year: item.year.toString(),
-                    value: item.count
-                }))
-            );
-        } catch (error) {
-            console.error("Failed to fetch dashboard chart data", error);
-        }
-    };
+    const { data: revenueData = [] } = DashboardHook.useRevenueStats();
+    const { data: growthData = [] } = DashboardHook.useEnrollmentGrowth();
+    const { data: announcements = [] } = DashboardHook.useAnnouncements();
 
     return (
         <Flex direction="column" gap="8">
-            <Text fontSize="xl" fontWeight="bold" color="slate.800">
+            <Heading size="xl" color="slate.800">
                 Welcome Back, {user?.name || "N/A"}
-            </Text>
+            </Heading>
 
             <StatsContainer />
 
@@ -173,5 +118,6 @@ const DashboardPage = () => {
         </Flex>
     );
 };
+
 
 export default DashboardPage;
