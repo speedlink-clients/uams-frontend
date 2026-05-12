@@ -11,14 +11,14 @@ const SettingsPage = () => {
                 <Tabs.List bg="slate.50" p="1.5" borderRadius="lg" border="xs" borderColor="border.muted" mb="8" overflowX="auto" display="flex" gap="2">
                     <Tabs.Trigger 
                         value="id-card" 
-                        color="slate.500" 
+                        color="fg.muted" 
                         fontWeight="bold" 
                         borderRadius="md" 
                         px="4" 
                         py="2.5" 
                         gap="2"
-                        _selected={{ bg: "white", color: "#1D7AD9", shadow: "sm", border: "1px solid", borderColor: "slate.200" }}
-                        _hover={{ color: "slate.700", bg: "slate.100", _selected: { color: "#1D7AD9", bg: "white" } }}
+                        _selected={{ bg: "white", color: "#1D7AD9", shadow: "sm", border: "1px solid", borderColor: "fg.subtle" }}
+                        _hover={{ color: "fg.muted", bg: "fg.subtle", _selected: { color: "#1D7AD9", bg: "white" } }}
                         transition="all 0.2s"
                         border="1px solid transparent"
                     >
@@ -27,14 +27,14 @@ const SettingsPage = () => {
                     
                     <Tabs.Trigger 
                         value="payment" 
-                        color="slate.500" 
+                        color="fg.muted" 
                         fontWeight="bold" 
                         borderRadius="md" 
                         px="4" 
                         py="2.5" 
                         gap="2"
-                        _selected={{ bg: "white", color: "#1D7AD9", shadow: "sm", border: "1px solid", borderColor: "slate.200" }}
-                        _hover={{ color: "slate.700", bg: "slate.100", _selected: { color: "#1D7AD9", bg: "white" } }}
+                        _selected={{ bg: "white", color: "#1D7AD9", shadow: "sm", border: "1px solid", borderColor: "fg.subtle" }}
+                        _hover={{ color: "fg.muted", bg: "fg.subtle", _selected: { color: "#1D7AD9", bg: "white" } }}
                         transition="all 0.2s"
                         border="1px solid transparent"
                     >
@@ -43,14 +43,14 @@ const SettingsPage = () => {
 
                     <Tabs.Trigger 
                         value="system" 
-                        color="slate.500" 
+                        color="fg.muted" 
                         fontWeight="bold" 
                         borderRadius="md" 
                         px="4" 
                         py="2.5" 
                         gap="2"
-                        _selected={{ bg: "white", color: "#1D7AD9", shadow: "sm", border: "1px solid", borderColor: "slate.200" }}
-                        _hover={{ color: "slate.700", bg: "slate.100", _selected: { color: "#1D7AD9", bg: "white" } }}
+                        _selected={{ bg: "white", color: "#1D7AD9", shadow: "sm", border: "1px solid", borderColor: "fg.subtle" }}
+                        _hover={{ color: "fg.muted", bg: "fg.subtle", _selected: { color: "#1D7AD9", bg: "white" } }}
                         transition="all 0.2s"
                         border="1px solid transparent"
                     >

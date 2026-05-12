@@ -9,7 +9,7 @@ const ProgramCoursesPage = () => {
     return (
         <Flex direction="column" gap="6">
             <Box>
-                <Heading size="xl" color="slate.800" mb="2">
+                <Heading size="xl" color="fg.muted" mb="2">
                     Programs & Courses
                 </Heading>
                 

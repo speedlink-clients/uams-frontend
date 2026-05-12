@@ -63,7 +63,7 @@ const BulkUploadCoursesModal = ({ children }: Props) => {
                                     <Upload />
                                 </Icon>
                                 <Box>
-                                    <Dialog.Title fontSize="lg" fontWeight="bold" color="slate.800">Bulk Upload Courses</Dialog.Title>
+                                    <Dialog.Title fontSize="lg" fontWeight="bold" color="fg.muted">Bulk Upload Courses</Dialog.Title>
                                     <Dialog.Description fontSize="sm" color="fg.muted" mt="1">
                                         Upload an Excel file containing courses data.
                                     </Dialog.Description>
@@ -80,8 +80,8 @@ const BulkUploadCoursesModal = ({ children }: Props) => {
                                     <Flex alignItems="center" gap="3">
                                         <FileUp size={18} color="#2563eb" />
                                         <Box>
-                                            <Text fontSize="sm" fontWeight="bold" color="slate.800">Reference Template</Text>
-                                            <Text fontSize="xs" color="slate.500">Download the sample file to ensure your data is formatted correctly.</Text>
+                                            <Text fontSize="sm" fontWeight="bold" color="fg.muted">Reference Template</Text>
+                                            <Text fontSize="xs" color="fg.muted">Download the sample file to ensure your data is formatted correctly.</Text>
                                         </Box>
                                         <DownloadTrigger
                                             data={() => handleDownloadSample()}
@@ -111,7 +111,7 @@ const BulkUploadCoursesModal = ({ children }: Props) => {
                                 >
                                     <FileUpload.Dropzone
                                         border="2px dashed"
-                                        borderColor={file ? "blue.400" : "slate.200"}
+                                        borderColor={file ? "blue.400" : "fg.subtle"}
                                         bg={file ? "blue.50/30" : "transparent"}
                                         borderRadius="xl"
                                         p="10"
@@ -128,8 +128,8 @@ const BulkUploadCoursesModal = ({ children }: Props) => {
                                         {file ? (
                                             <VStack gap="2">
                                                 <FileUp size={32} color="#3b82f6" />
-                                                <Text fontSize="sm" fontWeight="bold" color="slate.800">{file.name}</Text>
-                                                <Text fontSize="xs" color="slate.500">{(file.size / 1024).toFixed(1)} KB</Text>
+                                                <Text fontSize="sm" fontWeight="bold" color="fg.muted">{file.name}</Text>
+                                                <Text fontSize="xs" color="fg.muted">{(file.size / 1024).toFixed(1)} KB</Text>
                                                 <Button
                                                     size="xs"
                                                     variant="ghost"
@@ -146,8 +146,8 @@ const BulkUploadCoursesModal = ({ children }: Props) => {
                                             <VStack gap="2">
                                                 <Upload size={32} color="#94a3b8" />
                                                 <VStack gap="0">
-                                                    <Text fontSize="sm" fontWeight="bold" color="slate.800">Click or drag to upload</Text>
-                                                    <Text fontSize="xs" color="slate.500">Excel files only (.xlsx, .xls)</Text>
+                                                    <Text fontSize="sm" fontWeight="bold" color="fg.muted">Click or drag to upload</Text>
+                                                    <Text fontSize="xs" color="fg.muted">Excel files only (.xlsx, .xls)</Text>
                                                 </VStack>
                                             </VStack>
                                         )}
@@ -161,7 +161,7 @@ const BulkUploadCoursesModal = ({ children }: Props) => {
                                 <Button 
                                     variant="outline" 
                                     borderColor="border.muted" 
-                                    color="slate.600"
+                                    color="fg.muted"
                                     px="6"
                                     fontWeight="bold"
                                 >

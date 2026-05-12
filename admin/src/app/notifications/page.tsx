@@ -36,7 +36,7 @@ const getTypeColor = (type: NotificationItem["type"]) => {
         case "user": return { color: "blue.500", borderColor: "blue.50" };
         case "system": return { color: "orange.500", borderColor: "orange.50" };
         case "success": return { color: "blue.500", borderColor: "blue.50" };
-        default: return { color: "slate.400", borderColor: "slate.50" };
+        default: return { color: "fg.subtle", borderColor: "slate.50" };
     }
 };
 
@@ -45,8 +45,8 @@ const NotificationsPage = () => {
         <Box maxW="1400px" mx="auto">
             <Flex justifyContent="space-between" alignItems="center" mb="12">
                 <Box>
-                    <Text fontSize="3xl" fontWeight="bold" color="slate.900">Notifications</Text>
-                    <Text color="slate.500" mt="1" fontSize="sm">Stay updated with the latest activities across the department.</Text>
+                    <Text fontSize="3xl" fontWeight="bold" color="fg.muted">Notifications</Text>
+                    <Text color="fg.muted" mt="1" fontSize="sm">Stay updated with the latest activities across the department.</Text>
                 </Box>
                 <Flex as="button" fontSize="xs" fontWeight="bold" color="blue.600" _hover={{ color: "blue.700" }} bg="blue.50" px="6" py="3" borderRadius="xl" border="xs" borderColor="blue.100" alignItems="center" gap="2" transition="all 0.2s" cursor="pointer">
                     <Check size={16} /> Mark all as read
@@ -63,16 +63,16 @@ const NotificationsPage = () => {
                             </Flex>
                             <Box flex="1">
                                 <Flex justifyContent="space-between" alignItems="flex-start" mb="2">
-                                    <Text fontSize="md" fontWeight="bold" color="slate.700">{n.title}</Text>
+                                    <Text fontSize="md" fontWeight="bold" color="fg.muted">{n.title}</Text>
                                     <Flex alignItems="center" gap="3">
-                                        <Text fontSize="10px" fontWeight="bold" color="slate.400" textTransform="uppercase" letterSpacing="widest">{n.time}</Text>
+                                        <Text fontSize="10px" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="widest">{n.time}</Text>
                                         {!n.isRead && <Box w="2" h="2" bg="blue.600" borderRadius="full" boxShadow="0 0 4px rgba(37,99,235,0.5)" />}
                                     </Flex>
                                 </Flex>
-                                <Text fontSize="xs" color="slate.400" lineHeight="relaxed" maxW="3xl">{n.description}</Text>
+                                <Text fontSize="xs" color="fg.subtle" lineHeight="relaxed" maxW="3xl">{n.description}</Text>
                             </Box>
                             <Flex opacity="0" _groupHover={{ opacity: 1 }} transition="all 0.2s" alignItems="center">
-                                <Box as="button" p="2" _hover={{ bg: "slate.100" }} borderRadius="lg" color="slate.400" cursor="pointer" border="none" bg="transparent">
+                                <Box as="button" p="2" _hover={{ bg: "fg.subtle" }} borderRadius="lg" color="fg.subtle" cursor="pointer" border="none" bg="transparent">
                                     <MoreHorizontal size={20} />
                                 </Box>
                             </Flex>
@@ -82,7 +82,7 @@ const NotificationsPage = () => {
             </Box>
 
             <Box mt="8" textAlign="center">
-                <Text as="button" fontSize="xs" fontWeight="bold" color="slate.400" _hover={{ color: "blue.600" }} textTransform="uppercase" letterSpacing="0.2em" transition="all 0.2s" cursor="pointer" bg="transparent" border="none">
+                <Text as="button" fontSize="xs" fontWeight="bold" color="fg.subtle" _hover={{ color: "blue.600" }} textTransform="uppercase" letterSpacing="0.2em" transition="all 0.2s" cursor="pointer" bg="transparent" border="none">
                     View Notification History
                 </Text>
             </Box>

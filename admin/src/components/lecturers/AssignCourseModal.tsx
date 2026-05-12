@@ -72,7 +72,7 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
                 {/* Header */}
                 <Flex p="6" borderBottom="xs" borderColor="border.muted" alignItems="center" justifyContent="space-between">
                     <Text fontSize="xl" fontWeight="bold" color="#1D7AD9">Assign Course To Lecturer</Text>
-                    <Button onClick={onClose} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" color="slate.400" cursor="pointer" bg="transparent">
+                    <Button onClick={onClose} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" color="fg.subtle" cursor="pointer" bg="transparent">
                         <X size={20} />
                     </Button>
                 </Flex>
@@ -81,11 +81,11 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
                 <Box p="6">
                     <Flex direction="column" gap="6">
                         {staffName && (
-                            <Text fontSize="sm" color="slate.500">Assigning course to <Text as="span" fontWeight="bold" color="slate.700">{staffName}</Text></Text>
+                            <Text fontSize="sm" color="fg.muted">Assigning course to <Text as="span" fontWeight="bold" color="fg.muted">{staffName}</Text></Text>
                         )}
 
                         <Box>
-                            <Text fontSize="sm" fontWeight="bold" color="slate.700" mb="2">Name of course</Text>
+                            <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="2">Name of course</Text>
                             <Select
                                 options={courseOptions}
                                 value={courseOptions.find((c) => c.value === courseId)}
@@ -107,7 +107,7 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
                         </Box>
 
                         <Box>
-                            <Text fontSize="sm" fontWeight="bold" color="slate.700" mb="2">Academic Session</Text>
+                            <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="2">Academic Session</Text>
                             <Input
                                 value={session}
                                 onChange={(e) => setSession(e.target.value)}
@@ -124,7 +124,7 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
 
                 {/* Footer */}
                 <Flex p="6" borderTop="xs" borderColor="border.muted" justifyContent="flex-end" gap="3">
-                    <Button onClick={onClose} px="6" py="2.5" borderRadius="lg" border="xs" borderColor="border.muted" color="slate.700" fontWeight="bold" fontSize="sm" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                    <Button onClick={onClose} px="6" py="2.5" borderRadius="lg" border="xs" borderColor="border.muted" color="fg.muted" fontWeight="bold" fontSize="sm" cursor="pointer" _hover={{ bg: "slate.50" }}>
                         Cancel
                     </Button>
                     <Button onClick={handleSubmit} px="6" py="2.5" borderRadius="lg" bg="#1D7AD9" color="white" fontWeight="bold" fontSize="sm" cursor={(!courseId || isSubmitting) ? "not-allowed" : "pointer"} _hover={{ bg: "blue.600" }} boxShadow="lg" opacity={(!courseId || isSubmitting) ? 0.5 : 1} alignItems="center" gap="2">

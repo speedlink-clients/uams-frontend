@@ -87,8 +87,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                     display={{ base: "block", lg: "none" }}
                     onClick={onClose}
                     p="2"
-                    color="slate.500"
-                    _hover={{ bg: "slate.100", borderRadius: "md" }}
+                    color="fg.muted"
+                    _hover={{ bg: "fg.subtle", borderRadius: "md" }}
                 >
                     <X size={20} />
                 </Box>
@@ -113,8 +113,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                             color={activeView === item.label ? "accent" : "fg.subtle"}
                             fontWeight="semibold"
                             _hover={{
-                                bg: activeView === item.label ? "slate.100" : "gray.50",
-                                color: "slate.900",
+                                bg: activeView === item.label ? "fg.subtle" : "gray.50",
+                                color: "fg.muted",
                             }}
                         >
                             <item.icon
