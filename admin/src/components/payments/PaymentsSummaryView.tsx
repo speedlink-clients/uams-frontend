@@ -105,18 +105,18 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
                     <Table.Root>
                         <Table.Header>
                             <Table.Row bg="#f8fafc">
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="widest" w="16">S/N</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="widest">Programme Type</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="widest">Access Fee</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="widest">ID Card Fee</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="widest">Transcript Fee</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="slate.500" textTransform="uppercase" letterSpacing="widest" textAlign="right">Revenue</Table.ColumnHeader>
+                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest" w="16">S/N</Table.ColumnHeader>
+                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">Programme Type</Table.ColumnHeader>
+                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">Access Fee</Table.ColumnHeader>
+                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">ID Card Fee</Table.ColumnHeader>
+                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">Transcript Fee</Table.ColumnHeader>
+                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest" textAlign="right">Revenue</Table.ColumnHeader>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
                             {loading ? (
                                 <Table.Row>
-                                    <Table.Cell colSpan={6} py="12" px="8" textAlign="center" color="slate.400">
+                                    <Table.Cell colSpan={6} py="12" px="8" textAlign="center" color="fg.subtle">
                                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
                                             <div style={{ width: "16px", height: "16px", border: "2px solid #94a3b8", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
                                             Loading revenue data...
@@ -144,11 +144,11 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
                             ) : (
                                 revenueData.map((row, index) => (
                                     <Table.Row key={row.programTypeId} _hover={{ bg: "slate.50" }} transition="background 0.2s">
-                                        <Table.Cell py="6" px="8" color="slate.500" fontWeight="medium" fontSize="sm">{index + 1}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="slate.700" fontSize="sm">{row.programType}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="slate.500" fontSize="sm">{formatCurrency(row.accessFee)}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="slate.500" fontSize="sm">{formatCurrency(row.idCardFee)}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="slate.500" fontSize="sm">{formatCurrency(row.transcriptFee)}</Table.Cell>
+                                        <Table.Cell py="6" px="8" color="fg.muted" fontWeight="medium" fontSize="sm">{index + 1}</Table.Cell>
+                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{row.programType}</Table.Cell>
+                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.accessFee)}</Table.Cell>
+                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.idCardFee)}</Table.Cell>
+                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.transcriptFee)}</Table.Cell>
                                         <Table.Cell py="6" px="8" textAlign="right">
                                             <button
                                                 onClick={() => onViewAllRevenue(row.programTypeId, row.programType)}

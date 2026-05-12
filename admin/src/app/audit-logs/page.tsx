@@ -69,8 +69,8 @@ const AuditLogsPage = () => {
     <Box>
       <Flex direction={{ base: "column", md: "row" }} justifyContent="space-between" alignItems={{ base: "flex-start", md: "center" }} mb="6" gap="4">
         <Box>
-          <Text fontSize="2xl" fontWeight="bold" color="slate.800">Audit Logs</Text>
-          <Text fontSize="sm" color="slate.500">Monitor system activity and user actions</Text>
+          <Text fontSize="2xl" fontWeight="bold" color="fg.muted">Audit Logs</Text>
+          <Text fontSize="sm" color="fg.muted">Monitor system activity and user actions</Text>
         </Box>
         <Flex gap="3" flexWrap="nowrap" alignItems="center" w={{ base: "full", md: "auto" }}>
           <InputGroup startElement={<Search size={18} color="#94a3b8" />} flex="1">
@@ -100,7 +100,7 @@ const AuditLogsPage = () => {
         {loading ? (
           <Flex direction="column" alignItems="center" justify="center" py="12" gap="4">
             <Spinner size="xl" color="blue.500" borderWidth="3px" />
-            <Text color="slate.500">Loading audit logs...</Text>
+            <Text color="fg.muted">Loading audit logs...</Text>
           </Flex>
         ) : paginatedLogs.length === 0 ? (
           <Flex justify="center" py="12">
@@ -121,10 +121,10 @@ const AuditLogsPage = () => {
             {paginatedLogs.map((log) => (
               <TimelineItem key={log.id}>
                 <TimelineContent width="auto" minW="140px" textAlign="right" pr="4">
-                  <Text fontSize="sm" fontWeight="semibold" color="slate.500">
+                  <Text fontSize="sm" fontWeight="semibold" color="fg.muted">
                     {formatDate(log.createdAt).split(",")[0]}
                   </Text>
-                  <Text fontSize="xs" color="slate.400">
+                  <Text fontSize="xs" color="fg.subtle">
                     {formatDate(log.createdAt).split(",")[1]?.trim()}
                   </Text>
                 </TimelineContent>
@@ -137,17 +137,17 @@ const AuditLogsPage = () => {
                       <Text as="span" px="2" py="0.5" bg="blue.50" color="blue.600" borderRadius="md" fontSize="xs" fontWeight="bold">
                         {log.action}
                       </Text>
-                      <Text as="span" fontWeight="bold" color="slate.700">
+                      <Text as="span" fontWeight="bold" color="fg.muted">
                         {log.entity}
                       </Text>
                       {log.entityId && (
-                        <Text as="span" fontSize="xs" color="slate.400">
+                        <Text as="span" fontSize="xs" color="fg.subtle">
                           #{log.entityId}
                         </Text>
                       )}
                     </Flex>
                   </TimelineTitle>
-                  <TimelineDescription mt="2" color="slate.500" fontSize="sm">
+                  <TimelineDescription mt="2" color="fg.muted" fontSize="sm">
                     <Flex gap="4" mt="1" flexWrap="wrap">
                       <Text><strong>User:</strong> {log.userId}</Text>
                       <Text><strong>IP:</strong> {log.ipAddress || "Unknown"}</Text>
@@ -162,7 +162,7 @@ const AuditLogsPage = () => {
 
         {totalPages > 0 && (
             <Flex alignItems="center" justifyContent="space-between" bg="white" p="4" borderTop="xs" borderColor="border.muted">
-              <Text fontSize="sm" color="slate.500">
+              <Text fontSize="sm" color="fg.muted">
                 Showing{" "}
                 <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredLogs.length)}</Text>
                 {" "}of <Text as="span" fontWeight="semibold">{filteredLogs.length}</Text> logs
@@ -184,7 +184,7 @@ const AuditLogsPage = () => {
                     pageNum = currentPage - 2 + i;
                   }
                   return (
-                    <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "slate.700"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
+                    <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "fg.muted"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
                       {pageNum}
                     </Box>
                   );

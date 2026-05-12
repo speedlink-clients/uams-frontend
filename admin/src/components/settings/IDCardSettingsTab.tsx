@@ -7,7 +7,7 @@ import { Box, Flex, Text, Image, Spinner, Table, Button, Badge, Dialog, Portal, 
 const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: string; type: string; preview: string; fileRef: React.RefObject<HTMLInputElement | null>; onFileChange: (e: React.ChangeEvent<HTMLInputElement>, type: string) => void }) => {
     return (
         <Box>
-            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">{label}</Text>
+            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">{label}</Text>
             <Flex
                 border="2px dashed" borderColor="border.muted" borderRadius="xl" p="4"
                 alignItems="center" justifyContent="center" minH="120px" bg="slate.50"
@@ -20,7 +20,7 @@ const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: str
                 ) : (
                     <Flex direction="column" alignItems="center" gap="2">
                         <Upload size={24} color="#94a3b8" />
-                        <Text fontSize="xs" color="slate.400">Click to upload (max 70KB)</Text>
+                        <Text fontSize="xs" color="fg.subtle">Click to upload (max 70KB)</Text>
                     </Flex>
                 )}
             </Flex>
@@ -227,7 +227,7 @@ const IDCardSettingsTab = () => {
             {/* Templates Table Section */}
             <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p={{ base: "4", md: "8" }}>
                 <Flex justifyContent="space-between" alignItems={{ base: "flex-start", sm: "center" }} direction={{ base: "column", sm: "row" }} mb="6" gap="4">
-                    <Text fontSize="lg" fontWeight="bold" color="slate.800">Available Templates</Text>
+                    <Text fontSize="lg" fontWeight="bold" color="fg.muted">Available Templates</Text>
                     <Button
                         bg="#1D7AD9"
                         color="white"
@@ -357,7 +357,7 @@ const IDCardSettingsTab = () => {
                                 <Flex direction="column" gap="5">
                                     <Flex gap="6" direction={{ base: "column", md: "row" }}>
                                         <Box flex="1">
-                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">School Name</Text>
+                                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">School Name</Text>
                                             <input
                                                 type="text" value={formData.schoolName}
                                                 onChange={(e) => setFormData((p) => ({ ...p, schoolName: e.target.value }))}
@@ -366,7 +366,7 @@ const IDCardSettingsTab = () => {
                                             />
                                         </Box>
                                         <Box flex="1">
-                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Faculty</Text>
+                                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Faculty</Text>
                                             <input
                                                 type="text" value={formData.faculty}
                                                 onChange={(e) => setFormData((p) => ({ ...p, faculty: e.target.value }))}
@@ -377,7 +377,7 @@ const IDCardSettingsTab = () => {
                                     </Flex>
                                     <Flex gap="6" direction={{ base: "column", md: "row" }}>
                                         <Box flex="1">
-                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Department</Text>
+                                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Department</Text>
                                             <input
                                                 type="text" value={formData.department}
                                                 onChange={(e) => setFormData((p) => ({ ...p, department: e.target.value }))}
@@ -386,7 +386,7 @@ const IDCardSettingsTab = () => {
                                             />
                                         </Box>
                                         <Box flex="1">
-                                            <Text fontSize="sm" fontWeight="medium" color="slate.700" mb="2">School Address</Text>
+                                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">School Address</Text>
                                             <input
                                                 type="text" value={formData.schoolAddress}
                                                 onChange={(e) => setFormData((p) => ({ ...p, schoolAddress: e.target.value }))}
@@ -398,7 +398,7 @@ const IDCardSettingsTab = () => {
 
                                     {/* Templates */}
                                     <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
-                                        <Text fontSize="md" fontWeight="bold" color="slate.800" mb="6">Card Templates</Text>
+                                        <Text fontSize="md" fontWeight="bold" color="fg.muted" mb="6">Card Templates</Text>
                                         <Flex direction={{ base: "column", md: "row" }} gap="6">
                                             <Box flex="1"><UploadBox label="Front Template" type="frontTemplate" preview={previews.frontTemplate || existingUrls.frontTemplate} fileRef={fileInputRefs.frontTemplate} onFileChange={handleFileChange} /></Box>
                                             <Box flex="1"><UploadBox label="Back Template" type="backTemplate" preview={previews.backTemplate || existingUrls.backTemplate} fileRef={fileInputRefs.backTemplate} onFileChange={handleFileChange} /></Box>
@@ -407,7 +407,7 @@ const IDCardSettingsTab = () => {
 
                                     {/* Branding */}
                                     <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
-                                        <Text fontSize="md" fontWeight="bold" color="slate.800" mb="6">Branding</Text>
+                                        <Text fontSize="md" fontWeight="bold" color="fg.muted" mb="6">Branding</Text>
                                         <Flex direction={{ base: "column", md: "row" }} gap="6">
                                             <Box flex="1"><UploadBox label="University Logo" type="logo" preview={previews.logo || existingUrls.logo} fileRef={fileInputRefs.logo} onFileChange={handleFileChange} /></Box>
                                             <Box flex="1"><UploadBox label="HOD Signature" type="signature" preview={previews.signature || existingUrls.signature} fileRef={fileInputRefs.signature} onFileChange={handleFileChange} /></Box>
@@ -416,12 +416,12 @@ const IDCardSettingsTab = () => {
 
                                     {/* Back Card Text */}
                                     <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
-                                        <Text fontSize="md" fontWeight="bold" color="slate.800" mb="6">Back Card Content</Text>
+                                        <Text fontSize="md" fontWeight="bold" color="fg.muted" mb="6">Back Card Content</Text>
                                         <Flex direction="column" gap="6">
                                             <Box>
                                                 <Flex justifyContent="space-between" mb="2">
-                                                    <Text fontSize="sm" fontWeight="medium" color="slate.700">Description</Text>
-                                                    <Text fontSize="xs" color="slate.400">{formData.backDescription.length}/120</Text>
+                                                    <Text fontSize="sm" fontWeight="medium" color="fg.muted">Description</Text>
+                                                    <Text fontSize="xs" color="fg.subtle">{formData.backDescription.length}/120</Text>
                                                 </Flex>
                                                 <textarea
                                                     value={formData.backDescription}
@@ -433,8 +433,8 @@ const IDCardSettingsTab = () => {
                                             </Box>
                                             <Box>
                                                 <Flex justifyContent="space-between" mb="2">
-                                                    <Text fontSize="sm" fontWeight="medium" color="slate.700">Disclaimer</Text>
-                                                    <Text fontSize="xs" color="slate.400">{formData.backDisclaimer.length}/95</Text>
+                                                    <Text fontSize="sm" fontWeight="medium" color="fg.muted">Disclaimer</Text>
+                                                    <Text fontSize="xs" color="fg.subtle">{formData.backDisclaimer.length}/95</Text>
                                                 </Flex>
                                                 <textarea
                                                     value={formData.backDisclaimer}

@@ -349,8 +349,8 @@ const PaymentSettingsTab = () => {
 
           <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr 1fr" }} gap="6">
             <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
-              <Text fontSize="sm" fontWeight="bold" color="slate.800" mb="3">Digital Delivery</Text>
-              <Text fontSize="xs" color="slate.500" mb="4">Email delivery</Text>
+              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="3">Digital Delivery</Text>
+              <Text fontSize="xs" color="fg.muted" mb="4">Email delivery</Text>
               <Flex direction="column" gap="3">
                 <Box>
                   <label htmlFor="transcript_digital_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Amount</label>
@@ -364,8 +364,8 @@ const PaymentSettingsTab = () => {
             </Box>
 
             <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
-              <Text fontSize="sm" fontWeight="bold" color="slate.800" mb="3">Courier Service</Text>
-              <Text fontSize="xs" color="slate.500" mb="4">Doorstep delivery</Text>
+              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="3">Courier Service</Text>
+              <Text fontSize="xs" color="fg.muted" mb="4">Doorstep delivery</Text>
               <Flex direction="column" gap="3">
                 <Box>
                   <label htmlFor="transcript_courier_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Amount</label>
@@ -379,8 +379,8 @@ const PaymentSettingsTab = () => {
             </Box>
 
             <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
-              <Text fontSize="sm" fontWeight="bold" color="slate.800" mb="3">Physical Pickup</Text>
-              <Text fontSize="xs" color="slate.500" mb="4">Pick up at registry</Text>
+              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="3">Physical Pickup</Text>
+              <Text fontSize="xs" color="fg.muted" mb="4">Pick up at registry</Text>
               <Flex direction="column" gap="3">
                 <Box>
                   <label htmlFor="transcript_pickup_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Amount</label>

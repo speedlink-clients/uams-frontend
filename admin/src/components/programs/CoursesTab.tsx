@@ -249,7 +249,7 @@ const CoursesTab = () => {
       <Flex alignItems="center" justifyContent="center" minH="400px">
         <Flex direction="column" alignItems="center" gap="4">
           <Spinner size="xl" color="blue.500" borderWidth="3px" />
-          <Text color="slate.500">Loading courses...</Text>
+          <Text color="fg.muted">Loading courses...</Text>
         </Flex>
       </Flex>
     );
@@ -262,8 +262,8 @@ const CoursesTab = () => {
         <Menu.Root>
           <Menu.Trigger asChild>
             <Button
-              bg="slate.100"
-              color="slate.700"
+              bg="fg.subtle"
+              color="fg.muted"
               size="xl"
               display="flex"
               alignItems="center"
@@ -272,7 +272,7 @@ const CoursesTab = () => {
               fontWeight="bold"
               cursor="pointer"
               boxShadow="none"
-              _hover={{ bg: "slate.200" }}
+              _hover={{ bg: "fg.subtle" }}
             >
               <Download size={20} /> Export table
             </Button>
@@ -389,7 +389,7 @@ const CoursesTab = () => {
         boxShadow="none"
       >
         <Flex p="6" alignItems="center">
-          <Text fontSize="lg" fontWeight="bold" color="slate.800">
+          <Text fontSize="lg" fontWeight="bold" color="fg.muted">
             All Courses ({filtered.length})
           </Text>
           <Flex gap="3" ml="auto">
@@ -505,7 +505,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   S/N
@@ -515,7 +515,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   COURSE CODE
@@ -525,7 +525,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   COURSE TITLE
@@ -535,7 +535,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   LEVEL
@@ -545,7 +545,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   SEMESTER
@@ -555,7 +555,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   CREDIT UNITS
@@ -565,7 +565,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   LEARNING HOURS
@@ -575,7 +575,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   PRACTICAL HOURS
@@ -585,7 +585,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                 >
                   STATUS
@@ -595,7 +595,7 @@ const CoursesTab = () => {
                   py="4"
                   fontSize="11px"
                   fontWeight="semibold"
-                  color="slate.500"
+                  color="fg.muted"
                   textTransform="uppercase"
                   textAlign="center"
                 >
@@ -635,7 +635,7 @@ const CoursesTab = () => {
                     _hover={{ bg: "slate.50" }}
                     borderColor="border.muted"
                     fontSize="sm"
-                    color="slate.600"
+                    color="fg.muted"
                     bg={selectedIds.includes(course.id) ? "blue.50" : undefined}
                   >
                     <Table.Cell px="6" py="4" textAlign="center">
@@ -681,8 +681,8 @@ const CoursesTab = () => {
                             p="1"
                             variant="ghost"
                             size="sm"
-                            color="slate.400"
-                            _hover={{ bg: "slate.100" }}
+                            color="fg.subtle"
+                            _hover={{ bg: "fg.subtle" }}
                             borderRadius="full"
                             minW="auto"
                           >
@@ -729,10 +729,10 @@ const CoursesTab = () => {
           gap="6"
           zIndex="50"
         >
-          <Text fontSize="sm" fontWeight="bold" color="slate.700">
+          <Text fontSize="sm" fontWeight="bold" color="fg.muted">
             {selectedIds.length} items selected
           </Text>
-          <Box w="px" h="6" bg="slate.200" />
+          <Box w="px" h="6" bg="fg.subtle" />
           <Button
             onClick={handleBulkDelete}
             bg="red.500"
@@ -746,14 +746,14 @@ const CoursesTab = () => {
           >
             <Trash2 size={16} /> Delete
           </Button>
-          <Box w="px" h="6" bg="slate.200" />
+          <Box w="px" h="6" bg="fg.subtle" />
           <Button
             onClick={() => setSelectedIds([])}
             variant="ghost"
             p="1"
             borderRadius="lg"
-            color="slate.400"
-            _hover={{ bg: "slate.100" }}
+            color="fg.subtle"
+            _hover={{ bg: "fg.subtle" }}
             title="Unselect all"
           >
             <X size={20} />
@@ -770,12 +770,12 @@ const CoursesTab = () => {
                   <Dialog.Title
                     fontSize="lg"
                     fontWeight="bold"
-                    color="slate.800"
+                    color="fg.muted"
                   >
                     {isEditing ? "Edit Course" : "Add New Course"}
                   </Dialog.Title>
 
-                  <Dialog.Description fontSize="sm" color="slate.500">
+                  <Dialog.Description fontSize="sm" color="fg.muted">
                     Fill in the details below to{" "}
                     {isEditing
                       ? "update the course"
@@ -795,7 +795,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Course Title
                       </Field.Label>
@@ -814,7 +814,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Course Code
                       </Field.Label>
@@ -835,7 +835,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Course Type
                       </Field.Label>
@@ -874,7 +874,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Program Type
                       </Field.Label>
@@ -918,7 +918,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Level
                       </Field.Label>
@@ -957,7 +957,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Semester
                       </Field.Label>
@@ -998,7 +998,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Credit Units
                       </Field.Label>
@@ -1036,7 +1036,7 @@ const CoursesTab = () => {
                       <Field.Label
                         fontSize="sm"
                         fontWeight="medium"
-                        color="slate.700"
+                        color="fg.muted"
                       >
                         Allow Carryover
                       </Field.Label>
@@ -1061,7 +1061,7 @@ const CoursesTab = () => {
                     <Field.Label
                       fontSize="sm"
                       fontWeight="medium"
-                      color="slate.700"
+                      color="fg.muted"
                     >
                       Description
                     </Field.Label>
@@ -1092,7 +1092,7 @@ const CoursesTab = () => {
                   <Button
                     variant="outline"
                     borderColor="border.muted"
-                    color="slate.600"
+                    color="fg.muted"
                     px="8"
                     fontWeight="bold"
                   >

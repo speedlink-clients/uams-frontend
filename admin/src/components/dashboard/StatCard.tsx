@@ -26,19 +26,19 @@ export const StatCard = ({ label, value, icon, bgColor, description }: StatCardP
                 bg="whiteAlpha.400"
                 p="3"
                 borderRadius="xl"
-                color="slate.800"
+                color="fg.muted"
             >
                 {icon}
             </Flex>
             <Box>
-                <Text fontSize="xs" fontWeight="medium" color="slate.600" textTransform="uppercase" letterSpacing="wider" mb="1">
+                <Text fontSize="xs" fontWeight="medium" color="fg.muted" textTransform="uppercase" letterSpacing="wider" mb="1">
                     {label}
                 </Text>
-                <Text fontSize="2xl" fontWeight="bold" color="slate.900">
+                <Text fontSize="2xl" fontWeight="bold" color="fg.muted">
                     {value}
                 </Text>
                 {description && (
-                    <Text fontSize="xs" color="slate.500" mt="1">{description}</Text>
+                    <Text fontSize="xs" color="fg.muted" mt="1">{description}</Text>
                 )}
             </Box>
         </Flex>

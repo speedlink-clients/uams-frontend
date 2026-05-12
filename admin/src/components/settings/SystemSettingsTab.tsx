@@ -109,7 +109,7 @@ const SystemSettingsTab = () => {
     const val = watch(valueName) as DateValue | undefined;
     return (
       <Field.Root invalid={!!error}>
-        <Field.Label fontSize="sm" fontWeight="medium" color="slate.700" mb="2">{label}</Field.Label>
+        <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">{label}</Field.Label>
         <DatePickerRoot
           value={val ? [val] : []}
           onValueChange={(e) => setValue(valueName, e.value[0])}
@@ -157,16 +157,16 @@ const SystemSettingsTab = () => {
               <Settings2 size={24} color="#1D7AD9" />
             </Box>
             <Box>
-              <Text fontSize="xl" fontWeight="bold" color="slate.800">System Configuration</Text>
-              <Text fontSize="sm" color="slate.500">Manage global academic parameters and policies</Text>
+              <Text fontSize="xl" fontWeight="bold" color="fg.muted">System Configuration</Text>
+              <Text fontSize="sm" color="fg.muted">Manage global academic parameters and policies</Text>
             </Box>
           </Flex>
           <Button
             type={isEditing ? "submit" : "button"}
             onClick={() => !isEditing && setIsEditing(true)}
-            bg={isEditing ? "blue.600" : "slate.100"}
-            color={isEditing ? "white" : "slate.600"}
-            _hover={{ bg: isEditing ? "blue.700" : "slate.200" }}
+            bg={isEditing ? "blue.600" : "fg.subtle"}
+            color={isEditing ? "white" : "fg.muted"}
+            _hover={{ bg: isEditing ? "blue.700" : "fg.subtle" }}
             loading={isSaving}
           >
             {isEditing ? "Save Changes" : "Edit Configuration"}
@@ -178,12 +178,12 @@ const SystemSettingsTab = () => {
           <Box>
             <Flex alignItems="center" gap="2" mb="4">
               <Calendar size={18} color="#1D7AD9" />
-              <Text fontWeight="bold" fontSize="md" color="slate.700">Academic Session & Semesters</Text>
+              <Text fontWeight="bold" fontSize="md" color="fg.muted">Academic Session & Semesters</Text>
             </Flex>
             <Box bg="slate.50" p="6" borderRadius="xl" border="xs" borderColor="border.muted">
               <Stack gap="6">
                 <Field.Root invalid={!!errors.currentSession}>
-                  <Field.Label fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Current Session</Field.Label>
+                  <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Current Session</Field.Label>
                   <Input
                     {...register("currentSession")}
                     placeholder="e.g. 2025/2026"
@@ -205,12 +205,12 @@ const SystemSettingsTab = () => {
           <Box>
             <Flex alignItems="center" gap="2" mb="4">
               <Percent size={18} color="#1D7AD9" />
-              <Text fontWeight="bold" fontSize="md" color="slate.700">Grading Policy</Text>
+              <Text fontWeight="bold" fontSize="md" color="fg.muted">Grading Policy</Text>
             </Flex>
             <Box bg="slate.50" p="6" borderRadius="xl" border="xs" borderColor="border.muted">
               <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="6">
                 <Field.Root invalid={!!errors.caPercentage}>
-                  <Field.Label fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Continuous Assessment (%)</Field.Label>
+                  <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Continuous Assessment (%)</Field.Label>
                   <Input
                     type="number"
                     {...register("caPercentage", { valueAsNumber: true })}
@@ -220,7 +220,7 @@ const SystemSettingsTab = () => {
                   <Field.ErrorText>{errors.caPercentage?.message}</Field.ErrorText>
                 </Field.Root>
                 <Field.Root invalid={!!errors.examPercentage}>
-                  <Field.Label fontSize="sm" fontWeight="medium" color="slate.700" mb="2">Examination (%)</Field.Label>
+                  <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Examination (%)</Field.Label>
                   <Input
                     type="number"
                     {...register("examPercentage", { valueAsNumber: true })}

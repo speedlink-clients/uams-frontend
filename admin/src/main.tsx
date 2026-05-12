@@ -8,7 +8,7 @@ import { Flex, Spinner, Text } from '@chakra-ui/react'
 const LoadingFallback = () => (
     <Flex minH="100vh" alignItems="center" justifyContent="center" direction="column" gap="4">
         <Spinner size="xl" color="blue.500" />
-        <Text color="slate.500" fontSize="sm">Loading...</Text>
+        <Text color="fg.muted" fontSize="sm">Loading...</Text>
     </Flex>
 );
 

@@ -344,8 +344,8 @@ const IDCardPage = () => {
             {/* Header */}
             <Flex justifyContent="space-between" alignItems="center" mb="8" flexWrap="wrap" gap="4">
                 <Box>
-                    <Text fontSize="2xl" fontWeight="bold" color="slate.900">Student ID Issuance</Text>
-                    <Text fontSize="sm" color="slate.500">Capture photos and generate official department ID cards.</Text>
+                    <Text fontSize="2xl" fontWeight="bold" color="fg.muted">Student ID Issuance</Text>
+                    <Text fontSize="sm" color="fg.muted">Capture photos and generate official department ID cards.</Text>
                 </Box>
                 <Flex gap="3" alignItems="center" flexWrap="wrap" w={{ base: "100%", lg: "auto" }}>
                     <Box flex={{ base: "1 1 45%", lg: "none" }}>
@@ -377,7 +377,7 @@ const IDCardPage = () => {
             <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden">
                 {/* Table Header (Fixed - Not Scrolling) */}
                 <Flex p={{ base: "4", md: "6" }} alignItems="center" justifyContent="space-between" borderBottom="xs" borderColor="border.muted" flexWrap="wrap" gap="4">
-                    <Text fontSize="lg" fontWeight="bold" color="slate.800">Students ({allFiltered.length})</Text>
+                    <Text fontSize="lg" fontWeight="bold" color="fg.muted">Students ({allFiltered.length})</Text>
                     <Button onClick={handleExportStudents} 
                         display="flex" alignItems="center" gap="6px" padding="6px 10px" background="white" border="1px solid #e2e8f0" borderRadius="12px" fontSize="12px" fontWeight="600" color="#475569" cursor="pointer" _hover={{ background: "#f8f9faff" }}>
                         <Download size={12} color="#94a3b8" /> Export Table
@@ -389,13 +389,13 @@ const IDCardPage = () => {
                     <Table.Root w="full" textAlign="left" minW="800px">
                         <Table.Header bg="slate.50">
                             <Table.Row>
-                                <Table.ColumnHeader px="6" py="4" w="12" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Student Name</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Matric No</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Department</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Level</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Status</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="slate.500" letterSpacing="wider">Action</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" w="12" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Student Name</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Matric No</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Department</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Level</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Status</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Action</Table.ColumnHeader>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body fontSize="sm">
@@ -426,7 +426,7 @@ const IDCardPage = () => {
                                 <Table.Row
                                     key={s.id}
                                     _hover={{ bg: "slate.50" }}
-                                    borderBottom="xs" borderColor="border.muted" color="slate.600"
+                                    borderBottom="xs" borderColor="border.muted" color="fg.muted"
                                     bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"}
                                     cursor="pointer"
                                     onClick={() => toggleSelection(s.id)}
@@ -435,10 +435,10 @@ const IDCardPage = () => {
                                     <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                         <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} />
                                     </Table.Cell>
-                                    <Table.Cell px="6" py="4" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{s.name}</Table.Cell>
-                                    <Table.Cell px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.matric}</Table.Cell>
-                                    <Table.Cell px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.department}</Table.Cell>
-                                    <Table.Cell px="6" py="4" color="slate.500" whiteSpace="nowrap">{s.level}</Table.Cell>
+                                    <Table.Cell px="6" py="4" fontWeight="bold" color="fg.muted" whiteSpace="nowrap">{s.name}</Table.Cell>
+                                    <Table.Cell px="6" py="4" color="fg.muted" whiteSpace="nowrap">{s.matric}</Table.Cell>
+                                    <Table.Cell px="6" py="4" color="fg.muted" whiteSpace="nowrap">{s.department}</Table.Cell>
+                                    <Table.Cell px="6" py="4" color="fg.muted" whiteSpace="nowrap">{s.level}</Table.Cell>
                                     <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap">
                                         <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold"
                                             bg={s.hasPaidIDCardFee ? "green.100" : "red.100"}
@@ -631,8 +631,8 @@ const IDCardPage = () => {
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
                 <Flex position="fixed" bottom={{ base: "4", md: "8" }} left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py={{ base: "3", md: "3" }} borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" w={{ base: "calc(100% - 32px)", md: "auto" }} flexWrap={{ base: "wrap", md: "nowrap" }} justifyContent="center">
-                    <Text fontSize="sm" fontWeight="bold" color="slate.700" whiteSpace="nowrap">{selectedIds.length} items</Text>
-                    <Box w="px" h="6" bg="slate.200" display={{ base: "none", md: "block" }} />
+                    <Text fontSize="sm" fontWeight="bold" color="fg.muted" whiteSpace="nowrap">{selectedIds.length} items</Text>
+                    <Box w="px" h="6" bg="fg.subtle" display={{ base: "none", md: "block" }} />
                     <Box as="button" onClick={handleBulkDownloadBanner} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
                         <Download size={16} /> <Text as="span" display={{ base: "none", sm: "inline" }}>Bulk Download Banner</Text><Text as="span" display={{ base: "inline", sm: "none" }}>Banners</Text>
                     </Box>
