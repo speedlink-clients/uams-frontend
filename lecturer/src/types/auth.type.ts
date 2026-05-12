@@ -5,6 +5,8 @@ export interface User {
     roles?: string[];
     email?: string;
     name?: string;
+    currentSession?: string;  
+    currentSemester?: string;
     [key: string]: any;
 }
 
