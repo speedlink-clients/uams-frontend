@@ -10,6 +10,7 @@ export interface Course {
   units: number;
   level: CourseLevel;
   semester: Semester;
+  session?: string;
   courseType: CourseType;
   programmeTypeId: string;
   isCarryoverAllowed: boolean;
