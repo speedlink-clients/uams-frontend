@@ -8,11 +8,12 @@ import {
   InputGroup,
   Select,
   Button,
+  Table,
   createListCollection,
+  EmptyState,
+  VStack,
 } from "@chakra-ui/react";
-import { LuSearch } from "react-icons/lu";
-import { StudentHook } from "@hooks/student.hook";
-import StudentsTable from "@components/shared/StudentsTable";
+import { LuSearch, LuClock } from "react-icons/lu";
 import type { Student } from "@type/student.type";
 
 const LEVEL_OPTIONS = ["All", "100", "200", "300", "400", "500"];
@@ -25,11 +26,10 @@ const levelCollection = createListCollection({
   })),
 });
 
-const getLevelName = (student: Student): string => {
-  if (!student.level) return "";
-  if (typeof student.level === "string") return student.level;
-  return student.level.name || "";
-};
+
+const students: Student[] = [];
+const isLoading = false;
+const error = null;
 
 const Students = () => {
   const [search, setSearch] = useState("");
@@ -48,13 +48,10 @@ const Students = () => {
     setCurrentPage(1);
   }, [debouncedSearch, level]);
 
-  const { data: students = [], isLoading } = StudentHook.useStudents();
-
   const filteredStudents = useMemo(() => {
     if (!students.length) return [];
-
     return students.filter((student: Student) => {
-      const levelName = getLevelName(student);
+      const levelName = student.level?.name || student.level || "";
       const matchesLevel = level === "All" || levelName === level;
       const matchesSearch =
         !debouncedSearch ||
@@ -70,29 +67,33 @@ const Students = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, level]);
 
   return (
     <Box>
-      <Box mb="6">
-        <Heading size="lg" fontWeight="600" color="#000000" mb="1" fontSize="24px">
+      {/* Heading – always visible */}
+      <Flex mb="6" gap="1" align="baseline" >
+        <Heading color="fg.muted" mb="1" >
           Students{" "}
-          <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
+          </Heading>
+          <Text as="span" color="fg.subtle" lineHeight="1.5">
             ({filteredStudents.length} total)
           </Text>
-        </Heading>
-        <Text fontSize="sm" color="gray.500" maxW="400px">
-          This table contains a list of all students to edit, create ID card and assign roles to.
-        </Text>
-      </Box>
+      
+      </Flex>
 
-      <Flex align="center" justify="flex-end" gap="3" mb="5">
-        <InputGroup startElement={<LuSearch />}>
+         <Box bg="bg" rounded="md" p="4">  
+      {/* Filters – always visible */}
+      <Flex align="center" justify="flex-end" gap="3" mb="5" wrap="wrap" colorPalette={"accent"}>
+        <InputGroup startElement={<LuSearch />} width="260px">
           <Input
             placeholder="Search by Name, Email or Mat. Num"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             fontSize="xs"
-            width="260px"
           />
         </InputGroup>
 
@@ -124,42 +125,90 @@ const Students = () => {
         </Select.Root>
       </Flex>
 
-      <StudentsTable students={paginatedStudents} isLoading={isLoading} />
+      {/* Table */}
+      <Table.ScrollArea>
+        <Table.Root size="sm" variant="outline">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>Full Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Email</Table.ColumnHeader>
+              <Table.ColumnHeader>Matric Number</Table.ColumnHeader>
+              <Table.ColumnHeader>Level</Table.ColumnHeader>
+              <Table.ColumnHeader>Registration No.</Table.ColumnHeader>
+              <Table.ColumnHeader>Phone</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+          
+            <Table.Row>
+              <Table.Cell colSpan={6} textAlign="center" py={10}>
+                <EmptyState.Root>
+                  <EmptyState.Content>
+                    <EmptyState.Indicator>
+                      <LuClock />
+                    </EmptyState.Indicator>
+                    <VStack textAlign="center">
+                      <EmptyState.Title>No student data available.</EmptyState.Title>
+                      <EmptyState.Description>
+                        Try adjusting your search or filters.
+                      </EmptyState.Description>
+                    </VStack>
+                  </EmptyState.Content>
+                </EmptyState.Root>
+              </Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table.Root>
+      </Table.ScrollArea>
 
-      {totalPages > 1 && (
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          bg="white"
-          borderRadius="2xl"
-          border="1px solid"
-          borderColor="border.subtle"
-          p="4"
-          mt="4"
-        >
-          <Text fontSize="sm" color="gray.500">
-            Showing{" "}
-            <Text as="span" fontWeight="semibold">
-              {startIndex + 1}-{Math.min(endIndex, filteredStudents.length)}
-            </Text>{" "}
-            of <Text as="span" fontWeight="semibold">{filteredStudents.length}</Text> students
-            (Total: {students.length})
-          </Text>
-          <Flex alignItems="center" gap="2">
+      
+      <Flex
+        alignItems="center"
+        justifyContent="space-between"
+        bg="white"
+        borderRadius="2xl"
+        border="1px solid"
+        borderColor="border.subtle"
+        p="4"
+        mt="4"
+        wrap="wrap"
+        gap="2"
+      >
+        <Text fontSize="sm" color="gray.500">
+          Showing{" "}
+          <Text as="span" fontWeight="semibold">
+            {filteredStudents.length === 0 ? 0 : startIndex + 1}-
+            {Math.min(endIndex, filteredStudents.length)}
+          </Text>{" "}
+          of <Text as="span" fontWeight="semibold">{filteredStudents.length}</Text> students
+        </Text>
+        <Flex alignItems="center" gap="2">
+          <Button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1 || totalPages === 0}
+            size="sm"
+            variant="outline"
+            borderColor="border.subtle"
+            bg="white"
+            color="gray.700"
+            fontWeight="500"
+          >
+            Previous
+          </Button>
+
+          {totalPages === 0 ? (
             <Button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
               size="sm"
-              variant="outline"
-              borderColor="border.subtle"
-              bg="white"
-              color="gray.700"
-              fontWeight="500"
+              variant="solid"
+              bg="#1D7AD9"
+              color="white"
+              fontWeight="medium"
+              minW="36px"
             >
-              Previous
+              1
             </Button>
-
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+          ) : (
+            Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) {
                 pageNum = i + 1;
@@ -186,23 +235,24 @@ const Students = () => {
                   {pageNum}
                 </Button>
               );
-            })}
+            })
+          )}
 
-            <Button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              size="sm"
-              variant="outline"
-              borderColor="border.subtle"
-              bg="white"
-              color="gray.700"
-              fontWeight="500"
-            >
-              Next
-            </Button>
-          </Flex>
+          <Button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages || totalPages === 0}
+            size="sm"
+            variant="outline"
+            borderColor="border.subtle"
+            bg="white"
+            color="gray.700"
+            fontWeight="500"
+          >
+            Next
+          </Button>
         </Flex>
-      )}
+      </Flex>
+      </Box>
     </Box>
   );
 };
