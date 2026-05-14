@@ -504,9 +504,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   S/N
                 </Table.ColumnHeader>
@@ -514,9 +515,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   COURSE CODE
                 </Table.ColumnHeader>
@@ -524,9 +526,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   COURSE TITLE
                 </Table.ColumnHeader>
@@ -534,9 +537,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   LEVEL
                 </Table.ColumnHeader>
@@ -544,9 +548,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   SEMESTER
                 </Table.ColumnHeader>
@@ -554,9 +559,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   CREDIT UNITS
                 </Table.ColumnHeader>
@@ -564,9 +570,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   LEARNING HOURS
                 </Table.ColumnHeader>
@@ -574,9 +581,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   PRACTICAL HOURS
                 </Table.ColumnHeader>
@@ -584,9 +592,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                 >
                   STATUS
                 </Table.ColumnHeader>
@@ -594,9 +603,10 @@ const CoursesTab = () => {
                   px="6"
                   py="4"
                   fontSize="11px"
-                  fontWeight="semibold"
+                  fontWeight="bold"
                   color="fg.muted"
                   textTransform="uppercase"
+                  letterSpacing="wider"
                   textAlign="center"
                 >
                   ACTIONS
@@ -721,8 +731,8 @@ const CoursesTab = () => {
           bg="white"
           px="6"
           py="3"
-          borderRadius="xl"
-          boxShadow="2xl"
+          borderRadius="md"
+          boxShadow="none"
           border="xs"
           borderColor="border.muted"
           alignItems="center"
@@ -739,7 +749,7 @@ const CoursesTab = () => {
             color="white"
             px="4"
             py="2"
-            borderRadius="lg"
+            borderRadius="md"
             fontSize="xs"
             fontWeight="bold"
             _hover={{ bg: "red.600" }}
@@ -751,7 +761,7 @@ const CoursesTab = () => {
             onClick={() => setSelectedIds([])}
             variant="ghost"
             p="1"
-            borderRadius="lg"
+            borderRadius="md"
             color="fg.subtle"
             _hover={{ bg: "fg.subtle" }}
             title="Unselect all"
@@ -764,7 +774,7 @@ const CoursesTab = () => {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content borderRadius="sm" overflow="hidden">
+            <Dialog.Content borderRadius="md" overflow="hidden">
               <Dialog.Header p="6" borderBottom="xs" borderColor="border.muted">
                 <VStack align="start" gap={1}>
                   <Dialog.Title

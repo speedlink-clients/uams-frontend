@@ -117,7 +117,7 @@ const SystemSettingsTab = () => {
           width="full"
         >
           <DatePickerControl>
-            <DatePickerInput bg={isEditing ? "white" : "slate.50"} border="xs" borderColor="border.muted" borderRadius="lg" />
+            <DatePickerInput bg={isEditing ? "white" : "slate.50"} border="xs" borderColor="border.muted" borderRadius="md" />
             <DatePickerIndicatorGroup>
               <DatePickerTrigger>
                 <Calendar size={16} />
@@ -153,7 +153,7 @@ const SystemSettingsTab = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="space-between" alignItems="center" mb="8">
           <Flex alignItems="center" gap="3">
-            <Box p="2" bg="blue.50" borderRadius="lg">
+            <Box p="2" bg="blue.50" borderRadius="md">
               <Settings2 size={24} color="#1D7AD9" />
             </Box>
             <Box>
@@ -180,7 +180,7 @@ const SystemSettingsTab = () => {
               <Calendar size={18} color="#1D7AD9" />
               <Text fontWeight="bold" fontSize="md" color="fg.muted">Academic Session & Semesters</Text>
             </Flex>
-            <Box bg="slate.50" p="6" borderRadius="xl" border="xs" borderColor="border.muted">
+            <Box bg="slate.50" p="6" borderRadius="md" border="xs" borderColor="border.muted">
               <Stack gap="6">
                 <Field.Root invalid={!!errors.currentSession}>
                   <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Current Session</Field.Label>
@@ -207,7 +207,7 @@ const SystemSettingsTab = () => {
               <Percent size={18} color="#1D7AD9" />
               <Text fontWeight="bold" fontSize="md" color="fg.muted">Grading Policy</Text>
             </Flex>
-            <Box bg="slate.50" p="6" borderRadius="xl" border="xs" borderColor="border.muted">
+            <Box bg="slate.50" p="6" borderRadius="md" border="xs" borderColor="border.muted">
               <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="6">
                 <Field.Root invalid={!!errors.caPercentage}>
                   <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Continuous Assessment (%)</Field.Label>

@@ -79,14 +79,17 @@ const ProfilePage = () => {
                             </Flex>
 
                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="5">
-                                <ReadOnlyField label="First Name" value={((user as any)?.firstName ?? "") + " " + ((user as any)?.middleNames ?? "") || "—"} />
-                                <ReadOnlyField label="Last Name" value={(user as any)?.lastName || "—"} />
+                                <ReadOnlyField label="Title" value={(user as any)?.staffProfile?.title || "—"} />
+                                <ReadOnlyField label="First Name" value={(user as any)?.staffProfile?.firstName || "—"} />
+                                <ReadOnlyField label="Surname" value={(user as any)?.staffProfile?.surname || "—"} />
+                                <ReadOnlyField label="Other Names" value={(user as any)?.staffProfile?.otherName || "—"} />
+                                <ReadOnlyField label="Staff ID" value={(user as any)?.staffProfile?.staffNumber || "—"} />
                                 <ReadOnlyField label="Email Address" value={user?.email || email || "—"} />
-                                <ReadOnlyField label="Phone Number" value={user?.phone || "—"} />
-                                <ReadOnlyField label="Department" value={`${(user as any)?.department?.name || "—"} (${(user as any)?.department?.code || ""})`} />
-                                <ReadOnlyField label="Faculty" value={`${(user as any)?.profile?.facultyName || "—"} (${(user as any)?.profile?.facultyCode || ""})`} />
-                                <ReadOnlyField label="University" value={(user as any)?.university?.name || "—"} />
-                                <ReadOnlyField label="Role" value={roleDisplay} />
+                                <ReadOnlyField label="Phone Number" value={(user as any)?.staffProfile?.phone || "—"} />
+                                <ReadOnlyField label="Gender" value={(user as any)?.staffProfile?.gender || "—"} />
+                                <ReadOnlyField label="Department" value={(user as any)?.staffProfile?.department || "—"} />
+                                <ReadOnlyField label="Faculty" value={(user as any)?.staffProfile?.faculty || "—"} />
+                                <ReadOnlyField label="Role" value={((user as any)?.staffProfile?.staffRoles?.[0] || roleDisplay).replace(/_/g, " ")} />
                             </Grid>
                         </Box>
 

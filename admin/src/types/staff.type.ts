@@ -1,10 +1,19 @@
 export interface Staff {
     id: string;
-    staffId: string;
-    name: string;
+    staffNumber: string;
+    fullName: string;
+    firstName?: string;
+    surname?: string;
+    otherName?: string;
     email: string;
-    role: string;
-    activeFeatures: {
+    phone?: string | null;
+    gender?: string;
+    department?: string;
+    level?: string;
+    courses?: string;
+    role?: string;
+    staffRoles?: string[];
+    activeFeatures?: {
         results: boolean;
         finance: boolean;
         timetable: boolean;
@@ -12,17 +21,22 @@ export interface Staff {
 }
 
 export interface CreateLecturerPayload {
-    staffId: string;
-    title: string;
-    firstname: string;
-    othername: string;
-    sex: string;
-    highestDegree: string;
-    phoneNumber: string;
+    type: string;
+    firstName: string;
+    surname: string;
+    otherName: string;
     email: string;
-    role: string;
-    category: string;
+    gender: string;
+    staffNumber: string;
+    title: string;
+    phone: string;
+    staffRoles: string[];
+    faculty: string;
+    department: string;
+    // Keep these for backward compatibility or extra data if needed
+    highestDegree?: string;
+    category?: string;
     password?: string;
-    departmentId: string;
+    departmentId?: string;
     universityId?: string;
 }

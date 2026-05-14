@@ -3,12 +3,12 @@ import type { CreateLecturerPayload } from "@type/staff.type"
 
 export const StaffServices = {
     addLecturer: async (payload: CreateLecturerPayload) => {
-        const { data } = await axiosClient.post("/university-admin/lecturers/", payload);
+        const { data } = await axiosClient.post("/users", payload);
         return data;
     },
 
     updateLecturer: async (id: string, payload: Partial<CreateLecturerPayload>) => {
-        const { data } = await axiosClient.put(`/university-admin/lecturers/${id}`, payload);
+        const { data } = await axiosClient.patch(`/users/${id}`, payload);
         return data;
     },
 
@@ -27,12 +27,12 @@ export const StaffServices = {
     },
 
     getDepartmentLecturers: async () => {
-        const { data } = await axiosClient.get("/university-admin/lecturers");
+        const { data } = await axiosClient.get("/users?role=STAFF");
         return data;
     },
 
     deleteLecturer: async (id: string) => {
-        const { data } = await axiosClient.delete(`/university-admin/lecturers/${id}`);
+        const { data } = await axiosClient.delete(`/users/${id}`);
         return data;
     },
 
@@ -46,16 +46,14 @@ export const StaffServices = {
     },
 
     bulkDeleteStaff: async (lecturerIds: string[]) => {
-        const { data } = await axiosClient.post(
-            "/university-admin/lecturers/bulk/delete",
-            { lecturerIds }
-        );
+        const { data } = await axiosClient.delete(`/users/${lecturerIds}`);
         return data;
     },
 
     bulkUploadLecturers: async (formData: FormData) => {
+        formData.append("type", "STAFF");
         const { data } = await axiosClient.post(
-            "/university-admin/lecturers/bulk-upload",
+            "/users/bulk-upload",
             formData,
             { headers: { "Content-Type": "multipart/form-data" } }
         );

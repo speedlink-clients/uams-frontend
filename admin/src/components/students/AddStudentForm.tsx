@@ -1,121 +1,243 @@
-import { useState } from "react";
-import { X, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { X } from "lucide-react";
+import { 
+    Box, 
+    Flex, 
+    Text, 
+    Spinner, 
+    Button, 
+    Dialog, 
+    Input,
+    Field,
+    SimpleGrid
+} from "@chakra-ui/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { StudentSchema, type StudentFormData } from "@schemas/student.schema";
 
 interface AddStudentFormProps {
+    isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: any) => Promise<void>;
+    onSubmit: (data: StudentFormData) => Promise<void>;
     initialData?: any;
 }
 
-const FormField = ({ label, name, placeholder, value, onChange }: {
-    label: string; name: string; placeholder: string; value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <label style={{ fontSize: "14px", fontWeight: 500, color: "#334155" }}>{label}</label>
-        <input
-            type="text" name={name} value={value} onChange={onChange} placeholder={placeholder}
-            style={{
-                width: "100%", padding: "12px 16px", borderRadius: "8px", border: "1px solid #cbd5e1",
-                color: "#334155", fontSize: "14px", outline: "none", background: "white",
-            }}
-        />
-    </div>
-);
-
-const AddStudentForm = ({ onClose, onSubmit, initialData }: AddStudentFormProps) => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formData, setFormData] = useState({
-        regNo: initialData?.regNo || "",
-        matNo: initialData?.matNo || "",
-        firstName: initialData?.surname || "",
-        otherName: initialData?.otherNames || "",
-        gender: initialData?.sex || "",
-        level: initialData?.level || "",
-        admissionMode: initialData?.admissionMode || "",
-        entryQualification: initialData?.entryQualification || "",
-        facultyName: initialData?.faculty || "",
-        degreeCourse: initialData?.degreeCourse || "",
-        departmentName: initialData?.department || "",
-        degreeAwarded: initialData?.degreeAwardCode || "",
-        courseDuration: initialData?.programDuration || "",
+const AddStudentForm = ({ isOpen, onClose, onSubmit, initialData }: AddStudentFormProps) => {
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<StudentFormData>({
+        resolver: zodResolver(StudentSchema) as any,
+        defaultValues: {
+            registrationNo: "",
+            matricNumber: "",
+            firstName: "",
+            surname: "",
+            otherName: "",
+            email: "",
+            gender: "",
+            level: "",
+            admissionMode: "",
+            entryQualification: "",
+            faculty: "",
+            department: "",
+            degreeCourse: "",
+            degreeAwardedCode: "",
+            degreeDuration: "4 Years",
+            admissionYear: 2023,
+            admissionSession: "2023/2024",
+        }
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+    useEffect(() => {
+        if (initialData) {
+            reset({
+                registrationNo: initialData.registrationNo || initialData.regNo || "",
+                matricNumber: initialData.matricNumber || initialData.matNo || "",
+                firstName: initialData.firstName || "",
+                surname: initialData.surname || "",
+                otherName: initialData.otherName || "",
+                email: initialData.email || "",
+                gender: initialData.gender || "",
+                level: initialData.level || "",
+                admissionMode: initialData.admissionMode || "",
+                entryQualification: initialData.entryQualification || "",
+                faculty: initialData.faculty || "",
+                department: initialData.department || "",
+                degreeCourse: initialData.degreeCourse || "",
+                degreeAwardedCode: initialData.degreeAwardedCode || initialData.degreeAwarded || "",
+                degreeDuration: initialData.degreeDuration || initialData.courseDuration || "4 Years",
+                admissionYear: initialData.admissionYear || 2023,
+                admissionSession: initialData.admissionSession || "2023/2024",
+            });
+        } else {
+            reset({
+                registrationNo: "",
+                matricNumber: "",
+                firstName: "",
+                surname: "",
+                otherName: "",
+                email: "",
+                gender: "",
+                level: "",
+                admissionMode: "",
+                entryQualification: "",
+                faculty: "",
+                department: "",
+                degreeCourse: "",
+                degreeAwardedCode: "",
+                degreeDuration: "4 Years",
+                admissionYear: 2023,
+                admissionSession: "2023/2024",
+            });
+        }
+    }, [initialData, reset, isOpen]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
+    const onFormSubmit = async (data: StudentFormData) => {
         try {
-            await onSubmit(formData);
+            await onSubmit(data);
             onClose();
         } catch (error) {
             console.error("Error submitting form:", error);
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
     return (
-        <div style={{
-            position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)",
-            zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px",
-        }}>
-            <div style={{
-                background: "white", borderRadius: "16px", width: "100%", maxWidth: "896px",
-                boxShadow: "0 24px 48px rgba(0,0,0,0.12)", maxHeight: "90vh", overflowY: "auto",
-            }}>
-                <div style={{ padding: "32px" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "32px" }}>
-                        <h2 style={{ fontSize: "24px", fontWeight: 700, color: "#1273D4", margin: 0 }}>
+        <Dialog.Root open={isOpen} onOpenChange={(e) => { if (!e.open) onClose() }}>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+                <Dialog.Content bg="white" borderRadius="md" maxW="4xl" p="8">
+                    <Flex justifyContent="space-between" alignItems="center" mb="8">
+                        <Text fontSize="2xl" fontWeight="bold" color="#1D7AD9">
                             {initialData ? "Edit Student" : "Add Student"}
-                        </h2>
-                        <button onClick={onClose} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", borderRadius: "8px" }}>
-                            <X size={24} />
-                        </button>
-                    </div>
+                        </Text>
+                        <Dialog.CloseTrigger asChild>
+                            <Box as="button" p="2" _hover={{ bg: "fg.subtle" }} borderRadius="full" cursor="pointer" border="none" bg="transparent">
+                                <X size={24} color="#94a3b8" />
+                            </Box>
+                        </Dialog.CloseTrigger>
+                    </Flex>
 
-                    <form onSubmit={handleSubmit}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px 32px" }}>
-                            <FormField label="Reg No." name="regNo" placeholder="202440965974BA" value={formData.regNo} onChange={handleChange} />
-                            <FormField label="Mat No." name="matNo" placeholder="U2024/5570001" value={formData.matNo} onChange={handleChange} />
-                            <FormField label="First Name" name="firstName" placeholder="DEEZIA" value={formData.firstName} onChange={handleChange} />
-                            <FormField label="Other Name" name="otherName" placeholder="GOODLUCK BLEEBEST" value={formData.otherName} onChange={handleChange} />
-                            <FormField label="Gender" name="gender" placeholder="Male" value={formData.gender} onChange={handleChange} />
-                            <FormField label="Level" name="level" placeholder="100" value={formData.level} onChange={handleChange} />
-                            <FormField label="Admission Mode" name="admissionMode" placeholder="UTME" value={formData.admissionMode} onChange={handleChange} />
-                            <FormField label="Entry Qualification" name="entryQualification" placeholder="O-LEVEL" value={formData.entryQualification} onChange={handleChange} />
-                            <FormField label="Faculty Name" name="facultyName" placeholder="COMPUTING" value={formData.facultyName} onChange={handleChange} />
-                            <FormField label="Degree Course" name="degreeCourse" placeholder="COMPUTER SCIENCE" value={formData.degreeCourse} onChange={handleChange} />
-                            <FormField label="Department Name" name="departmentName" placeholder="COMPUTER SCIENCE" value={formData.departmentName} onChange={handleChange} />
-                            <FormField label="Degree Awarded" name="degreeAwarded" placeholder="B.SC" value={formData.degreeAwarded} onChange={handleChange} />
-                            <FormField label="Course Duration" name="courseDuration" placeholder="4" value={formData.courseDuration} onChange={handleChange} />
-                        </div>
+                    <form onSubmit={handleSubmit(onFormSubmit as any)}>
+                        <SimpleGrid columns={{ base: 1, md: 3 }} gap="6">
+                            <Field.Root invalid={!!errors.registrationNo}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Reg No.</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("registrationNo")} placeholder="UAMS/2023/001" bg="white" />
+                                <Field.ErrorText>{errors.registrationNo?.message}</Field.ErrorText>
+                            </Field.Root>
+                            
+                            <Field.Root invalid={!!errors.matricNumber}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Mat No.</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("matricNumber")} placeholder="2023/12345" bg="white" />
+                                <Field.ErrorText>{errors.matricNumber?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "16px", marginTop: "48px", paddingTop: "16px" }}>
-                            <button type="button" onClick={onClose} style={{
-                                padding: "12px 32px", borderRadius: "8px", border: "1px solid #cbd5e1",
-                                color: "#334155", fontWeight: 700, cursor: "pointer", background: "white", fontSize: "14px",
-                            }}>
+                            <Field.Root invalid={!!errors.email}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Email</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("email")} placeholder="student@example.com" bg="white" />
+                                <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.firstName}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">First Name</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("firstName")} placeholder="John" bg="white" />
+                                <Field.ErrorText>{errors.firstName?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.surname}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Surname</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("surname")} placeholder="Doe" bg="white" />
+                                <Field.ErrorText>{errors.surname?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.otherName}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Other Name</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("otherName")} placeholder="Quincy" bg="white" />
+                                <Field.ErrorText>{errors.otherName?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.gender}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Gender</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("gender")} placeholder="MALE" bg="white" />
+                                <Field.ErrorText>{errors.gender?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.level}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Level</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("level")} placeholder="L100" bg="white" />
+                                <Field.ErrorText>{errors.level?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.admissionMode}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Admission Mode</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("admissionMode")} placeholder="UTME" bg="white" />
+                                <Field.ErrorText>{errors.admissionMode?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.admissionYear}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Admission Year</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("admissionYear")} placeholder="2023" bg="white" />
+                                <Field.ErrorText>{errors.admissionYear?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.admissionSession}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Admission Session</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("admissionSession")} placeholder="2023/2024" bg="white" />
+                                <Field.ErrorText>{errors.admissionSession?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.entryQualification}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Entry Qualification</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("entryQualification")} placeholder="WASSCE" bg="white" />
+                                <Field.ErrorText>{errors.entryQualification?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.faculty}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Faculty</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("faculty")} placeholder="Computing" bg="white" />
+                                <Field.ErrorText>{errors.faculty?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.department}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Department</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("department")} placeholder="Computer Science" bg="white" />
+                                <Field.ErrorText>{errors.department?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.degreeCourse}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Degree Course</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("degreeCourse")} placeholder="Computer Science" bg="white" />
+                                <Field.ErrorText>{errors.degreeCourse?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.degreeAwardedCode}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Degree Awarded Code</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("degreeAwardedCode")} placeholder="B.SC" bg="white" />
+                                <Field.ErrorText>{errors.degreeAwardedCode?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.degreeDuration}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Degree Duration</Field.Label>
+                                <Input size="xl" border="xs" borderColor="border.muted" {...register("degreeDuration")} placeholder="4 Years" bg="white" />
+                                <Field.ErrorText>{errors.degreeDuration?.message}</Field.ErrorText>
+                            </Field.Root>
+                        </SimpleGrid>
+
+                        <Flex justifyContent="flex-end" gap="3" mt="8" pt="6">
+                            <Button type="button" onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="fg.muted" bg="white" border="xs" borderColor="border.muted" borderRadius="md" cursor="pointer" _hover={{ bg: "slate.50" }}>
                                 Cancel
-                            </button>
-                            <button type="submit" disabled={isSubmitting} style={{
-                                padding: "12px 32px", borderRadius: "8px", border: "none",
-                                background: "#1273D4", color: "white", fontWeight: 700, cursor: isSubmitting ? "not-allowed" : "pointer",
-                                boxShadow: "0 4px 12px rgba(18,115,212,0.2)", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px",
-                            }}>
-                                {isSubmitting && <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />}
+                            </Button>
+                            <Button type="submit" px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="md" cursor={isSubmitting ? "not-allowed" : "pointer"} opacity={isSubmitting ? 0.7 : 1} alignItems="center" gap="2">
+                                {isSubmitting && <Spinner size="sm" />}
                                 {initialData ? "Save Changes" : "Add Student"}
-                            </button>
-                        </div>
+                            </Button>
+                        </Flex>
                     </form>
-                </div>
-            </div>
-            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-        </div>
+                </Dialog.Content>
+            </Dialog.Positioner>
+        </Dialog.Root>
     );
 };
 

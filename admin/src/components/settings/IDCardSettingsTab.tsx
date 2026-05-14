@@ -9,7 +9,7 @@ const UploadBox = ({ label, type, preview, fileRef, onFileChange }: { label: str
         <Box>
             <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">{label}</Text>
             <Flex
-                border="2px dashed" borderColor="border.muted" borderRadius="xl" p="4"
+                border="2px dashed" borderColor="border.muted" borderRadius="md" p="4"
                 alignItems="center" justifyContent="center" minH="120px" bg="slate.50"
                 cursor="pointer" _hover={{ borderColor: "blue.300", bg: "blue.50" }}
                 transition="all 0.2s" onClick={() => fileRef?.current?.click()} position="relative"
@@ -235,13 +235,13 @@ const IDCardSettingsTab = () => {
                 </Flex>
                 <Box overflowX="auto">
                     <Table.Root variant="line">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.ColumnHeader>School Name</Table.ColumnHeader>
-                                <Table.ColumnHeader>Faculty</Table.ColumnHeader>
-                                <Table.ColumnHeader>Department</Table.ColumnHeader>
-                                <Table.ColumnHeader>Status</Table.ColumnHeader>
-                                <Table.ColumnHeader textAlign="right">Actions</Table.ColumnHeader>
+                        <Table.Header bg="slate.50">
+                            <Table.Row borderY="xs" borderColor="border.muted">
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">School Name</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">Faculty</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">Department</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">Status</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" textAlign="right">Actions</Table.ColumnHeader>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
@@ -389,7 +389,7 @@ const IDCardSettingsTab = () => {
                                     </Flex>
 
                                     {/* Templates */}
-                                    <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
+                                    <Box bg="slate.50" borderRadius="md" border="xs" borderColor="border.muted" p="6">
                                         <Text fontSize="md" fontWeight="bold" color="fg.muted" mb="6">Card Templates</Text>
                                         <Flex direction={{ base: "column", md: "row" }} gap="6">
                                             <Box flex="1"><UploadBox label="Front Template" type="frontTemplate" preview={previews.frontTemplate || existingUrls.frontTemplate} fileRef={fileInputRefs.frontTemplate} onFileChange={handleFileChange} /></Box>
@@ -398,7 +398,7 @@ const IDCardSettingsTab = () => {
                                     </Box>
 
                                     {/* Branding */}
-                                    <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
+                                    <Box bg="slate.50" borderRadius="md" border="xs" borderColor="border.muted" p="6">
                                         <Text fontSize="md" fontWeight="bold" color="fg.muted" mb="6">Branding</Text>
                                         <Flex direction={{ base: "column", md: "row" }} gap="6">
                                             <Box flex="1"><UploadBox label="University Logo" type="logo" preview={previews.logo || existingUrls.logo} fileRef={fileInputRefs.logo} onFileChange={handleFileChange} /></Box>
@@ -407,7 +407,7 @@ const IDCardSettingsTab = () => {
                                     </Box>
 
                                     {/* Back Card Text */}
-                                    <Box bg="slate.50" borderRadius="xl" border="xs" borderColor="border.muted" p="6">
+                                    <Box bg="slate.50" borderRadius="md" border="xs" borderColor="border.muted" p="6">
                                         <Text fontSize="md" fontWeight="bold" color="fg.muted" mb="6">Back Card Content</Text>
                                         <Stack gap="6">
                                             <Field.Root>

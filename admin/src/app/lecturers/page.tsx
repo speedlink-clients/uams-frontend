@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Plus, FileUp, MoreHorizontal, UserCog, Pencil, Trash2, Download, X, Users, Search } from "lucide-react";
-import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
 import {
   Box, Flex, Text, Input, Spinner,
@@ -15,24 +14,24 @@ import {
 import BulkUploadStaffModal from "@components/lecturers/BulkUploadStaffModal";
 import AssignCourseModal from "@components/lecturers/AssignCourseModal";
 import AddStaffForm from "@components/lecturers/AddStaffForm";
-import { StaffServices } from "@services/staff.service";
-
-interface Staff {
-  id: string;
-  staffNumber: string;
-  fullName: string;
-  email: string;
-  phone?: string | null;
-  department?: string;
-  level?: string;
-  courses?: string;
-}
+import { StaffHook } from "@hooks/staff.hook";
+import type { Staff } from "@type/staff.type";
+import {
+  PaginationRoot,
+  PaginationItems,
+  PaginationPrevTrigger,
+  PaginationNextTrigger
+} from "@components/ui/pagination";
 
 const ITEMS_PER_PAGE = 10;
 
 const StaffPage = () => {
-  const [staffList, setStaffList] = useState<Staff[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: staffList = [], isLoading: loading } = StaffHook.useStaff();
+  const deleteMutation = StaffHook.useDeleteStaff();
+  const bulkDeleteMutation = StaffHook.useBulkDeleteStaff();
+  const addStaffMutation = StaffHook.useAddStaff();
+  const updateStaffMutation = StaffHook.useUpdateStaff();
+  const assignCourseMutation = StaffHook.useAssignCourse();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -46,33 +45,7 @@ const StaffPage = () => {
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [staffToEdit, setStaffToEdit] = useState<any>(null);
 
-  const fetchStaff = async () => {
-    try {
-      setLoading(true);
-      const response = await StaffServices.getDepartmentLecturers();
-      const data = response?.lecturers || response?.data || [];
-      const mapped = data.map((item: any) => ({
-        id: item.id,
-        staffNumber: item.staffNumber || "N/A",
-        fullName: item.user?.fullName || item.fullName || "N/A",
-        email: item.user?.email || item.email || "N/A",
-        phone: item.phone || item.user?.phone || "N/A",
-        department: item.department?.name?.trim() || "N/A",
-        level: item.academicRank?.trim() || "N/A",
-        courses: item.courses?.map((course: any) => course.code).join(", ") || "N/A",
-      }));
-      setStaffList(mapped);
-    } catch (err) {
-      console.error("Failed to fetch staff", err);
-      toaster.error({ title: "Failed to load lecturers" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStaff();
-  }, []);
+  // Removed fetchStaff and useEffect as TanStack Query handles it now
 
   useEffect(() => {
     const handleClickOutside = () => setActiveDropdownId(null);
@@ -118,12 +91,10 @@ const StaffPage = () => {
     if (selectedIds.length === 0) return;
     if (window.confirm(`Delete ${selectedIds.length} selected lecturers?`)) {
       try {
-        await StaffServices.bulkDeleteStaff(selectedIds);
-        toaster.success({ title: `${selectedIds.length} lecturers deleted` });
+        await bulkDeleteMutation.mutateAsync(selectedIds);
         setSelectedIds([]);
-        fetchStaff();
       } catch (err) {
-        toaster.error({ title: "Failed to delete some lecturers" });
+        // Error handled by mutation
       }
     }
   };
@@ -131,11 +102,9 @@ const StaffPage = () => {
   const handleDelete = async (staff: Staff) => {
     if (window.confirm(`Delete lecturer "${staff.fullName}"?`)) {
       try {
-        await StaffServices.deleteLecturer(staff.id);
-        toaster.success({ title: "Lecturer deleted" });
-        fetchStaff();
+        await deleteMutation.mutateAsync(staff.id);
       } catch (err) {
-        toaster.error({ title: "Failed to delete lecturer" });
+        // Error handled by mutation
       }
     }
   };
@@ -143,36 +112,29 @@ const StaffPage = () => {
   const handleAssignCourse = async (data: { courseId: string; session: string }) => {
     if (!selectedStaff) return;
     try {
-      const payload = {
+      await assignCourseMutation.mutateAsync({
         courseId: data.courseId,
         lecturerId: selectedStaff.id,
         session: data.session
-      };
-      await StaffServices.assignCourse(payload);
-      toaster.success({ title: "Course assigned successfully" });
-    } catch (err: any) {
-      console.error("Failed to assign course:", err);
-      toaster.error({ title: err.response?.data?.message || "Failed to assign course" });
-      throw err;
+      });
+      setShowAssignCourse(false);
+      setSelectedStaff(null);
+    } catch (err) {
+      // Error handled by mutation
     }
   };
 
   const handleAddEditSubmit = async (payload: any) => {
     try {
       if (staffToEdit) {
-        await StaffServices.updateLecturer(staffToEdit.id, payload);
-        toaster.success({ title: "Lecturer updated successfully" });
+        await updateStaffMutation.mutateAsync({ id: staffToEdit.id, payload });
       } else {
-        await StaffServices.addLecturer(payload);
-        toaster.success({ title: "Lecturer added successfully" });
+        await addStaffMutation.mutateAsync(payload);
       }
       setShowAddEditForm(false);
       setStaffToEdit(null);
-      fetchStaff();
-    } catch (err: any) {
-      console.error("Failed to save lecturer:", err);
-      toaster.error({ title: err.response?.data?.message || "Failed to save lecturer" });
-      throw err;
+    } catch (err) {
+      // Error handled by mutation
     }
   };
 
@@ -199,25 +161,25 @@ const StaffPage = () => {
               bg="white"
               border="xs"
               borderColor="border.muted"
-              borderRadius="xl"
+              borderRadius="md"
               py="2.5"
               pl="10"
               pr="4"
               fontSize="sm"
               w="full"
               maxW={{ base: "full", md: "320px" }}
-              _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3b82f6" }}
+              _focus={{ borderColor: "blue.500", boxShadow: "none" }}
             />
           </InputGroup>
           <Menu.Root>
             <Menu.Trigger asChild>
-              <Box as="button" flexShrink={0} bg="#1D7AD9" color="white" px="5" py="2.5" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" display="flex" alignItems="center" gap="2">
+              <Box as="button" flexShrink={0} bg="#1D7AD9" color="white" px="5" py="2.5" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" display="flex" alignItems="center" gap="2" borderRadius="md">
                 <Plus size={16} /> Add Lecturer
               </Box>
             </Menu.Trigger>
             <Portal>
               <Menu.Positioner>
-                <Menu.Content bg="white" borderRadius="lg" boxShadow="xl" border="xs" borderColor="border.muted" minW="150px" overflow="hidden" py="1" zIndex="popover">
+                <Menu.Content bg="white" borderRadius="md" boxShadow="none" border="xs" borderColor="border.muted" minW="150px" overflow="hidden" py="1" zIndex="popover">
                   <Menu.Item value="single" asChild>
                     <Box as="button" onClick={() => { setStaffToEdit(null); setShowAddEditForm(true); }} w="full" textAlign="left" px="4" py="2.5" fontSize="sm" fontWeight="medium" color="fg.muted" _hover={{ bg: "slate.50" }} cursor="pointer" border="none" bg="transparent" display="flex" alignItems="center" gap="2">
                       <UserCog size={16} /> Single
@@ -236,12 +198,12 @@ const StaffPage = () => {
       </Flex>
 
       {/* Table */}
-      <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
+      <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
         <Box overflowX="auto">
-          <Table.Root w="full" textAlign="left">
-            <Table.Header>
-              <Table.Row bg="slate.50" borderBottom="xs" borderColor="border.muted">
-                <Table.ColumnHeader px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
+          <Table.Root w="full" textAlign="left" variant="line" interactive>
+            <Table.Header bg="slate.50">
+              <Table.Row borderY="xs" borderColor="border.muted">
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" w="12" textAlign="center" position="sticky" left="0" zIndex="20" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
                   <input
                     type="checkbox"
                     checked={filteredStaff.length > 0 && selectedIds.length > 0 && selectedIds.length === filteredStaff.length}
@@ -249,14 +211,14 @@ const StaffPage = () => {
                     style={{ cursor: "pointer" }}
                   />
                 </Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Staff ID</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Name</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" minW="200px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Email</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" minW="140px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Phone No</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Department</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Rank</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" minW="200px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Course(s)</Table.ColumnHeader>
-                <Table.ColumnHeader px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex="20" bg="slate.50" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Action</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Staff ID</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Name</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" minW="200px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Email</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" minW="140px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Phone No</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Department</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" minW="150px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Rank</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" minW="200px" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Course(s)</Table.ColumnHeader>
+                <Table.ColumnHeader bg="slate.50" px="6" py="4" textAlign="right" pr="12" position="sticky" right="0" zIndex="20" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">Action</Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
             <Table.Body fontSize="xs">
@@ -319,15 +281,15 @@ const StaffPage = () => {
                           <MoreHorizontal size={20} />
                         </Box>
                         {activeDropdownId === s.id && (
-                          <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="xs" borderColor="border.muted" zIndex="50" overflow="hidden" textAlign="left">
+                          <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="md" boxShadow="none" border="xs" borderColor="border.muted" zIndex="50" overflow="hidden" textAlign="left">
                             <Box p="1">
-                              <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignCourse(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
+                              <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStaff(s); setShowAssignCourse(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="md" cursor="pointer" border="none" bg="transparent">
                                 <UserCog size={16} /> Assign Course
                               </Box>
-                              <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setStaffToEdit(s); setShowAddEditForm(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="amber.600" _hover={{ bg: "amber.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
+                              <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setStaffToEdit(s); setShowAddEditForm(true); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="amber.600" _hover={{ bg: "amber.50" }} borderRadius="md" cursor="pointer" border="none" bg="transparent">
                                 <Pencil size={16} /> Edit details
                               </Box>
-                              <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(s); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="red.600" _hover={{ bg: "red.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
+                              <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(s); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="red.600" _hover={{ bg: "red.50" }} borderRadius="md" cursor="pointer" border="none" bg="transparent">
                                 <Trash2 size={16} /> Delete Lecturer
                               </Box>
                             </Box>
@@ -342,51 +304,37 @@ const StaffPage = () => {
           </Table.Root>
         </Box>
 
-        {totalPages > 0 && (
-            <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" p="4" mt="4">
+        {totalPages > 1 && (
+            <Flex alignItems="center" justifyContent="space-between" p="4" bg="white" borderTop="xs" borderColor="border.muted">
               <Text fontSize="sm" color="fg.muted">
-                Showing{" "}
-                <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStaff.length)}</Text>
-                {" "}of <Text as="span" fontWeight="semibold">{filteredStaff.length}</Text> lecturers
-                (Total: {staffList.length})
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredStaff.length)} of {filteredStaff.length} lecturers
               </Text>
-              <Flex alignItems="center" gap="2">
-                <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: "8px 12px", background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#334155", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1 }}>
-                  Previous
-                </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  return (
-                    <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "fg.muted"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
-                      {pageNum}
-                    </Box>
-                  );
-                })}
-                <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: "8px 12px", background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#334155", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1 }}>
-                  Next
-                </button>
-              </Flex>
+              <PaginationRoot 
+                  count={filteredStaff.length} 
+                  pageSize={ITEMS_PER_PAGE} 
+                  page={currentPage}
+                  onPageChange={(e) => setCurrentPage(e.page)}
+                  variant="outline"
+                  size="sm"
+              >
+                  <Flex gap="2">
+                      <PaginationPrevTrigger />
+                      <PaginationItems />
+                      <PaginationNextTrigger />
+                  </Flex>
+              </PaginationRoot>
             </Flex>
           )}
         </Box>
 
       {selectedIds.length > 1 && (
-        <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
+        <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="md" boxShadow="none" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
           <Text fontSize="sm" fontWeight="bold" color="fg.muted">{selectedIds.length} items selected</Text>
           <Box w="px" h="6" bg="fg.subtle" />
-          <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.id)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Courses: s.courses })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
+          <Box as="button" onClick={() => { exportToExcel(staffList.filter((s) => selectedIds.includes(s.id)).map((s) => ({ "Staff ID": s.staffNumber, Name: s.fullName, Email: s.email, Phone: s.phone || "N/A", Department: s.department, Level: s.level, Courses: s.courses })), "selected_lecturers", "Lecturers"); }} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="md" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
             <Download size={16} /> Bulk Download
           </Box>
-          <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
+          <Box as="button" onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="md" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
             <Trash2 size={16} /> Bulk Delete
           </Box>
           <Box w="px" h="6" bg="fg.subtle" />
@@ -401,7 +349,6 @@ const StaffPage = () => {
         onClose={() => setShowUploadModal(false)}
         onUploaded={() => {
           setShowUploadModal(false);
-          fetchStaff();
         }}
       />
 
