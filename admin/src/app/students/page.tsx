@@ -169,7 +169,7 @@ const StudentsPage = () => {
 
     const handleDownloadTemplate = () => {
         const link = document.createElement("a");
-        link.href = "/departmental-admin/documents/Students_Sample_File.csv";
+        link.href = "/admin/documents/Students_Sample_File.csv";
         link.setAttribute("download", "Students_Sample_File.csv");
         document.body.appendChild(link);
         link.click();
