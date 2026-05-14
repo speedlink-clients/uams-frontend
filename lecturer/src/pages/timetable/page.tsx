@@ -55,9 +55,23 @@ const Timetable = () => {
 
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedSession, setSelectedSession] = useState("");
+
+  const sessionOptions = useMemo(() => {
+    const uniqueSessions = Array.from(new Set(timetables.map((t: TimetableEntry) => t.session))).filter(Boolean);
+    return createListCollection({
+      items: [
+        { label: "All Sessions", value: "" },
+        ...uniqueSessions.map((s) => ({ label: s as string, value: s as string })),
+      ],
+    });
+  }, [timetables]);
 
   const filteredTimetables = useMemo(() => {
     let filtered = timetables;
+    if (selectedSession) {
+      filtered = filtered.filter((t: TimetableEntry) => t.session === selectedSession);
+    }
     if (selectedLevel) {
       filtered = filtered.filter((t: TimetableEntry) => t.level === selectedLevel);
     }
@@ -65,7 +79,7 @@ const Timetable = () => {
       filtered = filtered.filter((t: TimetableEntry) => t.semester === selectedSemester);
     }
     return filtered;
-  }, [timetables, selectedLevel, selectedSemester]);
+  }, [timetables, selectedSession, selectedLevel, selectedSemester]);
 
   
   if (isLoading) {
@@ -103,6 +117,35 @@ const Timetable = () => {
 
       <Box bg="bg" rounded="md" p="4">
         <HStack gap="4" mb="4">
+          <Select.Root
+            collection={sessionOptions}
+            value={[selectedSession]}
+            onValueChange={(e) => setSelectedSession(e.value[0])}
+            size="sm"
+            width="160px"
+          >
+            <Select.HiddenSelect />
+            <Select.Control>
+              <Select.Trigger>
+                <Select.ValueText placeholder="Select session" />
+              </Select.Trigger>
+              <Select.IndicatorGroup>
+                <Select.Indicator />
+              </Select.IndicatorGroup>
+            </Select.Control>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  {sessionOptions.items.map((item) => (
+                    <Select.Item item={item} key={item.value}>
+                      {item.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
+
           <Select.Root
             collection={levelOptions}
             value={[selectedLevel]}
