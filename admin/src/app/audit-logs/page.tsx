@@ -81,21 +81,21 @@ const AuditLogsPage = () => {
               bg="white"
               border="xs"
               borderColor="border.muted"
-              borderRadius="xl"
+              borderRadius="md"
               py="2.5"
               pl="10"
               pr="4"
               fontSize="sm"
               w="full"
               maxW={{ base: "full", md: "320px" }}
-              _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3b82f6" }}
+              _focus={{ borderColor: "blue.500", boxShadow: "none" }}
             />
           </InputGroup>
         </Flex>
       </Flex>
 
       {/* Timeline */}
-      <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden">
+      <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" overflow="hidden">
         <Box p={{ base: "4", md: "8" }}>
         {loading ? (
           <Flex direction="column" alignItems="center" justify="center" py="12" gap="4">
@@ -184,7 +184,7 @@ const AuditLogsPage = () => {
                     pageNum = currentPage - 2 + i;
                   }
                   return (
-                    <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "fg.muted"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
+                    <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="md" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "fg.muted"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
                       {pageNum}
                     </Box>
                   );

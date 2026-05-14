@@ -206,7 +206,7 @@ const PaymentSettingsTab = () => {
 
       <form onSubmit={paymentConfigForm.handleSubmit(patchPaymentConfig)}>
       {/* public /private keys */}
-      <Box p="6" borderRadius="lg" border="xs" borderColor="border.muted" mt="12" bg="slate.50">
+      <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" mt="12" bg="slate.50">
           <Text fontWeight="bold" mb="4">Paystack API Credentials</Text>
           <Flex gap="6" w="full" direction={{ base: "column", md: "row" }}>
               <Field.Root flex="1">
@@ -237,7 +237,7 @@ const PaymentSettingsTab = () => {
       <Box display="grid" gridTemplateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap="4" mt="10">
         
         {/* annual access fee */}
-        <Box p="6" borderRadius="lg" border="xs" borderColor="border.muted" bg="slate.50">
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" bg="slate.50">
           <Text fontWeight="bold" mb="4">Annual Access Fee</Text>
           <Stack gap="5">
             <Field.Root invalid={!!paymentConfigForm.formState.errors.annual_access_split_key}>
@@ -261,7 +261,7 @@ const PaymentSettingsTab = () => {
         </Box>
 
         {/* annual department dues fee */}
-        <Box p="6" borderRadius="lg" border="xs" borderColor="border.muted" bg="slate.50">
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" bg="slate.50">
           <Text fontWeight="bold" mb="4">Annual Department Dues</Text>
           <Stack gap="5">
             <Field.Root invalid={!!paymentConfigForm.formState.errors.department_annual_access_split_key}>
@@ -285,7 +285,7 @@ const PaymentSettingsTab = () => {
         </Box>
 
         {/* ID CARD payment */}
-        <Box p="6" borderRadius="lg" border="xs" borderColor="border.muted" bg="slate.50">
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" bg="slate.50">
           <Text fontWeight="bold" mb="4">ID Card Payment</Text>
           <Stack gap="5">
             <Field.Root invalid={!!paymentConfigForm.formState.errors.id_card_split_key}>
@@ -309,7 +309,7 @@ const PaymentSettingsTab = () => {
         </Box>
 
         {/* transcript */}
-        <Box p="6" borderRadius="lg" border="xs" borderColor="border.muted" gridColumn={{ base: "1", lg: "1 / -1" }} bg="slate.50">
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" gridColumn={{ base: "1", lg: "1 / -1" }} bg="slate.50">
           <Text fontWeight="bold" mb="6">Transcript Delivery Options</Text>
           
           <Flex direction={{ base: "column", md: "row" }} gap="6" mb="8">
@@ -331,7 +331,7 @@ const PaymentSettingsTab = () => {
           </Flex>
 
           <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr 1fr" }} gap="6">
-            <Box bg="white" p="5" borderRadius="lg" border="xs" borderColor="border.muted">
+            <Box bg="white" p="5" borderRadius="md" border="xs" borderColor="border.muted">
               <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="1">Digital Delivery</Text>
               <Text fontSize="xs" color="fg.subtle" mb="4">Email delivery</Text>
               <Stack gap="4">
@@ -346,7 +346,7 @@ const PaymentSettingsTab = () => {
               </Stack>
             </Box>
 
-            <Box bg="white" p="5" borderRadius="lg" border="xs" borderColor="border.muted">
+            <Box bg="white" p="5" borderRadius="md" border="xs" borderColor="border.muted">
               <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="1">Courier Service</Text>
               <Text fontSize="xs" color="fg.subtle" mb="4">Doorstep delivery</Text>
               <Stack gap="4">
@@ -361,7 +361,7 @@ const PaymentSettingsTab = () => {
               </Stack>
             </Box>
 
-            <Box bg="white" p="5" borderRadius="lg" border="xs" borderColor="border.muted">
+            <Box bg="white" p="5" borderRadius="md" border="xs" borderColor="border.muted">
               <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="1">Physical Pickup</Text>
               <Text fontSize="xs" color="fg.subtle" mb="4">Pick up at registry</Text>
               <Stack gap="4">

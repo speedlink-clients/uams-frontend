@@ -48,17 +48,17 @@ const NotificationsPage = () => {
                     <Text fontSize="3xl" fontWeight="bold" color="fg.muted">Notifications</Text>
                     <Text color="fg.muted" mt="1" fontSize="sm">Stay updated with the latest activities across the department.</Text>
                 </Box>
-                <Flex as="button" fontSize="xs" fontWeight="bold" color="blue.600" _hover={{ color: "blue.700" }} bg="blue.50" px="6" py="3" borderRadius="xl" border="xs" borderColor="blue.100" alignItems="center" gap="2" transition="all 0.2s" cursor="pointer">
+                <Flex as="button" fontSize="xs" fontWeight="bold" color="blue.600" _hover={{ color: "blue.700" }} bg="blue.50" px="6" py="3" borderRadius="md" border="xs" borderColor="blue.100" alignItems="center" gap="2" transition="all 0.2s" cursor="pointer">
                     <Check size={16} /> Mark all as read
                 </Flex>
             </Flex>
 
-            <Box borderRadius="2xl" overflow="hidden" boxShadow="sm" border="xs" borderColor="border.muted">
+            <Box borderRadius="md" overflow="hidden" border="xs" borderColor="border.muted">
                 {NOTIFICATIONS.map((n) => {
                     const styles = getTypeColor(n.type);
                     return (
                         <Flex key={n.id} px="10" py="8" transition="all 0.2s" position="relative" borderBottom="xs" borderColor="border.muted" _last={{ borderBottom: "none" }} bg={n.bgType === "blue" ? "#F4FAFF" : "white"} gap="6" role="group">
-                            <Flex shrink={0} w="12" h="12" borderRadius="xl" alignItems="center" justifyContent="center" bg="white" color={styles.color} border="xs" borderColor={styles.borderColor} boxShadow="sm">
+                            <Flex shrink={0} w="12" h="12" borderRadius="md" alignItems="center" justifyContent="center" bg="white" color={styles.color} border="xs" borderColor={styles.borderColor}>
                                 {getIcon(n.type)}
                             </Flex>
                             <Box flex="1">
@@ -66,13 +66,13 @@ const NotificationsPage = () => {
                                     <Text fontSize="md" fontWeight="bold" color="fg.muted">{n.title}</Text>
                                     <Flex alignItems="center" gap="3">
                                         <Text fontSize="10px" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="widest">{n.time}</Text>
-                                        {!n.isRead && <Box w="2" h="2" bg="blue.600" borderRadius="full" boxShadow="0 0 4px rgba(37,99,235,0.5)" />}
+                                        {!n.isRead && <Box w="2" h="2" bg="blue.600" borderRadius="full" />}
                                     </Flex>
                                 </Flex>
                                 <Text fontSize="xs" color="fg.subtle" lineHeight="relaxed" maxW="3xl">{n.description}</Text>
                             </Box>
                             <Flex opacity="0" _groupHover={{ opacity: 1 }} transition="all 0.2s" alignItems="center">
-                                <Box as="button" p="2" _hover={{ bg: "fg.subtle" }} borderRadius="lg" color="fg.subtle" cursor="pointer" border="none" bg="transparent">
+                                <Box as="button" p="2" _hover={{ bg: "fg.subtle" }} borderRadius="md" color="fg.subtle" cursor="pointer" border="none" bg="transparent">
                                     <MoreHorizontal size={20} />
                                 </Box>
                             </Flex>

@@ -16,10 +16,10 @@ import {
   Table,
   Dialog,
   EmptyState,
+  Checkbox,
   VStack,
 } from "@chakra-ui/react";
 import { Edit, Trash2, X, Plus, GraduationCap } from "lucide-react";
-import { Checkbox } from "@components/ui/checkbox";
 
 const typeCollection = createListCollection({
   items: [
@@ -514,14 +514,19 @@ const ProgramTypeTab = () => {
             <Table.Header bg="slate.50">
               <Table.Row borderColor="border.muted">
                 <Table.ColumnHeader px="6" py="4" w="12" textAlign="center">
-                  <Checkbox
+                  <Checkbox.Root
                     checked={
                       programTypes.length > 0 &&
                       selectedIds.length === programTypes.length
                     }
                     onCheckedChange={toggleSelectAll}
                     cursor="pointer"
-                  />
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                  </Checkbox.Root>
                 </Table.ColumnHeader>
                 <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase">S/N</Table.ColumnHeader>
                 <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase">NAME</Table.ColumnHeader>
@@ -573,11 +578,16 @@ const ProgramTypeTab = () => {
                     color="fg.muted"
                   >
                     <Table.Cell px="6" py="4" textAlign="center">
-                      <Checkbox
+                      <Checkbox.Root
                         checked={selectedIds.includes(pt.id)}
                         onCheckedChange={() => toggleSelection(pt.id)}
                         cursor="pointer"
-                      />
+                      >
+                        <Checkbox.HiddenInput />
+                        <Checkbox.Control>
+                          <Checkbox.Indicator />
+                        </Checkbox.Control>
+                      </Checkbox.Root>
                     </Table.Cell>
                     <Table.Cell px="6" py="4">{index + 1}</Table.Cell>
                     <Table.Cell px="6" py="4" fontWeight="medium">{pt.name}</Table.Cell>
@@ -631,8 +641,8 @@ const ProgramTypeTab = () => {
           bg="white"
           px="6"
           py="3"
-          borderRadius="xl"
-          boxShadow="2xl"
+          borderRadius="md"
+          boxShadow="none"
           border="xs"
           borderColor="border.muted"
           alignItems="center"

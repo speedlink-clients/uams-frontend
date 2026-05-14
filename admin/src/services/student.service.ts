@@ -1,15 +1,15 @@
 import axiosClient from "@configs/axios.config"
 
 export const StudentServices = {
-    getStudents: async (page: number, limit: number) => {
-        const { data } = await axiosClient.get("/university-admin/students", {
+    getStudents: async (page?: number, limit?: number) => {
+        const { data } = await axiosClient.get("/users?role=STUDENT", {
             params: { page, limit },
         });
         return data;
     },
 
     getDepartmentStudents: async () => {
-        const { data } = await axiosClient.get("/students/department-students");
+        const { data } = await axiosClient.get("/users?role=STUDENT");
         return data;
     },
 
@@ -21,9 +21,10 @@ export const StudentServices = {
     bulkUploadStudents: async (file: File) => {
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("type", "STUDENT");
 
         const { data } = await axiosClient.post(
-            "/university-admin/students/bulk-upload",
+            "/users/bulk-upload",
             formData,
             { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -52,8 +53,18 @@ export const StudentServices = {
         return data;
     },
 
-    updateStudent: async (studentId: string, data: any) => {
-        const { data: response } = await axiosClient.patch(`/students/${studentId}`, data);
+    updateStudent: async (id: string, data: any) => {
+        const { data: response } = await axiosClient.patch(`/users/${id}`, data);
         return response;
+    },
+
+    deleteStudent: async (id: string) => {
+        const { data } = await axiosClient.delete(`/users/${id}`);
+        return data;
+    },
+
+    addStudent: async (payload: any) => {
+        const { data } = await axiosClient.post("/users", { ...payload, type: "STUDENT" });
+        return data;
     },
 }

@@ -2,7 +2,17 @@ import { useState, useEffect } from "react";
 import { Download, FileX } from "lucide-react";
 import { PaymentServices } from "@services/payment.service";
 import { toaster } from "@components/ui/toaster";
-import { Box, Table, EmptyState, VStack } from "@chakra-ui/react";
+import { 
+    Box, 
+    Table, 
+    EmptyState, 
+    VStack, 
+    Flex, 
+    Heading, 
+    Button, 
+    Spinner, 
+    Text 
+} from "@chakra-ui/react";
 
 interface PaymentsSummaryViewProps {
     onViewAllRevenue: (programTypeId: string, programTypeName: string) => void;
@@ -36,7 +46,6 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // 1. Get payment summary (access & ID card fees)
                 const summaryResponse = await PaymentServices.getPaymentsSummary();
                 if (!summaryResponse.success) {
                     toaster.error({ title: "Failed to load payment data" });
@@ -47,7 +56,6 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
                 const programTypes: Record<string, ProgramTypeSummary> = summaryResponse.data.summary.programTypes;
                 const programTypeList = Object.values(programTypes);
 
-                // 2. For each program type, fetch transcript applications and compute total fee
                 const transcriptPromises = programTypeList.map(async (pt) => {
                     try {
                         const transcriptResponse = await PaymentServices.getTranscriptApplications(pt.id);
@@ -63,7 +71,6 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
                 const transcriptResults = await Promise.all(transcriptPromises);
                 const transcriptMap = new Map(transcriptResults.map(r => [r.programTypeId, r.transcriptTotal]));
 
-                // 3. Build revenue rows with transcript fee
                 const rows: ProgramRevenue[] = programTypeList.map((pt) => ({
                     programTypeId: pt.id,
                     programType: pt.name,
@@ -89,43 +96,42 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
     };
 
     return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC" }}>
-            <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "8px 8px" }}>
+        <Box minH="100vh" bg="slate.50" p="4">
+            <Box maxW="1400px" mx="auto">
                 {/* Header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
-                    <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#0f172a", margin: 0 }}>Payments History</h1>
-                    <button style={{ display: "flex", alignItems: "center", gap: "8px", background: "#1D7AD9", color: "white", padding: "10px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(29,122,217,0.2)" }}>
-                        <Download size={18} />
-                        Export
-                    </button>
-                </div>
+                <Flex justifyContent="space-between" alignItems="center" mb="8" wrap="wrap" gap="4">
+                    <Heading size="lg" fontWeight="bold" color="fg.muted">Payments History</Heading>
+                    <Button bg="#1D7AD9" color="white" borderRadius="md" fontWeight="bold" fontSize="sm" _hover={{ bg: "blue.600" }} px="5" py="2.5">
+                        <Download size={18} /> Export
+                    </Button>
+                </Flex>
 
-                {/* Table */}
-                <Box background="white" borderRadius="12px" boxShadow="0 1px 3px rgba(0,0,0,0.05)" border="1px solid #e2e8f0" overflowX="auto">
+                {/* Table Container */}
+                <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" overflowX="auto" boxShadow="none">
                     <Table.Root>
                         <Table.Header>
-                            <Table.Row bg="#f8fafc">
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest" w="16">S/N</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">Programme Type</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">Access Fee</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">ID Card Fee</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest">Transcript Fee</Table.ColumnHeader>
-                                <Table.ColumnHeader py="5" px="8" fontSize="xs" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="widest" textAlign="right">Revenue</Table.ColumnHeader>
+                            <Table.Row bg="slate.50" borderBottom="xs" borderColor="border.muted">
+                                <Table.ColumnHeader py="4" px="6" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" w="16">S/N</Table.ColumnHeader>
+                                <Table.ColumnHeader py="4" px="6" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">Programme Type</Table.ColumnHeader>
+                                <Table.ColumnHeader py="4" px="6" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">Access Fee</Table.ColumnHeader>
+                                <Table.ColumnHeader py="4" px="6" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">ID Card Fee</Table.ColumnHeader>
+                                <Table.ColumnHeader py="4" px="6" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">Transcript Fee</Table.ColumnHeader>
+                                <Table.ColumnHeader py="4" px="6" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" textAlign="right">Revenue</Table.ColumnHeader>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
                             {loading ? (
                                 <Table.Row>
-                                    <Table.Cell colSpan={6} py="12" px="8" textAlign="center" color="fg.subtle">
-                                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
-                                            <div style={{ width: "16px", height: "16px", border: "2px solid #94a3b8", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-                                            Loading revenue data...
-                                        </div>
+                                    <Table.Cell colSpan={6} py="12" textAlign="center">
+                                        <Flex direction="column" alignItems="center" gap="3">
+                                            <Spinner size="lg" color="blue.500" />
+                                            <Text color="fg.muted" fontSize="sm">Loading revenue data...</Text>
+                                        </Flex>
                                     </Table.Cell>
                                 </Table.Row>
                             ) : revenueData.length === 0 ? (
                                 <Table.Row>
-                                    <Table.Cell colSpan={6} py="12" px="8">
+                                    <Table.Cell colSpan={6} py="12">
                                         <EmptyState.Root>
                                             <EmptyState.Content>
                                                 <EmptyState.Indicator>
@@ -143,19 +149,26 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
                                 </Table.Row>
                             ) : (
                                 revenueData.map((row, index) => (
-                                    <Table.Row key={row.programTypeId} _hover={{ bg: "slate.50" }} transition="background 0.2s">
-                                        <Table.Cell py="6" px="8" color="fg.muted" fontWeight="medium" fontSize="sm">{index + 1}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{row.programType}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.accessFee)}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.idCardFee)}</Table.Cell>
-                                        <Table.Cell py="6" px="8" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.transcriptFee)}</Table.Cell>
-                                        <Table.Cell py="6" px="8" textAlign="right">
-                                            <button
+                                    <Table.Row key={row.programTypeId} _hover={{ bg: "slate.50" }} borderBottom="xs" borderColor="border.muted">
+                                        <Table.Cell py="4" px="6" color="fg.muted" fontWeight="medium" fontSize="sm">{index + 1}</Table.Cell>
+                                        <Table.Cell py="4" px="6" fontWeight="bold" color="fg.muted" fontSize="sm">{row.programType}</Table.Cell>
+                                        <Table.Cell py="4" px="6" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.accessFee)}</Table.Cell>
+                                        <Table.Cell py="4" px="6" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.idCardFee)}</Table.Cell>
+                                        <Table.Cell py="4" px="6" fontWeight="bold" color="fg.muted" fontSize="sm">{formatCurrency(row.transcriptFee)}</Table.Cell>
+                                        <Table.Cell py="4" px="6" textAlign="right">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                color="#1D7AD9"
+                                                fontWeight="bold"
+                                                fontSize="xs"
                                                 onClick={() => onViewAllRevenue(row.programTypeId, row.programType)}
-                                                style={{ color: "#1D7AD9", fontWeight: 700, fontSize: "12px", background: "none", border: "none", cursor: "pointer", textAlign: "right", lineHeight: 1.4 }}
+                                                h="auto"
+                                                py="1"
+                                                textAlign="right"
                                             >
                                                 View all<br />revenue
-                                            </button>
+                                            </Button>
                                         </Table.Cell>
                                     </Table.Row>
                                 ))
@@ -163,9 +176,8 @@ const PaymentsSummaryView = ({ onViewAllRevenue }: PaymentsSummaryViewProps) => 
                         </Table.Body>
                     </Table.Root>
                 </Box>
-            </div>
-            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-        </div>
+            </Box>
+        </Box>
     );
 };
 

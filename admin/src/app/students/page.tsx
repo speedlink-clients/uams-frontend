@@ -8,34 +8,22 @@ import StudentDetailsSidebar from "@components/students/StudentDetailsSidebar";
 import AddStudentForm from "@components/students/AddStudentForm";
 import DeleteConfirmationModal from "@components/students/DeleteConfirmationModal";
 import { StudentServices } from "@services/student.service";
-
-interface Student {
-    id: string;
-    regNo: string;
-    matNo: string;
-    surname: string;
-    otherNames: string;
-    fullName: string;
-    email: string;
-    phoneNo: string;
-    sex: string;
-    admissionMode: string;
-    entryQualification: string;
-    faculty: string;
-    department: string;
-    level: string;
-    degreeCourse: string;
-    programDuration: string;
-    degreeAwardCode: string;
-    isActive: boolean;
-    createdAt: string;
-}
+import { StudentHook } from "@hooks/student.hook";
+import type { Student } from "@type/student.type";
+import { 
+    PaginationRoot, 
+    PaginationItems, 
+    PaginationPrevTrigger, 
+    PaginationNextTrigger 
+} from "@components/ui/pagination";
 
 const ITEMS_PER_PAGE = 10;
 
 const StudentsPage = () => {
-    const [students, setStudents] = useState<Student[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: students = [], isLoading: loading } = StudentHook.useStudents();
+    const addMutation = StudentHook.useAddStudent();
+    const updateMutation = StudentHook.useUpdateStudent();
+    const bulkDeleteMutation = StudentHook.useBulkDeleteStudents();
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showUpload, setShowUpload] = useState(false);
@@ -50,45 +38,6 @@ const StudentsPage = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
     const dropdownRef = useRef<HTMLDivElement>(null);
-
-    const fetchStudents = async () => {
-        try {
-            setLoading(true);
-            const apiStudents = await StudentServices.getDepartmentStudents();
-            const studentArray = Array.isArray(apiStudents) ? apiStudents : (apiStudents?.data || apiStudents?.users || []);
-            const mapped: Student[] = studentArray.map((s: any) => ({
-                id: s.id || s.userId,
-                regNo: s.registrationNo || "N/A",
-                matNo: s.studentId || "N/A",
-                surname: s.user?.fullName?.split(" ")[0] || "N/A",
-                otherNames: s.user?.fullName?.split(" ").slice(1).join(" ") || "N/A",
-                fullName: s.user?.fullName || s.fullName || "N/A",
-                email: s.user?.email || s.email || "N/A",
-                phoneNo: s.user?.phone || s.phone || "N/A",
-                sex: s.gender || "N/A",
-                admissionMode: s.admissionMode || "N/A",
-                entryQualification: s.entryQualification || "N/A",
-                faculty: s.Department?.Faculty?.name || "N/A",
-                department: s.Department?.name || "N/A",
-                level: s.Level?.name || s.level || "N/A",
-                degreeCourse: s.degreeCourse || "N/A",
-                programDuration: s.courseDuration || "N/A",
-                degreeAwardCode: s.degreeAwarded || "N/A",
-                isActive: s.isActive ?? true,
-                createdAt: s.createdAt ? new Date(s.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "N/A",
-            }));
-            setStudents(mapped);
-        } catch (err) {
-            console.error("Failed to fetch students", err);
-            toaster.error({ title: "Failed to load students" });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchStudents();
-    }, []);
 
     useEffect(() => {
         const handleClickOutside = () => setActiveDropdownId(null);
@@ -105,11 +54,11 @@ const StudentsPage = () => {
                 (s) =>
                     s.fullName.toLowerCase().includes(q) ||
                     s.surname.toLowerCase().includes(q) ||
-                    s.otherNames.toLowerCase().includes(q) ||
+                    (s.otherName && s.otherName.toLowerCase().includes(q)) ||
                     s.email.toLowerCase().includes(q) ||
-                    s.regNo.toLowerCase().includes(q) ||
-                    s.matNo.toLowerCase().includes(q) ||
-                    s.phoneNo.toLowerCase().includes(q)
+                    (s.registrationNo && s.registrationNo.toLowerCase().includes(q)) ||
+                    (s.matricNumber && s.matricNumber.toLowerCase().includes(q)) ||
+                    (s.phone && s.phone.toLowerCase().includes(q))
             );
         }
 
@@ -157,11 +106,12 @@ const StudentsPage = () => {
 
     const handleExport = () => {
         const exportData = filteredStudents.map((s) => ({
-            "Reg No": s.regNo, "Mat No": s.matNo, "First Name": s.surname, "Other Names": s.otherNames,
-            Email: s.email, Phone: s.phoneNo, Sex: s.sex, Department: s.department,
-            Faculty: s.faculty, Level: s.level, "Admission Mode": s.admissionMode,
-            "Entry Qualification": s.entryQualification, "Degree Course": s.degreeCourse,
-            "Program Duration": s.programDuration, "Degree Award Code": s.degreeAwardCode,
+            "Full Name": s.fullName, Email: s.email, "Reg No": s.registrationNo || "—",
+            "Mat No": s.matricNumber || "—", Surname: s.surname, "Other Name": s.otherName || "—",
+            Phone: s.phone || "—", Gender: s.gender || "—",
+            Faculty: s.faculty || "—", Level: s.level || "—", "Admission Mode": s.admissionMode || "—",
+            "Entry Qualification": s.entryQualification || "—", "Degree Course": s.degreeCourse || "—",
+            "Program Duration": s.courseDuration || "—", "Degree Awarded": s.degreeAwarded || "—",
         }));
         exportToExcel(exportData, "Students_List", "Students");
         toaster.success({ title: "Exported successfully" });
@@ -223,20 +173,20 @@ const StudentsPage = () => {
                     </Text>
                 </Box>
                 <Flex alignItems="center" gap="3" flexWrap="wrap">
-                    <Box as="button" onClick={handleDownloadTemplate} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="xs" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
+                    <Box as="button" onClick={handleDownloadTemplate} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="xs" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="md" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
                         <FileDown size={18} /> Download Sample File
                     </Box>
-                    <Box as="button" onClick={() => setShowUpload(true)} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="xs" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="lg" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
+                    <Box as="button" onClick={() => setShowUpload(true)} display="flex" alignItems="center" gap="2" px="4" py="2.5" bg="white" border="xs" borderColor="#1D7AD9" color="#1D7AD9" borderRadius="md" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.50" }}>
                         <FileUp size={18} /> Upload CSV
                     </Box>
-                    <Box as="button" onClick={() => { setStudentToEdit(null); setShowAddForm(true); }} bg="#1D7AD9" color="white" px="6" py="2.5" borderRadius="lg" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" boxShadow="lg" cursor="pointer" _hover={{ bg: "blue.700" }} border="none">
+                    <Box as="button" onClick={() => { setStudentToEdit(null); setShowAddForm(true); }} bg="#1D7AD9" color="white" px="6" py="2.5" borderRadius="md" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none">
                         <Plus size={18} /> Add Students
                     </Box>
                 </Flex>
             </Flex>
 
             {/* Search & Filters Card */}
-            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" p="6" mb="4">
+            <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" p="6" mb="4">
                 <Flex alignItems="center" justifyContent="space-between" gap="4" flexWrap="wrap">
                     <Box position="relative" flex="1" maxW="md">
                         <input
@@ -262,7 +212,7 @@ const StudentsPage = () => {
                         <select value={selectedSession} onChange={(e) => setSelectedSession(e.target.value)} style={selectStyle}>
                             <option value="all">All Sessions</option>
                         </select>
-                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" fontSize="xs" fontWeight="semibold" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                        <Box as="button" onClick={clearFilters} display="flex" alignItems="center" gap="2" px="6" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="md" fontSize="xs" fontWeight="semibold" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>
                             <X size={16} /> Clear Filters
                         </Box>
                     </Flex>
@@ -272,7 +222,7 @@ const StudentsPage = () => {
             {/* Export Table header */}
             <Flex alignItems="center" justifyContent="space-between" mb="4">
                 <Text fontSize="lg" fontWeight="bold" color="fg.muted">Students ({filteredStudents.length})</Text>
-                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="xl" fontSize="xs" fontWeight="semibold" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                <Box as="button" onClick={handleExport} display="flex" alignItems="center" gap="2" px="4" py="2" bg="white" border="xs" borderColor="border.muted" borderRadius="md" fontSize="xs" fontWeight="semibold" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>
                     <Download size={16} color="#94a3b8" /> Export Table
                 </Box>
             </Flex>
@@ -298,12 +248,12 @@ const StudentsPage = () => {
                     </EmptyState.Content>
                 </EmptyState.Root>
             ) : (
-                <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
+                <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" overflow="hidden" maxW={{ base: "100%", lg: "calc(100vw - 340px)" }}>
                     <Box overflowX="auto">
                         <Box as="table" w="full" textAlign="left">
                             <Box as="thead">
-                                <Box as="tr" bg="slate.50" borderBottom="xs" borderColor="border.muted" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" whiteSpace="nowrap">
-                                    <Box as="th" px="6" py="5" w="12" textAlign="center" position="sticky" left="0" zIndex="20" bg="slate.50">
+                                <Box as="tr" bg="slate.50" borderY="xs" borderColor="border.muted" fontSize="11px" fontWeight="semibold" color="fg.muted" textTransform="uppercase" whiteSpace="nowrap">
+                                    <Box as="th" bg="slate.50" px="6" py="4" w="12" textAlign="center" position="sticky" left="0" zIndex="20">
                                         <input
                                             type="checkbox"
                                             checked={filteredStudents.length > 0 && selectedIds.length > 0 && selectedIds.length === filteredStudents.length}
@@ -311,23 +261,23 @@ const StudentsPage = () => {
                                             style={{ cursor: "pointer" }}
                                         />
                                     </Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Reg No.</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Mat. No.</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">First Name</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Other Names</Box>
-                                    <Box as="th" px="6" py="5" minW="200px">Email</Box>
-                                    <Box as="th" px="6" py="5" minW="140px">Phone No</Box>
-                                    <Box as="th" px="6" py="5" minW="100px">Gender</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Admission Mode</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Entry Qualification</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Faculty</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Department</Box>
-                                    <Box as="th" px="6" py="5" minW="100px">Level</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Degree Course</Box>
-                                    <Box as="th" px="6" py="5" minW="120px">Course Duration</Box>
-                                    <Box as="th" px="6" py="5" minW="150px">Degree Award Code</Box>
-                                    <Box as="th" px="6" py="5" minW="100px">Status</Box>
-                                    <Box as="th" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex="20" bg="slate.50">Action</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Reg No.</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Mat. No.</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">First Name</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Other Names</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="200px">Email</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="140px">Phone No</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="100px">Gender</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Admission Mode</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Entry Qualification</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Faculty</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Department</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="100px">Level</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Degree Course</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="120px">Course Duration</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="150px">Degree Award Code</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" minW="100px">Status</Box>
+                                    <Box as="th" bg="slate.50" px="6" py="4" textAlign="right" pr="12" position="sticky" right="0" zIndex="20">Action</Box>
                                 </Box>
                             </Box>
                             <Box as="tbody" fontSize="xs">
@@ -336,24 +286,24 @@ const StudentsPage = () => {
                                         <Box as="td" px="6" py="5" textAlign="center" position="sticky" left="0" zIndex="10" bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted">
                                             <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} onClick={(e) => e.stopPropagation()} style={{ cursor: "pointer" }} />
                                         </Box>
-                                        <Box as="td" px="6" py="5" color="fg.subtle" fontWeight="medium">{s.regNo}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.matNo}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.subtle" fontWeight="medium">{s.registrationNo || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.matricNumber || "—"}</Box>
                                         <Box as="td" px="6" py="5" fontWeight="bold" color="fg.muted">{s.surname}</Box>
-                                        <Box as="td" px="6" py="5" fontWeight="medium" color="fg.muted">{s.otherNames}</Box>
+                                        <Box as="td" px="6" py="5" fontWeight="medium" color="fg.muted">{s.otherName || "—"}</Box>
                                         <Box as="td" px="6" py="5" color="fg.muted">{s.email}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.phoneNo}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted" textTransform="capitalize">{s.sex}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted" textTransform="capitalize">{s.admissionMode}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.entryQualification}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.faculty}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.department}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.level}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.degreeCourse}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.programDuration}</Box>
-                                        <Box as="td" px="6" py="5" color="fg.muted">{s.degreeAwardCode}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.phone || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted" textTransform="capitalize">{s.gender || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted" textTransform="capitalize">{s.admissionMode || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.entryQualification || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.faculty || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.department || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.level || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.degreeCourse || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.courseDuration || "—"}</Box>
+                                        <Box as="td" px="6" py="5" color="fg.muted">{s.degreeAwarded || "—"}</Box>
                                         <Box as="td" px="6" py="5">
-                                            <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold" bg={s.isActive ? "green.100" : "red.100"} color={s.isActive ? "green.700" : "red.700"}>
-                                                {s.isActive ? "Active" : "Inactive"}
+                                            <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold" bg={s.status === "ACTIVE" ? "green.100" : "red.100"} color={s.status === "ACTIVE" ? "green.700" : "red.700"}>
+                                                {s.status === "ACTIVE" ? "Active" : "Inactive"}
                                             </Text>
                                         </Box>
                                         <Box as="td" px="6" py="5" textAlign="right" pr="12" position="sticky" right="0" zIndex={activeDropdownId === s.id ? "50" : "10"} bg={selectedIds.includes(s.id) ? "blue.50" : "white"} borderBottom="xs" borderColor="border.muted" ref={dropdownRef}>
@@ -363,7 +313,7 @@ const StudentsPage = () => {
                                                 </Box>
 
                                                 {activeDropdownId === s.id && (
-                                                    <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="xl" boxShadow="xl" border="xs" borderColor="border.muted" zIndex="50" overflow="hidden" textAlign="left">
+                                                    <Box position="absolute" right="0" top="8" w="48" bg="white" borderRadius="md" boxShadow="none" border="xs" borderColor="border.muted" zIndex="50" overflow="hidden" textAlign="left">
                                                         <Box p="1">
                                                             <Box as="button" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedStudent(s); setActiveDropdownId(null); }} w="full" display="flex" alignItems="center" gap="2" px="3" py="2" fontSize="sm" fontWeight="medium" color="green.600" _hover={{ bg: "green.50" }} borderRadius="lg" cursor="pointer" border="none" bg="transparent">
                                                                 <UserCog size={16} /> Assign Role
@@ -384,50 +334,35 @@ const StudentsPage = () => {
                             </Box>
                         </Box>
                     </Box>
-
                 </Box>
             )}
 
             {/* Pagination - separate card below table */}
             {totalPages > 1 && (
-                <Flex alignItems="center" justifyContent="space-between" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" p="4" mt="4">
+                <Flex alignItems="center" justifyContent="space-between" p="4" bg="white" borderTop="xs" borderColor="border.muted">
                     <Text fontSize="sm" color="fg.muted">
-                        Showing{" "}
-                        <Text as="span" fontWeight="semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)}</Text>
-                        {" "}of <Text as="span" fontWeight="semibold">{filteredStudents.length}</Text> students
-                        (Total: {students.length})
+                        Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)} of {filteredStudents.length} students
                     </Text>
-                    <Flex alignItems="center" gap="2">
-                        <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: "8px 12px", background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#334155", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1 }}>
-                            Previous
-                        </button>
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                            let pageNum;
-                            if (totalPages <= 5) {
-                                pageNum = i + 1;
-                            } else if (currentPage <= 3) {
-                                pageNum = i + 1;
-                            } else if (currentPage >= totalPages - 2) {
-                                pageNum = totalPages - 4 + i;
-                            } else {
-                                pageNum = currentPage - 2 + i;
-                            }
-                            return (
-                                <Box as="button" key={pageNum} onClick={() => setCurrentPage(pageNum)} px="3" py="2" borderRadius="lg" fontSize="sm" fontWeight="medium" cursor="pointer" border={currentPage === pageNum ? "none" : "1px solid"} borderColor="border.muted" bg={currentPage === pageNum ? "#1D7AD9" : "white"} color={currentPage === pageNum ? "white" : "fg.muted"} _hover={{ bg: currentPage === pageNum ? "#1D7AD9" : "slate.50" }}>
-                                    {pageNum}
-                                </Box>
-                            );
-                        })}
-                        <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: "8px 12px", background: "white", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#334155", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1 }}>
-                            Next
-                        </button>
-                    </Flex>
+                    <PaginationRoot 
+                        count={filteredStudents.length} 
+                        pageSize={ITEMS_PER_PAGE} 
+                        page={currentPage}
+                        onPageChange={(e) => setCurrentPage(e.page)}
+                        variant="outline"
+                        size="sm"
+                    >
+                        <Flex gap="2">
+                            <PaginationPrevTrigger />
+                            <PaginationItems />
+                            <PaginationNextTrigger />
+                        </Flex>
+                    </PaginationRoot>
                 </Flex>
             )}
 
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py="3" borderRadius="md" boxShadow="none" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" flexWrap="wrap" justifyContent="center" w={{ base: "90%", md: "auto" }}>
                     <Text fontSize="sm" fontWeight="bold" color="fg.muted">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="fg.subtle" />
                     <Box as="button" onClick={handleBulkDownload} display="flex" alignItems="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }} cursor="pointer" border="none">
@@ -443,7 +378,7 @@ const StudentsPage = () => {
                 </Flex>
             )}
 
-            <BulkUploadStudentsModal isOpen={showUpload} onClose={() => setShowUpload(false)} onUploaded={() => { setShowUpload(false); fetchStudents(); }} />
+            <BulkUploadStudentsModal isOpen={showUpload} onClose={() => setShowUpload(false)} onUploaded={() => { setShowUpload(false); }} />
 
             {/* Assign Role Sidebar */}
             {selectedStudent && (
@@ -454,36 +389,30 @@ const StudentsPage = () => {
             )}
 
             {/* Add/Edit Student Form */}
-            {showAddForm && (
-                <AddStudentForm
-                    initialData={studentToEdit}
-                    onClose={() => { setShowAddForm(false); setStudentToEdit(null); }}
-                    onSubmit={async (data) => {
-                        if (studentToEdit) {
-                            await StudentServices.updateStudent(studentToEdit.id, data);
-                            toaster.success({ title: "Student updated successfully" });
-                        } else {
-                            console.log("Adding student:", data);
-                            toaster.success({ title: "Student added" });
-                        }
-                        setShowAddForm(false);
-                        setStudentToEdit(null);
-                        fetchStudents();
-                    }}
-                />
-            )}
+            <AddStudentForm
+                isOpen={showAddForm}
+                initialData={studentToEdit}
+                onClose={() => { setShowAddForm(false); setStudentToEdit(null); }}
+                onSubmit={async (data) => {
+                    if (studentToEdit) {
+                        await updateMutation.mutateAsync({ id: studentToEdit.id, payload: data });
+                    } else {
+                        await addMutation.mutateAsync({ ...data, type: "STUDENT" });
+                    }
+                    setShowAddForm(false);
+                    setStudentToEdit(null);
+                }}
+            />
 
             {/* Delete Confirmation Modal */}
             <DeleteConfirmationModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => { setIsDeleteModalOpen(false); setIdsToDelete([]); }}
                 onConfirm={async (reason) => {
-                    await StudentServices.bulkDeleteStudents(idsToDelete, reason);
-                    toaster.success({ title: `${idsToDelete.length} student(s) deleted` });
+                    await bulkDeleteMutation.mutateAsync({ ids: idsToDelete, reason });
                     setIsDeleteModalOpen(false);
                     setIdsToDelete([]);
                     setSelectedIds(prev => prev.filter(id => !idsToDelete.includes(id)));
-                    fetchStudents();
                 }}
                 title="Delete Students"
                 description="This action cannot be undone. This will permanently delete the selected student records from the system."

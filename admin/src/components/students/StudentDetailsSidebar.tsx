@@ -3,14 +3,7 @@ import { X, User, Mail, Phone, Calendar, ShieldCheck, Loader2 } from "lucide-rea
 import { StudentServices } from "@services/student.service";
 import { toaster } from "@components/ui/toaster";
 
-interface Student {
-    id: string;
-    fullName: string;
-    email: string;
-    phone?: string | null;
-    level: string;
-    isActive: boolean;
-}
+import type { Student } from "@type/student.type";
 
 interface StudentDetailsSidebarProps {
     student: Student;
@@ -120,8 +113,8 @@ const StudentDetailsSidebar = ({ student, onClose }: StudentDetailsSidebarProps)
                         <h4 style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", margin: 0 }}>{profile.user?.fullName || student.fullName}</h4>
                         <p style={{ fontSize: "12px", color: "#94a3b8", margin: "4px 0 0" }}>{profile.studentId || ""}</p>
                         <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
-                            <span style={{ padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 700, background: profile.isActive ? "#dcfce7" : "#fee2e2", color: profile.isActive ? "#15803d" : "#b91c1c" }}>
-                                {profile.isActive ? "Active" : "Inactive"}
+                            <span style={{ padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 700, background: profile?.status === "ACTIVE" ? "#dcfce7" : "#fee2e2", color: profile?.status === "ACTIVE" ? "#15803d" : "#b91c1c" }}>
+                                {profile?.status === "ACTIVE" ? "Active" : "Inactive"}
                             </span>
                             {selectedRole && (
                                 <span style={{ padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 700, background: selectedRole === "CLASS_REP" ? "#f3e8ff" : "#fef3c7", color: selectedRole === "CLASS_REP" ? "#7c3aed" : "#b45309" }}>
