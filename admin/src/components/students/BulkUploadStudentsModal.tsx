@@ -34,7 +34,7 @@ const BulkUploadStudentsModal = ({ isOpen, onClose, onUploaded }: Props) => {
         try {
             const formData = new FormData();
             formData.append("file", file);
-            const response = await axiosClient.post("/department-admins/students/bulk-upload", formData, {
+            const response = await axiosClient.post("/admin/students/bulk-upload", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             const data = response.data;
@@ -50,7 +50,7 @@ const BulkUploadStudentsModal = ({ isOpen, onClose, onUploaded }: Props) => {
 
     const handleDownloadSample = () => {
         const link = document.createElement("a");
-        link.href = "/departmental-admin/sample-students.csv";
+        link.href = "/admin/sample-students.csv";
         link.download = "sample-students.csv";
         link.click();
     };

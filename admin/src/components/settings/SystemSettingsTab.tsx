@@ -149,7 +149,7 @@ const SystemSettingsTab = () => {
   };
 
   return (
-    <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p={{ base: "6", md: "10" }}>
+    <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" p={{ base: "6", md: "10" }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="space-between" alignItems="center" mb="8">
           <Flex alignItems="center" gap="3">
@@ -164,10 +164,10 @@ const SystemSettingsTab = () => {
           <Button
             type={isEditing ? "submit" : "button"}
             onClick={() => !isEditing && setIsEditing(true)}
-            bg={isEditing ? "blue.600" : "fg.subtle"}
-            color={isEditing ? "white" : "fg.muted"}
-            _hover={{ bg: isEditing ? "blue.700" : "fg.subtle" }}
+            colorPalette={isEditing ? "accent" : "gray"}
+            variant={isEditing ? "solid" : "subtle"}
             loading={isSaving}
+            loadingText="Saving..."
           >
             {isEditing ? "Save Changes" : "Edit Configuration"}
           </Button>
@@ -187,7 +187,7 @@ const SystemSettingsTab = () => {
                   <Input
                     {...register("currentSession")}
                     placeholder="e.g. 2025/2026"
-                    disabled={!isEditing}
+                    readOnly={!isEditing}
                     bg={isEditing ? "white" : "transparent"}
                   />
                   <Field.ErrorText>{errors.currentSession?.message}</Field.ErrorText>
@@ -248,9 +248,7 @@ const SystemSettingsTab = () => {
             </Button>
             <Button
               type="submit"
-              bg="blue.600"
-              color="white"
-              _hover={{ bg: "blue.700" }}
+              colorPalette="accent"
               loading={isSaving}
               loadingText="Saving..."
             >
