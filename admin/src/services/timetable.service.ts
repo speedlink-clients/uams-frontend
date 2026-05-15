@@ -13,7 +13,7 @@ export const TimetableService = {
 
     // The timetable template file is a static file built into the frontend's public/documents folder, not a backend API endpoint.
     downloadTimetableTemplate: async (): Promise<Blob> => {
-        const response = await fetch(`/departmental-admin/documents/timetable-template.xlsx`);
+        const response = await fetch(`/admin/documents/timetable-template.xlsx`);
         if (!response.ok) throw new Error("File not found");
         return response.blob();
     },

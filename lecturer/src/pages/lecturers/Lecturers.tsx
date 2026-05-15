@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -9,20 +9,42 @@ import {
   createListCollection,
   InputGroup,
   Input,
+  Table,
+  Button,
+  Center,
+  Spinner,
+  EmptyState,
+  VStack,
 } from "@chakra-ui/react";
+import { LuCircleAlert, LuSearch, LuUsers } from "react-icons/lu";
 import { LecturerHook } from "@hooks/lecturer.hook";
-import LecturersTable from "@components/shared/LecturersTable";
-import { LuSearch } from "react-icons/lu";
+import type { Lecturer } from "@type/lecturer.type";
+
+const ITEMS_PER_PAGE = 10;
 
 const Lecturers = () => {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: lecturers, isLoading } = LecturerHook.useLecturers();
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [search]);
 
-  // Get unique roles from data (excluding null/undefined)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, roleFilter]);
+
+  const { data: lecturers = [], isLoading, error } = LecturerHook.useLecturers();
+
+  // Get unique roles from data
   const uniqueRoles = useMemo(() => {
-    if (!lecturers) return [];
+    if (!lecturers.length) return [];
     const roles = new Set(
       lecturers
         .map((l) => l.currentAdminRole)
@@ -31,9 +53,6 @@ const Lecturers = () => {
     return Array.from(roles).sort();
   }, [lecturers]);
 
-  // Create collection for Select.Root:
-  // - If roles exist, show "All Roles" + the roles.
-  // - If no roles, show "No roles" as a placeholder.
   const roleCollection = useMemo(() => {
     if (uniqueRoles.length === 0) {
       return createListCollection({
@@ -48,66 +67,67 @@ const Lecturers = () => {
     });
   }, [uniqueRoles]);
 
-  // Client-side search + role filter
+  // Filter lecturers (client-side)
   const filteredLecturers = useMemo(() => {
-    if (!lecturers) return [];
-
+    if (!lecturers.length) return [];
     let result = lecturers;
 
-    // Apply search filter
-    if (search.trim()) {
-      const query = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const query = debouncedSearch.toLowerCase();
       result = result.filter(
         (l) =>
-          l.staffNumber?.toLowerCase()?.includes(query) ||
-          l.User?.fullName?.toLowerCase()?.includes(query) ||
-          l.User?.email?.toLowerCase()?.includes(query) ||
-          l.User?.phone?.toLowerCase()?.includes(query) ||
-          l.specialization?.toLowerCase()?.includes(query) ||
-          l.additionalRoles?.join(", ")?.toLowerCase().includes(query)
+          l.staffNumber?.toLowerCase().includes(query) ||
+          l.User?.fullName?.toLowerCase().includes(query) ||
+          l.User?.email?.toLowerCase().includes(query) ||
+          l.User?.phone?.toLowerCase().includes(query) ||
+          l.specialization?.toLowerCase().includes(query) ||
+          l.additionalRoles?.join(", ").toLowerCase().includes(query)
       );
     }
 
-    // Apply role filter (empty value means no filter)
     if (roleFilter) {
       result = result.filter((l) => l.currentAdminRole === roleFilter);
     }
 
     return result;
-  }, [lecturers, search, roleFilter]);
+  }, [lecturers, debouncedSearch, roleFilter]);
 
-  const totalCount = lecturers?.length ?? 0;
-  const filteredCount = filteredLecturers.length;
+  const totalCount = lecturers.length;
+  const totalPages = Math.ceil(filteredLecturers.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedLecturers = filteredLecturers.slice(startIndex, endIndex);
 
   return (
     <Box>
-      {/* Page Header */}
-      <Heading size="lg" fontWeight="600" color="#000000" mb="6" fontSize="24px">
-        Lecturers{" "}
-        <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
-          ({filteredCount} / {totalCount})
+      {/* Heading – inline count */}
+      <Flex align="baseline" gap="2" mb="6">
+        <Heading color="fg.muted" mb="0">
+          Lecturers
+        </Heading>
+        <Text as="span" color="fg.subtle" fontSize="lg">
+          ({filteredLecturers.length} / {totalCount})
         </Text>
-      </Heading>
-
-      {/* Toolbar */}
-      <Flex align="center" justify="flex-end" gap="3" mb="5">
-        <InputGroup startElement={<LuSearch />}>
+      </Flex>
+       
+       <Box bg="bg" rounded="md" p="4">  
+      {/* Filters – always visible */}
+      <Flex align="center" justify="flex-end" gap="3" mb="5" wrap="wrap" colorPalette={"accent"}>
+        <InputGroup startElement={<LuSearch />} width="260px">
           <Input
             placeholder="Search by Name, Email or Code"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            fontSize="12px"
-            width="260px"
+            fontSize="xs"
           />
         </InputGroup>
 
-        {/* Role Filter Select - no disabled prop */}
         <Select.Root
           collection={roleCollection}
           value={roleFilter ? [roleFilter] : []}
           onValueChange={(e) => setRoleFilter(e.value[0] || "")}
           size="md"
-          width="120px"
+          width="140px"
         >
           <Select.HiddenSelect />
           <Select.Control>
@@ -132,8 +152,182 @@ const Lecturers = () => {
         </Select.Root>
       </Flex>
 
-      {/* Lecturers Table */}
-      <LecturersTable lecturers={filteredLecturers} isLoading={isLoading} />
+      {/* Table – header always visible */}
+      <Table.ScrollArea>
+        <Table.Root size="sm" variant="outline">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>Staff Number</Table.ColumnHeader>
+              <Table.ColumnHeader>Full Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Email</Table.ColumnHeader>
+              <Table.ColumnHeader>Phone</Table.ColumnHeader>
+              <Table.ColumnHeader>Specialization</Table.ColumnHeader>
+              <Table.ColumnHeader>Current Role</Table.ColumnHeader>
+              <Table.ColumnHeader>Additional Roles</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {/* Loading state */}
+            {isLoading && (
+              <Table.Row>
+                <Table.Cell colSpan={7} textAlign="center" py={10}>
+                  <Center>
+                    <Spinner size="lg" color="accent.500" />
+                  </Center>
+                </Table.Cell>
+              </Table.Row>
+            )}
+
+            {/* Error state */}
+            {!isLoading && error && (
+              <Table.Row>
+                <Table.Cell colSpan={7} textAlign="center" py={10}>
+                  <EmptyState.Root>
+                    <EmptyState.Content>
+                      <EmptyState.Indicator>
+                        <LuCircleAlert />
+                      </EmptyState.Indicator>
+                      <VStack textAlign="center">
+                        <EmptyState.Title>Failed to load lecturers</EmptyState.Title>
+                        <EmptyState.Description>{error.message}</EmptyState.Description>
+                      </VStack>
+                    </EmptyState.Content>
+                  </EmptyState.Root>
+                </Table.Cell>
+              </Table.Row>
+            )}
+
+            {/* Empty state (no data, no error) */}
+            {!isLoading && !error && paginatedLecturers.length === 0 && (
+              <Table.Row>
+                <Table.Cell colSpan={7} textAlign="center" py={10}>
+                  <EmptyState.Root>
+                    <EmptyState.Content>
+                      <EmptyState.Indicator>
+                        <LuUsers />
+                      </EmptyState.Indicator>
+                      <VStack textAlign="center">
+                        <EmptyState.Title>No lecturers found</EmptyState.Title>
+                        <EmptyState.Description>
+                          {lecturers.length === 0
+                            ? "No lecturer data available."
+                            : "Try adjusting your search or filters."}
+                        </EmptyState.Description>
+                      </VStack>
+                    </EmptyState.Content>
+                  </EmptyState.Root>
+                </Table.Cell>
+              </Table.Row>
+            )}
+
+            {/* Data rows */}
+            {!isLoading && !error && paginatedLecturers.length > 0 &&
+              paginatedLecturers.map((lecturer) => (
+                <Table.Row key={lecturer.id}>
+                  <Table.Cell>{lecturer.staffNumber || "—"}</Table.Cell>
+                  <Table.Cell>{lecturer.User?.fullName || "—"}</Table.Cell>
+                  <Table.Cell>{lecturer.User?.email || "—"}</Table.Cell>
+                  <Table.Cell>{lecturer.User?.phone || "—"}</Table.Cell>
+                  <Table.Cell>{lecturer.specialization || "—"}</Table.Cell>
+                  <Table.Cell>{lecturer.currentAdminRole || "—"}</Table.Cell>
+                  <Table.Cell>
+                    {lecturer.additionalRoles?.join(", ") || "—"}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+          </Table.Body>
+        </Table.Root>
+      </Table.ScrollArea>
+
+      {/* Pagination – always visible */}
+      <Flex
+        alignItems="center"
+        justifyContent="space-between"
+        bg="white"
+        rounded="md"
+        border="1px solid"
+        borderColor="border.muted"
+        p="4"
+        mt="4"
+        wrap="wrap"
+        gap="2"
+      >
+        <Text fontSize="sm" color="fg.muted">
+          Showing{" "}
+          <Text as="span">
+            {filteredLecturers.length === 0 ? 0 : startIndex + 1}-
+            {Math.min(endIndex, filteredLecturers.length)}
+          </Text>{" "}
+          of <Text as="span">{filteredLecturers.length}</Text> lecturers
+        </Text>
+        <Flex alignItems="center" gap="2">
+          <Button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1 || totalPages === 0}
+            size="sm"
+            variant="outline"
+            borderColor="border.muted"
+            bg="white"
+            color="fg.muted"
+          >
+            Previous
+          </Button>
+
+          {totalPages === 0 ? (
+            <Button
+              size="sm"
+              variant="solid"
+              bg="accent"
+              color="white"
+              minW="36px"
+            >
+              1
+            </Button>
+          ) : (
+            Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              const isActive = currentPage === pageNum;
+              return (
+                <Button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  size="sm"
+                  variant={isActive ? "solid" : "outline"}
+                  bg={isActive ? "#1D7AD9" : "white"}
+                  color={isActive ? "white" : "gray.700"}
+                  borderColor={isActive ? "transparent" : "gray.200"}
+                  fontWeight="medium"
+                  minW="36px"
+                >
+                  {pageNum}
+                </Button>
+              );
+            })
+          )}
+
+          <Button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages || totalPages === 0}
+            size="sm"
+            variant="outline"
+            borderColor="border.muted"
+            bg="white"
+            color="fg.muted"
+          >
+            Next
+          </Button>
+        </Flex>
+      </Flex>
+      </Box>
     </Box>
   );
 };

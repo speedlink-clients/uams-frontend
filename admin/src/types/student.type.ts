@@ -2,29 +2,56 @@ export type StudentRole = 'Class Rep' | 'Dept Rep' | 'None' | 'Bachelors' | 'PGD
 
 export interface Student {
     id: string;
-    regNo: string;
-    matNo: string;
-    surname: string;
-    firstName: string;
-    otherNames: string;
-    name: string;
     email: string;
-    phoneNo: string;
-    department: string;
-    level: string;
-    programId: string;
-    role: StudentRole;
-    sex: string;
-    admissionMode: string;
-    entryQualification: string;
-    faculty: string;
-    degreeCourse: string;
-    programDuration: string;
-    degreeAwardCode: string;
-    permissions?: string[];
+    role: string;
+    status: string;
+    fullName: string;
+    firstName: string;
+    surname: string;
+    otherName?: string;
+    matricNumber?: string;
+    registrationNo?: string;
+    phone?: string | null;
+    gender?: string;
+    level?: string;
+    department?: string;
+    faculty?: string;
+    admissionMode?: string;
+    admissionYear?: number;
+    admissionSession?: string;
+    entryQualification?: string;
+    degreeCourse?: string;
+    courseDuration?: string;
+    degreeDuration?: string;
+    degreeAwarded?: string;
+    degreeAwardedCode?: string;
+    registrationStatus?: string;
+    cgpa?: number | null;
     createdAt: string;
-    isActive: boolean;
-    classRepRole?: 'CLASS_REP' | 'ASSISTANT_CLASS_REP';
+    studentProfile?: any;
+}
+
+export interface CreateStudentPayload {
+    type: "STUDENT";
+    firstName: string;
+    surname: string;
+    otherName?: string;
+    email: string;
+    gender: string;
+    matricNumber: string;
+    registrationNo?: string;
+    phone?: string;
+    level: string;
+    faculty: string;
+    department: string;
+    admissionYear?: number;
+    admissionSession?: string;
+    admissionMode?: string;
+    entryQualification?: string;
+    degreeAwardedCode?: string;
+    degreeCourse?: string;
+    degreeDuration?: string;
+    password?: string;
 }
 
 export interface StudentProfile {

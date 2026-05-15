@@ -1,30 +1,116 @@
-import { StaffServices } from "@services/staff.service"
-import { useQuery, useMutation, type UseQueryOptions, type UseMutationOptions } from "@tanstack/react-query"
-import type { CreateLecturerPayload } from "@type/staff.type"
-import type { AssignCoursePayload } from "@type/course.type"
+import { StaffServices } from "@services/staff.service";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toaster } from "@components/ui/toaster";
+import type { CreateLecturerPayload, Staff } from "@type/staff.type";
 
-export const StaffHooks = {
-    useStaff: (options?: Partial<UseQueryOptions<unknown>>) => useQuery<unknown>({
-        queryKey: ["staff"],
-        queryFn: StaffServices.getDepartmentLecturers,
-        ...options,
-    }),
+export const StaffHook = {
+    useStaff: () =>
+        useQuery({
+            queryKey: ["staff"],
+            queryFn: async () => {
+                const response = await StaffServices.getDepartmentLecturers();
+                const data = response?.lecturers || response?.data || [];
+                return data.map((item: any) => ({
+                    ...item,
+                    id: item.id,
+                    staffNumber: item.staffProfile?.staffNumber || "—",
+                    fullName: `${item.staffProfile?.firstName || ""} ${item.staffProfile?.surname || ""}`.trim() || "—",
+                    firstName: item.staffProfile?.firstName || "",
+                    surname: item.staffProfile?.surname || "",
+                    otherName: item.staffProfile?.otherName || "",
+                    email: item.email || "—",
+                    phone: item.staffProfile?.phone || "—",
+                    gender: item.staffProfile?.gender || "—",
+                    department: item.staffProfile?.department || "—",
+                    level: item.staffProfile?.title || "—",
+                    courses: item.courses?.map((course: any) => course.code).join(", ") || "—",
+                })) as Staff[];
+            },
+        }),
 
-    useAddLecturer: (options?: UseMutationOptions<unknown, Error, CreateLecturerPayload>) =>
-        useMutation({ mutationFn: StaffServices.addLecturer, ...options }),
+    useAddStaff: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (payload: CreateLecturerPayload) => StaffServices.addLecturer(payload),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["staff"] });
+                toaster.success({ title: "Lecturer added successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to add lecturer" });
+            },
+        });
+    },
 
-    useUpdateLecturer: (options?: UseMutationOptions<unknown, Error, { id: string; data: Partial<CreateLecturerPayload> }>) =>
-        useMutation({ mutationFn: ({ id, data }) => StaffServices.updateLecturer(id, data), ...options }),
+    useUpdateStaff: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateLecturerPayload> }) =>
+                StaffServices.updateLecturer(id, payload),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["staff"] });
+                toaster.success({ title: "Lecturer updated successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to update lecturer" });
+            },
+        });
+    },
 
-    useAssignCourses: (options?: UseMutationOptions<unknown, Error, { lecturerId: string; payload: AssignCoursePayload }>) =>
-        useMutation({ mutationFn: ({ lecturerId, payload }) => StaffServices.assignCourses(lecturerId, payload), ...options }),
+    useDeleteStaff: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (id: string) => StaffServices.deleteLecturer(id),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["staff"] });
+                toaster.success({ title: "Lecturer deleted successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to delete lecturer" });
+            },
+        });
+    },
 
-    useBulkDownloadStaff: (options?: UseMutationOptions<unknown, Error, string[]>) =>
-        useMutation({ mutationFn: StaffServices.bulkDownloadStaff, ...options }),
+    useBulkDeleteStaff: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (ids: string[]) => StaffServices.bulkDeleteStaff(ids),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["staff"] });
+                toaster.success({ title: "Selected lecturers deleted successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to delete selected lecturers" });
+            },
+        });
+    },
 
-    useBulkDeleteStaff: (options?: UseMutationOptions<unknown, Error, string[]>) =>
-        useMutation({ mutationFn: StaffServices.bulkDeleteStaff, ...options }),
+    useBulkUploadStaff: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (formData: FormData) => StaffServices.bulkUploadLecturers(formData),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["staff"] });
+                toaster.success({ title: "Lecturers uploaded successfully!" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to upload lecturers" });
+            },
+        });
+    },
 
-    useBulkUploadLecturers: (options?: UseMutationOptions<unknown, Error, FormData>) =>
-        useMutation({ mutationFn: StaffServices.bulkUploadLecturers, ...options }),
-}
+    useAssignCourse: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (payload: { courseId: string; lecturerId: string; session: string }) =>
+                StaffServices.assignCourse(payload),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["staff"] });
+                toaster.success({ title: "Course assigned successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to assign course" });
+            },
+        });
+    },
+};

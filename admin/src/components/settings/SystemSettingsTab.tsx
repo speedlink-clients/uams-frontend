@@ -117,7 +117,7 @@ const SystemSettingsTab = () => {
           width="full"
         >
           <DatePickerControl>
-            <DatePickerInput bg={isEditing ? "white" : "slate.50"} border="xs" borderColor="border.muted" borderRadius="lg" />
+            <DatePickerInput bg={isEditing ? "white" : "slate.50"} border="xs" borderColor="border.muted" borderRadius="md" />
             <DatePickerIndicatorGroup>
               <DatePickerTrigger>
                 <Calendar size={16} />
@@ -149,11 +149,11 @@ const SystemSettingsTab = () => {
   };
 
   return (
-    <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p={{ base: "6", md: "10" }}>
+    <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" p={{ base: "6", md: "10" }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex justifyContent="space-between" alignItems="center" mb="8">
           <Flex alignItems="center" gap="3">
-            <Box p="2" bg="blue.50" borderRadius="lg">
+            <Box p="2" bg="blue.50" borderRadius="md">
               <Settings2 size={24} color="#1D7AD9" />
             </Box>
             <Box>
@@ -164,10 +164,10 @@ const SystemSettingsTab = () => {
           <Button
             type={isEditing ? "submit" : "button"}
             onClick={() => !isEditing && setIsEditing(true)}
-            bg={isEditing ? "blue.600" : "fg.subtle"}
-            color={isEditing ? "white" : "fg.muted"}
-            _hover={{ bg: isEditing ? "blue.700" : "fg.subtle" }}
+            colorPalette={isEditing ? "accent" : "gray"}
+            variant={isEditing ? "solid" : "subtle"}
             loading={isSaving}
+            loadingText="Saving..."
           >
             {isEditing ? "Save Changes" : "Edit Configuration"}
           </Button>
@@ -180,14 +180,14 @@ const SystemSettingsTab = () => {
               <Calendar size={18} color="#1D7AD9" />
               <Text fontWeight="bold" fontSize="md" color="fg.muted">Academic Session & Semesters</Text>
             </Flex>
-            <Box bg="slate.50" p="6" borderRadius="xl" border="xs" borderColor="border.muted">
+            <Box bg="slate.50" p="6" borderRadius="md" border="xs" borderColor="border.muted">
               <Stack gap="6">
                 <Field.Root invalid={!!errors.currentSession}>
                   <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Current Session</Field.Label>
                   <Input
                     {...register("currentSession")}
                     placeholder="e.g. 2025/2026"
-                    disabled={!isEditing}
+                    readOnly={!isEditing}
                     bg={isEditing ? "white" : "transparent"}
                   />
                   <Field.ErrorText>{errors.currentSession?.message}</Field.ErrorText>
@@ -207,7 +207,7 @@ const SystemSettingsTab = () => {
               <Percent size={18} color="#1D7AD9" />
               <Text fontWeight="bold" fontSize="md" color="fg.muted">Grading Policy</Text>
             </Flex>
-            <Box bg="slate.50" p="6" borderRadius="xl" border="xs" borderColor="border.muted">
+            <Box bg="slate.50" p="6" borderRadius="md" border="xs" borderColor="border.muted">
               <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="6">
                 <Field.Root invalid={!!errors.caPercentage}>
                   <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Continuous Assessment (%)</Field.Label>
@@ -248,9 +248,7 @@ const SystemSettingsTab = () => {
             </Button>
             <Button
               type="submit"
-              bg="blue.600"
-              color="white"
-              _hover={{ bg: "blue.700" }}
+              colorPalette="accent"
               loading={isSaving}
               loadingText="Saving..."
             >

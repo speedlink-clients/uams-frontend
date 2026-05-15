@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { X, Upload, FileUp } from "lucide-react";
 import { toaster } from "@components/ui/toaster";
 import { Box, Flex, Text, Spinner, Dialog, Button } from "@chakra-ui/react";
-import axiosClient from "@configs/axios.config";
+import { StaffHook } from "@hooks/staff.hook";
 
 interface Props {
     isOpen: boolean;
@@ -12,7 +12,7 @@ interface Props {
 
 const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
     const [file, setFile] = useState<File | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
+    const uploadMutation = StaffHook.useBulkUploadStaff();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,21 +27,12 @@ const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
         }
 
         try {
-            setIsUploading(true);
             const formData = new FormData();
             formData.append("file", file);
-
-            await axiosClient.post("/university-admin/lecturers/bulk-upload", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-
-            toaster.success({ title: "Lecturers uploaded successfully!" });
+            await uploadMutation.mutateAsync(formData);
             onUploaded();
-        } catch (err: any) {
-            console.error("Bulk upload failed", err);
-            toaster.error({ title: err.response?.data?.message || "Failed to upload lecturers" });
-        } finally {
-            setIsUploading(false);
+        } catch (err) {
+            // Error handled by mutation
         }
     };
 
@@ -54,7 +45,7 @@ const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
         <Dialog.Root open={isOpen} onOpenChange={(e) => { if (!e.open) handleClose() }}>
             <Dialog.Backdrop />
             <Dialog.Positioner>
-                <Dialog.Content bg="white" borderRadius="2xl" shadow="xl" w="full" maxW="lg" position="relative" animation="slideUp 0.3s ease-out">
+                <Dialog.Content bg="white" borderRadius="md" shadow="none" w="full" maxW="lg" position="relative">
                     {/* Header */}
                     <Box p="6" borderBottom="xs" borderColor="border.muted">
                         <Dialog.CloseTrigger asChild>
@@ -63,7 +54,7 @@ const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
                         <Text fontSize="lg" fontWeight="bold" color="fg.muted" mb="2">Upload Lecturers</Text>
                         <Text fontSize="sm" color="fg.muted" mb="4">Upload a CSV file containing the lecturers data. Download the sample file below to see the required format.</Text>
                         
-                        <a href="/departmental-admin/documents/Lecturer_Sample_File.csv" download="Lecturer_Sample_File.csv" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 600, color: "#2563eb", textDecoration: "none", transition: "color 0.2s" }}>
+                        <a href="/admin/documents/Lecturer_Sample_File.csv" download="Lecturer_Sample_File.csv" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 600, color: "#2563eb", textDecoration: "none", transition: "color 0.2s" }}>
                             <FileUp size={16} /> Download Sample CSV Template
                         </a>
                     </Box>
@@ -77,7 +68,7 @@ const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
                             border="2px dashed"
                             borderColor={file ? "blue.400" : "fg.subtle"}
                             bg={file ? "blue.50" : "transparent"}
-                            borderRadius="xl"
+                            borderRadius="md"
                             p="8"
                             cursor="pointer"
                             _hover={{ borderColor: "blue.400", bg: "blue.50" }}
@@ -109,10 +100,10 @@ const BulkUploadStaffModal = ({ isOpen, onClose, onUploaded }: Props) => {
 
                     {/* Actions */}
                     <Flex p="6" borderTop="xs" borderColor="border.muted" justifyContent="flex-end" gap="3">
-                        <Button variant="subtle" onClick={handleClose} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold">Cancel</Button>
-                        <Flex as="button" onClick={handleUpload} px="5" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#1D7AD9" color="white" cursor={(!file || isUploading) ? "not-allowed" : "pointer"} border="none" _hover={{ bg: (!file || isUploading) ? "#1D7AD9" : "blue.700" }} opacity={(!file || isUploading) ? 0.5 : 1} alignItems="center" gap="2">
-                            {isUploading && <Spinner size="sm" />}
-                            {isUploading ? "Uploading..." : "Upload"}
+                        <Button variant="subtle" onClick={handleClose} px="5" py="2.5" borderRadius="md" fontSize="sm" fontWeight="bold">Cancel</Button>
+                        <Flex as="button" onClick={handleUpload} px="5" py="2.5" borderRadius="md" fontSize="sm" fontWeight="bold" bg="#1D7AD9" color="white" cursor={(!file || uploadMutation.isPending) ? "not-allowed" : "pointer"} border="none" _hover={{ bg: (!file || uploadMutation.isPending) ? "#1D7AD9" : "blue.700" }} opacity={(!file || uploadMutation.isPending) ? 0.5 : 1} alignItems="center" gap="2">
+                            {uploadMutation.isPending && <Spinner size="sm" />}
+                            {uploadMutation.isPending ? "Uploading..." : "Upload"}
                         </Flex>
                     </Flex>
                 </Dialog.Content>

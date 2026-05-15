@@ -113,7 +113,7 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
 
     if (isCreatingRoute || isEditingRoute) {
         return (
-            <Box bg="white" borderRadius="2xl" p="8" border="xs" borderColor="border.muted" boxShadow="sm">
+            <Box bg="white" borderRadius="md" p="8" border="xs" borderColor="border.muted">
                 <Text fontSize="xl" fontWeight="bold" color="fg.muted" mb="8">
                     {isEditingRoute ? "Edit Program" : "Create Program"}
                 </Text>
@@ -121,11 +121,11 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
                     <Flex direction="column" gap="6" flex="1">
                         <Box>
                             <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Program Name</Text>
-                            <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} placeholder="e.g. Computer Science" bg="slate.50" border="xs" borderColor="border.muted" borderRadius="lg" />
+                            <Input value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} placeholder="e.g. Computer Science" bg="slate.50" border="xs" borderColor="border.muted" borderRadius="md" />
                         </Box>
                         <Box>
                             <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Program Code</Text>
-                            <Input value={formData.code} onChange={(e) => setFormData((prev) => ({ ...prev, code: e.target.value }))} placeholder="e.g. CSC" bg="slate.50" border="xs" borderColor="border.muted" borderRadius="lg" />
+                            <Input value={formData.code} onChange={(e) => setFormData((prev) => ({ ...prev, code: e.target.value }))} placeholder="e.g. CSC" bg="slate.50" border="xs" borderColor="border.muted" borderRadius="md" />
                         </Box>
                     </Flex>
                     <Flex direction="column" gap="6" flex="1">
@@ -143,8 +143,8 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
                     </Flex>
                 </Flex>
                 <Flex justifyContent="flex-end" gap="3" mt="8">
-                    <Box as="button" onClick={() => navigate("/program-courses/programs")} px="8" py="2.5" borderRadius="lg" fontSize="sm" border="xs" borderColor="border.muted" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>Cancel</Box>
-                    <Flex as="button" onClick={handleSave} px="8" py="2.5" borderRadius="lg" fontSize="sm" fontWeight="bold" bg="#00B01D" color="white" cursor="pointer" border="none" _hover={{ bg: "green.700" }} opacity={isSaving ? 0.5 : 1}>
+                    <Box as="button" onClick={() => navigate("/program-courses/programs")} px="8" py="2.5" borderRadius="md" fontSize="sm" border="xs" borderColor="border.muted" color="fg.muted" cursor="pointer" _hover={{ bg: "slate.50" }}>Cancel</Box>
+                    <Flex as="button" onClick={handleSave} px="8" py="2.5" borderRadius="md" fontSize="sm" fontWeight="bold" bg="#00B01D" color="white" cursor="pointer" border="none" _hover={{ bg: "green.700" }} opacity={isSaving ? 0.5 : 1}>
                         {isSaving ? "Saving..." : "Create Program"}
                     </Flex>
                 </Flex>
@@ -155,19 +155,19 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
     return (
         <Flex direction="column" gap="8">
             <Flex justifyContent="flex-end" gap="4">
-                <Button onClick={handleExport} bg="white" color="blue.600" px="5" py="2.5" borderRadius="xl" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" _hover={{ bg: "blue.50" }} cursor="pointer">
+                <Button onClick={handleExport} bg="white" color="blue.600" px="5" py="2.5" borderRadius="md" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" _hover={{ bg: "blue.50" }} cursor="pointer">
                     <Download size={18} /> Export
                 </Button>
-                <Button onClick={() => navigate("/program-courses/programs/new")} bg="blue.600" color="white" px="5" py="2.5" borderRadius="xl" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" cursor="pointer">
+                <Button onClick={() => navigate("/program-courses/programs/new")} bg="blue.600" color="white" px="5" py="2.5" borderRadius="md" display="flex" alignItems="center" gap="2" fontSize="sm" fontWeight="bold" cursor="pointer">
                     <Plus size={18} /> Create Program
                 </Button>
             </Flex>
 
-            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted">
+            <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted">
                 <Flex p="6" alignItems="center">
                     <Text fontSize="lg" fontWeight="bold" color="fg.muted">Created Programs ({filtered.length})</Text>
                     <InputGroup startElement={<Search />} ml="auto" width="260px">
-                    <Input placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} maxW="64" bg="white" border="xs" borderColor="border.muted" borderRadius="xl" fontSize="xs" px="4" py="2.5" />
+                    <Input placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} maxW="64" bg="white" border="xs" borderColor="border.muted" borderRadius="md" fontSize="xs" px="4" py="2.5" />
                     </InputGroup>
                 </Flex>
 
@@ -216,10 +216,10 @@ const ProgramsTab = ({ isCreatingRoute, isEditingRoute }: ProgramsTabProps) => {
 
             {/* Floating Action Bar */}
             {selectedIds.length > 0 && (
-                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap="6" zIndex="50">
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="md" boxShadow="none" border="xs" borderColor="border.muted" alignItems="center" gap="6" zIndex="50">
                     <Text fontSize="sm" fontWeight="bold" color="fg.muted">{selectedIds.length} items selected</Text>
                     <Box w="px" h="6" bg="fg.subtle" />
-                    <Button onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
+                    <Button onClick={handleBulkDelete} display="flex" alignItems="center" gap="2" bg="red.500" color="white" px="4" py="2" borderRadius="md" fontSize="xs" fontWeight="bold" _hover={{ bg: "red.600" }} cursor="pointer" border="none">
                         <Trash2 size={16} /> Delete
                     </Button>
                     <Box w="px" h="6" bg="fg.subtle" />

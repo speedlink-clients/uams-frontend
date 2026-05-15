@@ -1,10 +1,29 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Search, Camera, Download, X, Upload, Loader2, IdCard } from "lucide-react";
+import { Search, Camera, Download, X, Upload, IdCard } from "lucide-react";
 import axiosClient from "@configs/axios.config";
 import { IDCardServices } from "@services/idcard.service";
 import { toaster } from "@components/ui/toaster";
 import { exportToExcel } from "@utils/excel.util";
-import { Box, Flex, Text, Button, EmptyState, Table } from "@chakra-ui/react";
+import { 
+    Box, 
+    Flex, 
+    Text, 
+    Button, 
+    EmptyState, 
+    Table, 
+    Input, 
+    InputGroup, 
+    Heading, 
+    Dialog,
+    Spinner,
+    VStack,
+} from "@chakra-ui/react";
+import { 
+    PaginationRoot, 
+    PaginationItems, 
+    PaginationPrevTrigger, 
+    PaginationNextTrigger 
+} from "@components/ui/pagination";
 
 import type { Student, IDCardSettings } from "@type/idCard.type";
 
@@ -152,7 +171,7 @@ const IDCardPage = () => {
             const blob = await response.blob();
             const formData = new FormData();
             formData.append("avatar", blob, `${currentStudent.matric}.jpg`);
-            await axiosClient.put(`/department-admins/students/avatar?studentId=${currentStudent.matric}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+            await axiosClient.put(`/admin/students/avatar?studentId=${currentStudent.matric}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
             return true;
         } catch (err: any) {
             toaster.error({ title: err.response?.data?.message || "Failed to upload photo" });
@@ -188,8 +207,8 @@ const IDCardPage = () => {
                 });
             };
 
-            const frontSrc = idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png";
-            const backSrc = idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png";
+            const frontSrc = idCardSettings?.frontTemplate || "/admin/idcard-front.png";
+            const backSrc = idCardSettings?.backTemplate || "/admin/idcard-back.png";
 
             const [frontTemplate, backTemplate] = await Promise.all([
                 loadImage(frontSrc),
@@ -334,112 +353,134 @@ const IDCardPage = () => {
         toaster.success({ title: "Exporting students table to Excel..." });
     };
 
-    const selectStyle: React.CSSProperties = {
-        padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f1f5f9",
-        borderRadius: "12px", fontSize: "14px", fontWeight: 500, color: "#475569", outline: "none",
-    };
-
     return (
-        <Box maxW="1400px" mx="auto" overflowX="hidden"> {/* Prevent page from scrolling horizontally */}
+        <Box maxW="1400px" mx="auto" px="4">
             {/* Header */}
             <Flex justifyContent="space-between" alignItems="center" mb="8" flexWrap="wrap" gap="4">
                 <Box>
-                    <Text fontSize="2xl" fontWeight="bold" color="fg.muted">Student ID Issuance</Text>
+                    <Heading size="lg" fontWeight="bold" color="fg.muted">Student ID Issuance</Heading>
                     <Text fontSize="sm" color="fg.muted">Capture photos and generate official department ID cards.</Text>
                 </Box>
                 <Flex gap="3" alignItems="center" flexWrap="wrap" w={{ base: "100%", lg: "auto" }}>
                     <Box flex={{ base: "1 1 45%", lg: "none" }}>
-                        <select value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)} className="idcard-filter-input" style={{ ...selectStyle, width: "100%" }}>
+                        <select 
+                            value={levelFilter} 
+                            onChange={(e) => setLevelFilter(e.target.value)}
+                            style={{ 
+                                width: "100%", padding: "10px 16px", border: "1px solid #e2e8f0", 
+                                background: "#f8fafc", borderRadius: "6px", fontSize: "14px", 
+                                fontWeight: 500, color: "#475569", outline: "none"
+                            }}
+                        >
                             <option value="all">All Levels</option>
                             {uniqueLevels.map((l) => <option key={l} value={l}>{l}</option>)}
                         </select>
                     </Box>
                     <Box flex={{ base: "1 1 45%", lg: "none" }}>
-                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)} className="idcard-filter-input" style={{ ...selectStyle, width: "100%" }}>
+                        <select 
+                            value={statusFilter} 
+                            onChange={(e) => setStatusFilter(e.target.value as any)}
+                            style={{ 
+                                width: "100%", padding: "10px 16px", border: "1px solid #e2e8f0", 
+                                background: "#f8fafc", borderRadius: "6px", fontSize: "14px", 
+                                fontWeight: 500, color: "#475569", outline: "none"
+                            }}
+                        >
                             <option value="all">All Status</option>
                             <option value="paid">Paid</option>
                             <option value="unpaid">Unpaid</option>
                         </select>
                     </Box>
-                    <Box flex={{ base: "1 1 100%", lg: "none" }} position="relative" w={{ base: "100%", lg: "320px" }}>
-                        <input
-                            type="text" placeholder="Search by name or matric number..." value={searchQuery}
+                    <InputGroup startElement={<Search size={18} color="#94a3b8" />} w={{ base: "100%", lg: "320px" }}>
+                        <Input
+                            placeholder="Search name or matric..."
+                            value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="idcard-filter-input"
-                            style={{ width: "100%", padding: "10px 16px 10px 40px", border: "1px solid #e2e8f0", background: "white", borderRadius: "12px", fontSize: "14px", outline: "none", color: "#334155" }}
+                            bg="white"
+                            border="xs"
+                            borderColor="border.muted"
+                            borderRadius="md"
+                            fontSize="sm"
+                            px="10"
                         />
-                        <Search size={18} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
-                    </Box>
+                    </InputGroup>
                 </Flex>
             </Flex>
 
             {/* Table Container */}
-            <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm" overflow="hidden">
-                {/* Table Header (Fixed - Not Scrolling) */}
-                <Flex p={{ base: "4", md: "6" }} alignItems="center" justifyContent="space-between" borderBottom="xs" borderColor="border.muted" flexWrap="wrap" gap="4">
+            <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" boxShadow="none" overflow="hidden">
+                <Flex p="6" alignItems="center" justifyContent="space-between" borderBottom="xs" borderColor="border.muted" flexWrap="wrap" gap="4">
                     <Text fontSize="lg" fontWeight="bold" color="fg.muted">Students ({allFiltered.length})</Text>
-                    <Button onClick={handleExportStudents} 
-                        display="flex" alignItems="center" gap="6px" padding="6px 10px" background="white" border="1px solid #e2e8f0" borderRadius="12px" fontSize="12px" fontWeight="600" color="#475569" cursor="pointer" _hover={{ background: "#f8f9faff" }}>
-                        <Download size={12} color="#94a3b8" /> Export Table
+                    <Button 
+                        onClick={handleExportStudents} 
+                        variant="outline"
+                        borderColor="border.muted"
+                        borderRadius="md"
+                        fontSize="xs"
+                        fontWeight="bold"
+                        color="fg.muted"
+                        _hover={{ bg: "slate.50" }}
+                    >
+                        <Download size={14} /> Export Table
                     </Button>
                 </Flex>
 
-                {/* Scrollable Table Area - Only the table scrolls horizontally */}
-                <Box overflowX="auto" overflowY="visible" w="100%">
-                    <Table.Root w="full" textAlign="left" minW="800px">
+                <Box overflowX="auto">
+                    <Table.Root w="full" textAlign="left">
                         <Table.Header bg="slate.50">
-                            <Table.Row>
-                                <Table.ColumnHeader px="6" py="4" w="12" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider"><input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} /></Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Student Name</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Matric No</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Department</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Level</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Status</Table.ColumnHeader>
-                                <Table.ColumnHeader px="6" py="4" textAlign="center" whiteSpace="nowrap" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Action</Table.ColumnHeader>
+                            <Table.Row borderBottom="xs" borderColor="border.muted">
+                                <Table.ColumnHeader px="6" py="4" w="12" textAlign="center" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">
+                                    <input type="checkbox" checked={paginatedStudents.length > 0 && selectedIds.length === paginatedStudents.length} onChange={toggleSelectAll} />
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Student Name</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Matric No</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Department</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Level</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" textAlign="center" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Status</Table.ColumnHeader>
+                                <Table.ColumnHeader px="6" py="4" textAlign="center" fontSize="11px" textTransform="uppercase" fontWeight="bold" color="fg.muted" letterSpacing="wider">Action</Table.ColumnHeader>
                             </Table.Row>
                         </Table.Header>
-                        <Table.Body fontSize="sm">
+                        <Table.Body>
                             {loading ? (
-                                <Table.Row><Table.Cell colSpan={7} py="12" px="6" textAlign="center">
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", color: "#64748b" }}>
-                                        <Loader2 size={20} style={{ animation: "spin 1s linear infinite" }} />
-                                        <span style={{ fontSize: "14px", fontWeight: 500 }}>Fetching students…</span>
-                                    </div>
-                                </Table.Cell></Table.Row>
+                                <Table.Row>
+                                    <Table.Cell colSpan={7} py="12" textAlign="center">
+                                        <Flex direction="column" alignItems="center" gap="3">
+                                            <Spinner size="lg" color="blue.500" />
+                                            <Text color="fg.muted" fontSize="sm">Fetching students...</Text>
+                                        </Flex>
+                                    </Table.Cell>
+                                </Table.Row>
                             ) : paginatedStudents.length === 0 ? (
-                                <Table.Row><Table.Cell colSpan={7} py="12" px="6">
-                                    <EmptyState.Root>
-                                        <EmptyState.Content>
-                                            <EmptyState.Indicator>
-                                                <IdCard />
-                                            </EmptyState.Indicator>
-                                            <EmptyState.Title>
-                                                {statusFilter === "all" ? "No Students Found" : `No ${statusFilter} students found`}
-                                            </EmptyState.Title>
-                                            <EmptyState.Description>
-                                                Try adjusting your search or filter criteria
-                                            </EmptyState.Description>
-                                        </EmptyState.Content>
-                                    </EmptyState.Root>
-                                </Table.Cell></Table.Row>
+                                <Table.Row>
+                                    <Table.Cell colSpan={7} py="12">
+                                        <EmptyState.Root>
+                                            <EmptyState.Content>
+                                                <EmptyState.Indicator>
+                                                    <IdCard />
+                                                </EmptyState.Indicator>
+                                                <EmptyState.Title>
+                                                    {statusFilter === "all" ? "No Students Found" : `No ${statusFilter} students found`}
+                                                </EmptyState.Title>
+                                                <EmptyState.Description>Try adjusting your search or filter criteria</EmptyState.Description>
+                                            </EmptyState.Content>
+                                        </EmptyState.Root>
+                                    </Table.Cell>
+                                </Table.Row>
                             ) : paginatedStudents.map((s) => (
                                 <Table.Row
                                     key={s.id}
                                     _hover={{ bg: "slate.50" }}
                                     borderBottom="xs" borderColor="border.muted" color="fg.muted"
                                     bg={selectedIds.includes(s.id) ? "blue.50" : "transparent"}
-                                    cursor="pointer"
-                                    onClick={() => toggleSelection(s.id)}
-                                    transition="background 0.2s"
                                 >
-                                    <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                    <Table.Cell px="6" py="4" textAlign="center">
                                         <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelection(s.id)} />
                                     </Table.Cell>
-                                    <Table.Cell px="6" py="4" fontWeight="bold" color="fg.muted" whiteSpace="nowrap">{s.name}</Table.Cell>
-                                    <Table.Cell px="6" py="4" color="fg.muted" whiteSpace="nowrap">{s.matric}</Table.Cell>
-                                    <Table.Cell px="6" py="4" color="fg.muted" whiteSpace="nowrap">{s.department}</Table.Cell>
-                                    <Table.Cell px="6" py="4" color="fg.muted" whiteSpace="nowrap">{s.level}</Table.Cell>
-                                    <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap">
+                                    <Table.Cell px="6" py="4" fontWeight="bold" color="fg.muted">{s.name}</Table.Cell>
+                                    <Table.Cell px="6" py="4">{s.matric}</Table.Cell>
+                                    <Table.Cell px="6" py="4">{s.department}</Table.Cell>
+                                    <Table.Cell px="6" py="4">{s.level}</Table.Cell>
+                                    <Table.Cell px="6" py="4" textAlign="center">
                                         <Text as="span" px="3" py="1" borderRadius="full" fontSize="10px" fontWeight="bold"
                                             bg={s.hasPaidIDCardFee ? "green.100" : "red.100"}
                                             color={s.hasPaidIDCardFee ? "green.700" : "red.700"}
@@ -447,207 +488,168 @@ const IDCardPage = () => {
                                             {s.hasPaidIDCardFee ? "FEE PAID" : "UNPAID"}
                                         </Text>
                                     </Table.Cell>
-                                    <Table.Cell px="6" py="4" textAlign="center" whiteSpace="nowrap" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                        <button
-                                            onClick={() => handleIssueCard(s)}
+                                    <Table.Cell px="6" py="4" textAlign="center">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             disabled={!s.hasPaidIDCardFee}
-                                            style={{
-                                                background: "none", border: "none", fontWeight: 700, cursor: s.hasPaidIDCardFee ? "pointer" : "not-allowed",
-                                                color: s.hasPaidIDCardFee ? "#2563eb" : "#cbd5e1", fontSize: "14px",
-                                                textDecoration: "none",
-                                            }}
-                                            onMouseEnter={(e) => { if (s.hasPaidIDCardFee) (e.target as HTMLElement).style.textDecoration = "underline"; }}
-                                            onMouseLeave={(e) => { (e.target as HTMLElement).style.textDecoration = "none"; }}
+                                            color={s.hasPaidIDCardFee ? "blue.600" : "gray.300"}
+                                            fontWeight="bold"
+                                            onClick={() => handleIssueCard(s)}
+                                            _hover={s.hasPaidIDCardFee ? { textDecoration: "underline", bg: "transparent" } : {}}
                                         >
                                             Issue Card
-                                        </button>
+                                        </Button>
                                     </Table.Cell>
                                 </Table.Row>
                             ))}
                         </Table.Body>
                     </Table.Root>
                 </Box>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <Flex alignItems="center" justifyContent="space-between" p="4" bg="white" borderTop="xs" borderColor="border.muted">
+                        <Text fontSize="sm" color="fg.muted">
+                            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, allFiltered.length)} of {allFiltered.length} students
+                        </Text>
+                        <PaginationRoot 
+                            count={allFiltered.length} 
+                            pageSize={ITEMS_PER_PAGE} 
+                            page={currentPage}
+                            onPageChange={(e) => setCurrentPage(e.page)}
+                            variant="outline"
+                            size="sm"
+                        >
+                            <Flex gap="2">
+                                <PaginationPrevTrigger />
+                                <PaginationItems />
+                                <PaginationNextTrigger />
+                            </Flex>
+                        </PaginationRoot>
+                    </Flex>
+                )}
             </Box>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderTop: "1px solid #e5e7eb", background: "white", borderRadius: "0 0 16px 16px" }}>
-                    <div style={{ fontSize: "14px", color: "#64748b" }}>
-                        Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, allFiltered.length)} of {allFiltered.length} students
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <button
-                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
-                            style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "14px", fontWeight: 700, border: "none", cursor: currentPage === 1 ? "not-allowed" : "pointer", background: "#f1f5f9", color: currentPage === 1 ? "#94a3b8" : "#334155" }}
-                        >
-                            Previous
-                        </button>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                let pageNum: number;
-                                if (totalPages <= 5) pageNum = i + 1;
-                                else if (currentPage <= 3) pageNum = i + 1;
-                                else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
-                                else pageNum = currentPage - 2 + i;
-                                return (
-                                    <button key={pageNum} onClick={() => setCurrentPage(pageNum)} style={{
-                                        width: "40px", height: "40px", borderRadius: "8px", fontSize: "14px", fontWeight: 700, border: "none", cursor: "pointer",
-                                        background: currentPage === pageNum ? "#1D7AD9" : "#f1f5f9",
-                                        color: currentPage === pageNum ? "white" : "#334155",
-                                    }}>
-                                        {pageNum}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <button
-                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
-                            style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "14px", fontWeight: 700, border: "none", cursor: currentPage === totalPages ? "not-allowed" : "pointer", background: "#f1f5f9", color: currentPage === totalPages ? "#94a3b8" : "#334155" }}
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* Capture Modal */}
+            <Dialog.Root open={showModal} onOpenChange={(e) => { if (!e.open) { setShowModal(false); stopCamera(); setCapturedPhoto(null); } }}>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                    <Dialog.Content bg="white" borderRadius="md" boxShadow="none" w="full" maxW="2xl" overflow="hidden">
+                        <Flex p="6" borderBottom="xs" borderColor="border.muted" alignItems="center" justifyContent="space-between">
+                            <Heading size="md" fontWeight="bold" color="fg.muted">Capture & Issue: {currentStudent?.name}</Heading>
+                            <Dialog.CloseTrigger asChild>
+                                <Box as="button" onClick={() => { setShowModal(false); stopCamera(); setCapturedPhoto(null); }} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" border="none" bg="transparent" cursor="pointer"><X size={20} /></Box>
+                            </Dialog.CloseTrigger>
+                        </Flex>
 
-            {/* Camera/Generate Modal */}
-            {showModal && currentStudent && (
-                <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
-                    <div style={{ background: "white", borderRadius: "24px", width: "100%", maxWidth: "672px", boxShadow: "0 24px 48px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column", maxHeight: "90vh" }}>
-                        {/* Modal Header */}
-                        <div style={{ padding: "16px 24px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <h3 style={{ fontWeight: 700, color: "#1e293b", fontSize: "16px", margin: 0, wordBreak: "break-word" }}>
-                                Capture & Issue: {currentStudent.name}
-                            </h3>
-                            <button onClick={() => { setShowModal(false); stopCamera(); setCapturedPhoto(null); }} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", borderRadius: "50%", color: "#64748b" }}>
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        {/* Modal Body */}
-                        <div style={{ padding: "24px", overflowY: "auto" }}>
-                            {/* Camera Area */}
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
-                                <div style={{ width: "100%", aspectRatio: "16/9", background: "#0f172a", borderRadius: "16px", overflow: "hidden", position: "relative", border: "4px solid #f1f5f9" }}>
+                        <Box p="6" maxH="70vh" overflowY="auto">
+                            <Flex direction="column" alignItems="center" gap="6">
+                                <Box w="full" bg="#0f172a" borderRadius="md" overflow="hidden" position="relative" border="4px solid" borderColor="slate.50">
                                     {!capturedPhoto ? (
-                                        <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                        <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "300px" }} />
                                     ) : (
-                                        <img src={capturedPhoto} style={{ width: "100%", height: "100%", objectFit: "fill" }} alt="Captured student photo" />
+                                        <img src={capturedPhoto} style={{ width: "100%", height: "100%", objectFit: "contain", minHeight: "300px" }} alt="Captured student" />
                                     )}
-                                </div>
+                                </Box>
 
                                 {!capturedPhoto ? (
-                                    <Flex gap="12px" w="100%" direction={{ base: "column", sm: "row" }}>
-                                        <button onClick={captureImage} style={{ flex: 1, background: "#2563eb", color: "white", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "none", cursor: "pointer", opacity: !cameraActive ? 0.5 : 1 }}>
+                                    <Flex gap="4" w="full">
+                                        <Button onClick={captureImage} flex="1" bg="blue.600" color="white" borderRadius="md" h="12" fontWeight="bold" disabled={!cameraActive}>
                                             <Camera size={18} /> Capture Photo
-                                        </button>
-                                        <label style={{ flex: 1, background: "#f1f5f9", color: "#334155", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: "pointer" }}>
-                                            <Upload size={18} /> Upload Image (≤ 5MB)
+                                        </Button>
+                                        <Button as="label" flex="1" bg="slate.50" color="fg.muted" borderRadius="md" h="12" fontWeight="bold" cursor="pointer">
+                                            <Upload size={18} /> Upload Image
                                             <input type="file" accept="image/*" onChange={handleImageUpload} ref={fileInputRef} style={{ display: "none" }} />
-                                        </label>
+                                        </Button>
                                     </Flex>
                                 ) : (
-                                    <button onClick={() => { setCapturedPhoto(null); startCamera(); }} style={{ width: "100%", background: "#f1f5f9", color: "#475569", padding: "12px", borderRadius: "12px", fontWeight: 700, fontSize: "14px", border: "none", cursor: "pointer" }}>
+                                    <Button onClick={() => { setCapturedPhoto(null); startCamera(); }} w="full" bg="slate.50" color="fg.muted" borderRadius="md" h="12" fontWeight="bold">
                                         Retake Photo
-                                    </button>
+                                    </Button>
                                 )}
-                            </div>
 
-                            {/* ID Preview Section */}
-                            {capturedPhoto && (
-                                <div style={{ marginTop: "32px" }}>
-                                    <h4 style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px" }}>
-                                        ID Card Preview
-                                    </h4>
-                                    <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="16px">
-                                        {/* Front View */}
-                                        <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src={idCardSettings?.frontTemplate || "/departmental-admin/idcard-front.png"} style={{ width: "100%", height: "100%" }} alt="Front template" />
-                                            <img src={capturedPhoto} style={{ position: "absolute", top: "38%", left: "6.5%", width: "23%", height: "43%", objectFit: "cover", border: "1px solid white" }} alt="Student" />
-                                            <div style={{ position: "absolute", left: "32%", top: "42.5%", width: "45%", fontSize: "7px", fontWeight: 700, color: "black", textTransform: "uppercase" }}>
-                                                <div style={{ display: "flex", flexDirection: "column", gap: "8.5px", lineHeight: 1 }}>
-                                                    <div>NAME: {currentStudent.name}</div>
-                                                    <div>MATRIC NO.: {currentStudent.matric}</div>
-                                                    <div>FACULTY: {currentStudent.faculty}</div>
-                                                    <div>DEPT: {currentStudent.department}</div>
-                                                    <div>EXPIRY DATE: {currentStudent.graduationDate}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Back View */}
-                                        <div style={{ position: "relative", aspectRatio: "400/250", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                            <img src={idCardSettings?.backTemplate || "/departmental-admin/idcard-back.png"} style={{ width: "100%", height: "100%" }} alt="Back template" />
-                                            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px", textAlign: "center", padding: "40px 24px 0" }}>
-                                                <p style={{ fontSize: "9px", fontWeight: 700, color: "#0f172a", marginBottom: "8px", lineHeight: 1.2, maxWidth: "95%", margin: "0 0 8px" }}>
-                                                    {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
-                                                </p>
-                                                <p style={{ fontSize: "8px", fontWeight: 700, color: "#0f172a", lineHeight: 1.2, maxWidth: "95%", margin: 0 }}>
-                                                    {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
-                                                </p>
-
-                                                <div style={{ marginTop: "auto", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                                    {idCardSettings?.signature && (
-                                                        <img src={idCardSettings.signature} alt="Signature" style={{ width: "176px", height: "28px", marginBottom: 0, objectFit: "contain" }} />
-                                                    )}
-                                                    <div style={{ width: "160px", height: "1.5px", background: "#0f172a", marginBottom: "4px" }} />
-                                                    <p style={{ fontSize: "7px", fontWeight: 700, color: "#0f172a", margin: 0 }}>Department Admin's Signature</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                {capturedPhoto && (
+                                    <Box w="full" mt="4">
+                                        <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" mb="4">ID Card Preview</Text>
+                                        <Flex direction={{ base: "column", md: "row" }} gap="4">
+                                            {/* Front View */}
+                                            <Box flex="1" position="relative" aspectRatio="400/250" borderRadius="md" border="xs" borderColor="border.muted" overflow="hidden">
+                                                <img src={idCardSettings?.frontTemplate || "/admin/idcard-front.png"} style={{ width: "100%", height: "100%" }} alt="Front" />
+                                                <img src={capturedPhoto} style={{ position: "absolute", top: "38%", left: "6.5%", width: "23%", height: "43%", objectFit: "cover", border: "1px solid white" }} alt="Student" />
+                                                <Box position="absolute" left="32%" top="42.5%" w="45%" fontSize="7px" fontWeight="bold" color="black" textTransform="uppercase">
+                                                    <VStack align="start" gap="2.5" lineHeight="1">
+                                                        <Text>NAME: {currentStudent?.name}</Text>
+                                                        <Text>MATRIC NO.: {currentStudent?.matric}</Text>
+                                                        <Text>FACULTY: {currentStudent?.faculty}</Text>
+                                                        <Text>DEPT: {currentStudent?.department}</Text>
+                                                        <Text>EXPIRY DATE: {currentStudent?.graduationDate}</Text>
+                                                    </VStack>
+                                                </Box>
+                                            </Box>
+                                            {/* Back View */}
+                                            <Box flex="1" position="relative" aspectRatio="400/250" borderRadius="md" border="xs" borderColor="border.muted" overflow="hidden">
+                                                <img src={idCardSettings?.backTemplate || "/admin/idcard-back.png"} style={{ width: "100%", height: "100%" }} alt="Back" />
+                                                <Box position="absolute" inset="0" p="6" pt="10" display="flex" flexDirection="column" alignItems="center" textAlign="center">
+                                                    <Text fontSize="9px" fontWeight="bold" color="slate.900" mb="2" lineHeight="1.2">
+                                                        {idCardSettings?.backDescription || "The holder whose name and photograph appear on this I.D. Card is a bonafide student of the University of Port Harcourt"}
+                                                    </Text>
+                                                    <Text fontSize="8px" fontWeight="bold" color="slate.900" lineHeight="1.2">
+                                                        {idCardSettings?.backDisclaimer || "If found please return to the office of the Chief Security Officer University of Port Harcourt"}
+                                                    </Text>
+                                                    <Box mt="auto" mb="6" display="flex" flexDirection="column" alignItems="center">
+                                                        {idCardSettings?.signature && (
+                                                            <img src={idCardSettings.signature} alt="Signature" style={{ width: "176px", height: "28px", objectFit: "contain" }} />
+                                                        )}
+                                                        <Box w="160px" h="1.5px" bg="slate.900" mb="1" />
+                                                        <Text fontSize="7px" fontWeight="bold" color="slate.900">Department Admin's Signature</Text>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                        </Flex>
                                     </Box>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Modal Footer */}
-                        <div style={{ padding: "24px", background: "#f8fafc", borderTop: "1px solid #e2e8f0", display: "flex", gap: "16px" }}>
-                            <button
-                                onClick={generateIDCardPDF}
-                                disabled={!capturedPhoto || uploadingPhoto || generatingPDF}
-                                style={{
-                                    flex: 1, background: "#16a34a", color: "white", padding: "14px", borderRadius: "12px", fontWeight: 700, fontSize: "14px",
-                                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                                    border: "none", cursor: (!capturedPhoto || uploadingPhoto || generatingPDF) ? "not-allowed" : "pointer",
-                                    opacity: (!capturedPhoto || uploadingPhoto || generatingPDF) ? 0.5 : 1,
-                                    boxShadow: "0 4px 12px rgba(22,163,74,0.2)",
-                                }}
-                            >
-                                {generatingPDF ? (
-                                    <><Loader2 size={20} style={{ animation: "spin 1s linear infinite" }} /> Generating PDF...</>
-                                ) : uploadingPhoto ? (
-                                    <><Loader2 size={20} style={{ animation: "spin 1s linear infinite" }} /> Uploading...</>
-                                ) : (
-                                    <><Download size={20} /> Generate ID Card PDF</>
                                 )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                            </Flex>
+                        </Box>
+
+                        <Box p="6" bg="slate.50" borderTop="xs" borderColor="border.muted">
+                            <Button 
+                                onClick={generateIDCardPDF} 
+                                w="full" 
+                                bg="green.600" 
+                                color="white" 
+                                h="14" 
+                                borderRadius="md" 
+                                fontWeight="bold" 
+                                loading={generatingPDF || uploadingPhoto}
+                                loadingText={uploadingPhoto ? "Uploading Photo..." : "Generating PDF..."}
+                                disabled={!capturedPhoto}
+                            >
+                                <Download size={20} /> Generate ID Card PDF
+                            </Button>
+                        </Box>
+                    </Dialog.Content>
+                </Dialog.Positioner>
+            </Dialog.Root>
 
             {/* Floating Action Bar */}
             {selectedIds.length > 1 && (
-                <Flex position="fixed" bottom={{ base: "4", md: "8" }} left="50%" transform="translateX(-50%)" bg="white" px={{ base: "4", md: "6" }} py={{ base: "3", md: "3" }} borderRadius="xl" boxShadow="2xl" border="xs" borderColor="border.muted" alignItems="center" gap={{ base: "3", md: "6" }} zIndex="50" w={{ base: "calc(100% - 32px)", md: "auto" }} flexWrap={{ base: "wrap", md: "nowrap" }} justifyContent="center">
-                    <Text fontSize="sm" fontWeight="bold" color="fg.muted" whiteSpace="nowrap">{selectedIds.length} items</Text>
-                    <Box w="px" h="6" bg="fg.subtle" display={{ base: "none", md: "block" }} />
-                    <Box as="button" onClick={handleBulkDownloadBanner} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
-                        <Download size={16} /> <Text as="span" display={{ base: "none", sm: "inline" }}>Bulk Download Banner</Text><Text as="span" display={{ base: "inline", sm: "none" }}>Banners</Text>
-                    </Box>
-                    <Box as="button" onClick={handleBulkDownloadIDCards} display="flex" alignItems="center" justifyContent="center" gap="2" bg="#1D7AD9" color="white" px="4" py="2" borderRadius="lg" fontSize="xs" fontWeight="bold" cursor="pointer" _hover={{ bg: "blue.700" }} border="none" flex={{ base: "1", md: "none" }}>
-                        <Download size={16} /> <Text as="span" display={{ base: "none", sm: "inline" }}>Bulk Download ID-Cards</Text><Text as="span" display={{ base: "inline", sm: "none" }}>IDs</Text>
-                    </Box>
+                <Flex position="fixed" bottom="8" left="50%" transform="translateX(-50%)" bg="white" px="6" py="3" borderRadius="md" boxShadow="none" border="xs" borderColor="border.muted" alignItems="center" gap="6" zIndex="50">
+                    <Text fontSize="sm" fontWeight="bold" color="fg.muted">{selectedIds.length} items</Text>
+                    <Box w="px" h="6" bg="fg.subtle" />
+                    <Button onClick={handleBulkDownloadBanner} bg="#1D7AD9" color="white" px="4" py="2" borderRadius="md" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }}>
+                        <Download size={16} /> Bulk Download Banner
+                    </Button>
+                    <Button onClick={handleBulkDownloadIDCards} bg="#1D7AD9" color="white" px="4" py="2" borderRadius="md" fontSize="xs" fontWeight="bold" _hover={{ bg: "blue.700" }}>
+                        <Download size={16} /> Bulk Download ID-Cards
+                    </Button>
+                    <Box w="px" h="6" bg="fg.subtle" />
+                    <Box as="button" onClick={() => setSelectedIds([])} p="1" _hover={{ bg: "fg.subtle" }} borderRadius="full" border="none" bg="transparent" cursor="pointer"><X size={20} /></Box>
                 </Flex>
             )}
 
             {/* Hidden Canvas */}
             <canvas ref={canvasRef} style={{ display: "none" }} width={640} height={480} />
-            <style>{`
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                .idcard-filter-input:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important; border-color: #93c5fd !important; }
-            `}</style>
         </Box>
     );
 };

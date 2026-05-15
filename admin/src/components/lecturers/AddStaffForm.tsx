@@ -1,6 +1,21 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { X } from "lucide-react";
-import { Box, Flex, Text, Spinner, Select, Portal, createListCollection, Button, Dialog, Input } from "@chakra-ui/react";
+import { 
+    Box, 
+    Flex, 
+    Text, 
+    Spinner, 
+    Select, 
+    Portal, 
+    createListCollection, 
+    Button, 
+    Dialog, 
+    Input, 
+    Field 
+} from "@chakra-ui/react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { StaffSchema, type StaffFormData } from "@schemas/staff.schema";
 import useAuthStore from "@stores/auth.store";
 import { PasswordInput } from "@components/ui/password-input";
 
@@ -24,7 +39,6 @@ const capitalizeWords = (str: string) => {
 // Create collections for Select.Root
 const sexCollection = createListCollection({
     items: [
-        { label: "Select", value: "" },
         { label: "Male", value: "MALE" },
         { label: "Female", value: "FEMALE" },
     ],
@@ -32,7 +46,6 @@ const sexCollection = createListCollection({
 
 const roleCollection = createListCollection({
     items: [
-        { label: "Select", value: "" },
         { label: "LECTURER", value: "LECTURER" },
         { label: "ERO", value: "ERO" },
         { label: "HOD", value: "HOD" },
@@ -48,79 +61,88 @@ const categoryOptions = [
 ];
 
 const categoryCollection = createListCollection({
-    items: [
-        { label: "Select Category", value: "" },
-        ...categoryOptions.map(opt => ({ label: capitalizeWords(opt), value: opt })),
-    ],
+    items: categoryOptions.map(opt => ({ label: capitalizeWords(opt), value: opt })),
 });
 
 const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
-    const { departmentId: authDepartmentId } = useAuthStore();
-    const [formData, setFormData] = useState({
-        staffId: "",
-        title: "",
-        firstName: "",
-        otherName: "",
-        sex: "",
-        highestDegree: "",
-        phoneNumber: "",
-        email: "",
-        password: "",
-        role: "",
-        category: "",
+    const { departmentId: authDepartmentId, user } = useAuthStore();
+    
+    const {
+        register,
+        handleSubmit,
+        control,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<StaffFormData>({
+        resolver: zodResolver(StaffSchema) as any,
+        defaultValues: {
+            staffNumber: "",
+            title: "",
+            firstName: "",
+            surname: "",
+            otherName: "",
+            gender: "",
+            highestDegree: "",
+            phone: "",
+            email: "",
+            password: "",
+            staffRoles: [],
+            category: "",
+            faculty: "",
+            department: "",
+        }
     });
-    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (initialData) {
-            setFormData({
-                staffId: initialData.staffId || initialData.staffNumber || "",
+            reset({
+                staffNumber: initialData.staffNumber || initialData.staffId || "",
                 title: initialData.title || "",
-                firstName: initialData.firstname || initialData.firstName || initialData.fullName?.split(" ")[0] || "",
-                otherName: initialData.othername || initialData.otherName || initialData.fullName?.split(" ").slice(1).join(" ") || "",
-                sex: initialData.sex || "",
-                highestDegree: initialData.highestDegree || initialData.level || "",
-                phoneNumber: initialData.phoneNumber || initialData.phone || "",
+                firstName: initialData.firstName || initialData.firstname || "",
+                surname: initialData.surname || "",
+                otherName: initialData.otherName || initialData.othername || "",
+                gender: initialData.gender || initialData.sex || "",
+                highestDegree: initialData.highestDegree || "",
+                phone: initialData.phone || initialData.phoneNumber || "",
                 email: initialData.email || "",
                 password: "",
-                role: initialData.role || "",
+                staffRoles: initialData.staffRoles || [],
                 category: initialData.category || "",
+                faculty: initialData.faculty || (user as any)?.staffProfile?.faculty || "",
+                department: initialData.department || (user as any)?.staffProfile?.department || "",
             });
         } else {
-            setFormData({
-                staffId: "", title: "", firstName: "", otherName: "", sex: "",
-                highestDegree: "", phoneNumber: "", email: "", password: "", role: "", category: "",
+            reset({
+                staffNumber: "",
+                title: "",
+                firstName: "",
+                surname: "",
+                otherName: "",
+                gender: "",
+                highestDegree: "",
+                phone: "",
+                email: "",
+                password: "",
+                staffRoles: [],
+                category: "",
+                faculty: (user as any)?.staffProfile?.faculty || "",
+                department: (user as any)?.staffProfile?.department || "",
             });
         }
-    }, [initialData, isOpen]);
+    }, [initialData, reset, isOpen, user]);
 
-    const handleSubmit = async () => {
-        if (!authDepartmentId && !initialData) {
-            alert("Unable to determine department. Please contact support.");
-            return;
-        }
-
-        setIsLoading(true);
+    const onFormSubmit = async (data: StaffFormData) => {
         const payload = {
-            staffId: formData.staffId,
-            title: formData.title,
-            firstname: formData.firstName,
-            othername: formData.otherName,
-            sex: formData.sex.toUpperCase(),
-            highestDegree: formData.highestDegree,
-            phoneNumber: formData.phoneNumber,
-            email: formData.email,
-            role: formData.role,
-            category: formData.category,
+            ...data,
+            type: "STAFF",
             departmentId: authDepartmentId,
-            ...(formData.password ? { password: formData.password } : (!initialData ? { password: formData.phoneNumber } : {})),
+            ...(data.password ? {} : (!initialData ? { password: data.phone } : {})),
         };
         try {
             await onSubmit(payload);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsLoading(false);
+            onClose();
+        } catch (error) {
+            console.error("Error submitting form:", error);
         }
     };
 
@@ -128,7 +150,7 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
         <Dialog.Root open={isOpen} onOpenChange={(e) => { if (!e.open) onClose() }}>
             <Dialog.Backdrop />
             <Dialog.Positioner>
-                <Dialog.Content bg="white" borderRadius="2xl" maxW="4xl" p="8">
+                <Dialog.Content bg="white" borderRadius="md" maxW="4xl" p="8">
                     <Flex justifyContent="space-between" alignItems="center" mb="8">
                         <Text fontSize="2xl" fontWeight="bold" color="#1D7AD9">
                             {initialData ? "Edit Lecturer" : "Add Lecturer"}
@@ -140,158 +162,188 @@ const AddStaffForm = ({ isOpen, onClose, onSubmit, initialData }: Props) => {
                         </Dialog.CloseTrigger>
                     </Flex>
 
-                    <Flex direction={{ base: "column", md: "row" }} gap="8" flexWrap="wrap">
-                        {/* Staff ID */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Staff ID</Text>
-                            <Input value={formData.staffId} onChange={(e) => setFormData({ ...formData, staffId: e.target.value })} readOnly={!!initialData} bg={initialData ? "slate.50" : "white"} color={initialData ? "fg.muted" : "inherit"} />
-                        </Box>
+                    <form onSubmit={handleSubmit(onFormSubmit as any)}>
+                        <Flex direction={{ base: "column", md: "row" }} gap="8" flexWrap="wrap">
+                            <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.staffNumber}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Staff ID</Field.Label>
+                                <Input size="xl" {...register("staffNumber")} readOnly={!!initialData} bg={initialData ? "slate.50" : "white"} color={initialData ? "fg.muted" : "inherit"} border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.staffNumber?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Title */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Title</Text>
-                            <Input placeholder="E.g Dr, Mr etc" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} bg="white" />
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.title}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Title</Field.Label>
+                                <Input size="xl" placeholder="E.g Dr, Mr etc" {...register("title")} bg="white" border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.title?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* First Name */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">First Name</Text>
-                            <Input value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} bg="white" />
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(33.33% - 16px)" }} invalid={!!errors.firstName}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">First Name</Field.Label>
+                                <Input size="xl" {...register("firstName")} bg="white" border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.firstName?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Other Name */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Other Name</Text>
-                            <Input value={formData.otherName} onChange={(e) => setFormData({ ...formData, otherName: e.target.value })} bg="white" />
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(33.33% - 16px)" }} invalid={!!errors.surname}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Surname</Field.Label>
+                                <Input size="xl" {...register("surname")} bg="white" border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.surname?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Sex - Select.Root */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Sex</Text>
-                            <Select.Root
-                                collection={sexCollection}
-                                value={formData.sex ? [formData.sex] : []}
-                                onValueChange={(e) => setFormData({ ...formData, sex: e.value[0] })}
-                            >
-                                <Select.HiddenSelect />
-                                <Select.Control>
-                                    <Select.Trigger>
-                                        <Select.ValueText placeholder="Select" />
-                                    </Select.Trigger>
-                                    <Select.IndicatorGroup>
-                                        <Select.Indicator />
-                                    </Select.IndicatorGroup>
-                                </Select.Control>
-                                <Portal>
-                                    <Select.Positioner>
-                                        <Select.Content>
-                                            {sexCollection.items.map((item) => (
-                                                <Select.Item key={item.value} item={item}>
-                                                    {item.label}
-                                                </Select.Item>
-                                            ))}
-                                        </Select.Content>
-                                    </Select.Positioner>
-                                </Portal>
-                            </Select.Root>
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(33.33% - 16px)" }} invalid={!!errors.otherName}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Other Name</Field.Label>
+                                <Input size="xl" {...register("otherName")} bg="white" border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.otherName?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Highest Degree */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Highest Degree</Text>
-                            <Input placeholder="PhD" value={formData.highestDegree} onChange={(e) => setFormData({ ...formData, highestDegree: e.target.value })} bg="white" />
-                        </Box>
+                            <Controller
+                                name="gender"
+                                control={control}
+                                render={({ field }) => (
+                                    <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.gender}>
+                                        <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Sex</Field.Label>
+                                        <Select.Root
+                                            collection={sexCollection}
+                                            value={field.value ? [field.value] : []}
+                                            onValueChange={(e) => field.onChange(e.value[0])}
+                                            size="lg"
+                                        >
+                                            <Select.HiddenSelect />
+                                            <Select.Control>
+                                                <Select.Trigger bg="white" border="xs" borderColor="border.muted">
+                                                    <Select.ValueText placeholder="Select" color="fg.muted" />
+                                                </Select.Trigger>
+                                                <Select.IndicatorGroup>
+                                                    <Select.Indicator />
+                                                </Select.IndicatorGroup>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content>
+                                                        {sexCollection.items.map((item) => (
+                                                            <Select.Item key={item.value} item={item}>
+                                                                {item.label}
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                        </Select.Root>
+                                        <Field.ErrorText>{errors.gender?.message}</Field.ErrorText>
+                                    </Field.Root>
+                                )}
+                            />
 
-                        {/* Phone Number */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Phone Number</Text>
-                            <Input placeholder="Enter Phone Number" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} bg="white" />
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.highestDegree}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Highest Degree</Field.Label>
+                                <Input size="xl" placeholder="PhD" {...register("highestDegree")} bg="white" border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.highestDegree?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Email */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Email</Text>
-                            <Input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} bg="white" />
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.phone}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Phone Number</Field.Label>
+                                <Input size="xl" placeholder="Enter Phone Number" {...register("phone")} bg="white" border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.phone?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Password */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Password</Text>
-                            <PasswordInput placeholder="Use Phone Number as Default Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} bg="white" />
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.email}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Email</Field.Label>
+                                <Input size="xl" type="email" {...register("email")} bg="white" border="xs" borderColor="border.muted" />
+                                <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Role */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Role</Text>
-                            <Select.Root
-                                collection={roleCollection}
-                                value={formData.role ? [formData.role] : []}
-                                onValueChange={(e) => setFormData({ ...formData, role: e.value[0] })}
-                            >
-                                <Select.HiddenSelect />
-                                <Select.Control>
-                                    <Select.Trigger>
-                                        <Select.ValueText placeholder="Select Role" />
-                                    </Select.Trigger>
-                                    <Select.IndicatorGroup>
-                                        <Select.Indicator />
-                                    </Select.IndicatorGroup>
-                                </Select.Control>
-                                <Portal>
-                                    <Select.Positioner>
-                                        <Select.Content>
-                                            {roleCollection.items.map((item) => (
-                                                <Select.Item key={item.value} item={item}>
-                                                    {item.label}
-                                                </Select.Item>
-                                            ))}
-                                        </Select.Content>
-                                    </Select.Positioner>
-                                </Portal>
-                            </Select.Root>
-                        </Box>
+                            <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.password}>
+                                <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Password</Field.Label>
+                                <PasswordInput size="xl" placeholder="Use Phone Number as Default Password" {...register("password")} bg="white" />
+                                <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+                            </Field.Root>
 
-                        {/* Category */}
-                        <Box w={{ base: "full", md: "calc(50% - 16px)" }}>
-                            <Text fontSize="sm" fontWeight="medium" color="fg.muted" mb="2">Category</Text>
-                            <Select.Root
-                                collection={categoryCollection}
-                                value={formData.category ? [formData.category] : []}
-                                onValueChange={(e) => setFormData({ ...formData, category: e.value[0] })}
-                            >
-                                <Select.HiddenSelect />
-                                <Select.Control>
-                                    <Select.Trigger>
-                                        <Select.ValueText placeholder="Select Category" />
-                                    </Select.Trigger>
-                                    <Select.IndicatorGroup>
-                                        <Select.Indicator />
-                                    </Select.IndicatorGroup>
-                                </Select.Control>
-                                <Portal>
-                                    <Select.Positioner>
-                                        <Select.Content>
-                                            {categoryCollection.items.map((item) => (
-                                                <Select.Item key={item.value} item={item}>
-                                                    {item.label}
-                                                </Select.Item>
-                                            ))}
-                                        </Select.Content>
-                                    </Select.Positioner>
-                                </Portal>
-                            </Select.Root>
-                        </Box>
-                    </Flex>
+                            <Controller
+                                name="staffRoles"
+                                control={control}
+                                render={({ field }) => (
+                                    <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.staffRoles}>
+                                        <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Role</Field.Label>
+                                        <Select.Root
+                                            multiple
+                                            collection={roleCollection}
+                                            value={field.value}
+                                            onValueChange={(e) => field.onChange(e.value)}
+                                            size="lg"
+                                        >
+                                            <Select.HiddenSelect />
+                                            <Select.Control>
+                                                <Select.Trigger bg="white" border="xs" borderColor="border.muted">
+                                                    <Select.ValueText placeholder="Select Roles" color="fg.muted" />
+                                                </Select.Trigger>
+                                                <Select.IndicatorGroup>
+                                                    <Select.Indicator />
+                                                </Select.IndicatorGroup>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content>
+                                                        {roleCollection.items.map((item) => (
+                                                            <Select.Item key={item.value} item={item}>
+                                                                {item.label}
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                        </Select.Root>
+                                        <Field.ErrorText>{errors.staffRoles?.message}</Field.ErrorText>
+                                    </Field.Root>
+                                )}
+                            />
 
-                    <Flex justifyContent="flex-end" gap="3" mt="8" pt="6">
-                        <Button onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="fg.muted" bg="white" border="xs" borderColor="border.muted" borderRadius="lg" cursor="pointer" _hover={{ bg: "slate.50" }}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSubmit} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="lg" cursor={isLoading ? "not-allowed" : "pointer"} opacity={isLoading ? 0.7 : 1} alignItems="center" gap="2">
-                            {isLoading && <Spinner size="sm" />}
-                            {initialData ? "Save Changes" : "Add Lecturer"}
-                        </Button>
-                    </Flex>
+                            <Controller
+                                name="category"
+                                control={control}
+                                render={({ field }) => (
+                                    <Field.Root w={{ base: "full", md: "calc(50% - 16px)" }} invalid={!!errors.category}>
+                                        <Field.Label fontSize="sm" fontWeight="medium" color="fg.muted">Category</Field.Label>
+                                        <Select.Root
+                                            collection={categoryCollection}
+                                            value={field.value ? [field.value] : []}
+                                            onValueChange={(e) => field.onChange(e.value[0])}
+                                            size="lg"
+                                        >
+                                            <Select.HiddenSelect />
+                                            <Select.Control>
+                                                <Select.Trigger bg="white" border="xs" borderColor="border.muted">
+                                                    <Select.ValueText placeholder="Select Category" color="fg.muted" />
+                                                </Select.Trigger>
+                                                <Select.IndicatorGroup>
+                                                    <Select.Indicator />
+                                                </Select.IndicatorGroup>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content>
+                                                        {categoryCollection.items.map((item) => (
+                                                            <Select.Item key={item.value} item={item}>
+                                                                {item.label}
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                        </Select.Root>
+                                        <Field.ErrorText>{errors.category?.message}</Field.ErrorText>
+                                    </Field.Root>
+                                )}
+                            />
+                        </Flex>
+
+                        <Flex justifyContent="flex-end" gap="3" mt="8" pt="6">
+                            <Button type="button" onClick={onClose} px="8" py="2.5" fontSize="sm" fontWeight="bold" color="fg.muted" bg="white" border="xs" borderColor="border.muted" borderRadius="md" cursor="pointer" _hover={{ bg: "slate.50" }}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" px="8" py="2.5" fontSize="sm" fontWeight="bold" color="white" bg="#1D7AD9" borderRadius="md" cursor={isSubmitting ? "not-allowed" : "pointer"} opacity={isSubmitting ? 0.7 : 1} alignItems="center" gap="2">
+                                {isSubmitting && <Spinner size="sm" />}
+                                {initialData ? "Save Changes" : "Add Lecturer"}
+                            </Button>
+                        </Flex>
+                    </form>
                 </Dialog.Content>
             </Dialog.Positioner>
         </Dialog.Root>

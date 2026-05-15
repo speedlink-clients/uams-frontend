@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Box, Flex, Text, Heading } from "@chakra-ui/react";
+import { Box, Flex, Text, Heading, EmptyState, VStack, Center } from "@chakra-ui/react";
+import { LuBookOpen } from "react-icons/lu";
 import { ProjectHook } from "@hooks/project.hook";
 import ProjectsTable from "@components/shared/ProjectsTable";
 import type { ProjectTopic, Student } from "@type/project.type";
@@ -41,16 +42,43 @@ const Projects = () => {
         <Box>
             {/* Header + Filters */}
             <Flex align="center" justify="space-between" mb="5">
-                <Heading size="lg" fontWeight="600" color="#000000" fontSize="24px">
+                <Heading color="fg.muted" mb="5">
                     Projects{" "}
-                    <Text as="span" fontWeight="400" color="gray.400" fontSize="lg">
+                    <Text as="span" color="fg.subtle">
                         ({totalCount})
                     </Text>
                 </Heading>
             </Flex>
 
-            {/* Projects Table */}
-            <ProjectsTable studentProjects={studentProjects} isLoading={isLoading} />
+            {/* Projects Table or Empty State */}
+            {!isLoading && studentProjects.length === 0 ? (
+                <Box
+                    bg="white"
+                    rounded="md"
+                    border="1px solid"
+                    borderColor="border.muted"
+                    p="5"
+                    textAlign="center"
+                >
+                    <EmptyState.Root>
+                        <EmptyState.Content>
+                            <EmptyState.Indicator>
+                                <LuBookOpen />
+                            </EmptyState.Indicator>
+                            <VStack textAlign="center">
+                                <EmptyState.Title>No projects found</EmptyState.Title>
+                                <EmptyState.Description>
+                                    {response?.data?.length === 0
+                                        ? "No projects have been created yet."
+                                        : "Try again later."}
+                                </EmptyState.Description>
+                            </VStack>
+                        </EmptyState.Content>
+                    </EmptyState.Root>
+                </Box>
+            ) : (
+                <ProjectsTable studentProjects={studentProjects} isLoading={isLoading} />
+            )}
 
             <Toaster />
         </Box>

@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { CourseServices } from "@services/course.service";
-// import { toaster } from "@components/ui/toaster";
 import Select from "react-select";
-import { Box, Flex, Text, Spinner, Button, Input } from "@chakra-ui/react";
+import { Box, Flex, Text, Button, Input, Dialog } from "@chakra-ui/react";
 
 interface Props {
     isOpen: boolean;
@@ -63,77 +62,78 @@ const AssignCourseModal = ({ isOpen, onClose, onAssign, staffName }: Props) => {
         }
     };
 
-    if (!isOpen) return null;
-
-
     return (
-        <Flex position="fixed" top="0" left="0" right="0" bottom="0" bg="blackAlpha.600" zIndex="9999" alignItems="center" justifyContent="center" p="4" backdropFilter="blur(4px)">
-            <Box bg="white" borderRadius="2xl" shadow="2xl" w="full" maxW="lg" overflow="hidden">
-                {/* Header */}
-                <Flex p="6" borderBottom="xs" borderColor="border.muted" alignItems="center" justifyContent="space-between">
-                    <Text fontSize="xl" fontWeight="bold" color="#1D7AD9">Assign Course To Lecturer</Text>
-                    <Button onClick={onClose} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" color="fg.subtle" cursor="pointer" bg="transparent">
-                        <X size={20} />
-                    </Button>
-                </Flex>
-
-                {/* Body */}
-                <Box p="6">
-                    <Flex direction="column" gap="6">
-                        {staffName && (
-                            <Text fontSize="sm" color="fg.muted">Assigning course to <Text as="span" fontWeight="bold" color="fg.muted">{staffName}</Text></Text>
-                        )}
-
-                        <Box>
-                            <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="2">Name of course</Text>
-                            <Select
-                                options={courseOptions}
-                                value={courseOptions.find((c) => c.value === courseId)}
-                                onChange={(selected) => setCourseId(selected?.value || "")}
-                                isLoading={isLoadingCourses}
-                                placeholder="Select a course..."
-                                styles={{
-                                    control: (base) => ({
-                                    ...base,
-                                    backgroundColor: "#F8FAFC",
-                                    borderColor: "#E2E8F0",
-                                    borderRadius: "8px",
-                                    minHeight: "40px",
-                                    boxShadow: "none",
-                                    "&:hover": { borderColor: "#CBD5E1" },
-                                    }),
-                                }}
-                            />
-                        </Box>
-
-                        <Box>
-                            <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="2">Academic Session</Text>
-                            <Input
-                                value={session}
-                                onChange={(e) => setSession(e.target.value)}
-                                placeholder="e.g. 2025/2026"
-                                bg="#F8FAFC"
-                                borderColor="#E2E8F0"
-                                borderRadius="8px"
-                                minHeight="40px"
-                                fontSize="sm"
-                            />
-                        </Box>
+        <Dialog.Root open={isOpen} onOpenChange={(e) => { if (!e.open) onClose() }}>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+                <Dialog.Content bg="white" borderRadius="md" boxShadow="none" w="full" maxW="lg" overflow="hidden">
+                    {/* Header */}
+                    <Flex p="6" borderBottom="xs" borderColor="border.muted" alignItems="center" justifyContent="space-between">
+                        <Text fontSize="xl" fontWeight="bold" color="#1D7AD9">Assign Course To Lecturer</Text>
+                        <Dialog.CloseTrigger asChild>
+                            <Box as="button" onClick={onClose} p="2" _hover={{ bg: "slate.50" }} borderRadius="full" color="fg.subtle" cursor="pointer" bg="transparent" border="none">
+                                <X size={20} />
+                            </Box>
+                        </Dialog.CloseTrigger>
                     </Flex>
-                </Box>
 
-                {/* Footer */}
-                <Flex p="6" borderTop="xs" borderColor="border.muted" justifyContent="flex-end" gap="3">
-                    <Button onClick={onClose} px="6" py="2.5" borderRadius="lg" border="xs" borderColor="border.muted" color="fg.muted" fontWeight="bold" fontSize="sm" cursor="pointer" _hover={{ bg: "slate.50" }}>
-                        Cancel
-                    </Button>
-                    <Button onClick={handleSubmit} px="6" py="2.5" borderRadius="lg" bg="#1D7AD9" color="white" fontWeight="bold" fontSize="sm" cursor={(!courseId || isSubmitting) ? "not-allowed" : "pointer"} _hover={{ bg: "blue.600" }} boxShadow="lg" opacity={(!courseId || isSubmitting) ? 0.5 : 1} alignItems="center" gap="2">
-                        {isSubmitting && <Spinner size="sm" />}
-                        Assign Course
-                    </Button>
-                </Flex>
-            </Box>
-        </Flex>
+                    {/* Body */}
+                    <Box p="6">
+                        <Flex direction="column" gap="6">
+                            {staffName && (
+                                <Text fontSize="sm" color="fg.muted">Assigning course to <Text as="span" fontWeight="bold" color="fg.muted">{staffName}</Text></Text>
+                            )}
+
+                            <Box>
+                                <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="2">Name of course</Text>
+                                <Select
+                                    options={courseOptions}
+                                    value={courseOptions.find((c) => c.value === courseId)}
+                                    onChange={(selected) => setCourseId(selected?.value || "")}
+                                    isLoading={isLoadingCourses}
+                                    placeholder="Select a course..."
+                                    styles={{
+                                        control: (base) => ({
+                                        ...base,
+                                        backgroundColor: "#F8FAFC",
+                                        borderColor: "#E2E8F0",
+                                        borderRadius: "6px",
+                                        minHeight: "40px",
+                                        boxShadow: "none",
+                                        "&:hover": { borderColor: "#CBD5E1" },
+                                        }),
+                                    }}
+                                />
+                            </Box>
+
+                            <Box>
+                                <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="2">Academic Session</Text>
+                                <Input
+                                    value={session}
+                                    onChange={(e) => setSession(e.target.value)}
+                                    placeholder="e.g. 2025/2026"
+                                    bg="#F8FAFC"
+                                    borderColor="#E2E8F0"
+                                    borderRadius="md"
+                                    minHeight="40px"
+                                    fontSize="sm"
+                                />
+                            </Box>
+                        </Flex>
+                    </Box>
+
+                    {/* Footer */}
+                    <Flex p="6" borderTop="xs" borderColor="border.muted" justifyContent="flex-end" gap="3">
+                        <Button onClick={onClose} variant="outline" borderColor="border.muted" color="fg.muted" borderRadius="md">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSubmit} bg="#1D7AD9" color="white" borderRadius="md" loading={isSubmitting} disabled={!courseId}>
+                            Assign Course
+                        </Button>
+                    </Flex>
+                </Dialog.Content>
+            </Dialog.Positioner>
+        </Dialog.Root>
     );
 };
 
