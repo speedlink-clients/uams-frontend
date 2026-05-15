@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Flex, Text, Grid, Spinner, Input } from "@chakra-ui/react";
+import { Box, Flex, Text, Grid, Button, Field, Stack } from "@chakra-ui/react";
 import { PasswordInput } from "@components/ui/password-input";
 import { User, Lock, CheckCircle } from "lucide-react";
 import useAuthStore from "@stores/auth.store";
@@ -72,98 +72,77 @@ const ProfilePage = () => {
 
             <Flex direction={{ base: "column", xl: "row" }} gap="6" alignItems="flex-start">
                 {/* Account Details Card */}
-                <Box flex="5" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p="8">
+                <Box flex="5" bg="white" borderRadius="md" border="xs" borderColor="border.muted" p="8">
                             <Flex alignItems="center" gap="2" mb="6">
                                 <User size={20} color="#1D7AD9" />
                                 <Text fontSize="lg" fontWeight="bold" color="fg.muted">Account Details</Text>
                             </Flex>
 
                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="5">
-                                <ReadOnlyField label="First Name" value={user?.firstName + " " + user?.middleNames || "—"} />
-                                <ReadOnlyField label="Last Name" value={user?.lastName || "—"} />
+                                <ReadOnlyField label="Title" value={(user as any)?.staffProfile?.title || "—"} />
+                                <ReadOnlyField label="First Name" value={(user as any)?.staffProfile?.firstName || "—"} />
+                                <ReadOnlyField label="Surname" value={(user as any)?.staffProfile?.surname || "—"} />
+                                <ReadOnlyField label="Other Names" value={(user as any)?.staffProfile?.otherName || "—"} />
+                                <ReadOnlyField label="Staff ID" value={(user as any)?.staffProfile?.staffNumber || "—"} />
                                 <ReadOnlyField label="Email Address" value={user?.email || email || "—"} />
-                                <ReadOnlyField label="Phone Number" value={user?.phone || "—"} />
-                                <ReadOnlyField label="Department" value={`${user?.department?.name || "—"} (${user?.department?.code || ""})`} />
-                                <ReadOnlyField label="Faculty" value={`${user?.profile?.facultyName || "—"} (${user?.profile?.facultyCode || ""})`} />
-                                <ReadOnlyField label="University" value={user?.university?.name || "—"} />
-                                <ReadOnlyField label="Role" value={roleDisplay} />
+                                <ReadOnlyField label="Phone Number" value={(user as any)?.staffProfile?.phone || "—"} />
+                                <ReadOnlyField label="Gender" value={(user as any)?.staffProfile?.gender || "—"} />
+                                <ReadOnlyField label="Department" value={(user as any)?.staffProfile?.department || "—"} />
+                                <ReadOnlyField label="Faculty" value={(user as any)?.staffProfile?.faculty || "—"} />
+                                <ReadOnlyField label="Role" value={((user as any)?.staffProfile?.staffRoles?.[0] || roleDisplay).replace(/_/g, " ")} />
                             </Grid>
                         </Box>
 
                 {/* Password Change Card */}
-                <Box flex="4" bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p="8">
+                <Box flex="4" bg="white" borderRadius="md" border="xs" borderColor="border.muted" p="8">
                             <Flex alignItems="center" gap="2" mb="2">
                                 <Lock size={20} color="#1D7AD9" />
                                 <Text fontSize="lg" fontWeight="bold" color="fg.muted">Change Password</Text>
                             </Flex>
                             <Text fontSize="sm" color="fg.subtle" mb="6">Update your password to keep your account secure.</Text>
 
-                            <Flex direction="column" gap="5">
+                            <Stack gap="5">
                                 {/* Current Password */}
-                                <Box>
-                                    <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">Current Password</Text>
+                                <Field.Root>
+                                    <Field.Label>Current Password</Field.Label>
                                     <PasswordInput
                                         placeholder="Enter current password"
                                         value={currentPassword}
                                         onChange={(e) => setCurrentPassword(e.target.value)}
                                         disabled={isChangingPassword}
-                                        size="lg"
-                                        bg="slate.50"
-                                        border="xs"
-                                        borderColor="border.muted"
-                                        borderRadius="xl"
-                                        fontSize="sm"
-                                        fontWeight="medium"
-                                        color="fg.muted"
-                                        _focus={{ borderColor: "blue.500" }}
+                                        size="xl"
                                     />
-                                </Box>
+                                </Field.Root>
 
                                 {/* New Password */}
-                                <Box>
-                                    <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">New Password</Text>
+                                <Field.Root>
+                                    <Field.Label>New Password</Field.Label>
                                     <PasswordInput
                                         placeholder="Enter new password"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         disabled={isChangingPassword}
-                                        size="lg"
-                                        bg="slate.50"
-                                        border="xs"
-                                        borderColor="border.muted"
-                                        borderRadius="xl"
-                                        fontSize="sm"
-                                        fontWeight="medium"
-                                        color="fg.muted"
-                                        _focus={{ borderColor: "blue.500" }}
+                                        size="xl"
                                     />
                                     {newPassword && (
                                         <Box mt="2">
-                                            <Box w="full" h="4px" bg="gray.100" borderRadius="full" overflow="hidden">
+                                            <Box w="full" h="4px" bg="bg.muted" borderRadius="full" overflow="hidden">
                                                 <Box h="full" bg={strength.color} w={strength.width} borderRadius="full" transition="all 0.3s" />
                                             </Box>
                                             <Text fontSize="xs" color={strength.color} fontWeight="bold" mt="1">{strength.label}</Text>
                                         </Box>
                                     )}
-                                </Box>
+                                </Field.Root>
 
                                 {/* Confirm Password */}
-                                <Box>
-                                    <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">Confirm New Password</Text>
+                                <Field.Root>
+                                    <Field.Label>Confirm New Password</Field.Label>
                                     <PasswordInput
                                         placeholder="Re-enter new password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         disabled={isChangingPassword}
-                                        size="lg"
-                                        bg="slate.50"
-                                        border="xs"
-                                        borderColor="border.muted"
-                                        borderRadius="xl"
-                                        fontSize="sm"
-                                        fontWeight="medium"
-                                        color="fg.muted"
-                                        _focus={{ borderColor: "blue.500" }}
+                                        size="xl"
                                     />
                                     {confirmPassword && newPassword && (
                                         <Flex alignItems="center" gap="1" mt="1">
@@ -177,27 +156,20 @@ const ProfilePage = () => {
                                             )}
                                         </Flex>
                                     )}
-                                </Box>
-                            </Flex>
+                                </Field.Root>
+                            </Stack>
 
                             <Flex mt="6" justifyContent="flex-end">
-                                <Flex
-                                    as="button"
+                                <Button
                                     onClick={handleChangePassword}
-                                    bg="#1D7AD9" color="white" px="8" py="3"
-                                    borderRadius="xl" fontSize="sm" fontWeight="bold"
-                                    cursor={isChangingPassword ? "not-allowed" : "pointer"}
-                                    opacity={isChangingPassword ? 0.6 : 1}
-                                    border="none" transition="all 0.2s"
-                                    _hover={{ bg: isChangingPassword ? "#1D7AD9" : "#1565c0" }}
-                                    alignItems="center" gap="2"
+                                    loading={isChangingPassword}
+                                    loadingText="Changing..."
+                                    disabled={isChangingPassword}
+                                    size="lg"
+                                    colorPalette="accent" 
                                 >
-                                    {isChangingPassword ? (
-                                        <><Spinner size="sm" /> Changing...</>
-                                    ) : (
-                                        <><Lock size={16} /> Update Password</>
-                                    )}
-                                </Flex>
+                                    <Lock size={16} /> Update Password
+                                </Button>
                             </Flex>
                 </Box>
             </Flex>
@@ -211,22 +183,8 @@ const ProfilePage = () => {
 
 const ReadOnlyField = ({ label, value }: { label: string; value: string }) => (
     <Box>
-        <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="2">{label}</Text>
-        <Input
-            type="text"
-            value={value}
-            readOnly
-            bg="fg.subtle"
-            border="xs"
-            borderColor="border.muted"
-            borderRadius="xl"
-            fontSize="sm"
-            color="fg.muted"
-            fontWeight="medium"
-            cursor="not-allowed"
-            _readOnly={{ opacity: 0.8 }}
-            size="lg"
-        />
+        <Text fontSize="xs" fontWeight="bold" color="fg.subtle" textTransform="uppercase" letterSpacing="wider" mb="1">{label}</Text>
+        <Text fontSize="sm" fontWeight="medium" color="fg.muted">{value}</Text>
     </Box>
 );
 

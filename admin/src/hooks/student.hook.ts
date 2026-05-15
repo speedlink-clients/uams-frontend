@@ -1,26 +1,113 @@
-import { StudentServices } from "@services/student.service"
-import { useQuery, useMutation, type UseQueryOptions, type UseMutationOptions } from "@tanstack/react-query"
+import { StudentServices } from "@services/student.service";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toaster } from "@components/ui/toaster";
+import type { CreateStudentPayload, Student } from "@type/student.type";
 
-export const StudentHooks = {
-    useStudents: (options?: Partial<UseQueryOptions<unknown>>) => useQuery<unknown>({
-        queryKey: ["students"],
-        queryFn: StudentServices.getDepartmentStudents,
-        ...options,
-    }),
+export const StudentHook = {
+    useStudents: () =>
+        useQuery({
+            queryKey: ["students"],
+            queryFn: async () => {
+                const response = await StudentServices.getDepartmentStudents();
+                const data = response?.data || [];
+                return data.map((item: any) => ({
+                    ...item,
+                    id: item.id,
+                    email: item.email,
+                    role: item.role,
+                    status: item.status,
+                    fullName: `${item.studentProfile?.firstName || ""} ${item.studentProfile?.surname || ""}`.trim() || "—",
+                    firstName: item.studentProfile?.firstName || "",
+                    surname: item.studentProfile?.surname || "",
+                    otherName: item.studentProfile?.otherName || "",
+                    matricNumber: item.studentProfile?.matricNumber || "—",
+                    registrationNo: item.studentProfile?.registrationNo || "—",
+                    phone: item.studentProfile?.phone || "—",
+                    gender: item.studentProfile?.gender || "—",
+                    level: item.studentProfile?.level || "—",
+                    department: item.studentProfile?.department || "—",
+                    faculty: item.studentProfile?.faculty || "—",
+                    admissionMode: item.studentProfile?.admissionMode || "—",
+                    entryQualification: item.studentProfile?.entryQualification || "—",
+                    degreeCourse: item.studentProfile?.degreeCourse || "—",
+                    courseDuration: item.studentProfile?.courseDuration || item.studentProfile?.degreeDuration || "—",
+                    degreeAwarded: item.studentProfile?.degreeAwarded || "—",
+                    registrationStatus: item.studentProfile?.registrationStatus || "—",
+                    cgpa: item.studentProfile?.cgpa || null,
+                    createdAt: item.createdAt,
+                })) as Student[];
+            },
+        }),
 
-    useStudentProfile: (studentId: string, options?: Partial<UseQueryOptions<unknown>>) => useQuery<unknown>({
-        queryKey: ["student-profile", studentId],
-        queryFn: () => StudentServices.getStudentProfile(studentId),
-        enabled: !!studentId,
-        ...options,
-    }),
+    useAddStudent: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (payload: CreateStudentPayload) => StudentServices.addStudent(payload),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["students"] });
+                toaster.success({ title: "Student added successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to add student" });
+            },
+        });
+    },
 
-    useBulkUploadStudents: (options?: UseMutationOptions<unknown, Error, File>) =>
-        useMutation({ mutationFn: StudentServices.bulkUploadStudents, ...options }),
+    useUpdateStudent: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateStudentPayload> }) =>
+                StudentServices.updateStudent(id, payload),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["students"] });
+                toaster.success({ title: "Student updated successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to update student" });
+            },
+        });
+    },
 
-    useBulkDownloadStudents: (options?: UseMutationOptions<unknown, Error, string[]>) =>
-        useMutation({ mutationFn: StudentServices.bulkDownloadStudents, ...options }),
+    useDeleteStudent: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (id: string) => StudentServices.deleteStudent(id),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["students"] });
+                toaster.success({ title: "Student deleted successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to delete student" });
+            },
+        });
+    },
 
-    useBulkDeleteStudents: (options?: UseMutationOptions<unknown, Error, { studentIds: string[]; reason: string }>) =>
-        useMutation({ mutationFn: ({ studentIds, reason }) => StudentServices.bulkDeleteStudents(studentIds, reason), ...options }),
-}
+    useBulkUploadStudents: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: (file: File) => StudentServices.bulkUploadStudents(file),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["students"] });
+                toaster.success({ title: "Students uploaded successfully!" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to upload students" });
+            },
+        });
+    },
+
+    useBulkDeleteStudents: () => {
+        const queryClient = useQueryClient();
+        return useMutation({
+            mutationFn: ({ ids, reason }: { ids: string[]; reason: string }) =>
+                StudentServices.bulkDeleteStudents(ids, reason),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["students"] });
+                toaster.success({ title: "Selected students deleted successfully" });
+            },
+            onError: (err: any) => {
+                toaster.error({ title: err.response?.data?.message || "Failed to delete selected students" });
+            },
+        });
+    },
+};

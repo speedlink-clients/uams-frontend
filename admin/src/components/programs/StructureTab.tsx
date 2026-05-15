@@ -17,7 +17,7 @@ import {
   createListCollection,
   Textarea,
   Checkbox,
-  IconButton,
+  Table,
 } from "@chakra-ui/react";
 
 interface StructureTabProps {
@@ -181,7 +181,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
   // Create/Edit Form
   if (isCreatingRoute || isEditingRoute) {
     return (
-      <Box bg="white" borderRadius="2xl" p="8" border="xs" borderColor="border.muted" boxShadow="sm">
+      <Box bg="white" borderRadius="md" p="8" border="xs" borderColor="border.muted">
         <Text fontSize="xl" fontWeight="bold" color="fg.muted" mb="8">
           {isEditingRoute ? "Edit Session" : "Create Session"}
         </Text>
@@ -197,7 +197,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                 bg="slate.50"
                 border="xs"
                 borderColor="border.muted"
-                borderRadius="lg"
+                borderRadius="md"
               />
             </Box>
             <Box>
@@ -233,14 +233,19 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
             </Box>
             <Box>
               <Flex alignItems="center" gap="2">
-                <Checkbox
+                <Checkbox.Root
                   id="isActive"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                />
-                <Text fontSize="sm" fontWeight="medium" color="fg.muted" as="label" htmlFor="isActive">
-                  Activate Session
-                </Text>
+                  onCheckedChange={(details) => setFormData({ ...formData, isActive: !!details.checked })}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label fontSize="sm" fontWeight="medium" color="fg.muted">
+                    Activate Session
+                  </Checkbox.Label>
+                </Checkbox.Root>
               </Flex>
             </Box>
           </Flex>
@@ -285,7 +290,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                 bg="slate.50"
                 border="xs"
                 borderColor="border.muted"
-                borderRadius="lg"
+                borderRadius="md"
               />
             </Box>
             <Box>
@@ -297,7 +302,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                 bg="slate.50"
                 border="xs"
                 borderColor="border.muted"
-                borderRadius="lg"
+                borderRadius="md"
               />
             </Box>
           </Flex>
@@ -308,7 +313,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
             onClick={() => navigate("/program-courses")}
             px="8"
             py="2.5"
-            borderRadius="lg"
+            borderRadius="md"
             fontSize="sm"
             fontWeight="medium"
             variant="outline"
@@ -324,7 +329,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
             loadingText="Saving..."
             px="8"
             py="2.5"
-            borderRadius="lg"
+            borderRadius="md"
             fontSize="sm"
             fontWeight="bold"
             bg="#00B01D"
@@ -357,10 +362,9 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
           onClick={handleExport}
           variant="outline"
           colorScheme="blue"
-          boxShadow="lg"
           px="5"
           py="2.5"
-          borderRadius="xl"
+          borderRadius="md"
           fontSize="sm"
           fontWeight="bold"
         >
@@ -371,16 +375,15 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
           colorScheme="blue"
           px="5"
           py="2.5"
-          borderRadius="xl"
+          borderRadius="md"
           fontSize="sm"
           fontWeight="bold"
-          boxShadow="lg"
         >
         <Plus />  Create Session
         </Button>
       </Flex>
 
-      <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" boxShadow="sm">
+      <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted">
         <Flex p="6" alignItems="center" gap="4">
           <Text fontSize="lg" fontWeight="bold" color="fg.muted">Created Sessions</Text>
           <InputGroup startElement={<Search />} ml="auto" width="260px">
@@ -391,7 +394,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
               bg="white"
               border="xs"
               borderColor="border.muted"
-              borderRadius="xl"
+              borderRadius="md"
               fontSize="xs"
               px="4"
               py="2.5"
@@ -400,44 +403,47 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
         </Flex>
 
         <Box overflowX="auto">
-          <Box as="table" w="full" textAlign="left">
-            <Box as="thead">
-              <Box as="tr" bg="slate.50" borderY="1px solid" borderColor="border.muted">
-                <Box as="th" px="6" py="4" w="12" textAlign="center">
-                  <input
-                    type="checkbox"
+          <Table.Root size="sm">
+            <Table.Header>
+              <Table.Row bg="slate.50" borderY="1px solid" borderColor="border.muted">
+                <Table.ColumnHeader px="6" py="4" w="12" textAlign="center">
+                  <Checkbox.Root
                     checked={sessions.length > 0 && selectedIds.length === sessions.length}
-                    onChange={toggleSelectAll}
-                  />
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
+                    onCheckedChange={toggleSelectAll}
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                  </Checkbox.Root>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Session Name
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
+                </Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Duration
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
+                </Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Start Date
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
+                </Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
                   Status
-                </Box>
-                <Box as="th" px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" textAlign="center">
+                </Table.ColumnHeader>
+                <Table.ColumnHeader px="6" py="4" fontSize="11px" fontWeight="bold" color="fg.muted" textTransform="uppercase" letterSpacing="wider" textAlign="center">
                   Action
-                </Box>
-              </Box>
-            </Box>
-            <Box as="tbody">
+                </Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
               {filteredSessions.length === 0 ? (
-                <Box as="tr">
-                  <td colSpan={6} style={{ padding: "48px 0", textAlign: "center", color: "#94a3b8" }}>
+                <Table.Row>
+                  <Table.Cell colSpan={6} style={{ padding: "48px 0", textAlign: "center", color: "#94a3b8" }}>
                     No sessions found
-                  </td>
-                </Box>
+                  </Table.Cell>
+                </Table.Row>
               ) : (
                 filteredSessions.map((session) => (
-                  <Box
-                    as="tr"
+                  <Table.Row
                     key={session.id}
                     _hover={{ bg: "slate.50" }}
                     borderBottom="xs"
@@ -445,17 +451,21 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                     fontSize="sm"
                     color="fg.muted"
                   >
-                    <Box as="td" px="6" py="4" textAlign="center">
-                      <input
-                        type="checkbox"
+                    <Table.Cell px="6" py="4" textAlign="center">
+                      <Checkbox.Root
                         checked={selectedIds.includes(session.id)}
-                        onChange={() => toggleSelection(session.id)}
-                      />
-                    </Box>
-                    <Box as="td" px="6" py="4" fontWeight="medium">{session.name}</Box>
-                    <Box as="td" px="6" py="4">{session.duration}</Box>
-                    <Box as="td" px="6" py="4">{session.startDate}</Box>
-                    <Box as="td" px="6" py="4">
+                        onCheckedChange={() => toggleSelection(session.id)}
+                      >
+                        <Checkbox.HiddenInput />
+                        <Checkbox.Control>
+                          <Checkbox.Indicator />
+                        </Checkbox.Control>
+                      </Checkbox.Root>
+                    </Table.Cell>
+                    <Table.Cell px="6" py="4" fontWeight="medium">{session.name}</Table.Cell>
+                    <Table.Cell px="6" py="4">{session.duration}</Table.Cell>
+                    <Table.Cell px="6" py="4">{session.startDate}</Table.Cell>
+                    <Table.Cell px="6" py="4">
                       <Text
                         as="span"
                         px="4"
@@ -468,8 +478,8 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                       >
                         {session.isActive ? "Active" : "Inactive"}
                       </Text>
-                    </Box>
-                    <Box as="td" px="6" py="4" textAlign="center">
+                    </Table.Cell>
+                    <Table.Cell px="6" py="4" textAlign="center">
                       <Flex justifyContent="center" gap="2">
                         <Button
                           aria-label="Edit session"
@@ -490,12 +500,12 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
                         >
                        <Trash2 size={16} />     </Button>
                       </Flex>
-                    </Box>
-                  </Box>
+                    </Table.Cell>
+                  </Table.Row>
                 ))
               )}
-            </Box>
-          </Box>
+            </Table.Body>
+          </Table.Root>
         </Box>
       </Box>
 
@@ -509,8 +519,8 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
           bg="white"
           px="6"
           py="3"
-          borderRadius="xl"
-          boxShadow="2xl"
+          borderRadius="md"
+          boxShadow="none"
           border="xs"
           borderColor="border.muted"
           alignItems="center"
@@ -524,7 +534,7 @@ const StructureTab = ({ isCreatingRoute, isEditingRoute }: StructureTabProps) =>
             colorScheme="red"
             px="4"
             py="2"
-            borderRadius="lg"
+            borderRadius="md"
             fontSize="xs"
             fontWeight="bold"
           >

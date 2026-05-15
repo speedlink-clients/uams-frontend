@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
         >
             <Flex p="3" alignItems="center" justifyContent="space-between" gap="3" borderBottom={{ base: "xs", lg: "none" }} borderColor="border.muted">
                 <Image
-                    src="/departmental-admin/assets/uphcscLG.png"
+                    src="/admin/assets/uphcscLG.png"
                     alt="UNIPORT Computer Science"
                     h="12"
                     w="auto"
@@ -113,8 +113,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, onLo
                             color={activeView === item.label ? "accent" : "fg.subtle"}
                             fontWeight="semibold"
                             _hover={{
-                                bg: activeView === item.label ? "fg.subtle" : "gray.50",
-                                color: "fg.muted",
+                                bg: activeView === item.label ? "accent.muted" : "gray.50",
+                                color: activeView === item.label ? "accent" : "fg.muted",
                             }}
                         >
                             <item.icon

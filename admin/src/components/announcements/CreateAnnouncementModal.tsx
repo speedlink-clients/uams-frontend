@@ -89,7 +89,7 @@ const CreateAnnouncementModal = ({ isOpen, onClose, onCreated }: Props) => {
             <Portal>
                 <Dialog.Backdrop />
                 <Dialog.Positioner>
-                    <Dialog.Content rounded="24px">
+                    <Dialog.Content rounded="md">
                         <Dialog.Header borderBottom="1px solid" borderColor="border.muted" py="6" px="8">
                             <Dialog.Title color="accent" fontWeight="bold">
                                 Create New Announcement

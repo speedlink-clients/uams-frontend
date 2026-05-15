@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { toaster } from "@components/ui/toaster";
-import { Loader2 } from "lucide-react";
 // import { AcademicServices } from "@services/academic.service";
 import { ProgramServices } from "@services/program.service";
 import { PaymentServices } from "@services/payment.service";
@@ -8,7 +7,7 @@ import { useAsync } from "react-use";
 import { paymentConfigSchema, type PaymentConfigData } from "@schemas/payment.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, Field, Input, Stack } from "@chakra-ui/react";
 
 const usePaymentConfigForm = () => {
   return useForm<PaymentConfigData>({
@@ -165,30 +164,21 @@ const PaymentSettingsTab = () => {
     }
   }, [activeProgramType.id, paymentConfigForm]); 
 
-  const inputStyle: React.CSSProperties = {
-      width: "100%", padding: "8px 12px", border: "1px solid #e2e8f0", 
-      borderRadius: "6px", fontSize: "14px", outline: "none", color: "#374151"
-  };
 
-  const getReadonlyStyle = () => ({
-      ...inputStyle, background: "#f3f4f6", border: "1px solid transparent", pointerEvents: "none" as const
-  });
 
   return (
-    <Box bg="white" borderRadius="2xl" border="xs" borderColor="border.muted" p="10">
+    <Box bg="white" borderRadius="md" border="xs" borderColor="border.muted" p={{ base: "6", md: "10" }}>
       <Flex wrap="wrap" gap="4" justifyContent="space-between" alignItems="flex-start" mb="6">
         <Text fontSize="xl" fontWeight="bold">Payment Settings</Text>
-        <button 
+        <Button 
           onClick={() => setIsEditing(!isEditing)} 
           disabled={isSaving}
-          style={{
-            padding: "8px 16px", borderRadius: "6px", fontWeight: 600, transition: "background 0.2s",
-            background: isEditing ? "#ef4444" : "#64748b", color: "white", cursor: isSaving ? "not-allowed" : "pointer",
-            opacity: isSaving ? 0.5 : 1
-          }}
+          colorPalette={isEditing ? "red" : "gray"}
+          variant={isEditing ? "solid" : "subtle"}
+          size="sm"
         >
           {isEditing ? "Cancel" : "Edit"}
-        </button>
+        </Button>
       </Flex>
 
 
@@ -200,19 +190,15 @@ const PaymentSettingsTab = () => {
         ) : (
            <>
            {programTypes.value?.map((type: any) => (
-            <button 
+            <Button 
               onClick={() => setActiveProgramType({ id: type.id, name: type.name })} 
               key={type.id} 
-              style={{
-                cursor: "pointer", padding: "8px 16px", borderRadius: "6px", fontSize: "14px", fontWeight: 500,
-                background: activeProgramType.id === type.id ? "white" : "transparent",
-                color: activeProgramType.id === type.id ? "black" : "#4b5563",
-                boxShadow: activeProgramType.id === type.id ? "0 1px 2px rgba(0,0,0,0.05)" : "none",
-                border: "none"
-              }}
+              variant={activeProgramType.id === type.id ? "solid" : "ghost"}
+              colorPalette={activeProgramType.id === type.id ? "accent" : "gray"}
+              size="sm"
             >
               {type.name}
-            </button>
+            </Button>
            ))}
            </>
         )}
@@ -220,206 +206,192 @@ const PaymentSettingsTab = () => {
 
       <form onSubmit={paymentConfigForm.handleSubmit(patchPaymentConfig)}>
       {/* public /private keys */}
-      <Flex direction="column" gap="4" p="4" borderRadius="lg" border="xs" borderColor="border.muted" mt="12">
-          <Text fontWeight="semibold">Paystack keys</Text>
-          <Box as="hr" borderColor="border.muted" />
-          <Flex gap="4" w="full" direction={{ base: "column", md: "row" }}>
-             {/* public key */}
-              <Flex direction="column" gap="2" flex="1">
-                <label htmlFor="paystack_public_key" style={{ fontSize: "14px" }}>Public Key</label>
-                <input 
+      <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" mt="12" bg="slate.50">
+          <Text fontWeight="bold" mb="4">Paystack API Credentials</Text>
+          <Flex gap="6" w="full" direction={{ base: "column", md: "row" }}>
+              <Field.Root flex="1">
+                <Field.Label>Public Key</Field.Label>
+                <Input 
                   {...paymentConfigForm.register("paystack_public_key")} 
-                  readOnly={!isEditing} id="paystack_public_key" 
-                  style={isEditing ? inputStyle : getReadonlyStyle()} 
+                  readOnly={!isEditing}
+                  placeholder="pk_test_..."
+                  size="xl"
+                  bg={isEditing ? "white" : "transparent"}
                 />
-              </Flex>
+              </Field.Root>
 
-              {/* private key */}
-              <Flex direction="column" gap="2" flex="1">
-                <label htmlFor="paystack_secret_key" style={{ fontSize: "14px" }}>Private Key</label>
-                <input 
+              <Field.Root flex="1">
+                <Field.Label>Secret Key</Field.Label>
+                <Input 
                   {...paymentConfigForm.register("paystack_secret_key")} 
-                  readOnly={!isEditing} id="paystack_secret_key" 
-                  style={isEditing ? inputStyle : getReadonlyStyle()} 
+                  readOnly={!isEditing}
+                  placeholder="sk_test_..."
+                  size="xl"
+                  bg={isEditing ? "white" : "transparent"}
                 />
-              </Flex>
+              </Field.Root>
           </Flex>
-      </Flex>
+      </Box>
 
       {/* informations grid */}
       <Box display="grid" gridTemplateColumns={{ base: "1fr", lg: "1fr 1fr" }} gap="4" mt="10">
         
         {/* annual access fee */}
-        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="xs" borderColor="border.muted">
-          <Text fontWeight="semibold">Annual Access Fee</Text>
-          <Box as="hr" borderColor="border.muted" />
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" bg="slate.50">
+          <Text fontWeight="bold" mb="4">Annual Access Fee</Text>
+          <Stack gap="5">
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.annual_access_split_key}>
+              <Field.Label>Split Key</Field.Label>
+              <Input {...paymentConfigForm.register("annual_access_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.annual_access_split_key?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Flex direction="column" gap="2">
-            <label htmlFor="annual_access_fee_split_key" style={{ fontSize: "14px" }}>Split key</label>
-            <input {...paymentConfigForm.register("annual_access_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly={!isEditing} id="annual_access_fee_split_key" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.annual_access_fee}>
+              <Field.Label>Base Amount</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("annual_access_fee", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.annual_access_fee?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Flex direction="column" gap="2">
-            <label htmlFor="annual_access_fee_amount" style={{ fontSize: "14px" }}>Amount</label>
-            <input type="number" {...paymentConfigForm.register("annual_access_fee", { valueAsNumber: true })} readOnly={!isEditing} id="annual_access_fee_amount" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
-
-          <Flex direction="column" gap="2">
-            <label htmlFor="annual_access_fee_merchant_fee" style={{ fontSize: "14px" }}>Merchant fee</label>
-            <input type="number" {...paymentConfigForm.register("annual_access_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} id="annual_access_fee_merchant_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
-
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.annual_access_merchant_fee?.message}</Text>
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.annual_access_fee?.message}</Text>
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.annual_access_split_key?.message}</Text>
-        </Flex>
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.annual_access_merchant_fee}>
+              <Field.Label>Merchant Fee</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("annual_access_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.annual_access_merchant_fee?.message}</Field.ErrorText>
+            </Field.Root>
+          </Stack>
+        </Box>
 
         {/* annual department dues fee */}
-        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="xs" borderColor="border.muted">
-          <Text fontWeight="semibold">Annual Department Dues</Text>
-          <Box as="hr" borderColor="border.muted" />
-  
-          <Flex direction="column" gap="2">
-            <label htmlFor="annual_department_dues_split_key" style={{ fontSize: "14px" }}>Split key</label>
-            <input type="text" {...paymentConfigForm.register("department_annual_access_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly id="annual_department_dues_split_key" style={getReadonlyStyle()} />
-          </Flex>
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" bg="slate.50">
+          <Text fontWeight="bold" mb="4">Annual Department Dues</Text>
+          <Stack gap="5">
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.department_annual_access_split_key}>
+              <Field.Label>Split Key</Field.Label>
+              <Input type="text" {...paymentConfigForm.register("department_annual_access_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly size="xl" bg="transparent" />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.department_annual_access_split_key?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Flex direction="column" gap="2">
-            <label htmlFor="annual_department_dues_amount" style={{ fontSize: "14px" }}>Amount</label>
-            <input type="number" {...paymentConfigForm.register("department_annual_access_dues", { valueAsNumber: true })} readOnly={!isEditing} id="annual_department_dues_amount" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.department_annual_access_dues}>
+              <Field.Label>Base Amount</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("department_annual_access_dues", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.department_annual_access_dues?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Flex direction="column" gap="2">
-            <label htmlFor="annual_department_dues_merchant_fee" style={{ fontSize: "14px" }}>Merchant fee</label>
-            <input type="number" {...paymentConfigForm.register("department_annual_access_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} id="annual_department_dues_merchant_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
-
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.department_annual_access_merchant_fee?.message}</Text>
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.department_annual_access_dues?.message}</Text>
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.department_annual_access_split_key?.message}</Text>
-        </Flex>
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.department_annual_access_merchant_fee}>
+              <Field.Label>Merchant Fee</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("department_annual_access_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.department_annual_access_merchant_fee?.message}</Field.ErrorText>
+            </Field.Root>
+          </Stack>
+        </Box>
 
         {/* ID CARD payment */}
-        <Flex direction="column" gap="3" p="4" borderRadius="lg" border="xs" borderColor="border.muted">
-          <Text fontWeight="semibold">ID Card Payment</Text>
-          <Box as="hr" borderColor="border.muted" />
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" bg="slate.50">
+          <Text fontWeight="bold" mb="4">ID Card Payment</Text>
+          <Stack gap="5">
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.id_card_split_key}>
+              <Field.Label>Split Key</Field.Label>
+              <Input {...paymentConfigForm.register("id_card_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.id_card_split_key?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Flex direction="column" gap="2">
-            <label htmlFor="id_card_payment_split_key" style={{ fontSize: "14px" }}>Split key</label>
-            <input {...paymentConfigForm.register("id_card_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly={!isEditing} id="id_card_payment_split_key" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.id_card_payment}>
+              <Field.Label>Base Amount</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("id_card_payment", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.id_card_payment?.message}</Field.ErrorText>
+            </Field.Root>
 
-          <Flex direction="column" gap="2">
-            <label htmlFor="id_card_payment_amount" style={{ fontSize: "14px" }}>Amount</label>
-            <input type="number" {...paymentConfigForm.register("id_card_payment", { valueAsNumber: true })} readOnly={!isEditing} id="id_card_payment_amount" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
-
-          <Flex direction="column" gap="2">
-            <label htmlFor="id_card_payment_merchant_fee" style={{ fontSize: "14px" }}>Merchant fee</label>
-            <input type="number" {...paymentConfigForm.register("id_card_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} id="id_card_merchant_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-          </Flex>
-
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.id_card_merchant_fee?.message}</Text>
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.id_card_payment?.message}</Text>
-          <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.id_card_split_key?.message}</Text>
-        </Flex>
+            <Field.Root invalid={!!paymentConfigForm.formState.errors.id_card_merchant_fee}>
+              <Field.Label>Merchant Fee</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("id_card_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.id_card_merchant_fee?.message}</Field.ErrorText>
+            </Field.Root>
+          </Stack>
+        </Box>
 
         {/* transcript */}
-        <Flex direction="column" gap="4" p="4" borderRadius="lg" border="xs" borderColor="border.muted" gridColumn={{ base: "1", lg: "1 / -1" }}>
-          <Text fontWeight="semibold">Transcript Delivery Options</Text>
-          <Box as="hr" borderColor="border.muted" mb="2" />
-  
-          <Flex direction={{ base: "column", md: "row" }} gap="4" maxW="800px" mb="6">
-            <Flex direction="column" gap="2" flex="1">
-              <label htmlFor="transcript_amount" style={{ fontSize: "14px", fontWeight: 500 }}>Global Base Amount</label>
-              <input type="number" {...paymentConfigForm.register("transcript_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_amount" style={isEditing ? inputStyle : getReadonlyStyle()} />
-            </Flex>
+        <Box p="6" borderRadius="md" border="xs" borderColor="border.muted" gridColumn={{ base: "1", lg: "1 / -1" }} bg="slate.50">
+          <Text fontWeight="bold" mb="6">Transcript Delivery Options</Text>
+          
+          <Flex direction={{ base: "column", md: "row" }} gap="6" mb="8">
+            <Field.Root flex="1">
+              <Field.Label>Global Base Amount</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("transcript_fee", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+            </Field.Root>
 
-            <Flex direction="column" gap="2" flex="1">
-              <label htmlFor="transcript_merchant_fee" style={{ fontSize: "14px", fontWeight: 500 }}>Global Merchant Fee</label>
-              <input type="number" {...paymentConfigForm.register("transcript_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_merchant_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-            </Flex>
+            <Field.Root flex="1">
+              <Field.Label>Global Merchant Fee</Field.Label>
+              <Input type="number" {...paymentConfigForm.register("transcript_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+            </Field.Root>
 
-            <Flex direction="column" gap="2" flex="1">
-              <label htmlFor="transcript_split_key" style={{ fontSize: "14px", fontWeight: 500 }}>Global Split key</label>
-              <input {...paymentConfigForm.register("transcript_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly={!isEditing} id="transcript_split_key" style={isEditing ? inputStyle : getReadonlyStyle()} />
-              <Text color="red.500" fontSize="sm">{paymentConfigForm.formState.errors.transcript_split_key?.message}</Text>
-            </Flex>
+            <Field.Root flex="1" invalid={!!paymentConfigForm.formState.errors.transcript_split_key}>
+              <Field.Label>Global Split Key</Field.Label>
+              <Input {...paymentConfigForm.register("transcript_split_key")} placeholder="SPL_xxxxxxxxxx" readOnly={!isEditing} size="xl" bg={isEditing ? "white" : "transparent"} />
+              <Field.ErrorText>{paymentConfigForm.formState.errors.transcript_split_key?.message}</Field.ErrorText>
+            </Field.Root>
           </Flex>
 
           <Box display="grid" gridTemplateColumns={{ base: "1fr", md: "1fr 1fr 1fr" }} gap="6">
-            <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
-              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="3">Digital Delivery</Text>
-              <Text fontSize="xs" color="fg.muted" mb="4">Email delivery</Text>
-              <Flex direction="column" gap="3">
-                <Box>
-                  <label htmlFor="transcript_digital_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Amount</label>
-                  <input type="number" {...paymentConfigForm.register("transcript_digital_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_digital_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-                </Box>
-                <Box>
-                  <label htmlFor="transcript_digital_merchant_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Merchant fee</label>
-                  <input type="number" {...paymentConfigForm.register("transcript_digital_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_digital_merchant_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-                </Box>
-              </Flex>
+            <Box bg="white" p="5" borderRadius="md" border="xs" borderColor="border.muted">
+              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="1">Digital Delivery</Text>
+              <Text fontSize="xs" color="fg.subtle" mb="4">Email delivery</Text>
+              <Stack gap="4">
+                <Field.Root>
+                  <Field.Label fontSize="xs">Base Fee</Field.Label>
+                  <Input type="number" {...paymentConfigForm.register("transcript_digital_fee", { valueAsNumber: true })} readOnly={!isEditing} size="lg" bg={isEditing ? "slate.50" : "transparent"} />
+                </Field.Root>
+                <Field.Root>
+                  <Field.Label fontSize="xs">Merchant Fee</Field.Label>
+                  <Input type="number" {...paymentConfigForm.register("transcript_digital_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} size="lg" bg={isEditing ? "slate.50" : "transparent"} />
+                </Field.Root>
+              </Stack>
             </Box>
 
-            <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
-              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="3">Courier Service</Text>
-              <Text fontSize="xs" color="fg.muted" mb="4">Doorstep delivery</Text>
-              <Flex direction="column" gap="3">
-                <Box>
-                  <label htmlFor="transcript_courier_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Amount</label>
-                  <input type="number" {...paymentConfigForm.register("transcript_courier_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_courier_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-                </Box>
-                <Box>
-                  <label htmlFor="transcript_courier_merchant_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Merchant fee</label>
-                  <input type="number" {...paymentConfigForm.register("transcript_courier_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_courier_merchant_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-                </Box>
-              </Flex>
+            <Box bg="white" p="5" borderRadius="md" border="xs" borderColor="border.muted">
+              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="1">Courier Service</Text>
+              <Text fontSize="xs" color="fg.subtle" mb="4">Doorstep delivery</Text>
+              <Stack gap="4">
+                <Field.Root>
+                  <Field.Label fontSize="xs">Base Fee</Field.Label>
+                  <Input type="number" {...paymentConfigForm.register("transcript_courier_fee", { valueAsNumber: true })} readOnly={!isEditing} size="lg" bg={isEditing ? "slate.50" : "transparent"} />
+                </Field.Root>
+                <Field.Root>
+                  <Field.Label fontSize="xs">Merchant Fee</Field.Label>
+                  <Input type="number" {...paymentConfigForm.register("transcript_courier_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} size="lg" bg={isEditing ? "slate.50" : "transparent"} />
+                </Field.Root>
+              </Stack>
             </Box>
 
-            <Box bg="slate.50" p="4" borderRadius="md" border="xs" borderColor="border.muted">
-              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="3">Physical Pickup</Text>
-              <Text fontSize="xs" color="fg.muted" mb="4">Pick up at registry</Text>
-              <Flex direction="column" gap="3">
-                <Box>
-                  <label htmlFor="transcript_pickup_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Amount</label>
-                  <input type="number" {...paymentConfigForm.register("transcript_pickup_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_pickup_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-                </Box>
-                <Box>
-                  <label htmlFor="transcript_pickup_merchant_fee" style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}>Merchant fee</label>
-                  <input type="number" {...paymentConfigForm.register("transcript_pickup_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} id="transcript_pickup_merchant_fee" style={isEditing ? inputStyle : getReadonlyStyle()} />
-                </Box>
-              </Flex>
+            <Box bg="white" p="5" borderRadius="md" border="xs" borderColor="border.muted">
+              <Text fontSize="sm" fontWeight="bold" color="fg.muted" mb="1">Physical Pickup</Text>
+              <Text fontSize="xs" color="fg.subtle" mb="4">Pick up at registry</Text>
+              <Stack gap="4">
+                <Field.Root>
+                  <Field.Label fontSize="xs">Base Fee</Field.Label>
+                  <Input type="number" {...paymentConfigForm.register("transcript_pickup_fee", { valueAsNumber: true })} readOnly={!isEditing} size="lg" bg={isEditing ? "slate.50" : "transparent"} />
+                </Field.Root>
+                <Field.Root>
+                  <Field.Label fontSize="xs">Merchant Fee</Field.Label>
+                  <Input type="number" {...paymentConfigForm.register("transcript_pickup_merchant_fee", { valueAsNumber: true })} readOnly={!isEditing} size="lg" bg={isEditing ? "slate.50" : "transparent"} />
+                </Field.Root>
+              </Stack>
             </Box>
           </Box>
-        </Flex>
+        </Box>
       </Box>
 
       {isEditing && (
-        <button 
+        <Button 
           type="submit"
+          loading={isSaving}
+          loadingText="Saving..."
           disabled={isSaving}
-          style={{
-            marginTop: "24px", background: "#3b82f6", color: "white", padding: "8px 24px",
-            borderRadius: "6px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px", border: "none",
-            cursor: isSaving ? "not-allowed" : "pointer", opacity: isSaving ? 0.5 : 1
-          }}
+          colorPalette="accent"
+          mt="6"
         >
-          {isSaving ? (
-            <>
-              <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
-              Saving...
-            </>
-          ) : (
-            "Save Changes"
-          )}
-        </button>
+          Save Changes
+        </Button>
       )}
       </form>
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}</style>
     </Box>
   )
 }

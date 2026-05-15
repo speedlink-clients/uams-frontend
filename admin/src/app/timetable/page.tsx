@@ -1,4 +1,4 @@
-import { Badge, Box, Button, CloseButton, createListCollection, Dialog, DownloadTrigger, Drawer, EmptyState, Field, FileUpload, Flex, Heading, HStack, Input, Portal, Select, Stack, Table, Text, Wrap } from "@chakra-ui/react";
+import { Badge, Box, Button, CloseButton, createListCollection, Dialog, DownloadTrigger, Drawer, EmptyState, Field, FileUpload, Flex, Heading, HStack, Input, Portal, Select, Spinner, Stack, Table, Text, Wrap } from "@chakra-ui/react";
 import { TimetableHook } from "@hooks/timetable.hook";
 import type { TimetableItem } from "@type/timetable.type";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -15,11 +15,6 @@ const TimeTable = () => {
         return !selectedLevel ? timetables : timetables?.filter((timetable) => timetable.level.name === selectedLevel);
     }, [timetables, selectedLevel]);
 
-    if (isLoading) return <Text>Loading...</Text>
-    if (error) return <Text>Error: {error.message}</Text>
-
-
-
     return (
         <Stack gap="6">
             <Flex justify={"space-between"} wrap="wrap" gap="4">
@@ -28,81 +23,102 @@ const TimeTable = () => {
                 <TimetableUploadDialog />
             </Flex>
 
-            <Box
-                bg="bg"
-                rounded="md"
-                p="4"
-                spaceY="4"
-            >
+            {isLoading ? (
+                <Flex alignItems="center" justifyContent="center" minH="400px">
+                    <Flex direction="column" alignItems="center" gap="4">
+                        <Spinner size="xl" color="blue.500" borderWidth="3px" />
+                        <Text color="fg.muted">Loading timetables...</Text>
+                    </Flex>
+                </Flex>
+            ) : error ? (
+                <EmptyState.Root>
+                    <EmptyState.Content>
+                        <EmptyState.Indicator>
+                            <CalendarX />
+                        </EmptyState.Indicator>
+                        <EmptyState.Title>Failed to Load Timetables</EmptyState.Title>
+                        <EmptyState.Description>
+                            {error.message || "An unexpected error occurred. Please try again later."}
+                        </EmptyState.Description>
+                    </EmptyState.Content>
+                </EmptyState.Root>
+            ) : (
+                <Box
+                    bg="bg"
+                    rounded="md"
+                    p="4"
+                    spaceY="4"
+                >
 
-                <Select.Root onSelect={(e) => setSelectedLevel(e.value)} defaultValue={[levels.items[0].value]} collection={levels} size="sm" w="32">
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                        <Select.Trigger>
-                            <Select.ValueText placeholder="Select level" />
-                        </Select.Trigger>
-                        <Select.IndicatorGroup>
-                            <Select.Indicator />
-                        </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                        <Select.Positioner>
-                            <Select.Content>
-                                {levels.items.map((level) => (
-                                    <Select.Item item={level} key={level.value}>
-                                        {level.label}
-                                        <Select.ItemIndicator />
-                                    </Select.Item>
-                                ))}
-                            </Select.Content>
-                        </Select.Positioner>
-                    </Portal>
-                </Select.Root>
+                    <Select.Root onSelect={(e) => setSelectedLevel(e.value)} defaultValue={[levels.items[0].value]} collection={levels} size="sm" w="32">
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText placeholder="Select level" />
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                                <Select.Indicator />
+                            </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal>
+                            <Select.Positioner>
+                                <Select.Content>
+                                    {levels.items.map((level) => (
+                                        <Select.Item item={level} key={level.value}>
+                                            {level.label}
+                                            <Select.ItemIndicator />
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
 
-                <Table.ScrollArea>
-                    <Table.Root size="sm" variant="outline">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.ColumnHeader minW="100px">Session</Table.ColumnHeader>
-                                <Table.ColumnHeader minW="100px">Level</Table.ColumnHeader>
-                                <Table.ColumnHeader minW="100px">Semeter</Table.ColumnHeader>
-                                <Table.ColumnHeader minW="100px"></Table.ColumnHeader>
+                    <Table.ScrollArea>
+                        <Table.Root size="sm" variant="outline">
+                            <Table.Header>
+                                <Table.Row>
+                                    <Table.ColumnHeader minW="100px">Session</Table.ColumnHeader>
+                                    <Table.ColumnHeader minW="100px">Level</Table.ColumnHeader>
+                                    <Table.ColumnHeader minW="100px">Semeter</Table.ColumnHeader>
+                                    <Table.ColumnHeader minW="100px"></Table.ColumnHeader>
 
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {filterTimetables && filterTimetables.length > 0 ? (
-                                filterTimetables.map((item) => (
-                                    <Table.Row key={item.id}>
-                                        <Table.Cell>{item?.session?.name}</Table.Cell>
-                                        <Table.Cell>{item?.level?.name}</Table.Cell>
-                                        <Table.Cell >{item.semester?.name}</Table.Cell>
-                                        <Table.Cell >
-                                            <ScheduleDrawer item={item} />
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {filterTimetables && filterTimetables.length > 0 ? (
+                                    filterTimetables.map((item) => (
+                                        <Table.Row key={item.id}>
+                                            <Table.Cell>{item?.session?.name}</Table.Cell>
+                                            <Table.Cell>{item?.level?.name}</Table.Cell>
+                                            <Table.Cell >{item.semester?.name}</Table.Cell>
+                                            <Table.Cell >
+                                                <ScheduleDrawer item={item} />
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    ))
+                                ) : (
+                                    <Table.Row>
+                                        <Table.Cell colSpan={4}>
+                                            <EmptyState.Root>
+                                                <EmptyState.Content>
+                                                    <EmptyState.Indicator>
+                                                        <CalendarX />
+                                                    </EmptyState.Indicator>
+                                                    <EmptyState.Title>No Timetables Found</EmptyState.Title>
+                                                    <EmptyState.Description>
+                                                        Upload a timetable to get started
+                                                    </EmptyState.Description>
+                                                </EmptyState.Content>
+                                            </EmptyState.Root>
                                         </Table.Cell>
                                     </Table.Row>
-                                ))
-                            ) : (
-                                <Table.Row>
-                                    <Table.Cell colSpan={4}>
-                                        <EmptyState.Root>
-                                            <EmptyState.Content>
-                                                <EmptyState.Indicator>
-                                                    <CalendarX />
-                                                </EmptyState.Indicator>
-                                                <EmptyState.Title>No Timetables Found</EmptyState.Title>
-                                                <EmptyState.Description>
-                                                    Upload a timetable to get started
-                                                </EmptyState.Description>
-                                            </EmptyState.Content>
-                                        </EmptyState.Root>
-                                    </Table.Cell>
-                                </Table.Row>
-                            )}
-                        </Table.Body>
-                    </Table.Root>
-                </Table.ScrollArea>
-            </Box>
+                                )}
+                            </Table.Body>
+                        </Table.Root>
+                    </Table.ScrollArea>
+                </Box>
+            )}
 
             <Toaster />
         </Stack>

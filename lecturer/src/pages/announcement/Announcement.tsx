@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   Box,
@@ -7,9 +9,11 @@ import {
   Portal,
   DatePicker,
   Icon,
+  EmptyState,
+  VStack,
 } from "@chakra-ui/react";
 import type { DateValue } from "@internationalized/date";
-import { LuCalendar } from "react-icons/lu";
+import { LuCalendar, LuMegaphone } from "react-icons/lu";
 import { AnnouncementHook } from "@hooks/announcement.hook";
 import AnnouncementList from "@components/shared/AnnouncementList";
 
@@ -22,75 +26,50 @@ const toDateString = (date: DateValue | null): string => {
   return "";
 };
 
-const Announcement = () => {
-  const [fromDate, setFromDate] = useState<DateValue | null>(null);
-  const [toDate, setToDate] = useState<DateValue | null>(null);
+// Helper to get start and end from a range value (array of 2 dates)
+const getRangeDates = (range: DateValue[]) => {
+  const start = range[0] || null;
+  const end = range[1] || null;
+  return { startDate: toDateString(start), endDate: toDateString(end) };
+};
 
-  const fromDateString = toDateString(fromDate);
-  const toDateStringVal = toDateString(toDate);
+const Announcement = () => {
+  const [dateRange, setDateRange] = useState<DateValue[]>([]);
+
+  const { startDate, endDate } = getRangeDates(dateRange);
 
   const {
     data: announcements = [],
     isLoading,
     error,
     refetch,
-  } = AnnouncementHook.useAnnouncements(fromDateString || undefined, toDateStringVal || undefined);
+  } = AnnouncementHook.useAnnouncements(startDate || undefined, endDate || undefined);
+
+  // Check if no announcements and not loading
+  const hasNoAnnouncements = !isLoading && announcements.length === 0;
 
   return (
     <Box p="8" maxW="1400px" mx="auto">
       <Flex align="center" justify="space-between" mb="8" flexWrap="wrap" gap="4">
-        <Heading size="lg" fontWeight="700" color="#1e293b">
+        <Heading color="fg.muted">
           Announcement
         </Heading>
 
-        <Flex align="center" gap="3" flexWrap="wrap">
-          <Text fontSize="xs" fontWeight="500" color="gray.500">From</Text>
+        <Flex align="center" gap="3" flexWrap="wrap" colorPalette={"accent"}>
+          <Text fontSize="xs" fontWeight="500" color="fg.muted">Date Range</Text>
           <DatePicker.Root
-            value={fromDate ? [fromDate] : []}
-            onValueChange={(e) => setFromDate(e.value[0] || null)}
+            selectionMode="range"
+            value={dateRange}
+            onValueChange={(e) => setDateRange(e.value)}
             size="sm"
-            width="160px"
+            width="260px"
           >
             <DatePicker.Control>
-              <DatePicker.Input />
+              <DatePicker.Input index={0} />
+              <DatePicker.Input index={1} />
               <DatePicker.IndicatorGroup>
                 <DatePicker.Trigger>
-                  <Icon as={LuCalendar} />
-                </DatePicker.Trigger>
-              </DatePicker.IndicatorGroup>
-            </DatePicker.Control>
-            <Portal>
-              <DatePicker.Positioner>
-                <DatePicker.Content>
-                  <DatePicker.View view="day">
-                    <DatePicker.Header />
-                    <DatePicker.DayTable />
-                  </DatePicker.View>
-                  <DatePicker.View view="month">
-                    <DatePicker.Header />
-                    <DatePicker.MonthTable />
-                  </DatePicker.View>
-                  <DatePicker.View view="year">
-                    <DatePicker.Header />
-                    <DatePicker.YearTable />
-                  </DatePicker.View>
-                </DatePicker.Content>
-              </DatePicker.Positioner>
-            </Portal>
-          </DatePicker.Root>
-
-          <Text fontSize="xs" fontWeight="500" color="gray.500">To</Text>
-          <DatePicker.Root
-            value={toDate ? [toDate] : []}
-            onValueChange={(e) => setToDate(e.value[0] || null)}
-            size="sm"
-            width="160px"
-          >
-            <DatePicker.Control>
-              <DatePicker.Input />
-              <DatePicker.IndicatorGroup>
-                <DatePicker.Trigger>
-                  <Icon as={LuCalendar} />
+                  <LuCalendar />
                 </DatePicker.Trigger>
               </DatePicker.IndicatorGroup>
             </DatePicker.Control>
@@ -116,12 +95,39 @@ const Announcement = () => {
         </Flex>
       </Flex>
 
-      <AnnouncementList
-        announcements={announcements}
-        isLoading={isLoading}
-        error={error}
-        onRetry={refetch}
-      />
+      {hasNoAnnouncements ? (
+        <Box
+          bg="white"
+          rounded="md"
+          border="1px solid"
+          borderColor="border.muted"
+          p="5"
+          textAlign="center"
+        >
+          <EmptyState.Root>
+            <EmptyState.Content>
+              <EmptyState.Indicator>
+                <LuMegaphone />
+              </EmptyState.Indicator>
+              <VStack textAlign="center">
+                <EmptyState.Title>No announcements found</EmptyState.Title>
+                <EmptyState.Description>
+                  {startDate || endDate
+                    ? "No announcements match the selected date range."
+                    : "There are no announcements available at the moment."}
+                </EmptyState.Description>
+              </VStack>
+            </EmptyState.Content>
+          </EmptyState.Root>
+        </Box>
+      ) : (
+        <AnnouncementList
+          announcements={announcements}
+          isLoading={isLoading}
+          error={error}
+          onRetry={refetch}
+        />
+      )}
     </Box>
   );
 };

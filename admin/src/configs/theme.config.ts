@@ -3,7 +3,7 @@ import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
 const config = defineConfig({
     globalCss: {
         body: {
-            backgroundColor: "{colors.bg}",
+            backgroundColor: "{colors.bg.subtle}",
             color: "{colors.gray.800}",
             _dark: {
                 backgroundColor: "{colors.bg.subtle}",
@@ -75,7 +75,7 @@ const config = defineConfig({
             colors: {
                 accent: {
                     solid: {
-                        value: "{colors.accent.600}", // main solid color for buttons, etc.
+                        value: "{colors.accent.500}", // main solid color for buttons, etc.
                     },
                     muted: {
                         value: "{colors.accent.400}", // lighter for hover or subtle accents

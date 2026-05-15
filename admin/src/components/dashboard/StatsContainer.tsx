@@ -99,28 +99,28 @@ const StatsContainer = () => {
                 label="Total Revenue"
                 value={formatCurrency(stats.totalRevenue)}
                 icon={<CreditCard size={24} />}
-                bgColor="none"
+                bgColor="bg"
                 description="Aggregated collection"
             />
             <StatCard
                 label="Active Students"
                 value={stats.totalActiveStudents.toLocaleString()}
                 icon={<Users size={24} />}
-                bgColor="none"
+                bgColor="bg"
                 description={`${stats.totalActiveStudents} students in session`}
             />
             <StatCard
                 label="Alumni"
                 value={stats.totalAlumni.toLocaleString()}
                 icon={<GraduationCap size={24} />}
-                bgColor="none"
+                bgColor="bg"
                 description={`${stats.totalAlumni} total graduates`}
             />
             <StatCard
                 label="Total Staff"
                 value={stats.totalStaffs.toLocaleString()}
                 icon={<UserCog size={24} />}
-                bgColor="none"
+                bgColor="bg"
                 description={`${stats.totalStaffs} total staff`}
             />
         </Grid>

@@ -142,7 +142,7 @@ const AnnouncementsPage = () => {
                         _hover={{ bg: "fg.subtle" }} 
                         h="10"
                         px="4"
-                        borderRadius="xl" 
+                        borderRadius="md" 
                         color="fg.muted" 
                     >
                         <X size={18} />
@@ -171,7 +171,7 @@ const AnnouncementsPage = () => {
                     </EmptyState.Root>
                 ) : (
                     filteredAnnouncements.map((item) => (
-                        <Box key={item.id} bg="white" borderRadius="xl" p="6" boxShadow="sm" border="xs" borderColor="border.muted" _hover={{ boxShadow: "md" }} transition="all 0.2s">
+                        <Box key={item.id} bg="white" borderRadius="md" p="6" border="xs" borderColor="border.muted" transition="all 0.2s">
                             <Flex justifyContent="space-between" alignItems="flex-start" mb="2">
                                 <Text fontSize="sm" fontWeight="bold" color="fg.muted">{item.title}</Text>
                                 <Text fontSize="10px" fontWeight="medium" color="fg.subtle">{formatDate(item.createdAt)}</Text>
