@@ -4,7 +4,6 @@ import {
     Users,
     BookOpen,
     ClipboardList,
-    Ship,
     CalendarDays,
     // CreditCard,
     Megaphone,
@@ -22,8 +21,8 @@ export interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", accessLevel: "ALL" },
-    { label: "Students", icon: GraduationCap, path: "/students", accessLevel: ["HOD"] },
-    { label: "Lecturers", icon: Users, path: "/lecturers", accessLevel: "HOD" },
+    { label: "Students", icon: GraduationCap, path: "/students", accessLevel: ["HOD", "ERO"] },
+    { label: "Lecturers", icon: Users, path: "/lecturers", accessLevel: ["HOD", "ERO"] },
     { label: "Courses", icon: BookOpen, path: "/courses", accessLevel: "ALL" },
     { label: "Results", icon: ClipboardList, path: "/results", accessLevel: "ALL" },
     { label: "Projects", icon: ChartColumn, path: "/projects", accessLevel: ["HOD", "LECTURER", "ERO"] },

@@ -47,7 +47,7 @@ const Sidebar = () => {
             zIndex="10"
         >
             {/* University Logo / Branding */}
-            <Flex justify="center" align="center" px="5" py="2" h="14" borderBottom="1px solid" borderColor="gray.100">
+            <Flex justify="center" align="center" px="5" py="2" h="14" borderBottom="1px solid" borderColor="border.muted">
                 <Image
                     src="/lecturer/assets/sidebar-image.png"
                     alt="University of Port Harcourt"
@@ -71,14 +71,13 @@ const Sidebar = () => {
                             py="2.5"
                             rounded="md"
                             cursor="pointer"
-                            bg={active ? "#f8fafc" : "transparent"}
-                            color={active ? "accent.500" : "gray.600"}
+                            bg={active ? "bg" : "transparent"}
+                            color={active ? "accent.500" : "fg.muted"}
                             fontWeight={active ? "600" : "500"}
-                            fontFamily={"sans-serif"}
                             transition="all 0.15s ease"
                             _hover={{
-                                bg: active ? "accent.50" : "gray.50",
-                                color: active ? "accent.500" : "gray.800",
+                                bg: active ? "accent.50" : "fg.subtle",
+                                color: active ? "accent.500" : "fg.muted",
                             }}
                             onClick={() => navigate(item.path)}
                         >
